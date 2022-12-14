@@ -1,0 +1,36 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="src">
+      <UniqueIdentifier>{8d710873-749d-420d-9e12-0ed0c8c15e82}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\ospf">
+      <UniqueIdentifier>{88d9b749-b317-448b-b14e-c2e6194e8d1c}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\ospf\basic_definition.hpp">
+      <Filter>src\ospf</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ospf\literal_constant.hpp">
+      <Filter>src\ospf</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ospf\auto_link.hpp">
+      <Filter>src\ospf</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ospf\system_info.hpp">
+      <Filter>src\ospf</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ospf\local_info.hpp">
+      <Filter>src\ospf</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ospf\ospf_base_api.hpp">
+      <Filter>src\ospf</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\ospf\system_info.cpp">
+      <Filter>src\ospf</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>
