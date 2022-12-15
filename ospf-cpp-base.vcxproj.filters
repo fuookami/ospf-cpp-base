@@ -7,6 +7,9 @@
     <Filter Include="src\ospf">
       <UniqueIdentifier>{88d9b749-b317-448b-b14e-c2e6194e8d1c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\ospf\error">
+      <UniqueIdentifier>{b198b56c-5522-45f8-80e4-78b4ccb19b32}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\ospf\basic_definition.hpp">
@@ -26,6 +29,12 @@
     </ClInclude>
     <ClInclude Include="src\ospf\ospf_base_api.hpp">
       <Filter>src\ospf</Filter>
+    </ClInclude>
+    <ClInclude Include="error.hpp">
+      <Filter>src\ospf</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ospf\error\code.hpp">
+      <Filter>src\ospf\error</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

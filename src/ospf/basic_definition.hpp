@@ -29,12 +29,14 @@ namespace ospf
     using i1024 = boost::multiprecision::int1024_t;
     using u1024 = boost::multiprecision::uint1024_t;
 
-    template<u64 bits_ = sizeof(void*) * 8>
-    using intx = boost::multiprecision::number<boost::multiprecision::cpp_int_backend<bits_, bits_>>;
-    template<u64 bits_ = sizeof(void*) * 8>
-        requires (bits_ != 0)
-    using uintx = boost::multiprecision::number<boost::multiprecision::cpp_int_backend<bits_, bits_, boost::multiprecision::cpp_integer_type::unsigned_magnitude>>;
+    template<u64 bits = sizeof(void*) * 8>
+        requires (bits != 0)
+    using intx = boost::multiprecision::number<boost::multiprecision::cpp_int_backend<bits, bits>>;
+    template<u64 bits = sizeof(void*) * 8>
+        requires (bits != 0)
+    using uintx = boost::multiprecision::number<boost::multiprecision::cpp_int_backend<bits, bits, boost::multiprecision::cpp_integer_type::unsigned_magnitude>>;
     using bigint = boost::multiprecision::cpp_int;
+    using biguint = boost::multiprecision::number<boost::multiprecision::cpp_int_backend<0ULL, 0ULL, boost::multiprecision::cpp_integer_type::unsigned_magnitude>>;
 
     using f32 = float;
     using f64 = double;
@@ -44,9 +46,9 @@ namespace ospf
 
     using dec50 = boost::multiprecision::cpp_dec_float_50;
     using dec100 = boost::multiprecision::cpp_dec_float_100;
-    template<u64 digits_>
-        requires (digits_ != 0)
-    using dec = boost::multiprecision::number<boost::multiprecision::cpp_dec_float<digits_, i32, std::allocator<u32>>>;
+    template<u64 digits>
+        requires (digits != 0)
+    using dec = boost::multiprecision::number<boost::multiprecision::cpp_dec_float<digits, i32, std::allocator<u32>>>;
 
     using ubyte = std::byte;
     using usize = std::size_t;

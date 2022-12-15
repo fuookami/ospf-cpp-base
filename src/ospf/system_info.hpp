@@ -92,6 +92,20 @@ namespace ospf
         ID id;
     };
 
+    struct MACInfo
+    {
+        static constexpr const usize address_length = 6ULL;
+        using Address = std::array<ubyte, address_length>;
+
+        Address address;
+    };
+
+    enum class Endian : u8
+    {
+        Big,
+        Little
+    };
+
     static constexpr const HardwarePlatform local_platform = HardwarePlatform::OSPF_PLATFORM;
     static constexpr const u64 address_length = sizeof(void*);
     static constexpr const u64 program_bits = address_length * 8;
@@ -100,8 +114,13 @@ namespace ospf
     namespace detail
     {
         OSPF_BASE_API const CPUInfo get_cpu_info(void) noexcept;
+        OSPF_BASE_API std::vector<MACInfo> get_mac_info(void) noexcept;
+        OSPF_BASE_API const Endian get_local_endian(void) noexcept;
     };
+
     static const CPUInfo local_cpu_info = detail::get_cpu_info();
+    static const std::vector<MACInfo> local_mac_info = detail::get_mac_info();
+    static const Endian local_endian = detail::get_local_endian();
 };
 
 template <>

@@ -1,7 +1,18 @@
 #include "system_info.hpp"
 #include "literal_constant.hpp"
 #include <algorithm>
+#include <memory>
+#include <optional>
 #include <cstdint>
+
+#ifdef _WIN32
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
+#endif
+#ifdef BOOST_MSVC
+#pragma comment(lib, "Iphlpapi.lib")
+#endif
+#endif
 
 #ifdef OPF_SUPPORT_CPU_INFO
 #ifdef BOOST_MSVC
@@ -13,6 +24,19 @@
 #include <cpuid.h>
 #include <unistd.h>
 #endif
+#endif
+
+#ifdef _WIN32
+#include <WinSock2.h>
+#include <Iphlpapi.h>
+#else
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <sys/ioctl.h>
+#include <net/if.h>
+#include <arpa/inet.h>
+#include <ifaddrs.h>
+#include <cstring>
 #endif
 
 namespace ospf::detail
@@ -114,4 +138,98 @@ namespace ospf::detail
         return { 1_uz, { static_cast<ubyte>(0xFF) } };
     }
 #endif
+
+#ifdef _WIN32
+    std::vector<MACInfo> get_mac_info(void) noexcept
+    {
+        auto ip_adapter_info = std::make_unique<IP_ADAPTER_INFO>();
+        auto size = sizeof(IP_ADAPTER_INFO);
+        int ret_code = GetAdaptersInfo(ip_adapter_info.get(), reinterpret_cast<PULONG>(&size));
+        int net_card_amount = 0;
+        int ip_num_per_net_card = 0;
+        if (ret_code == ERROR_BUFFER_OVERFLOW)
+        {
+            ip_adapter_info.reset(reinterpret_cast<PIP_ADAPTER_INFO>(new BYTE[size]));
+            ret_code = GetAdaptersInfo(ip_adapter_info.get(), reinterpret_cast<PULONG>(&size));
+        }
+
+        std::vector<MACInfo> ret;
+        auto ptr = ip_adapter_info.get();
+        while (ptr != nullptr)
+        {
+            MACInfo mac{ { static_cast<ubyte>(0) } };
+            std::copy(reinterpret_cast<const ubyte*>(ptr->Address), reinterpret_cast<const ubyte*>(ptr->Address) + MACInfo::address_length, mac.address.begin());
+            ret.push_back(std::move(mac));
+            ptr = ptr->Next;
+        }
+        return ret;
+    }
+#else
+    std::optional<MACInfo> get_mac(void) noexcept
+    {
+        struct ifreq if_req;
+        int sock;
+        if ((sock = socket(AF_INET, SOCK_STREAM, 0)) < 0
+            || ioctl(sock, SIOCGIFHWADDR, &if_req) < 0
+            )
+        {
+            return std::nullopt;
+        }
+
+        MACInfo mac{ { static_cast<ubyte>(0) } };
+        std::copy(reinterpret_cast<const ubyte*>(if_req.ifr_hwaddr.sa_data), reinterpret_cast<const ubyte*>(if_req.ifr_hwaddr.sa_data) + MACInfo::address_length, mac.address.begin());
+        return std::move(mac);
+    }
+
+    std::vector<MACInfo> get_mac_info(void) noexcept
+    {
+        struct ifaddrs* if_addr = nullptr;
+        getifaddrs(&if_addr);
+
+        std::vector<MACInfo> ret;
+        auto ptr = if_addr;
+        while (ptr != nullptr)
+        {
+            if (ptr->ifa_addr->sa_family == AF_INET)
+            {
+                auto addr = &(reinterpret_cast<struct sockaddr_in*>(ptr->ifa_addr)->sin_addr);
+                char ip[INET_ADDRSTRLEN];
+                inet_ntop(AF_INET, addr, ip, INET_ADDRSTRLEN);
+                if (strcmp(ip, "127.0.0.1") != 0)
+                {
+                    auto mac = get_mac();
+                    if (mac.has_value())
+                    {
+                        ret.push_back(std::move(mac.value()));
+                    }
+                }
+            }
+            else if (ptr->ifa_addr->sa_family == AF_INET6)
+            {
+                auto addr = &(reinterpret_cast<struct sockaddr_in*>(ptr->ifa_addr)->sin_addr);
+                char ip[INET_ADDRSTRLEN];
+                inet_ntop(AF_INET6, addr, ip, INET6_ADDRSTRLEN);
+                if (strcmp(ip, "::") != 0)
+                {
+                    auto mac = get_mac();
+                    if (mac.has_value())
+                    {
+                        ret.push_back(std::move(mac.value()));
+                    }
+                }
+            }
+            ptr = ptr->ifa_next;
+        }
+        freeifaddrs(if_addr);
+        if_addr = nullptr;
+        return ret;
+    }
+#endif
+
+    const Endian get_local_endian(void) noexcept
+    {
+        return std::endian::native == std::endian::big
+            ? Endian::Big
+            : Endian::Little;
+    }
 };
