@@ -36,7 +36,6 @@ namespace ospf
         requires (bits != 0)
     using uintx = boost::multiprecision::number<boost::multiprecision::cpp_int_backend<bits, bits, boost::multiprecision::cpp_integer_type::unsigned_magnitude>>;
     using bigint = boost::multiprecision::cpp_int;
-    using biguint = boost::multiprecision::number<boost::multiprecision::cpp_int_backend<0ULL, 0ULL, boost::multiprecision::cpp_integer_type::unsigned_magnitude>>;
 
     using f32 = float;
     using f64 = double;

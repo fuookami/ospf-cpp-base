@@ -19,8 +19,15 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="error.hpp" />
     <ClInclude Include="src\ospf\auto_link.hpp" />
     <ClInclude Include="src\ospf\basic_definition.hpp" />
+    <ClInclude Include="src\ospf\concepts.hpp" />
+    <ClInclude Include="src\ospf\concepts\copy_faster.hpp" />
+    <ClInclude Include="src\ospf\concepts\decay_same_as.hpp" />
+    <ClInclude Include="src\ospf\concepts\with_default.hpp" />
+    <ClInclude Include="src\ospf\error\code.hpp" />
+    <ClInclude Include="src\ospf\error\error.hpp" />
     <ClInclude Include="src\ospf\literal_constant.hpp" />
     <ClInclude Include="src\ospf\local_info.hpp" />
     <ClInclude Include="src\ospf\ospf_base_api.hpp" />
@@ -82,10 +89,10 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>$(SolutionDir)3rd-party\magic_enum\include;$(BOOST_HOME)\include;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)3rd-party\magic_enum\include;$(SolutionDir)src;$(BOOST_HOME)\include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>$(SolutionDir)3rd-party\magic_enum\include;$(BOOST_HOME)\include;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)3rd-party\magic_enum\include;$(SolutionDir)src;$(BOOST_HOME)\include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>

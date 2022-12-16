@@ -2,7 +2,7 @@
 
 #pragma warning(disable:4455)
 
-#include "basic_definition.hpp"
+#include <ospf/basic_definition.hpp>
 #include <cassert>
 
 inline constexpr const ospf::usize operator"" _uz(unsigned long long int value)

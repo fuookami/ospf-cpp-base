@@ -10,6 +10,9 @@
     <Filter Include="src\ospf\error">
       <UniqueIdentifier>{b198b56c-5522-45f8-80e4-78b4ccb19b32}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\ospf\concepts">
+      <UniqueIdentifier>{fa80492a-74bb-4a00-ae20-a8eefa0f5155}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\ospf\basic_definition.hpp">
@@ -35,6 +38,21 @@
     </ClInclude>
     <ClInclude Include="src\ospf\error\code.hpp">
       <Filter>src\ospf\error</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ospf\error\error.hpp">
+      <Filter>src\ospf\error</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ospf\concepts.hpp">
+      <Filter>src\ospf</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ospf\concepts\decay_same_as.hpp">
+      <Filter>src\ospf\concepts</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ospf\concepts\with_default.hpp">
+      <Filter>src\ospf\concepts</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ospf\concepts\copy_faster.hpp">
+      <Filter>src\ospf\concepts</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

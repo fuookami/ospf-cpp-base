@@ -1,5 +1,5 @@
-#include "system_info.hpp"
-#include "literal_constant.hpp"
+#include <ospf/system_info.hpp>
+#include <ospf/literal_constant.hpp>
 #include <algorithm>
 #include <memory>
 #include <optional>

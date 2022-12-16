@@ -1,7 +1,10 @@
 #pragma once
 
 #include <ospf/basic_definition.hpp>
+#include <ospf/concepts.hpp>
 #include <ospf/literal_constant.hpp>
+#include <magic_enum.hpp>
+#include <format>
 
 namespace ospf
 {
@@ -44,4 +47,18 @@ namespace ospf
             Unknown = ((std::numeric_limits<u64>::max)())
         };
     };
+};
+
+template<class CharT>
+struct std::formatter<ospf::OSPFErrCode, CharT>: std::formatter<std::string_view, CharT> {
+    template<class FormatContext>
+    auto format(ospf::OSPFErrCode code, FormatContext& fc) {
+        return std::formatter<std::string_view, CharT>::format(magic_enum::enum_name<ospf::OSPFErrCode>(code), fc);
+    }
+};
+
+template<>
+struct ospf::DefaultValue<ospf::OSPFErrCode>
+{
+    static constexpr const ospf::OSPFErrCode value = ospf::OSPFErrCode::None;
 };

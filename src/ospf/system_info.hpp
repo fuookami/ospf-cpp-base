@@ -1,7 +1,7 @@
 #pragma once
 
-#include "basic_definition.hpp"
-#include "ospf_base_api.hpp"
+#include <ospf/ospf_base_api.hpp>
+#include <ospf/basic_definition.hpp>
 #include <magic_enum.hpp>
 
 #ifndef OSPF_PLATFORM
