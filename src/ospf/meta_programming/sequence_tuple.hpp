@@ -5,8 +5,8 @@
 
 namespace ospf
 {
-	inline namespace meta_programming
-	{
+    inline namespace meta_programming
+    {
         template<typename... Elems>
         class SequenceTuple
         {
@@ -103,5 +103,5 @@ namespace ospf
         private:
             std::tuple<Elems...> m_tuple;
         };
-	};
+    };
 };

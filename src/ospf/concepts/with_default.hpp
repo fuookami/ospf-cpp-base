@@ -5,18 +5,18 @@
 
 namespace ospf
 {
-	inline namespace concepts
-	{
-		template<typename T>
-		struct DefaultValue
-		{
-			static const T value;
-		};
+    inline namespace concepts
+    {
+        template<typename T>
+        struct DefaultValue
+        {
+            static const T value;
+        };
 
-		template<typename T>
-		concept WithDefault = requires
-		{
-			{ DefaultValue<T>::value } -> DecaySameAs<T>;
-		};
-	};
+        template<typename T>
+        concept WithDefault = requires
+        {
+            { DefaultValue<T>::value } -> DecaySameAs<T>;
+        };
+    };
 };

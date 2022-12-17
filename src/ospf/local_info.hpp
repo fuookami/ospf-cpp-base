@@ -79,51 +79,51 @@
 
 namespace ospf
 {
-	enum class Language : u8
-	{
-		English,
-		French,
-		Russian,
-		Chinese
-	};
+    enum class Language : u8
+    {
+        English,
+        French,
+        Russian,
+        Chinese
+    };
 
-	enum class CountryRegion : u8
-	{
-		CHN,
-		FRA,
-		GBR,
-		RUS,
-		USA,
-	};
+    enum class CountryRegion : u8
+    {
+        CHN,
+        FRA,
+        GBR,
+        RUS,
+        USA,
+    };
 
-	enum Charset : u8
-	{
-		ASCII,
-		GB2312,
-		GBK,
-		Unicode,
-		UTF8
-	};
+    enum Charset : u8
+    {
+        ASCII,
+        GB2312,
+        GBK,
+        Unicode,
+        UTF8
+    };
 
 #ifdef OSPF_LANG_EN
-	static constexpr Language default_language = Language::English;
+    static constexpr Language default_language = Language::English;
 #elif defined(OSPF_LANG_FR)
-	static constexpr Language default_language = Language::French;
+    static constexpr Language default_language = Language::French;
 #elif defined(OSPF_LANG_RU)
-	static constexpr Language default_language = Lnaguage::Russian;
+    static constexpr Language default_language = Lnaguage::Russian;
 #elif defined(OSPF_LANG_ZH)
-	static constexpr Language default_language = Language::Chinese;
+    static constexpr Language default_language = Language::Chinese;
 #endif
 
 #ifdef OSPF_COUNTRY_REGION_CHN
-	static constexpr CountryRegion default_country_region = CountryRegion::CHN;
+    static constexpr CountryRegion default_country_region = CountryRegion::CHN;
 #elif defined(OSPF_COUNTRY_REGION_FRA)
-	static constexpr CountryRegion default_country_region = CountryRegion::FRA;
+    static constexpr CountryRegion default_country_region = CountryRegion::FRA;
 #elif defined(OSPF_COUNTRY_REGION_GBR)
-	static constexpr CountryRegion default_country_region = CountryRegion::GBR;
+    static constexpr CountryRegion default_country_region = CountryRegion::GBR;
 #elif defined(OSPF_COUNTRY_REGION_RUS)
-	static constexpr CountryRegion default_country_region = CountryRegion::RUS;
+    static constexpr CountryRegion default_country_region = CountryRegion::RUS;
 #elif defined(OSPF_COUNTRY_REGION_USA)
-	static constexpr CountryRegion default_country_region = CountryRegion::USA;
+    static constexpr CountryRegion default_country_region = CountryRegion::USA;
 #endif
 };

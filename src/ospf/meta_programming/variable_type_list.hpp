@@ -5,8 +5,8 @@
 
 namespace ospf
 {
-	inline namespace meta_programming
-	{
+    inline namespace meta_programming
+    {
         namespace variable_type_list
         {
             template<typename T>
@@ -106,5 +106,5 @@ namespace ospf
 
         template<typename T, typename... Types>
         static constexpr const usize strict_type_index = VariableTypeList<Types...>::template strict_index<T>;
-	};
+    };
 };
