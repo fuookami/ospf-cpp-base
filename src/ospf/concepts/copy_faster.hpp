@@ -5,7 +5,7 @@
 
 namespace ospf
 {
-	inline namespace ospf
+	inline namespace concepts
 	{
 		template<typename T>
 		struct IsCopyFaster

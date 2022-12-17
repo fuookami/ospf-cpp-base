@@ -13,6 +13,9 @@
     <Filter Include="src\ospf\concepts">
       <UniqueIdentifier>{fa80492a-74bb-4a00-ae20-a8eefa0f5155}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\ospf\meta-programming">
+      <UniqueIdentifier>{ba90517a-8ea4-4897-a236-bca5b67bbd0e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\ospf\basic_definition.hpp">
@@ -53,6 +56,15 @@
     </ClInclude>
     <ClInclude Include="src\ospf\concepts\copy_faster.hpp">
       <Filter>src\ospf\concepts</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ospf\meta_programming\variable_type_list.hpp">
+      <Filter>src\ospf\meta-programming</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ospf\meta_programming\sequence_tuple.hpp">
+      <Filter>src\ospf\meta-programming</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ospf\type_family.hpp">
+      <Filter>src\ospf</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

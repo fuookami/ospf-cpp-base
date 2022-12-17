@@ -30,8 +30,11 @@
     <ClInclude Include="src\ospf\error\error.hpp" />
     <ClInclude Include="src\ospf\literal_constant.hpp" />
     <ClInclude Include="src\ospf\local_info.hpp" />
+    <ClInclude Include="src\ospf\meta_programming\sequence_tuple.hpp" />
+    <ClInclude Include="src\ospf\meta_programming\variable_type_list.hpp" />
     <ClInclude Include="src\ospf\ospf_base_api.hpp" />
     <ClInclude Include="src\ospf\system_info.hpp" />
+    <ClInclude Include="src\ospf\type_family.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\ospf\system_info.cpp" />

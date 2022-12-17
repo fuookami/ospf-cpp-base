@@ -52,7 +52,7 @@ namespace ospf
 template<class CharT>
 struct std::formatter<ospf::OSPFErrCode, CharT>: std::formatter<std::string_view, CharT> {
     template<class FormatContext>
-    auto format(ospf::OSPFErrCode code, FormatContext& fc) {
+    auto format(const ospf::OSPFErrCode code, FormatContext& fc) {
         return std::formatter<std::string_view, CharT>::format(magic_enum::enum_name<ospf::OSPFErrCode>(code), fc);
     }
 };
@@ -60,5 +60,5 @@ struct std::formatter<ospf::OSPFErrCode, CharT>: std::formatter<std::string_view
 template<>
 struct ospf::DefaultValue<ospf::OSPFErrCode>
 {
-    static constexpr const ospf::OSPFErrCode value = ospf::OSPFErrCode::None;
+    static constexpr const OSPFErrCode value = OSPFErrCode::None;
 };
