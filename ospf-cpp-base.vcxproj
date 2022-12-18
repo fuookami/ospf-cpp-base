@@ -30,6 +30,9 @@
     <ClInclude Include="src\ospf\error\error.hpp" />
     <ClInclude Include="src\ospf\literal_constant.hpp" />
     <ClInclude Include="src\ospf\local_info.hpp" />
+    <ClInclude Include="src\ospf\meta_programming.hpp" />
+    <ClInclude Include="src\ospf\meta_programming\crtp.hpp" />
+    <ClInclude Include="src\ospf\meta_programming\function_trait.hpp" />
     <ClInclude Include="src\ospf\meta_programming\sequence_tuple.hpp" />
     <ClInclude Include="src\ospf\meta_programming\variable_type_list.hpp" />
     <ClInclude Include="src\ospf\ospf_base_api.hpp" />

@@ -63,7 +63,16 @@
     <ClInclude Include="src\ospf\meta_programming\sequence_tuple.hpp">
       <Filter>src\ospf\meta-programming</Filter>
     </ClInclude>
+    <ClInclude Include="src\ospf\meta_programming\function_trait.hpp">
+      <Filter>src\ospf\meta-programming</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ospf\meta_programming\crtp.hpp">
+      <Filter>src\ospf\meta-programming</Filter>
+    </ClInclude>
     <ClInclude Include="src\ospf\type_family.hpp">
+      <Filter>src\ospf</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ospf\meta_programming.hpp">
       <Filter>src\ospf</Filter>
     </ClInclude>
   </ItemGroup>
