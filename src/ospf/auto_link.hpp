@@ -1,33 +1,33 @@
 #include <boost/config.hpp>
 
 #ifdef BOOST_MSVC
-#ifdef OPF_DYN_LINK
-#define OPF_LIB_PREFIX ""
+#ifdef OSPF_DYN_LINK
+#define OSPF_LIB_PREFIX ""
 #else
-#define OPF_LIB_PREFIX "lib"
+#define OSPF_LIB_PREFIX "lib"
 #endif
 
 #ifdef _DEBUG
-#define OPF_LIB_SUFFIX "d"
+#define OSPF_LIB_SUFFIX "d"
 #else
-#define OPF_LIB_SUFFIX ""
+#define OSPF_LIB_SUFFIX ""
 #endif
 
 #ifndef BOOST_EMBTC_WIN64
-#define OPF_LIB_EXTENSION ".lib"
+#define OSPF_LIB_EXTENSION ".lib"
 #else
-#define OPF_LIB_EXTENSION ".a"
+#define OSPF_LIB_EXTENSION ".a"
 #endif
 
-#ifdef OPF_LIB_EXTENSION
-#if defined(OPF_LIB_NAME) && defined(OPF_LIB_PREFIX) && defined(OPF_LIB_SUFFIX) && defined(OPF_LIB_EXTENSION)
-#pragma comment(lib, OPF_LIB_PREFIX OPF_LIB_NAME OPF_LIB_SUFFIX OPF_LIB_EXTENSION)
+#ifdef OSPF_LIB_EXTENSION
+#if defined(OSPF_LIB_NAME) && defined(OSPF_LIB_PREFIX) && defined(OSPF_LIB_SUFFIX) && defined(OSPF_LIB_EXTENSION)
+#pragma comment(lib, OSPF_LIB_PREFIX OSPF_LIB_NAME OSPF_LIB_SUFFIX OSPF_LIB_EXTENSION)
 #endif
 #endif
 
-#undef OPF_LIB_PREFIX
-#undef OPF_LIB_SUFFIX
-#undef OPF_LIB_EXTENSION
+#undef OSPF_LIB_PREFIX
+#undef OSPF_LIB_SUFFIX
+#undef OSPF_LIB_EXTENSION
 #endif
 
-#undef OPF_LIB_NAME
+#undef OSPF_LIB_NAME

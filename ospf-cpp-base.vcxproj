@@ -28,6 +28,9 @@
     <ClInclude Include="src\ospf\concepts\with_default.hpp" />
     <ClInclude Include="src\ospf\error\code.hpp" />
     <ClInclude Include="src\ospf\error\error.hpp" />
+    <ClInclude Include="src\ospf\jni.hpp" />
+    <ClInclude Include="src\ospf\jni\auto_link.hpp" />
+    <ClInclude Include="src\ospf\jni\jstring.hpp" />
     <ClInclude Include="src\ospf\literal_constant.hpp" />
     <ClInclude Include="src\ospf\local_info.hpp" />
     <ClInclude Include="src\ospf\meta_programming.hpp" />
@@ -40,6 +43,7 @@
     <ClInclude Include="src\ospf\type_family.hpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\ospf\jni\jstring.cpp" />
     <ClCompile Include="src\ospf\system_info.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
@@ -95,10 +99,10 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>$(SolutionDir)3rd-party\magic_enum\include;$(SolutionDir)src;$(BOOST_HOME)\include;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)3rd-party\magic_enum\include;$(SolutionDir)src;$(JAVA_HOME)\include\win32;$(JAVA_HOME)\include;$(BOOST_HOME)\include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>$(SolutionDir)3rd-party\magic_enum\include;$(SolutionDir)src;$(BOOST_HOME)\include;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)3rd-party\magic_enum\include;$(SolutionDir)src;$(JAVA_HOME)\include\win32;$(JAVA_HOME)\include;$(BOOST_HOME)\include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>

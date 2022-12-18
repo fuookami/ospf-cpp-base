@@ -16,6 +16,9 @@
     <Filter Include="src\ospf\meta-programming">
       <UniqueIdentifier>{ba90517a-8ea4-4897-a236-bca5b67bbd0e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\ospf\jni">
+      <UniqueIdentifier>{50eaa5f4-3ee5-4028-bdcb-746dedbdd2f5}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\ospf\basic_definition.hpp">
@@ -75,10 +78,22 @@
     <ClInclude Include="src\ospf\meta_programming.hpp">
       <Filter>src\ospf</Filter>
     </ClInclude>
+    <ClInclude Include="src\ospf\jni.hpp">
+      <Filter>src\ospf</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ospf\jni\jstring.hpp">
+      <Filter>src\ospf\jni</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ospf\jni\auto_link.hpp">
+      <Filter>src\ospf\jni</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\ospf\system_info.cpp">
       <Filter>src\ospf</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ospf\jni\jstring.cpp">
+      <Filter>src\ospf\jni</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
