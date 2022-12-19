@@ -14,7 +14,7 @@
 #endif
 #endif
 
-#ifdef OPF_SUPPORT_CPU_INFO
+#ifdef OSPF_SUPPORT_CPU_INFO
 #ifdef BOOST_MSVC
 #if BOOST_MSVC > 1400
 #include <Intrin.h>
@@ -41,7 +41,7 @@
 
 namespace ospf::detail
 {
-#ifdef OPF_SUPPORT_CPU_INFO
+#ifdef OSPF_SUPPORT_CPU_INFO
     void get_cpu_id_ex(u32 cpu_info[4], i32 info_type, i32 ecx_value) noexcept
     {
 #ifndef OSPF_OS_UNKNOWN

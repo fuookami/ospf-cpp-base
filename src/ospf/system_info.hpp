@@ -53,13 +53,13 @@
 #endif
 #endif
 
-#ifndef OPF_SUPPORT_CPU_INFO
+#ifndef OSPF_SUPPORT_CPU_INFO
 #ifdef BOOST_MSVC
 #if BOOST_MSVC > 1400
-#define OPF_SUPPORT_CPU_INFO
+#define OSPF_SUPPORT_CPU_INFO
 #endif
 #elif defined(BOOST_GCC) || defined(BOOST_CLANG)
-#define OPF_SUPPORT_CPU_INFO
+#define OSPF_SUPPORT_CPU_INFO
 #endif
 #endif
 

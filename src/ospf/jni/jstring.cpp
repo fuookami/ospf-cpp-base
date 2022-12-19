@@ -1,4 +1,4 @@
-#include "jstring.hpp"
+#include <ospf/jni/jstring.hpp>
 #include <ospf/system_info.hpp>
 #include <iterator>
 

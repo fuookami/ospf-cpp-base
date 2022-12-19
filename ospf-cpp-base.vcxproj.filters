@@ -19,6 +19,15 @@
     <Filter Include="src\ospf\jni">
       <UniqueIdentifier>{50eaa5f4-3ee5-4028-bdcb-746dedbdd2f5}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\ospf\meta-programming\name_transfer">
+      <UniqueIdentifier>{313702bc-88e0-495a-bb6a-17b74df45993}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\ospf\memory">
+      <UniqueIdentifier>{f341628c-d2db-4d75-9ea9-0a6760dc4a13}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\ospf\string">
+      <UniqueIdentifier>{a03798d5-63c1-4763-9863-03707b2a6b03}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\ospf\basic_definition.hpp">
@@ -87,6 +96,24 @@
     <ClInclude Include="src\ospf\jni\auto_link.hpp">
       <Filter>src\ospf\jni</Filter>
     </ClInclude>
+    <ClInclude Include="src\ospf\meta_programming\naming_system.hpp">
+      <Filter>src\ospf\meta-programming</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ospf\meta_programming\name_transfer\frontend.hpp">
+      <Filter>src\ospf\meta-programming\name_transfer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ospf\meta_programming\name_transfer\backend.hpp">
+      <Filter>src\ospf\meta-programming\name_transfer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ospf\string\hasher.hpp">
+      <Filter>src\ospf\string</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ospf\string.hpp">
+      <Filter>src\ospf</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ospf\meta_programming\name_transfer.hpp">
+      <Filter>src\ospf\meta-programming</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\ospf\system_info.cpp">
@@ -94,6 +121,21 @@
     </ClCompile>
     <ClCompile Include="src\ospf\jni\jstring.cpp">
       <Filter>src\ospf\jni</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ospf\meta_programming\name_transfer\backend.cpp">
+      <Filter>src\ospf\meta-programming\name_transfer</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ospf\meta_programming\name_transfer\frontend.cpp">
+      <Filter>src\ospf\meta-programming\name_transfer</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ospf\string\hasher.cpp">
+      <Filter>src\ospf\string</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ospf\meta_programming\name_transfer.cpp">
+      <Filter>src\ospf\meta-programming</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ospf\error\error.cpp">
+      <Filter>src\ospf\error</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
