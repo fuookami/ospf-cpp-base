@@ -11,6 +11,8 @@ namespace ospf
         using Self = std::decay_t<T>;
 
         using RetType = Self;
+        using PtrType = std::add_pointer_t<Self>;
+        using CPtrType = std::add_pointer_t<std::add_const_t<Self>>;
         using LRefType = std::add_lvalue_reference_t<Self>;
         using CLRefType = std::add_lvalue_reference_t<std::add_const_t<Self>>;
         using RRefType = std::add_rvalue_reference_t<Self>;
@@ -33,6 +35,10 @@ namespace ospf
         using Self = std::decay_t<T>;
 
         using RetType = std::add_const_t<T>;
+        using ArrayType = T[];
+        using CArrayType = const T[];
+        using PtrType = std::add_pointer_t<Self>;
+        using CPtrType = std::add_pointer_t<std::add_const_t<Self>>;
         using LRefType = std::add_lvalue_reference_t<Self>;
         using CLRefType = std::add_const_t<Self>;
         using RRefType = std::add_const_t<Self>;
@@ -42,6 +48,14 @@ namespace ospf
     using OriginType = typename TypeFamily<T>::Self;
     template<typename T>
     using RetType = typename TypeFamily<T>::RetType;
+    template<typename T>
+    using ArrayType = typename TypeFamily<T>::ArrayType;
+    template<typename T>
+    using CArrayType = typename TypeFamily<T>::CArrayType;
+    template<typename T>
+    using PtrType = typename TypeFamily<T>::PtrType;
+    template<typename T>
+    using CPtrType = typename TypeFamily<T>::CPtrType;
     template<typename T>
     using LRefType = typename TypeFamily<T>::LRefType;
     template<typename T>

@@ -12,6 +12,20 @@ namespace ospf
 {
     inline namespace error
     {
+        template<typename T>
+        concept ErrorType = requires(const T& error)
+        {
+            { error.code() } -> EnumType;
+            { error.message() } -> DecaySameAs<std::string_view>;
+        };
+
+        template<typename T>
+        concept ExErrorType = ErrorType<T> && requires(const T& error)
+        {
+            requires NotSameAs<typename T::ArgType, void>;
+            { error.arg() } -> NotSameAs<void>;
+        };
+
         template<typename C>
             requires std::is_enum_v<C>
         class Error
@@ -48,10 +62,13 @@ namespace ospf
         };
 
         template<typename C, typename T>
-            requires std::is_enum_v<C>
+            requires NotSameAs<T, void> && std::is_enum_v<C>
         class ExError
             : public Error<C>
         {
+        public:
+            typename ArgType = T;
+
         public:
             constexpr ExError()
                 : Error<C>(), _arg(std::nullopt) {}
@@ -68,7 +85,10 @@ namespace ospf
             constexpr ~ExError(void) noexcept = default;
 
         public:
-
+            inline constexpr const std::optional<T>& arg(void) const noexcept
+            {
+                return _arg;
+            }
 
         private:
             std::optional<T> _arg;

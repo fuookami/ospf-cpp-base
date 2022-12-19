@@ -28,6 +28,15 @@
     <Filter Include="src\ospf\string">
       <UniqueIdentifier>{a03798d5-63c1-4763-9863-03707b2a6b03}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\ospf\memory\pointer">
+      <UniqueIdentifier>{44922e6c-f128-4348-83d1-cff0f62a97f1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\ospf\memory\reference">
+      <UniqueIdentifier>{33ac8114-ccee-42e6-9e65-249a05b5e6eb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\ospf\memory\pool">
+      <UniqueIdentifier>{3d5fcd89-7348-4e96-b432-55ded8517d1d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\ospf\basic_definition.hpp">
@@ -48,9 +57,6 @@
     <ClInclude Include="src\ospf\ospf_base_api.hpp">
       <Filter>src\ospf</Filter>
     </ClInclude>
-    <ClInclude Include="error.hpp">
-      <Filter>src\ospf</Filter>
-    </ClInclude>
     <ClInclude Include="src\ospf\error\code.hpp">
       <Filter>src\ospf\error</Filter>
     </ClInclude>
@@ -59,9 +65,6 @@
     </ClInclude>
     <ClInclude Include="src\ospf\concepts.hpp">
       <Filter>src\ospf</Filter>
-    </ClInclude>
-    <ClInclude Include="src\ospf\concepts\decay_same_as.hpp">
-      <Filter>src\ospf\concepts</Filter>
     </ClInclude>
     <ClInclude Include="src\ospf\concepts\with_default.hpp">
       <Filter>src\ospf\concepts</Filter>
@@ -114,6 +117,45 @@
     <ClInclude Include="src\ospf\meta_programming\name_transfer.hpp">
       <Filter>src\ospf\meta-programming</Filter>
     </ClInclude>
+    <ClInclude Include="src\ospf\memory\pointer.hpp">
+      <Filter>src\ospf\memory</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ospf\memory\reference.hpp">
+      <Filter>src\ospf\memory</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ospf\memory\pool.hpp">
+      <Filter>src\ospf\memory</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ospf\memory\pointer\category.hpp">
+      <Filter>src\ospf\memory\pointer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ospf\memory\pointer\impl.hpp">
+      <Filter>src\ospf\memory\pointer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ospf\memory\pointer\raw.hpp">
+      <Filter>src\ospf\memory\pointer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ospf\memory\pointer\shared.hpp">
+      <Filter>src\ospf\memory\pointer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ospf\memory\pointer\weak.hpp">
+      <Filter>src\ospf\memory\pointer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ospf\memory\pointer\unique.hpp">
+      <Filter>src\ospf\memory\pointer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ospf\memory\reference\category.hpp">
+      <Filter>src\ospf\memory\reference</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ospf\exception.hpp">
+      <Filter>src\ospf</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ospf\concepts\base.hpp">
+      <Filter>src\ospf\concepts</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ospf\error.hpp">
+      <Filter>src\ospf</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\ospf\system_info.cpp">
@@ -136,6 +178,9 @@
     </ClCompile>
     <ClCompile Include="src\ospf\error\error.cpp">
       <Filter>src\ospf\error</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ospf\exception.cpp">
+      <Filter>src\ospf</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

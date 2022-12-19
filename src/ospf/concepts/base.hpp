@@ -6,6 +6,12 @@ namespace ospf
 {
     inline namespace concepts
     {
+        template<typename T>
+        concept EnumType = std::is_enum_v<T>;
+
+        template<typename T, typename U>
+        concept NotSameAs = !std::is_same_v<T, U>;
+
         template<typename T, typename U>
         struct IsDecaySameAs
         {

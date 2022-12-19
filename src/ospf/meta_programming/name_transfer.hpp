@@ -40,34 +40,34 @@ namespace ospf
                 static constexpr const Frontend transfer_frontend{};
                 static constexpr const Backend transfer_backend{};
 
-                auto it = m_cache.find(name);
+                auto it = _cache.find(name);
 #ifdef OSPF_MULTI_THREAD
-                m_mutex.lock_shared();
-                if (it == m_cache.cend())
+                _mutex.lock_shared();
+                if (it == _cache.cend())
                 {
-                    m_mutex.unlock_shared();
-                    m_mutex.lock();
-                    it = m_cache.find(name);
-                    if (it == m_cache.cend())
+                    _mutex.unlock_shared();
+                    _mutex.lock();
+                    it = _cache.find(name);
+                    if (it == _cache.cend())
                     {
                         const auto il = transfer_frontend(name);
-                        it = m_cache.insert(std::make_pair(std::string{ name }, transfer_backend(std::span{ il }))).first;
+                        it = _cache.insert(std::make_pair(std::string{ name }, transfer_backend(std::span{ il }))).first;
                     }
                     const auto& ret = it->second;
-                    m_mutex.unlock();
+                    _mutex.unlock();
                     return ret;
                 }
                 else
                 {
                     const auto& ret = it->second;
-                    m_mutex.unlock_shared();
+                    _mutex.unlock_shared();
                     return ret;
                 };
 #else
-                if (it == m_cache.cend())
+                if (it == _cache.cend())
                 {
                     const auto il = transfer_frontend(name);
-                    it = m_cache.insert(std::make_pair(std::string{ name }, transfer_backend(std::span{ il }))).first;
+                    it = _cache.insert(std::make_pair(std::string{ name }, transfer_backend(std::span{ il }))).first;
                 }
                 return it->second;
 #endif
@@ -81,9 +81,9 @@ namespace ospf
 
         private:
 #ifdef OSPF_MULTI_THREAD
-            mutable std::shared_mutex m_mutex;
+            mutable std::shared_mutex _mutex;
 #endif
-            mutable StringHashMap<std::string, std::string> m_cache;
+            mutable StringHashMap<std::string, std::string> _cache;
         };
 
         extern template class NameTransfer<NamingSystem::Underscore, NamingSystem::Camelcase>;

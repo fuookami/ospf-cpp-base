@@ -6,7 +6,7 @@ namespace ospf
 {
     inline namespace meta_programming
     {
-        enum class NamingSystem : u64
+        enum class NamingSystem : u8
         {
             Underscore,                 // play_station
             Camelcase,                  // playStation
