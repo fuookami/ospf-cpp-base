@@ -30,6 +30,8 @@ namespace ospf
             public:
                 Ptr(void)
                     : _from(PointerCategory::Raw), _ptr(nullptr) {}
+                Ptr(std::nullptr_t _)
+                    : _from(PointerCategory::Raw), _ptr(nullptr) {}
                 Ptr(const PtrType ptr)
                     : _from(PointerCategory::Raw), _ptr(ptr) {}
                 Ptr(const CPtrType cptr)

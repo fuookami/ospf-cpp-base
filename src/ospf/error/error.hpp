@@ -13,8 +13,9 @@ namespace ospf
     inline namespace error
     {
         template<typename T>
-        concept ErrorType = requires(const T& error)
+        concept ErrorType = requires(const T & error)
         {
+            requires EnumType<typename T::CodeType>;
             { error.code() } -> EnumType;
             { error.message() } -> DecaySameAs<std::string_view>;
         };
@@ -31,14 +32,17 @@ namespace ospf
         class Error
         {
         public:
+            using CodeType = C;
+
+        public:
             template<typename T = void>
                 requires WithDefault<C>
-            constexpr Error()
+            constexpr Error(void)
                 : Error(DefaultValue<C>::value) {}
             constexpr Error(C code)
                 : _code(code), _msg(magic_enum::enum_name<C>(code)) {}
-            constexpr explicit Error(C code, std::string&& msg)
-                : _code(code), _msg(std::forward<std::string>(msg)) {}
+            constexpr explicit Error(C code, std::string msg)
+                : _code(code), _msg(move<std::string>(msg)) {}
             constexpr Error(const Error& ano) = default;
             constexpr Error(Error&& ano) noexcept = default;
             constexpr Error& operator=(const Error& rhs) = default;
@@ -46,14 +50,19 @@ namespace ospf
             constexpr ~Error(void) noexcept = default;
 
         public:
-            inline constexpr const auto code(void) const noexcept
+            inline constexpr const C code(void) const & noexcept
             {
                 return _code;
             }
 
-            inline constexpr const std::string_view message(void) const noexcept
+            inline constexpr const std::string_view message(void) const & noexcept
             {
                 return _msg;
+            }
+
+            inline std::string message(void) && noexcept
+            {
+                return std::move(_msg);
             }
 
         private:
@@ -62,22 +71,25 @@ namespace ospf
         };
 
         template<typename C, typename T>
-            requires NotSameAs<T, void> && std::is_enum_v<C>
+            requires std::is_enum_v<C> && NotSameAs<T, void>
         class ExError
             : public Error<C>
         {
         public:
-            typename ArgType = T;
+            using typename Error<C>::CodeType;
+            using ArgType = T;
 
         public:
-            constexpr ExError()
+            constexpr ExError(void)
                 : Error<C>(), _arg(std::nullopt) {}
             constexpr ExError(C code)
                 : Error<C>(code), _arg(std::nullopt) {}
-            constexpr explicit ExError(C code, std::string&& msg)
-                : Error<C>(code, std::forward<std::string>(msg)), _arg(std::nullopt) {}
-            constexpr explicit ExError(C code, std::string&& msg, RRefType<T> arg)
-                : Error<C>(code, std::forward<std::string>(msg)), _arg(move(arg)) {}
+            constexpr explicit ExError(C code, std::string msg)
+                : Error<C>(code, move<std::string>(msg)), _arg(std::nullopt) {}
+            constexpr explicit ExError(C code, std::string msg, RRefType<T> arg)
+                : Error<C>(code, move<std::string>(msg)), _arg(move(arg)) {}
+            constexpr explicit ExError(Error<C> error, RRefType<T> arg)
+                : Error<C>(std::move(error)), _arg(move(arg)) {}
             constexpr ExError(const ExError& ano) = default;
             constexpr ExError(ExError&& ano) noexcept = default;
             constexpr ExError& operator=(const ExError& rhs) = default;
@@ -85,9 +97,14 @@ namespace ospf
             constexpr ~ExError(void) noexcept = default;
 
         public:
-            inline constexpr const std::optional<T>& arg(void) const noexcept
+            inline constexpr const std::optional<T>& arg(void) const & noexcept
             {
                 return _arg;
+            }
+
+            inline std::optional<T> arg(void) && noexcept
+            {
+                return std::move(_arg);
             }
 
         private:
@@ -96,4 +113,18 @@ namespace ospf
 
         extern template class Error<OSPFErrCode>;
     };
+};
+
+template<typename C>
+    requires std::is_enum_v<C> && ospf::WithDefault<C>
+struct ospf::DefaultValue<ospf::Error<C>>
+{
+    static constexpr const Error<C> value = Error<C>{};
+};
+
+template<typename C, typename T>
+    requires std::is_enum_v<C> && ospf::NotSameAs<T, void> && ospf::WithDefault<C>
+struct ospf::DefaultValue<ospf::ExError<C, T>>
+{
+    static constexpr const ExError<C, T> value = ExError<C, T>{};
 };

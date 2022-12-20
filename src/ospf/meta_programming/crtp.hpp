@@ -12,20 +12,24 @@
 
 #ifndef OSPF_CRTP_IMPL
 #define OSPF_CRTP_IMPL private:\
-    inline Self& self(void) noexcept\
+    inline Self& self(void) & noexcept\
     {\
         return static_cast<Self&>(*this);\
     }\
-    inline const Self& self(void) const noexcept\
+    inline const Self& self(void) const & noexcept\
     {\
-    return static_cast<const Self&>(*this);\
+        return static_cast<const Self&>(*this);\
+    }\
+    inline Self&& self(void) && noexcept\
+    {\
+        return static_cast<Self&&>(*this);\
     }
 #endif
 
 #ifndef OSPF_CRTP_FUNCTION
 #ifdef BOOST_MSVC
-#define OSPF_CRTP_FUNCTION(F_) &Self::F_
+#define OSPF_CRTP_FUNCTION(F) F
 #else
-#define OSPF_CRTP_FUNCTION(F_) &Self::_##F_
+#define OSPF_CRTP_FUNCTION(F) _##F
 #endif
 #endif

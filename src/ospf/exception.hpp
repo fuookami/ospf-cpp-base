@@ -14,20 +14,25 @@ namespace ospf
             OSPF_CRTP_IMPL
 
         public:
-
+            constexpr Exception(void) noexcept = default;
 
         public:
-            inline const E& error(void) const noexcept
+            inline const E& error(void) const & noexcept
             {
                 return Trait::error(self());
             }
 
-            inline decltype(auto) code(void) const noexcept
+            inline E error(void) && noexcept
+            {
+                return Trait::error(self());
+            }
+
+            inline decltype(auto) code(void) const & noexcept
             {
                 return error().code();
             }
 
-            inline decltype(auto) message(void) const noexcept
+            inline const std::string_view message(void) const & noexcept
             {
                 return error().message();
             }
@@ -42,7 +47,13 @@ namespace ospf
             {
                 inline static const E& error(const Self& self) noexcept
                 {
-                    static const auto impl = OSPF_CRTP_FUNCTION(get_error);
+                    static const auto impl = &Self::OSPF_CRTP_FUNCTION(get_error);
+                    return (self.*impl)();
+                }
+
+                inline static E error(Self&& self) noexcept
+                {
+                    static const auto impl = &Self::OSPF_CRTP_FUNCTION(get_moved_error);
                     return (self.*impl)();
                 }
             };
@@ -53,7 +64,29 @@ namespace ospf
     class Exception
         : public exception::Exception<E, Exception<E>>
     {
+    public:
+        template<typename T = void>
+            requires WithDefault<E>
+        constexpr Exception(void)
+            : Exception(DefaultValue<E>::value) {}
+        constexpr Exception(E&& error)
+            : _error(move<E>(error)) {}
+        constexpr Exception(const Exception& ano) = default;
+        constexpr Exception(Exception&& ano) noexcept = default;
+        constexpr Exception& operator=(const Exception& rhs) = default;
+        constexpr Exception& operator=(Exception&& rhs) noexcept = default;
+        constexpr ~Exception(void) noexcept = default;
 
+    OSPF_CRTP_PERMISSION:
+        inline const E& OSPF_CRTP_FUNCTION(get_error)(void) const & noexcept
+        {
+            return _error;
+        }
+
+        inline E OSPF_CRTP_FUNCTION(get_moved_error)(void) && noexcept
+        {
+            return std::move(_error);
+        }
 
     private:
         E _error;
@@ -64,11 +97,38 @@ namespace ospf
         : public exception::Exception<E, ExException<E>>
     {
     public:
+        template<typename T = void>
+            requires WithDefault<E>
+        constexpr ExException(void)
+            : ExException(DefaultValue<E>::value) {}
+        constexpr ExException(E&& error)
+            : _error(move<E>(error)) {}
+        constexpr ExException(const ExException& ano) = default;
+        constexpr ExException(ExException&& ano) noexcept = default;
+        constexpr ExException& operator=(const ExException& rhs) = default;
+        constexpr ExException& operator=(ExException&& rhs) noexcept = default;
+        constexpr ~ExException(void) noexcept = default;
 
     public:
-        inline decltype(auto) arg(void) const noexcept
+        inline decltype(auto) arg(void) const & noexcept
         {
             return _error.arg();
+        }
+
+        inline decltype(auto) arg(void) && noexcept
+        {
+            return _error.arg();
+        }
+
+    OSPF_CRTP_PERMISSION:
+        inline const E& OSPF_CRTP_FUNCTION(get_error)(void) const & noexcept
+        {
+            return _error;
+        }
+
+        inline E OSPF_CRTP_FUNCTION(get_moved_error)(void) && noexcept
+        {
+            return std::move(_error);
         }
 
     private:
@@ -80,5 +140,19 @@ namespace ospf
     using OSPFException = Exception<OSPFError>;
 
     template<typename T>
-    using ExOSPFException = ExException<OSPFError, T>;
+    using ExOSPFException = ExException<ExOSPFError<T>>;
+};
+
+template<ospf::ErrorType E>
+    requires ospf::WithDefault<E>
+struct ospf::DefaultValue<ospf::Exception<E>>
+{
+    static constexpr const Exception<E> value = Exception<E>{};
+};
+
+template<ospf::ExErrorType E>
+    requires ospf::WithDefault<E>
+struct ospf::DefaultValue<ospf::Exception<E>>
+{
+    static constexpr const ExException<E> value = ExException<E>{};
 };

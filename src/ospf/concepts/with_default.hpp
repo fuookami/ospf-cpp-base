@@ -8,10 +8,7 @@ namespace ospf
     inline namespace concepts
     {
         template<typename T>
-        struct DefaultValue
-        {
-            static const T value;
-        };
+        struct DefaultValue {};
 
         template<typename T>
         concept WithDefault = requires

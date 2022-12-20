@@ -24,7 +24,7 @@ namespace ospf
                 using DefaultDeleterType = std::default_delete<T>;
 
             protected:
-                PtrImpl(void) = default;
+                PtrImpl(void) noexcept = default;
             public:
                 PtrImpl(const PtrImpl& ano) = default;
                 PtrImpl(PtrImpl&& ano) noexcept = default;
@@ -151,13 +151,13 @@ namespace ospf
                 {
                     inline static const PtrType get_ptr(Self& self) noexcept
                     {
-                        static const auto impl = OSPF_CRTP_FUNCTION(get_ptr);
+                        static const auto impl = &Self::OSPF_CRTP_FUNCTION(get_ptr);
                         return (self.*impl)();
                     }
 
                     inline static const CPtrType get_cptr(const Self& self) noexcept
                     {
-                        static const auto impl = OSPF_CRTP_FUNCTION(get_cptr);
+                        static const auto impl = &Self::OSPF_CRTP_FUNCTION(get_cptr);
                         return (self.*impl)();
                     }
                 };
@@ -176,7 +176,7 @@ namespace ospf
                 using DefaultDeleterType = std::default_delete<T[]>;
 
             protected:
-                PtrImpl(void) = default;
+                PtrImpl(void) noexcept = default;
             public:
                 PtrImpl(const PtrImpl& ano) = default;
                 PtrImpl(PtrImpl&& ano) noexcept = default;
