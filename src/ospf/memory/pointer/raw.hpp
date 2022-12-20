@@ -31,53 +31,107 @@ namespace ospf
                 using typename Impl::CRefType;
 
             public:
-                Ptr(void)
+                Ptr(void) noexcept
                     : _from(PointerCategory::Raw), _ptr(nullptr) {}
 
-                Ptr(std::nullptr_t _)
+                Ptr(std::nullptr_t _) noexcept
                     : _from(PointerCategory::Raw), _ptr(nullptr) {}
 
-                Ptr(const PtrType ptr)
+                Ptr(const PtrType ptr) noexcept
                     : _from(PointerCategory::Raw), _ptr(ptr) {}
 
-                Ptr(const CPtrType cptr)
+                Ptr(const CPtrType cptr) noexcept
                     : _from(PointerCategory::Raw), _ptr(const_cast<PtrType>(cptr)) {}
 
-                Ptr(RefType ref)
+                Ptr(RefType ref) noexcept
                     : _from(PointerCategory::Raw), _ptr(&ref) {}
 
-                Ptr(CRefType cref)
+                Ptr(CRefType cref) noexcept
                     : _from(PointerCategory::Raw), _ptr(const_cast<PtrType>(&cref)) {}
 
             public:
                 template<typename U>
                     requires std::is_convertible_v<ospf::PtrType<U>, PtrType>
-                explicit Ptr(const ospf::PtrType<U> ptr)
+                explicit Ptr(const ospf::PtrType<U> ptr) noexcept
                     : Ptr(static_cast<PtrType>(ptr)) {}
 
                 template<typename U>
                     requires std::is_convertible_v<ospf::CPtrType<U>, CPtrType>
-                explicit Ptr(const ospf::CPtrType<U> ptr)
+                explicit Ptr(const ospf::CPtrType<U> ptr) noexcept
                     : Ptr(static_cast<CPtrType>(ptr)) {}
 
                 template<typename U>
                     requires std::is_convertible_v<ospf::PtrType<U>, PtrType>
-                explicit Ptr(ospf::LRefType<U> ref)
+                explicit Ptr(ospf::LRefType<U> ref) noexcept
                     : Ptr(static_cast<PtrType>(&ref)) {}
 
                 template<typename U>
                     requires std::is_convertible_v<ospf::CPtrType<U>, CPtrType>
-                explicit Ptr(ospf::CLRefType<U> cref)
+                explicit Ptr(ospf::CLRefType<U> cref) noexcept
                     : Ptr(static_cast<CPtrType>(&cref)) {}
 
             public:
-                //todo: constructor for unique pointer
+                explicit Ptr(const std::unique_ptr<T>& ptr) noexcept
+                    : _from(PointerCategory::Unique), _ptr(ptr.get()) {}
+
+                explicit Ptr(const std::shared_ptr<T>& ptr) noexcept
+                    : _from(PointerCategory::Shared), _ptr(ptr.get()) {}
+
+                explicit Ptr(const std::weak_ptr<T> ptr) noexcept
+                    : _from(PointerCategory::Weak), _ptr(ptr.lock().get()) {}
 
             public:
-                //todo: constructor for shared pointer
+                template<typename U>
+                    requires std::is_convertible_v<ospf::PtrType<U>, PtrType>
+                explicit Ptr(const std::unique_ptr<U>& ptr) noexcept
+                    : _from(PointerCategory::Unique), _ptr(static_cast<PtrType>(ptr.get())) {}
+
+                template<typename U>
+                    requires std::is_convertible_v<ospf::PtrType<U>, PtrType>
+                explicit Ptr(const std::shared_ptr<U>& ptr) noexcept
+                    : _from(PointerCategory::Shared), _ptr(static_cast<PtrType>(ptr.get())) {}
+
+                template<typename U>
+                    requires std::is_convertible_v<ospf::PtrType<U>, PtrType>
+                explicit Ptr(const std::weak_ptr<U> ptr) noexcept
+                    : _from(PointerCategory::Weak), _ptr(static_cast<PtrType>(ptr.lock().get())) {}
 
             public:
-                //todo: constructor for weak pointer
+                explicit Ptr(const Ptr<T, PointerCategory::Unique>& ptr)
+                    : _from(PointerCategory::Unique), _ptr(ptr._ptr.get()) 
+                {
+#ifdef OSPF_UNIQUE_PTR_CHECK_NEEDED
+                    _locker = std::make_unique<UniquePtrLocker>{ ptr };
+#endif
+                }
+
+                template<typename U>
+                    requires std::is_convertible_v<ospf::PtrType<U>, PtrType>
+                explicit Ptr(const Ptr<U, PointerCategory::Unique>& ptr)
+                    : _from(PointerCategory::Unique), _ptr(static_cast<PtrType>(ptr._ptr.get()))
+                {
+#ifdef OSPF_UNIQUE_PTR_CHECK_NEEDED
+                    _locker = std::make_unique<UniquePtrLocker>{ ptr };
+#endif
+                }
+
+            public:
+                explicit Ptr(const Ptr<T, PointerCategory::Shared>& ptr) noexcept
+                    : _from(PointerCategory::Shared), _ptr(ptr._ptr.get()) {}
+
+                template<typename U>
+                    requires std::is_convertible_v<ospf::PtrType<U>, PtrType>
+                explicit Ptr(const Ptr<U, PointerCategory::Shared>& ptr) noexcept
+                    : _from(PointerCategory::Shared), _ptr(static_cast<PtrType>(ptr._ptr.get())) {}
+
+            public:
+                explicit Ptr(const Ptr<T, PointerCategory::Weak> ptr) noexcept
+                    : _from(PointerCategory::Weak), _ptr(ptr._ptr.lock().get()) {}
+
+                template<typename U>
+                    requires std::is_convertible_v<ospf::PtrType<U>, PtrType>
+                explicit Ptr(const Ptr<U, PointerCategory::Weak> ptr) noexcept
+                    : _from(PointerCategory::Weak), _ptr(static_cast<PtrType>(ptr._ptr.lock().get())) {}
 
             public:
                 Ptr(const Ptr& ano) = default;
@@ -93,10 +147,24 @@ namespace ospf
                 }
 
             public:
+                inline void reset(const std::nullptr_t _ = nullptr) noexcept
+                {
+                    _from = PointerCategory::Raw;
+                    _ptr = nullptr;
+#ifdef OSPF_UNIQUE_PTR_CHECK_NEEDED
+                    _locker.reset();
+#endif
+                }
+
+                // todo: impl reset functions
+
                 inline void swap(Ptr<T, PointerCategory::Raw>& ano)
                 {
                     std::swap(_from, ano._from);
                     std::swap(_ptr, ano._ptr);
+#ifdef OSPF_UNIQUE_PTR_CHECK_NEEDED
+                    std::swap(_locker, anp._locker);
+#endif
                 }
 
             OSPF_CRTP_PERMISSION:
@@ -113,6 +181,9 @@ namespace ospf
             private:
                 PointerCategory _from;
                 PtrType _ptr;
+#ifdef OSPF_UNIQUE_PTR_CHECK_NEEDED
+                std::unique<UniquePtrLocker> _locker;
+#endif
             };
         };
     };

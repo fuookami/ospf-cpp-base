@@ -28,7 +28,7 @@ namespace ospf
 #ifdef OSPF_UNIQUE_PTR_CHECK_NEEDED
             class UniquePtrLocker
             {
-                template<typename T, pointer::PointerCategory>
+                template<typename T, PointerCategory>
                 friend class Ptr;
 
                 template<typename T, reference::ReferenceCategory>
@@ -111,7 +111,7 @@ namespace ospf
             {
                 friend class UniquePtrLocker;
 
-                template<typename T, pointer::PointerCategory>
+                template<typename T, PointerCategory>
                 friend class Ptr;
 
                 template<typename T, reference::ReferenceCategory>
@@ -163,7 +163,7 @@ namespace ospf
             {
                 friend class UniquePtrLocker;
 
-                template<typename T, pointer::PointerCategory>
+                template<typename T, PointerCategory>
                 friend class Ptr;
 
                 template<typename T, reference::ReferenceCategory>

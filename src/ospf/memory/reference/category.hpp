@@ -11,7 +11,7 @@ namespace ospf
             enum class ReferenceCategory : u8
             {
                 Reference,      // not null pointer
-                SharedBorrow,
+                Borrow,
                 UniqueBorrow
             };
 

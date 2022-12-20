@@ -12,7 +12,7 @@ namespace ospf
             class Ptr<T, PointerCategory::Shared>
                 : public PtrImpl<T, Ptr<T, PointerCategory::Shared>>
             {
-                template<typename T, pointer::PointerCategory>
+                template<typename T, PointerCategory>
                 friend class Ptr;
 
                 template<typename T, reference::ReferenceCategory>
