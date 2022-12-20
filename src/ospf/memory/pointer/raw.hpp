@@ -2,6 +2,9 @@
 
 #include <ospf/memory/pointer/impl.hpp>
 #include <ospf/memory/pointer/category.hpp>
+#include <ospf/memory/pointer/unique.hpp>
+#include <ospf/memory/pointer/shared.hpp>
+#include <ospf/memory/pointer/weak.hpp>
 #include <ospf/memory/reference/category.hpp>
 
 namespace ospf
@@ -30,29 +33,38 @@ namespace ospf
             public:
                 Ptr(void)
                     : _from(PointerCategory::Raw), _ptr(nullptr) {}
+
                 Ptr(std::nullptr_t _)
                     : _from(PointerCategory::Raw), _ptr(nullptr) {}
+
                 Ptr(const PtrType ptr)
                     : _from(PointerCategory::Raw), _ptr(ptr) {}
+
                 Ptr(const CPtrType cptr)
                     : _from(PointerCategory::Raw), _ptr(const_cast<PtrType>(cptr)) {}
+
                 Ptr(RefType ref)
                     : _from(PointerCategory::Raw), _ptr(&ref) {}
+
                 Ptr(CRefType cref)
                     : _from(PointerCategory::Raw), _ptr(const_cast<PtrType>(&cref)) {}
+
             public:
                 template<typename U>
                     requires std::is_convertible_v<ospf::PtrType<U>, PtrType>
                 explicit Ptr(const ospf::PtrType<U> ptr)
                     : Ptr(static_cast<PtrType>(ptr)) {}
+
                 template<typename U>
                     requires std::is_convertible_v<ospf::CPtrType<U>, CPtrType>
                 explicit Ptr(const ospf::CPtrType<U> ptr)
                     : Ptr(static_cast<CPtrType>(ptr)) {}
+
                 template<typename U>
                     requires std::is_convertible_v<ospf::PtrType<U>, PtrType>
                 explicit Ptr(ospf::LRefType<U> ref)
                     : Ptr(static_cast<PtrType>(&ref)) {}
+
                 template<typename U>
                     requires std::is_convertible_v<ospf::CPtrType<U>, CPtrType>
                 explicit Ptr(ospf::CLRefType<U> cref)
@@ -95,7 +107,7 @@ namespace ospf
 
                 inline const CPtrType OSPF_CRTP_FUNCTION(get_cptr)(void) const noexcept
                 {
-                    return _ptr;
+                    return const_cast<CPtrType>(_ptr);
                 }
 
             private:

@@ -96,6 +96,13 @@ namespace ospf
                     return get_cptr() >= ptr.get_cptr();
                 }
 
+                template<typename U, typename P>
+                    requires std::three_way_comparable_with<ospf::CPtrType<T>, ospf::CPtrType<U>>
+                inline decltype(auto) operator<=>(const PtrImpl<U, P>& ptr) const noexcept
+                {
+                    return get_cptr() <=> ptr.get_cptr();
+                }
+
             public:
                 inline const PtrType operator->(void) noexcept
                 {

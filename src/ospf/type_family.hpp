@@ -1,6 +1,6 @@
 #pragma once
 
-#include <ospf/concepts.hpp>
+#include <ospf/concepts/copy_faster.hpp>
 #include <type_traits>
 
 namespace ospf

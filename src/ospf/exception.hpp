@@ -69,8 +69,16 @@ namespace ospf
             requires WithDefault<E>
         constexpr Exception(void)
             : Exception(DefaultValue<E>::value) {}
-        constexpr Exception(E&& error)
+
+        constexpr Exception(E error)
             : _error(move<E>(error)) {}
+
+        template<typename... Args>
+            requires std::is_constructible_v<E, Args...>
+        constexpr Exception(Args&&... args)
+            : _error(std::forward<Args>(args)...) {}
+
+    public:
         constexpr Exception(const Exception& ano) = default;
         constexpr Exception(Exception&& ano) noexcept = default;
         constexpr Exception& operator=(const Exception& rhs) = default;
@@ -101,8 +109,16 @@ namespace ospf
             requires WithDefault<E>
         constexpr ExException(void)
             : ExException(DefaultValue<E>::value) {}
-        constexpr ExException(E&& error)
+
+        constexpr ExException(E error)
             : _error(move<E>(error)) {}
+
+        template<typename... Args>
+            requires std::is_constructible_v<E, Args...>
+        constexpr ExException(Args&&... args)
+            : _error(std::forward<Args>(args)...) {}
+
+    public:
         constexpr ExException(const ExException& ano) = default;
         constexpr ExException(ExException&& ano) noexcept = default;
         constexpr ExException& operator=(const ExException& rhs) = default;

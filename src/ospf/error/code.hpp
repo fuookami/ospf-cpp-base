@@ -22,8 +22,8 @@ namespace ospf
             DataNotFound = 0x105_u64,
             DataEmpty = 0x106_u64,
             EnumVisitorEmpty = 0x107_u64,
-            UniqueBoxLocked = 0x108_u64,
-            UniqueRefLocked = 0x109_u64,
+            UniquePtrLocked = 0x108_u64,
+            UniqueBorrowLocked = 0x109_u64,
             SerializationFail = 0x10a_u64,
             DeserializationFail = 0x10b_u64,
 

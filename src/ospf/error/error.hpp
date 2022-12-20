@@ -82,14 +82,20 @@ namespace ospf
         public:
             constexpr ExError(void)
                 : Error<C>(), _arg(std::nullopt) {}
+
             constexpr ExError(C code)
                 : Error<C>(code), _arg(std::nullopt) {}
+
             constexpr explicit ExError(C code, std::string msg)
                 : Error<C>(code, move<std::string>(msg)), _arg(std::nullopt) {}
+
             constexpr explicit ExError(C code, std::string msg, RRefType<T> arg)
                 : Error<C>(code, move<std::string>(msg)), _arg(move(arg)) {}
+
             constexpr explicit ExError(Error<C> error, RRefType<T> arg)
                 : Error<C>(std::move(error)), _arg(move(arg)) {}
+
+        public:
             constexpr ExError(const ExError& ano) = default;
             constexpr ExError(ExError&& ano) noexcept = default;
             constexpr ExError& operator=(const ExError& rhs) = default;

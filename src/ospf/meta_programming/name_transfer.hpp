@@ -73,7 +73,7 @@ namespace ospf
 #endif
             }
 
-            OSPF_BASE_API const std::string_view reverse(const std::string_view name) const noexcept
+            inline const std::string_view reverse(const std::string_view name) const noexcept
             {
                 static const auto& reversed_transfer = NameTransfer<backend, frontend>::instance();
                 return reversed_transfer(name);
