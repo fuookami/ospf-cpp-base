@@ -192,6 +192,14 @@ namespace ospf
                 Ptr(UniquePtrType ptr) noexcept
                     : _ptr(move<UniquePtrType>(ptr)) {}
 
+                template<typename D>
+                Ptr(std::unique_ptr<T, D> ptr) noexcept
+                    : _ptr(move<std::unique_ptr<T, D>>(ptr)) {}
+
+                template<typename D>
+                Ptr(std::unique_ptr<const T, D> ptr) noexcept
+                    : _ptr(move<std::unique_ptr<const T, D>>(ptr)) {}
+
                 Ptr(const PtrType ptr) noexcept
                     : _ptr(UniquePtrType{ ptr, DefaultDeleterType{} }) {}
 
@@ -210,7 +218,17 @@ namespace ospf
                 template<typename U>
                     requires std::is_convertible_v<ospf::PtrType<U>, PtrType>
                 explicit Ptr(std::unique_ptr<U> ptr) noexcept
-                    : _ptr(std::move(ptr)) {}
+                    : _ptr(move<std::unique_ptr<U>>(ptr)) {}
+
+                template<typename U, typename D>
+                    requires std::is_convertible_v<ospf::PtrType<U>, PtrType>
+                explicit Ptr(std::unique_ptr<U, D> ptr) noexcept
+                    : _ptr(move<std::unique_ptr<U, D>>(ptr)) {}
+
+                template<typename U, typename D>
+                    requires std::is_convertible_v<ospf::PtrType<U>, PtrType>
+                explicit Ptr(std::unique_ptr<const U, D> ptr) noexcept
+                    : _ptr(move<std::unique_ptr<const U, D>>(ptr)) {}
 
 #ifdef OSPF_UNIQUE_PTR_CHECK_NEEDED
                 template<typename U>

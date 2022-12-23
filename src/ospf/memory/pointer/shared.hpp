@@ -41,6 +41,9 @@ namespace ospf
                 Ptr(SharedPtrType ptr) noexcept
                     : _ptr(move<SharedPtrType>(ptr)) {}
 
+                Ptr(const std::shared_ptr<const T>& ptr) noexcept
+                    : _ptr(std::const_pointer_cast<T>(ptr)) {}
+
                 Ptr(const PtrType ptr) noexcept
                     : _ptr(SharedPtrType{ ptr, DefaultDeleterType{} }) {}
 
@@ -60,6 +63,11 @@ namespace ospf
                     requires std::is_convertible_v<ospf::PtrType<U>, PtrType>
                 explicit Ptr(std::shared_ptr<U> ptr) noexcept
                     : _ptr(ptr) {}
+
+                template<typename U>
+                    requires std::is_convertible_v<ospf::PtrType<U>, PtrType>
+                explicit Ptr(const std::shared_ptr<const U>& ptr) noexcept
+                    : _ptr(std::dynamic_pointer_cast<T>(std::const_pointer_cast<U>(ptr))) {}
 
                 template<typename U>
                     requires std::is_convertible_v<ospf::PtrType<U>, PtrType>

@@ -45,6 +45,9 @@ namespace ospf
                 Ptr(const SharedPtrType& ptr) noexcept
                     : _ptr(ptr) {}
 
+                Ptr(const std::shared_ptr<const T>& ptr) noexcept
+                    : _ptr(std::const_pointer_cast<T>(ptr)) {}
+
                 Ptr(const Ptr<T, PointerCategory::Shared>& ptr) noexcept
                     : _ptr(ptr._ptr) {}
 
@@ -56,8 +59,18 @@ namespace ospf
 
                 template<typename U>
                     requires std::is_convertible_v<ospf::PtrType<U>, PtrType>
+                explicit Ptr(const std::weak_ptr<const U> ptr) noexcept
+                    : _ptr(std::const_pointer_cast<U>(ptr.lock())) {}
+
+                template<typename U>
+                    requires std::is_convertible_v<ospf::PtrType<U>, PtrType>
                 explicit Ptr(const std::shared_ptr<U>& ptr) noexcept
                     : _ptr(ptr) {}
+
+                template<typename U>
+                    requires std::is_convertible_v<ospf::PtrType<U>, PtrType>
+                explicit Ptr(const std::shared_ptr<const U>& ptr) noexcept
+                    : _ptr(std::const_pointer_cast<U>(ptr)) {}
 
                 template<typename U>
                     requires std::is_convertible_v<ospf::PtrType<U>, PtrType>

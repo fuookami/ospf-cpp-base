@@ -15,9 +15,9 @@ namespace ospf
         {
             using is_transparent = void;
 
-            OSPF_BASE_API usize operator()(const char* str) const noexcept;
-            OSPF_BASE_API usize operator()(const std::string_view str) const noexcept;
-            OSPF_BASE_API usize operator()(const std::string& str) const noexcept;
+            OSPF_BASE_API const usize operator()(const char* str) const noexcept;
+            OSPF_BASE_API const usize operator()(const std::string_view str) const noexcept;
+            OSPF_BASE_API const usize operator()(const std::string& str) const noexcept;
         };
 
 #ifdef BOOST_MSVC

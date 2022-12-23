@@ -43,9 +43,6 @@ namespace ospf
                 Ptr(const CPtrType cptr) noexcept
                     : _from(PointerCategory::Raw), _ptr(const_cast<PtrType>(cptr)) {}
 
-                Ptr(RefType ref) noexcept
-                    : _from(PointerCategory::Raw), _ptr(&ref) {}
-
                 Ptr(CRefType cref) noexcept
                     : _from(PointerCategory::Raw), _ptr(const_cast<PtrType>(&cref)) {}
 
@@ -61,30 +58,41 @@ namespace ospf
                     : Ptr(static_cast<CPtrType>(ptr)) {}
 
                 template<typename U>
-                    requires std::is_convertible_v<ospf::PtrType<U>, PtrType>
-                explicit Ptr(ospf::LRefType<U> ref) noexcept
-                    : Ptr(static_cast<PtrType>(&ref)) {}
-
-                template<typename U>
                     requires std::is_convertible_v<ospf::CPtrType<U>, CPtrType>
                 explicit Ptr(ospf::CLRefType<U> cref) noexcept
                     : Ptr(static_cast<CPtrType>(&cref)) {}
 
             public:
-                explicit Ptr(const std::unique_ptr<T>& ptr) noexcept
+                template<typename D>
+                explicit Ptr(const std::unique_ptr<T, D>& ptr) noexcept
                     : _from(PointerCategory::Unique), _ptr(ptr.get()) {}
+
+                template<typename D>
+                explicit Ptr(const std::unique_ptr<const T, D>& ptr) noexcept
+                    : _from(PointerCategory::Unique), _ptr(const_cast<PtrType>(ptr.get())) {}
 
                 explicit Ptr(const std::shared_ptr<T>& ptr) noexcept
                     : _from(PointerCategory::Shared), _ptr(ptr.get()) {}
 
+                explicit Ptr(const std::shared_ptr<const T>& ptr) noexcept
+                    : _from(PointerCategory::Shared), _ptr(const_cast<PtrType>(ptr.get())) {}
+
                 explicit Ptr(const std::weak_ptr<T> ptr) noexcept
                     : _from(PointerCategory::Weak), _ptr(ptr.lock().get()) {}
 
+                explicit Ptr(const std::weak_ptr<const T> ptr) noexcept
+                    : _from(PointerCategory::Weak), _ptr(const_cast<PtrType>(ptr.lock().get())) {}
+
             public:
-                template<typename U>
+                template<typename U, typename D>
                     requires std::is_convertible_v<ospf::PtrType<U>, PtrType>
-                explicit Ptr(const std::unique_ptr<U>& ptr) noexcept
+                explicit Ptr(const std::unique_ptr<U, D>& ptr) noexcept
                     : _from(PointerCategory::Unique), _ptr(static_cast<PtrType>(ptr.get())) {}
+
+                template<typename U, typename D>
+                    requires std::is_convertible_v<ospf::CPtrType<U>, CPtrType>
+                explicit Ptr(const std::unique_ptr<const U, D>& ptr) noexcept
+                    : _from(PointerCategory::Unique), _ptr(const_cast<PtrType>(static_cast<CPtrType>(ptr.get()))) {}
 
                 template<typename U>
                     requires std::is_convertible_v<ospf::PtrType<U>, PtrType>
@@ -92,12 +100,22 @@ namespace ospf
                     : _from(PointerCategory::Shared), _ptr(static_cast<PtrType>(ptr.get())) {}
 
                 template<typename U>
+                    requires std::is_convertible_v<ospf::CPtrType<U>, CPtrType>
+                explicit Ptr(const std::shared_ptr<const U>& ptr) noexcept
+                    : _from(PointerCategory::Shared), _ptr(const_cast<PtrType>(static_cast<CPtrType>(ptr.get()))) {}
+
+                template<typename U>
                     requires std::is_convertible_v<ospf::PtrType<U>, PtrType>
                 explicit Ptr(const std::weak_ptr<U> ptr) noexcept
                     : _from(PointerCategory::Weak), _ptr(static_cast<PtrType>(ptr.lock().get())) {}
 
+                template<typename U>
+                    requires std::is_convertible_v<ospf::CPtrType<U>, CPtrType>
+                explicit Ptr(const std::weak_ptr<const U> ptr) noexcept
+                    : _from(PointerCategory::Weak), _ptr(const_cast<PtrType>(static_cast<CPtrType>(ptr.lock().get()))) {}
+
             public:
-                explicit Ptr(const Ptr<T, PointerCategory::Unique>& ptr)
+                explicit Ptr(const Ptr<T, PointerCategory::Unique>& ptr) OSPF_UNIQUE_PTR_NOEXCEPT
                     : _from(PointerCategory::Unique), _ptr(ptr._ptr.get()) 
                 {
 #ifdef OSPF_UNIQUE_PTR_CHECK_NEEDED
@@ -107,7 +125,7 @@ namespace ospf
 
                 template<typename U>
                     requires std::is_convertible_v<ospf::PtrType<U>, PtrType>
-                explicit Ptr(const Ptr<U, PointerCategory::Unique>& ptr)
+                explicit Ptr(const Ptr<U, PointerCategory::Unique>& ptr) OSPF_UNIQUE_PTR_NOEXCEPT
                     : _from(PointerCategory::Unique), _ptr(static_cast<PtrType>(ptr._ptr.get()))
                 {
 #ifdef OSPF_UNIQUE_PTR_CHECK_NEEDED
@@ -156,7 +174,145 @@ namespace ospf
 #endif
                 }
 
-                // todo: impl reset functions
+                inline void reset(const PtrType ptr) noexcept
+                {
+                    _from = PointerCategory::Raw;
+                    _ptr = ptr;
+#ifdef OSPF_UNIQUE_PTR_CHECK_NEEDED
+                    _locker.reset();
+#endif
+                }
+
+                inline void reset(const CPtrType cptr) noexcept
+                {
+                    _from = PointerCategory::Raw;
+                    _ptr = const_cast<PtrType>(cptr);
+#ifdef OSPF_UNIQUE_PTR_CHECK_NEEDED
+                    _locker.reset();
+#endif
+                }
+
+                inline void reset(CRefType cref) noexcept
+                {
+                    _from = PointerCategory::Raw;
+                    _ptr = const_cast<PtrType>(&cref);
+#ifdef OSPF_UNIQUE_PTR_CHECK_NEEDED
+                    _locker.reset();
+#endif
+                }
+
+                template<typename U>
+                    requires std::is_convertible_v<ospf::PtrType<U>, PtrType>
+                inline void reset(const ospf::PtrType<U> ptr) noexcept
+                {
+                    reset(static_cast<PtrType>(ptr));
+                }
+
+                template<typename U>
+                    requires std::is_convertible_v<ospf::CPtrType<U>, CPtrType>
+                inline void reset(const ospf::CPtrType<U> cptr) noexcept
+                {
+                    reset(static_cast<CPtrType>(cptr));
+                }
+
+                template<typename U>
+                    requires std::is_convertible_v<ospf::CPtrType<U>, CPtrType>
+                inline void reset(ospf::CLRefType<U> cref) noexcept
+                {
+                    reset(static_cast<CPtrType>(&cref));
+                }
+
+                template<typename D>
+                inline void reset(const std::unique_ptr<T, D>& ptr) noexcept
+                {
+                }
+
+                template<typename D>
+                inline void reset(const std::unique_ptr<const T, D>& ptr) noexcept
+                {
+                }
+
+                inline void reset(const std::shared_ptr<T>& ptr) noexcept
+                {
+                }
+
+                inline void reset(const std::shared_ptr<const T>& ptr) noexcept
+                {
+                }
+
+                inline void reset(const std::weak_ptr<T> ptr) noexcept
+                {
+                }
+
+                inline void reset(const std::weak_ptr<const T> ptr) noexcept
+                {
+                }
+
+                template<typename U, typename D>
+                    requires std::is_convertible_v<ospf::PtrType<U>, PtrType>
+                inline void reset(const std::unique_ptr<U, D>& ptr) noexcept
+                {
+                }
+
+                template<typename U, typename D>
+                    requires std::is_convertible_v<ospf::CPtrType<U>, CPtrType>
+                inline void reset(const std::unique_ptr<const U, D>& ptr) noexcept
+                {
+                }
+
+                template<typename U>
+                    requires std::is_convertible_v<ospf::PtrType<U>, PtrType>
+                inline void reset(const std::shared_ptr<U>& ptr) noexcept
+                {
+                }
+
+                template<typename U>
+                    requires std::is_convertible_v<ospf::CPtrType<U>, CPtrType>
+                inline void reset(const std::shared_ptr<const U>& ptr) noexcept
+                {
+                }
+
+                template<typename U>
+                    requires std::is_convertible_v<ospf::PtrType<U>, PtrType>
+                inline void reset(const std::weak_ptr<U> ptr) noexcept
+                {
+                }
+
+                template<typename U>
+                    requires std::is_convertible_v<ospf::CPtrType<U>, CPtrType>
+                inline void reset(const std::weak_ptr<const U> ptr) noexcept
+                {
+                }
+
+                inline void reset(const Ptr<T, PointerCategory::Unique>& ptr) OSPF_UNIQUE_PTR_NOEXCEPT
+                {
+                }
+
+                template<typename U>
+                    requires std::is_convertible_v<ospf::PtrType<U>, PtrType>
+                inline void reset(const Ptr<U, PointerCategory::Unique>& ptr) OSPF_UNIQUE_PTR_NOEXCEPT
+                {
+                }
+
+                inline void reset(const Ptr<T, PointerCategory::Shared>& ptr) noexcept
+                {
+                }
+
+                template<typename U>
+                    requires std::is_convertible_v<ospf::PtrType<U>, PtrType>
+                inline void reset(const Ptr<U, PointerCategory::Shared>& ptr) noexcept
+                {
+                }
+
+                inline void reset(const Ptr<T, PointerCategory::Weak>& ptr) noexcept
+                {
+                }
+
+                template<typename U>
+                    requires std::is_convertible_v<ospf::PtrType<U>, PtrType>
+                inline void reset(const Ptr<U, PointerCategory::Weak>& ptr) noexcept
+                {
+                }
 
                 inline void swap(Ptr<T, PointerCategory::Raw>& ano)
                 {
