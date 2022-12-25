@@ -25,6 +25,7 @@
     <ClInclude Include="src\ospf\concepts\copy_faster.hpp" />
     <ClInclude Include="src\ospf\concepts\base.hpp" />
     <ClInclude Include="src\ospf\concepts\with_default.hpp" />
+    <ClInclude Include="src\ospf\concepts\with_tag.hpp" />
     <ClInclude Include="src\ospf\error.hpp" />
     <ClInclude Include="src\ospf\error\code.hpp" />
     <ClInclude Include="src\ospf\error\error.hpp" />
@@ -43,7 +44,11 @@
     <ClInclude Include="src\ospf\memory\pointer\weak.hpp" />
     <ClInclude Include="src\ospf\memory\pool.hpp" />
     <ClInclude Include="src\ospf\memory\reference.hpp" />
+    <ClInclude Include="src\ospf\memory\reference\borrow.hpp" />
     <ClInclude Include="src\ospf\memory\reference\category.hpp" />
+    <ClInclude Include="src\ospf\memory\reference\impl.hpp" />
+    <ClInclude Include="src\ospf\memory\reference\raw.hpp" />
+    <ClInclude Include="src\ospf\memory\reference\unique_borrow.hpp" />
     <ClInclude Include="src\ospf\meta_programming.hpp" />
     <ClInclude Include="src\ospf\meta_programming\crtp.hpp" />
     <ClInclude Include="src\ospf\meta_programming\function_trait.hpp" />

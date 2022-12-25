@@ -156,6 +156,21 @@
     <ClInclude Include="src\ospf\error.hpp">
       <Filter>src\ospf</Filter>
     </ClInclude>
+    <ClInclude Include="src\ospf\memory\reference\impl.hpp">
+      <Filter>src\ospf\memory\reference</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ospf\concepts\with_tag.hpp">
+      <Filter>src\ospf\concepts</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ospf\memory\reference\raw.hpp">
+      <Filter>src\ospf\memory\reference</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ospf\memory\reference\borrow.hpp">
+      <Filter>src\ospf\memory\reference</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ospf\memory\reference\unique_borrow.hpp">
+      <Filter>src\ospf\memory\reference</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\ospf\system_info.cpp">

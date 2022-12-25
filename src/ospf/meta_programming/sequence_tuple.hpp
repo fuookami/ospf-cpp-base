@@ -14,12 +14,12 @@ namespace ospf
             using Types = VariableTypeList<Elems...>;
 
         public:
-            constexpr SequenceTuple(Elems&&... elems)
-                : m_tuple{ std::forward<Elems>(elems)...} {}
+            constexpr SequenceTuple(Elems... elems)
+                : m_tuple{ elems... } {}
             constexpr SequenceTuple(const SequenceTuple& ano) = default;
-            constexpr SequenceTuple(SequenceTuple&& ano) = default noexcept;
+            constexpr SequenceTuple(SequenceTuple&& ano) noexcept = default;
             constexpr SequenceTuple& operator=(const SequenceTuple& rhs) = default;
-            constexpr SequenceTuple& operator=(SequenceTuple&& rhs) = default noexcept;
+            constexpr SequenceTuple& operator=(SequenceTuple&& rhs) noexcept = default;
             constexpr ~SequenceTuple(void) = default;
 
         public:
@@ -43,9 +43,9 @@ namespace ospf
             }
 
             template<typename T, typename Pred>
-            inline constexpr auto accumulate(RRefType<T> lhs, const Pred& pred) const noexcept
+            inline constexpr decltype(auto) accumulate(const T lhs, const Pred& pred) const noexcept
             {
-                return accumulate<0_uz>(move<T>(lhs), pred);
+                return accumulate<0_uz>(lhs, pred);
             }
 
             template<typename Pred>
@@ -55,20 +55,20 @@ namespace ospf
             }
 
             template<typename T>
-            inline constexpr auto push(RRefType<T> e) const noexcept
+            inline constexpr decltype(auto) push(T e) const noexcept
             {
                 return std::apply([e](const auto&... elems)
                     {
-                        return SequenceTuple<Elems..., T>{ elems..., move<T>(e) };
+                        return SequenceTuple<Elems..., T>{ elems..., e };
                     }, m_tuple);
             }
 
             template<typename T>
-            inline constexpr auto insert(RRefType<T> e) const noexcept
+            inline constexpr decltype(auto) insert(T e) const noexcept
             {
                 if constexpr (Types::template index<T>() == Types::npos)
                 {
-                    return push(move<T>(e));
+                    return push(e);
                 }
                 else
                 {
@@ -88,11 +88,11 @@ namespace ospf
             }
 
             template<usize i, typename T, typename Pred>
-            inline constexpr auto accumulate(RRefType<T> lhs, const Pred& pred) const noexcept
+            inline constexpr decltype(auto) accumulate(const T lhs, const Pred& pred) const noexcept
             {
                 if constexpr (i != Types::length)
                 {
-                    return accumulate<i + 1_uz>(pred(move<T>(lhs), std::get<i>(m_tuple)), pred);
+                    return accumulate<i + 1_uz>(pred(lhs, std::get<i>(m_tuple)), pred);
                 }
                 else
                 {

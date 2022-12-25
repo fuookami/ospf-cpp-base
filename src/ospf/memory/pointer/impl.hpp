@@ -1,6 +1,7 @@
 #pragma once
 
 #include <ospf/type_family.hpp>
+#include <ospf/concepts/with_tag.hpp>
 #include <ospf/meta_programming/crtp.hpp>
 
 namespace ospf
@@ -13,6 +14,9 @@ namespace ospf
             class PtrImpl
             {
                 OSPF_CRTP_IMPL
+
+                template<typename U, typename Other>
+                friend class PtrImpl<U, Other>;
 
             public:
                 using PtrType = PtrType<T>;
@@ -35,7 +39,7 @@ namespace ospf
             public:
                 inline const bool null(void) const noexcept
                 {
-                    return get_cptr() == nullptr;
+                    return cptr() == nullptr;
                 }
 
                 inline const bool operator!(void) const noexcept
@@ -51,104 +55,104 @@ namespace ospf
             public:
                 inline const bool operator==(const std::nullptr_t _) const noexcept
                 {
-                    return get_cptr() == nullptr;
+                    return cptr() == nullptr;
                 }
 
                 inline const bool operator!=(const std::nullptr_t _) const noexcept
                 {
-                    return get_cptr() != nullptr;
+                    return cptr() != nullptr;
                 }
 
             public:
                 template<typename U, typename P>
                 inline const bool operator==(const PtrImpl<U, P>& ptr) const noexcept
                 {
-                    return get_cptr() == ptr.get_cptr();
+                    return cptr() == ptr.cptr();
                 }
 
                 template<typename U, typename P>
                 inline const bool operator!=(const PtrImpl<U, P>& ptr) const noexcept
                 {
-                    return get_cptr() != ptr.get_cptr();
+                    return cptr() != ptr.cptr();
                 }
 
                 template<typename U, typename P>
                 inline const bool operator<(const PtrImpl<U, P>& ptr) const noexcept
                 {
-                    return get_cptr() < ptr.get_cptr();
+                    return cptr() < ptr.cptr();
                 }
 
                 template<typename U, typename P>
                 inline const bool operator<=(const PtrImpl<U, P>& ptr) const noexcept
                 {
-                    return get_cptr() <= ptr.get_cptr();
+                    return cptr() <= ptr.cptr();
                 }
 
                 template<typename U, typename P>
                 inline const bool operator>(const PtrImpl<U, P>& ptr) const noexcept
                 {
-                    return get_cptr() > ptr.get_cptr();
+                    return cptr() > ptr.cptr();
                 }
 
                 template<typename U, typename P>
                 inline const bool operator>=(const PtrImpl<U, P>& ptr) const noexcept
                 {
-                    return get_cptr() >= ptr.get_cptr();
+                    return cptr() >= ptr.cptr();
                 }
 
                 template<typename U, typename P>
                     requires std::three_way_comparable_with<ospf::CPtrType<T>, ospf::CPtrType<U>>
                 inline decltype(auto) operator<=>(const PtrImpl<U, P>& ptr) const noexcept
                 {
-                    return get_cptr() <=> ptr.get_cptr();
+                    return cptr() <=> ptr.cptr();
                 }
 
             public:
                 inline const PtrType operator->(void) noexcept
                 {
-                    return get_ptr();
+                    return ptr();
                 }
 
                 inline const CPtrType operator->(void) const noexcept
                 {
-                    return get_cptr();
+                    return cptr();
                 }
 
                 inline RefType operator*(void)
                 {
                     assert(!null());
-                    return *get_ptr();
+                    return *ptr();
                 }
 
                 inline CRefType operator*(void) const
                 {
                     assert(!null());
-                    return *get_cptr();
+                    return *cptr();
                 }
 
             public:
                 inline operator const PtrType(void) noexcept
                 {
-                    return get_ptr();
+                    return ptr();
                 }
 
                 inline operator const CPtrType(void) const noexcept
                 {
-                    return get_cptr();
+                    return cptr();
                 }
 
                 inline operator const ptraddr(void) const noexcept
                 {
-                    return reinterpret_cast<ptraddr>(get_cptr());
+                    return reinterpret_cast<ptraddr>(cptr());
                 }
 
             protected:
-                inline const PtrType get_ptr(void) noexcept
+                inline const PtrType ptr(void) noexcept
                 {
                     return Trait::get_ptr(self());
                 }
 
-                inline const CPtrType get_cptr(void) const noexcept
+                inline const CPtrType cptr(void) const noexcept
                 {
                     return Trait::get_cptr(self());
                 }
@@ -210,8 +214,22 @@ namespace std
 
         inline const ospf::usize operator()(const PtrType& ptr) const noexcept
         {
-            static const auto func = hash<typename PtrType::CPtrType>();
+            static const auto func = hash<typename PtrType::CPtrType>{};
             return func(reinterpret_cast<typename PtrType::CPtrType>(static_cast<ospf::ptraddr>(ptr)));
         }
     };
+};
+
+template<typename T, typename Ptr>
+    requires ospf::WithTag<T>
+struct ospf::TagValue<ospf::memory::pointer::PtrImpl<T, Ptr>>
+{
+    using Type = typename TagValue<T>::Type;
+    using PtrType = memory::pointer::PtrImpl<T, Ptr>;
+
+    inline decltype(auto) value(const PtrType& ptr) const
+    {
+        static constexpr const auto extractor = TagValue<T>{};
+        return extractor(*ptr);
+    }
 };
