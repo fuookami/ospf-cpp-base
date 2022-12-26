@@ -20,7 +20,7 @@ namespace ospf
             constexpr SequenceTuple(SequenceTuple&& ano) noexcept = default;
             constexpr SequenceTuple& operator=(const SequenceTuple& rhs) = default;
             constexpr SequenceTuple& operator=(SequenceTuple&& rhs) noexcept = default;
-            constexpr ~SequenceTuple(void) = default;
+            constexpr ~SequenceTuple(void) noexcept = default;
 
         public:
             inline constexpr const bool empty(void) const noexcept
@@ -40,6 +40,12 @@ namespace ospf
             inline constexpr decltype(auto) get(void) const noexcept
             {
                 return std::get<i>(m_tuple);
+            }
+
+            template<typename Pred>
+            inline constexpr const bool all(const Pred& pred) const noexcept
+            {
+                return all<0_uz>(pred);
             }
 
             template<typename T, typename Pred>
@@ -84,6 +90,19 @@ namespace ospf
                 {
                     pred(std::get<i>(m_tuple));
                     for_each<i + 1_uz>(pred);
+                }
+            }
+
+            template<usize i, typename Pred>
+            inline constexpr const bool all(const Pred& pred) const noexcept
+            {
+                if constexpr (i != Types::length)
+                {
+                    return pred(std::get<i>(m_tuple)) && all<i + 1_uz>(pred);
+                }
+                else
+                {
+                    return true;
                 }
             }
 

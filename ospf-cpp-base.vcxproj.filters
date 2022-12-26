@@ -37,6 +37,9 @@
     <Filter Include="src\ospf\memory\pool">
       <UniqueIdentifier>{3d5fcd89-7348-4e96-b432-55ded8517d1d}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\ospf\functional">
+      <UniqueIdentifier>{5627778e-5830-40b1-90fb-cffafbfd7bc7}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\ospf\basic_definition.hpp">
@@ -171,6 +174,39 @@
     <ClInclude Include="src\ospf\memory\reference\unique_borrow.hpp">
       <Filter>src\ospf\memory\reference</Filter>
     </ClInclude>
+    <ClInclude Include="src\ospf\meta_programming\named_flag.hpp">
+      <Filter>src\ospf\meta-programming</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ospf\memory\pool\concept.hpp">
+      <Filter>src\ospf\memory\pool</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ospf\memory\pool\half_multi_thread.hpp">
+      <Filter>src\ospf\memory\pool</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ospf\memory\pool\multi_thread.hpp">
+      <Filter>src\ospf\memory\pool</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ospf\memory\pool\single_thread.hpp">
+      <Filter>src\ospf\memory\pool</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ospf\config.hpp">
+      <Filter>src\ospf</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ospf\memory\bits.hpp">
+      <Filter>src\ospf\memory</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ospf\uuid.hpp">
+      <Filter>src\ospf</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ospf\random.hpp">
+      <Filter>src\ospf</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ospf\functional\either.hpp">
+      <Filter>src\ospf\functional</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ospf\functional.hpp">
+      <Filter>src\ospf</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\ospf\system_info.cpp">
@@ -195,6 +231,12 @@
       <Filter>src\ospf\error</Filter>
     </ClCompile>
     <ClCompile Include="src\ospf\exception.cpp">
+      <Filter>src\ospf</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ospf\memory\bits.cpp">
+      <Filter>src\ospf\memory</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ospf\uuid.cpp">
       <Filter>src\ospf</Filter>
     </ClCompile>
   </ItemGroup>

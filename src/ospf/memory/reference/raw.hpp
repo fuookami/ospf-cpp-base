@@ -27,6 +27,11 @@ namespace ospf
                 Ref(CRefType cref) noexcept
                     : _ptr(cref) {}
 
+                template<typename U>
+                    requires std::is_convertible_v<ospf::PtrType<U>, PtrType>
+                Ref(CLRefType<U> cref) noexcept
+                    : _ptr(cref) {}
+
             public:
                 Ref(const Ref& ano) = default;
                 Ref(Ref&& ano) noexcept = default;

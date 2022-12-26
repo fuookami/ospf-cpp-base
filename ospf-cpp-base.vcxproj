@@ -26,15 +26,19 @@
     <ClInclude Include="src\ospf\concepts\base.hpp" />
     <ClInclude Include="src\ospf\concepts\with_default.hpp" />
     <ClInclude Include="src\ospf\concepts\with_tag.hpp" />
+    <ClInclude Include="src\ospf\config.hpp" />
     <ClInclude Include="src\ospf\error.hpp" />
     <ClInclude Include="src\ospf\error\code.hpp" />
     <ClInclude Include="src\ospf\error\error.hpp" />
     <ClInclude Include="src\ospf\exception.hpp" />
+    <ClInclude Include="src\ospf\functional.hpp" />
+    <ClInclude Include="src\ospf\functional\either.hpp" />
     <ClInclude Include="src\ospf\jni.hpp" />
     <ClInclude Include="src\ospf\jni\auto_link.hpp" />
     <ClInclude Include="src\ospf\jni\jstring.hpp" />
     <ClInclude Include="src\ospf\literal_constant.hpp" />
     <ClInclude Include="src\ospf\local_info.hpp" />
+    <ClInclude Include="src\ospf\memory\bits.hpp" />
     <ClInclude Include="src\ospf\memory\pointer.hpp" />
     <ClInclude Include="src\ospf\memory\pointer\category.hpp" />
     <ClInclude Include="src\ospf\memory\pointer\impl.hpp" />
@@ -43,6 +47,10 @@
     <ClInclude Include="src\ospf\memory\pointer\unique.hpp" />
     <ClInclude Include="src\ospf\memory\pointer\weak.hpp" />
     <ClInclude Include="src\ospf\memory\pool.hpp" />
+    <ClInclude Include="src\ospf\memory\pool\concept.hpp" />
+    <ClInclude Include="src\ospf\memory\pool\half_multi_thread.hpp" />
+    <ClInclude Include="src\ospf\memory\pool\multi_thread.hpp" />
+    <ClInclude Include="src\ospf\memory\pool\single_thread.hpp" />
     <ClInclude Include="src\ospf\memory\reference.hpp" />
     <ClInclude Include="src\ospf\memory\reference\borrow.hpp" />
     <ClInclude Include="src\ospf\memory\reference\category.hpp" />
@@ -52,6 +60,7 @@
     <ClInclude Include="src\ospf\meta_programming.hpp" />
     <ClInclude Include="src\ospf\meta_programming\crtp.hpp" />
     <ClInclude Include="src\ospf\meta_programming\function_trait.hpp" />
+    <ClInclude Include="src\ospf\meta_programming\named_flag.hpp" />
     <ClInclude Include="src\ospf\meta_programming\name_transfer.hpp" />
     <ClInclude Include="src\ospf\meta_programming\name_transfer\backend.hpp" />
     <ClInclude Include="src\ospf\meta_programming\name_transfer\frontend.hpp" />
@@ -59,20 +68,24 @@
     <ClInclude Include="src\ospf\meta_programming\sequence_tuple.hpp" />
     <ClInclude Include="src\ospf\meta_programming\variable_type_list.hpp" />
     <ClInclude Include="src\ospf\ospf_base_api.hpp" />
+    <ClInclude Include="src\ospf\random.hpp" />
     <ClInclude Include="src\ospf\string.hpp" />
     <ClInclude Include="src\ospf\string\hasher.hpp" />
     <ClInclude Include="src\ospf\system_info.hpp" />
     <ClInclude Include="src\ospf\type_family.hpp" />
+    <ClInclude Include="src\ospf\uuid.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\ospf\error\error.cpp" />
     <ClCompile Include="src\ospf\exception.cpp" />
     <ClCompile Include="src\ospf\jni\jstring.cpp" />
+    <ClCompile Include="src\ospf\memory\bits.cpp" />
     <ClCompile Include="src\ospf\meta_programming\name_transfer.cpp" />
     <ClCompile Include="src\ospf\meta_programming\name_transfer\backend.cpp" />
     <ClCompile Include="src\ospf\meta_programming\name_transfer\frontend.cpp" />
     <ClCompile Include="src\ospf\string\hasher.cpp" />
     <ClCompile Include="src\ospf\system_info.cpp" />
+    <ClCompile Include="src\ospf\uuid.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
