@@ -40,6 +40,12 @@
     <Filter Include="src\ospf\functional">
       <UniqueIdentifier>{5627778e-5830-40b1-90fb-cffafbfd7bc7}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\ospf\data-structure">
+      <UniqueIdentifier>{4dd03cd0-aec4-40cf-ac8c-b7a9d700d928}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\ospf\parallelism">
+      <UniqueIdentifier>{931b7fc2-16ee-4b49-b5d7-94598a214ef2}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\ospf\basic_definition.hpp">
@@ -206,6 +212,18 @@
     </ClInclude>
     <ClInclude Include="src\ospf\functional.hpp">
       <Filter>src\ospf</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ospf\data_structure\tagged_map.hpp">
+      <Filter>src\ospf\data-structure</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ospf\data_structure.hpp">
+      <Filter>src\ospf</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ospf\functional\task.hpp">
+      <Filter>src\ospf\functional</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ospf\parallelism\guard_thread.hpp">
+      <Filter>src\ospf\parallelism</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

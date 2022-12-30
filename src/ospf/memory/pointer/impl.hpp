@@ -11,12 +11,12 @@ namespace ospf
         namespace pointer
         {
             template<typename T, typename Self>
+            class PtrImpl;
+
+            template<typename T, typename Self>
             class PtrImpl
             {
                 OSPF_CRTP_IMPL
-
-                template<typename U, typename Other>
-                friend class PtrImpl<U, Other>;
 
             public:
                 using PtrType = PtrType<T>;

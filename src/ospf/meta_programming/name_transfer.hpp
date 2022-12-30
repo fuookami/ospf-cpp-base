@@ -3,13 +3,13 @@
 #include <ospf/string.hpp>
 #include <ospf/meta_programming/name_transfer/frontend.hpp>
 #include <ospf/meta_programming/name_transfer/backend.hpp>
+#include <ospf/memory/pointer.hpp>
 #include <shared_mutex>
 
 namespace ospf
 {
     inline namespace meta_programming
     {
-        // todo: use memory pool, advanced pointer and advanced reference
         template<NamingSystem frontend, NamingSystem backend>
         class NameTransfer
         {
@@ -30,7 +30,7 @@ namespace ospf
         public:
             OSPF_BASE_API static const NameTransfer<frontend, backend>& instance(void) noexcept
             {
-                static const NameTransfer* const _instance = new NameTransfer<frontend, backend>{};
+                static const NameTransfer* const _instance{ make_unique<NameTransfer<frontend, backend>>() };
                 return *_instance;
             }
 

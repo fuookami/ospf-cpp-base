@@ -72,7 +72,7 @@ namespace ospf
                 template<typename U>
                     requires std::is_convertible_v<ospf::PtrType<U>, PtrType>
                 explicit Ptr(Ptr<U, PointerCategory::Shared> ptr) noexcept
-                    : _ptr(move<std::shared_ptr<U>(ptr._ptr)) {}
+                    : _ptr(move<std::shared_ptr<U>>(ptr._ptr)) {}
 
                 template<typename U>
                     requires std::is_convertible_v<ospf::PtrType<U>, PtrType>
