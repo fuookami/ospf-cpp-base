@@ -21,6 +21,9 @@ namespace ospf::parallelism
         {
             return std::nullopt;
         }
-        return std::move(*_thread.release());
+        else
+        {
+            return std::move(*_thread.release());
+        }
     }
 };

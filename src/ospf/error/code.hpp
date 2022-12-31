@@ -3,7 +3,6 @@
 #include <ospf/basic_definition.hpp>
 #include <ospf/concepts.hpp>
 #include <ospf/literal_constant.hpp>
-#include <magic_enum.hpp>
 #include <format>
 
 namespace ospf
@@ -49,11 +48,11 @@ namespace ospf
     };
 };
 
-template<class CharT>
+template<typename CharT>
 struct std::formatter<ospf::OSPFErrCode, CharT>: std::formatter<std::string_view, CharT> {
-    template<class FormatContext>
+    template<typename FormatContext>
     auto format(const ospf::OSPFErrCode code, FormatContext& fc) {
-        return std::formatter<std::string_view, CharT>::format(magic_enum::enum_name<ospf::OSPFErrCode>(code), fc);
+        return std::formatter<std::string_view, CharT>::format(ospf::to_string(code), fc);
     }
 };
 

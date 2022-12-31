@@ -1,5 +1,6 @@
 #pragma once
 
+#include <magic_enum.hpp>
 #include <type_traits>
 
 namespace ospf
@@ -8,6 +9,12 @@ namespace ospf
     {
         template<typename T>
         concept EnumType = std::is_enum_v<T>;
+
+        template<EnumType T>
+        inline constexpr const std::string_view to_string(const T value) noexcept
+        {
+            return magic_enum::enum_name<T>(value);
+        }
 
         template<typename T, typename U>
         concept NotSameAs = !std::is_same_v<T, U>;

@@ -46,6 +46,9 @@
     <Filter Include="src\ospf\parallelism">
       <UniqueIdentifier>{931b7fc2-16ee-4b49-b5d7-94598a214ef2}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\ospf\log">
+      <UniqueIdentifier>{f0129573-eb25-424b-8e37-0a7d98b0f528}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\ospf\basic_definition.hpp">
@@ -219,11 +222,29 @@
     <ClInclude Include="src\ospf\data_structure.hpp">
       <Filter>src\ospf</Filter>
     </ClInclude>
-    <ClInclude Include="src\ospf\functional\task.hpp">
-      <Filter>src\ospf\functional</Filter>
-    </ClInclude>
     <ClInclude Include="src\ospf\parallelism\guard_thread.hpp">
       <Filter>src\ospf\parallelism</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ospf\parallelism\thread_pool.hpp">
+      <Filter>src\ospf\parallelism</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ospf\parallelism\task.hpp">
+      <Filter>src\ospf\parallelism</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ospf\data_structure\pointer_array.hpp">
+      <Filter>src\ospf\data-structure</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ospf\data_structure\reference_array.hpp">
+      <Filter>src\ospf\data-structure</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ospf\data_structure\optional_array.hpp">
+      <Filter>src\ospf\data-structure</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ospf\functional\result.hpp">
+      <Filter>src\ospf\functional</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ospf\log\level.hpp">
+      <Filter>src\ospf\log</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -258,6 +279,9 @@
       <Filter>src\ospf</Filter>
     </ClCompile>
     <ClCompile Include="src\ospf\parallelism\guard_thread.cpp">
+      <Filter>src\ospf\parallelism</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ospf\parallelism\thread_pool.cpp">
       <Filter>src\ospf\parallelism</Filter>
     </ClCompile>
   </ItemGroup>

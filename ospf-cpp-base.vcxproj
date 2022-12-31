@@ -28,6 +28,9 @@
     <ClInclude Include="src\ospf\concepts\with_tag.hpp" />
     <ClInclude Include="src\ospf\config.hpp" />
     <ClInclude Include="src\ospf\data_structure.hpp" />
+    <ClInclude Include="src\ospf\data_structure\optional_array.hpp" />
+    <ClInclude Include="src\ospf\data_structure\pointer_array.hpp" />
+    <ClInclude Include="src\ospf\data_structure\reference_array.hpp" />
     <ClInclude Include="src\ospf\data_structure\tagged_map.hpp" />
     <ClInclude Include="src\ospf\error.hpp" />
     <ClInclude Include="src\ospf\error\code.hpp" />
@@ -35,12 +38,13 @@
     <ClInclude Include="src\ospf\exception.hpp" />
     <ClInclude Include="src\ospf\functional.hpp" />
     <ClInclude Include="src\ospf\functional\either.hpp" />
-    <ClInclude Include="src\ospf\functional\task.hpp" />
+    <ClInclude Include="src\ospf\functional\result.hpp" />
     <ClInclude Include="src\ospf\jni.hpp" />
     <ClInclude Include="src\ospf\jni\auto_link.hpp" />
     <ClInclude Include="src\ospf\jni\jstring.hpp" />
     <ClInclude Include="src\ospf\literal_constant.hpp" />
     <ClInclude Include="src\ospf\local_info.hpp" />
+    <ClInclude Include="src\ospf\log\level.hpp" />
     <ClInclude Include="src\ospf\memory\bits.hpp" />
     <ClInclude Include="src\ospf\memory\pointer.hpp" />
     <ClInclude Include="src\ospf\memory\pointer\category.hpp" />
@@ -72,6 +76,8 @@
     <ClInclude Include="src\ospf\meta_programming\variable_type_list.hpp" />
     <ClInclude Include="src\ospf\ospf_base_api.hpp" />
     <ClInclude Include="src\ospf\parallelism\guard_thread.hpp" />
+    <ClInclude Include="src\ospf\parallelism\task.hpp" />
+    <ClInclude Include="src\ospf\parallelism\thread_pool.hpp" />
     <ClInclude Include="src\ospf\random.hpp" />
     <ClInclude Include="src\ospf\string.hpp" />
     <ClInclude Include="src\ospf\string\hasher.hpp" />
@@ -88,6 +94,7 @@
     <ClCompile Include="src\ospf\meta_programming\name_transfer\backend.cpp" />
     <ClCompile Include="src\ospf\meta_programming\name_transfer\frontend.cpp" />
     <ClCompile Include="src\ospf\parallelism\guard_thread.cpp" />
+    <ClCompile Include="src\ospf\parallelism\thread_pool.cpp" />
     <ClCompile Include="src\ospf\string\hasher.cpp" />
     <ClCompile Include="src\ospf\system_info.cpp" />
     <ClCompile Include="src\ospf\uuid.cpp" />

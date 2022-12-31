@@ -124,7 +124,7 @@ namespace ospf
 };
 
 template <>
-constexpr magic_enum::customize::customize_t magic_enum::customize::enum_name<ospf::HardwarePlatform>(ospf::HardwarePlatform value) noexcept {
+constexpr magic_enum::customize::customize_t magic_enum::customize::enum_name<ospf::HardwarePlatform>(const ospf::HardwarePlatform value) noexcept {
     switch (value) {
     case ospf::HardwarePlatform::X64:
         return "x64";
@@ -144,7 +144,7 @@ constexpr magic_enum::customize::customize_t magic_enum::customize::enum_name<os
 }
 
 template<>
-constexpr magic_enum::customize::customize_t magic_enum::customize::enum_name<ospf::OperationSystem>(ospf::OperationSystem value) noexcept {
+constexpr magic_enum::customize::customize_t magic_enum::customize::enum_name<ospf::OperationSystem>(const ospf::OperationSystem value) noexcept {
     switch (value) {
     case ospf::OperationSystem::Windows:
         return "Windows";
