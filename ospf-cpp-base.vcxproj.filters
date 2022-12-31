@@ -257,5 +257,8 @@
     <ClCompile Include="src\ospf\uuid.cpp">
       <Filter>src\ospf</Filter>
     </ClCompile>
+    <ClCompile Include="src\ospf\parallelism\guard_thread.cpp">
+      <Filter>src\ospf\parallelism</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

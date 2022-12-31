@@ -264,7 +264,41 @@ namespace ospf
                     return *this;
                 }
 
-                // todo: or_insert
+                template<typename U = void>
+                    requires ReferenceFaster<ValueType>
+                inline TaggedMapEntry<T, E, C>& or_insert(RRefType<ValueType> value)
+                {
+                    const auto [iter, succeeded] = _map->insert(move<ValueType>(value));
+                    if (succeeded)
+                    {
+                        _iter = iter;
+                    }
+                    return *this;
+                }
+
+                template<typename U>
+                    requires std::is_convertible_v<U, ValueType>
+                inline TaggedMapEntry<T, E, C>& or_insert(CLRefType<U> value)
+                {
+                    const auto [iter, succeeded] = _map->insert(ValueType{ value });
+                    if (succeeded)
+                    {
+                        _iter = iter;
+                    }
+                    return *this;
+                }
+
+                template<typename U>
+                    requires ReferenceFaster<U>&& std::is_convertible_v<U, ValueType>
+                inline TaggedMapEntry<T, E, C>& or_insert(RRefType<U> value)
+                {
+                    const auto [iter, succeeded] = _map->insert(ValueType{ move<U>(value) });
+                    if (succeeded)
+                    {
+                        _iter = iter;
+                    }
+                    return *this;
+                }
 
             private:
                 std::optional<IteratorType> _iter;
@@ -289,9 +323,29 @@ namespace ospf
                 using EntryType = TaggedMapEntry<T, E, C>;
 
             public:
-                TaggedMap(void) = default;
-                
-                // todo: constructures
+                TaggedMap(KeyExtratorType key_extractor = KeyExtratorType{})
+                    : _key_extractor(move<KeyExtratorType>(key_extractor)) {}
+
+                template<typename It>
+                TaggedMap(const It first, const It last, KeyExtratorType key_extractor = KeyExtratorType{})
+                    : TaggedMap(move<KeyExtratorType>(key_extractor))
+                {
+                    _map.insert(first, last);
+                }
+
+                TaggedMap(std::initializer_list<ValueType> eles, KeyExtratorType key_extractor = KeyExtratorType{})
+                    : TaggedMap(move<KeyExtratorType>(key_extractor))
+                {
+                    _map.insert(std::move(eles));
+                }
+
+                template<typename U>
+                    requires std::is_convertible_v<U, ValueType>
+                TaggedMap(std::initializer_list<U> eles, KeyExtratorType key_extractor = KeyExtratorType{})
+                    : TaggedMap(move<KeyExtratorType>(key_extractor))
+                {
+                    _map.insert(std::move(eles));
+                }
 
             public:
                 TaggedMap(const TaggedMap& ano) = default;
@@ -436,9 +490,65 @@ namespace ospf
                 {
                     return insert_or_assign(ValueType{ move<U>(value) });
                 }
+                
+                inline decltype(auto) erase(const IteratorType iter)
+                {
+                    return IteratorType{ _map.erase(iter._iter) };
+                }
 
-                // todo: emplace, emplace_hint, try_emplace
-                // todo: erase, swap, extract, merge
+                inline decltype(auto) erase(const ConstIteratorType iter)
+                {
+                    return IteratorType{ _map.erase(iter._iter) };
+                }
+
+                inline decltype(auto) erase(const ConstIteratorType first, const ConstIteratorType last)
+                {
+                    return IteratorType{ _map.erase(first._iter, last._iter) };
+                }
+
+                inline const usize erase(CLRefType<KeyType> key)
+                {
+                    return static_cast<usize>(_map.erase(key));
+                }
+
+                inline const usize erase(CLRefType<ValueType> value)
+                {
+                    return erase(_key_extractor(value));
+                }
+
+                template<typename K>
+                inline const usize erase(CLRefType<K> key)
+                {
+                    return static_cast<usize>(_map.erase(key));
+                }
+
+                void swap(TaggedMap& other) noexcept
+                {
+                    std::swap(_key_extractor, other._key_extractor);
+                    std::swap(_map, other._map);
+                }
+
+                void merge(const TaggedMap& other)
+                {
+                    _map.merge(other._map);
+                }
+
+                void merge(TaggedMap&& other)
+                {
+                    _map.merge(std::move(other._map));
+                }
+
+                template<template<typename K, typename V> class C2>
+                void merge(const TaggedMap<T, E, C2>& other)
+                {
+                    _map.merge(other._map);
+                }
+
+                template<template<typename K, typename V> class C2>
+                void merge(TaggedMap<T, E, C2>&& other)
+                {
+                    _map.merge(std::move(other._map));
+                }
 
             public:
                 inline decltype(auto) at(CLRefType<KeyType> key)

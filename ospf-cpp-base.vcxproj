@@ -87,6 +87,7 @@
     <ClCompile Include="src\ospf\meta_programming\name_transfer.cpp" />
     <ClCompile Include="src\ospf\meta_programming\name_transfer\backend.cpp" />
     <ClCompile Include="src\ospf\meta_programming\name_transfer\frontend.cpp" />
+    <ClCompile Include="src\ospf\parallelism\guard_thread.cpp" />
     <ClCompile Include="src\ospf\string\hasher.cpp" />
     <ClCompile Include="src\ospf\system_info.cpp" />
     <ClCompile Include="src\ospf\uuid.cpp" />
