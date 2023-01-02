@@ -13,6 +13,9 @@ namespace ospf
             class Ref<T, ReferenceCategory::Reference>
                 : public RefImpl<T, Ref<T, ReferenceCategory::Reference>>
             {
+                template<typename U, ReferenceCategory category>
+                friend class Ref;
+
             private:
                 using Self = Ref<T, ReferenceCategory::Reference>;
                 using Impl = RefImpl<T, Self>;

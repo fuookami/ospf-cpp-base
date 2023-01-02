@@ -39,16 +39,6 @@ namespace ospf
             Either(RRefType<RightType> right_value)
                 : _variant(move<RightType>(right_value)) {}
 
-            template<typename V>
-                requires std::is_convertible_v<OriginType<V>, LeftType> && !std::is_convertible_v<OriginType<V>, RightType>
-            constexpr Either(V&& left_value)
-                : _variant(LeftType{ std::forward<V>(left_value) }) {}
-
-            template<typename V>
-                requires std::is_convertible_v<OriginType<V>, RightType> && !std::is_convertible_v<OriginType<V>, LeftType>
-            constexpr Either(V&& right_value)
-                : _variant(RightType{ std::forward<V>(right_value) }) {}
-
             constexpr Either(const Either& ano) = default;
             constexpr Either(Either&& ano) noexcept = default;
 
@@ -66,7 +56,7 @@ namespace ospf
                 requires ReferenceFaster<LeftType> && std::movable<LeftType>
             Either& operator=(RRefType<LeftType> left_value) noexcept
             {
-                _variant.template emplace<0_uz>(move<LefType>(left_value));
+                _variant.template emplace<0_uz>(move<LeftType>(left_value));
                 return *this;
             }
 
@@ -84,32 +74,16 @@ namespace ospf
                 return *this;
             }
 
-            template<typename V>
-                requires std::is_convertible_v<OriginType<V>, LeftType> && !std::is_convertible_v<OriginType<V>, RightType>
-            constexpr Either& operator=(V&& other_value) noexcept
-            {
-                _variant.template emplace<0_uz>(LeftType{ std::forward<V>(other_value) });
-                return *this;
-            }
-
-            template<typename V>
-                requires std::is_convertible_v<OriginType<V>, RightType> && !std::is_convertible_v<OriginType<V>, LeftType>
-            constexpr Either& operator=(V&& other_value) noexcept
-            {
-                _variant.template emplace<1_uz>(RightType{ std::forward<V>(other_value) });
-                return *this;
-            }
-
         public:
             constexpr ~Either(void) noexcept = default;
 
         public:
-            inline constexpr operator std::variant<LeftType, RightType>&(void) noexcept
+            inline constexpr operator std::variant<LeftType, RightType>& (void) noexcept
             {
                 return _variant;
             }
 
-            inline constexpr operator const std::variant<LeftType, RightType>&(void) const noexcept
+            inline constexpr operator const std::variant<LeftType, RightType>& (void) const noexcept
             {
                 return _variant;
             }
@@ -161,7 +135,7 @@ namespace ospf
                 }
                 else
                 {
-                    return const Ref<LeftType>{ std::get<0_uz>(_variant) };
+                    return Ref<LeftType>{ std::get<0_uz>(_variant) };
                 }
             }
 
@@ -199,7 +173,7 @@ namespace ospf
 
                 if (is_left())
                 {
-                    return RetType{ std::forward<Func>(func)(move<LeftType>(std::get<0_uz>(_variant)))) };
+                    return RetType{ std::forward<Func>(func)(move<LeftType>(std::get<0_uz>(_variant))) };
                 }
                 else
                 {
@@ -337,7 +311,7 @@ namespace ospf
             {
                 if (!is_right())
                 {
-                    return std::nullopt
+                    return std::nullopt;
                 }
                 else
                 {
@@ -353,7 +327,7 @@ namespace ospf
                 }
                 else
                 {
-                    return const Ref<RightType>{ std::get<1_uz>(_variant) };
+                    return Ref<RightType>{ std::get<1_uz>(_variant) };
                 }
             }
 
@@ -513,26 +487,26 @@ namespace ospf
             template<typename Func>
             inline constexpr decltype(auto) visit(Func&& func) noexcept
             {
-                return std::visit(std::forward<Func>(func), *this);
+                return std::visit(std::forward<Func>(func), _variant);
             }
 
             template<typename Func>
             inline constexpr decltype(auto) visit(Func&& func) const noexcept
             {
-                return std::visit(std::forward<Func>(func), *this);
+                return std::visit(std::forward<Func>(func), _variant);
             }
 
         public:
             inline constexpr void reset(CLRefType<LeftType> left_value) noexcept
             {
-                _variant.template emplate<0_uz>(left_value);
+                _variant.template emplace<0_uz>(left_value);
             }
 
             template<typename = void>
                 requires ReferenceFaster<LeftType>&& std::movable<LeftType>
             inline void reset(RRefType<LeftType> left_value) noexcept
             {
-                _variant.template emplace<0_uz>(move<LefType>(left_value));
+                _variant.template emplace<0_uz>(move<LeftType>(left_value));
             }
 
             inline constexpr void reset(CLRefType<RightType> right_value) noexcept
@@ -545,20 +519,6 @@ namespace ospf
             inline void reset(RRefType<RightType> right_value) noexcept
             {
                 _variant.template emplace<1_uz>(move<RightType>(right_value));
-            }
-
-            template<typename V>
-                requires std::is_convertible_v<OriginType<V>, LeftType> && !std::is_convertible_v<OriginType<V>, RightType>
-            inline constexpr void reset(V&& other_value) noexcept
-            {
-                _variant.template emplace<0_uz>(LeftType{ std::forward<V>(other_value) });
-            }
-
-            template<typename V>
-                requires std::is_convertible_v<OriginType<V>, RightType> && !std::is_convertible_v<OriginType<V>, LeftType>
-            inline constexpr void reset(V&& other_value) noexcept
-            {
-                _variant.template emplace<1_uz>(RightType{ std::forward<V>(other_value) });
             }
 
             template<typename... Args>
@@ -583,7 +543,7 @@ namespace ospf
         public:
             inline constexpr const bool operator==(const Either<T, U>& rhs) const noexcept
             {
-                return _varaint == rhs._variant;
+                return _variant == rhs._variant;
             }
 
             inline constexpr const bool operator!=(const Either<T, U>& rhs) const noexcept
@@ -598,7 +558,7 @@ namespace ospf
 
             inline constexpr const bool operator<=(const Either<T, U>& rhs) const noexcept
             {
-                return _varaint <= rhs._variant;
+                return _variant <= rhs._variant;
             }
 
             inline constexpr const bool operator>(const Either<T, U>& rhs) const noexcept

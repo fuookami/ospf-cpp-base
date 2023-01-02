@@ -88,6 +88,7 @@
   <ItemGroup>
     <ClCompile Include="src\ospf\error\error.cpp" />
     <ClCompile Include="src\ospf\exception.cpp" />
+    <ClCompile Include="src\ospf\functional\result.cpp" />
     <ClCompile Include="src\ospf\jni\jstring.cpp" />
     <ClCompile Include="src\ospf\memory\bits.cpp" />
     <ClCompile Include="src\ospf\meta_programming\name_transfer.cpp" />

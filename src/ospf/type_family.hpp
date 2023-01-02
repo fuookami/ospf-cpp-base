@@ -11,8 +11,8 @@ namespace ospf
         using Self = std::decay_t<T>;
 
         using RetType = Self;
-        using ArrayType = T[];
-        using CArrayType = const T[];
+        using ArrayType = Self[];
+        using CArrayType = const Self[];
         using PtrType = std::add_pointer_t<Self>;
         using CPtrType = std::add_pointer_t<std::add_const_t<Self>>;
         using LRefType = std::add_lvalue_reference_t<Self>;
@@ -41,8 +41,8 @@ namespace ospf
         using Self = std::decay_t<T>;
 
         using RetType = std::add_const_t<T>;
-        using ArrayType = T[];
-        using CArrayType = const T[];
+        using ArrayType = Self[];
+        using CArrayType = const Self[];
         using PtrType = std::add_pointer_t<Self>;
         using CPtrType = std::add_pointer_t<std::add_const_t<Self>>;
         using LRefType = std::add_lvalue_reference_t<Self>;

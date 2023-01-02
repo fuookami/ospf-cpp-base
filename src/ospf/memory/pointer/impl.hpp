@@ -101,7 +101,6 @@ namespace ospf
                 }
 
                 template<typename U, typename P>
-                    requires std::three_way_comparable_with<ospf::CPtrType<T>, ospf::CPtrType<U>>
                 inline decltype(auto) operator<=>(const PtrImpl<U, P>& ptr) const noexcept
                 {
                     return cptr() <=> ptr.cptr();
@@ -222,7 +221,7 @@ namespace std
     template<typename T, typename Ptr, typename CharT>
     struct formatter<ospf::memory::pointer::PtrImpl<T, Ptr>, CharT> : formatter<string_view, CharT>
     {
-        using PtrType = memory::pointer::PtrImpl<T, Ptr>;
+        using PtrType = ospf::memory::pointer::PtrImpl<T, Ptr>;
 
         template<typename FormatContext>
         inline static decltype(auto) format(const PtrType& ptr, FormatContext& fc)

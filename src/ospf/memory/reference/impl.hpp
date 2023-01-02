@@ -33,12 +33,12 @@ namespace ospf
             public:
                 inline const PtrType operator->(void) noexcept
                 {
-                    return ptr();
+                    return &ref();
                 }
 
                 inline const CPtrType operator->(void) const noexcept
                 {
-                    return cptr();
+                    return &cref();
                 }
 
                 inline RefType operator*(void) noexcept
@@ -60,6 +60,49 @@ namespace ospf
                 inline operator CRefType(void) const noexcept
                 {
                     return cref();
+                }
+
+            public:
+                template<typename U, typename R>
+                inline const bool operator==(const RefImpl<U, R>& ref) const noexcept
+                {
+                    return cref() == ref.cref();
+                }
+
+                template<typename U, typename R>
+                inline const bool operator!=(const RefImpl<U, R>& ref) const noexcept
+                {
+                    return cref() != ref.cref();
+                }
+
+                template<typename U, typename R>
+                inline const bool operator<(const RefImpl<U, R>& ref) const noexcept
+                {
+                    return cref() < ref.cref();
+                }
+
+                template<typename U, typename R>
+                inline const bool operator<=(const RefImpl<U, R>& ref) const noexcept
+                {
+                    return cref() <= ref.cref();
+                }
+
+                template<typename U, typename R>
+                inline const bool operator>(const RefImpl<U, R>& ref) const noexcept
+                {
+                    return cref() > ref.cref();
+                }
+
+                template<typename U, typename R>
+                inline const bool operator>=(const RefImpl<U, R>& ref) const noexcept
+                {
+                    return cref() >= ref.cref();
+                }
+
+                template<typename U, typename R>
+                inline decltype(auto) operator<=>(const RefImpl<U, R>& ref) const noexcept
+                {
+                    return cref() <=> ref.cref();
                 }
 
             protected:

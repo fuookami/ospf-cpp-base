@@ -284,5 +284,8 @@
     <ClCompile Include="src\ospf\parallelism\thread_pool.cpp">
       <Filter>src\ospf\parallelism</Filter>
     </ClCompile>
+    <ClCompile Include="src\ospf\functional\result.cpp">
+      <Filter>src\ospf\functional</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
