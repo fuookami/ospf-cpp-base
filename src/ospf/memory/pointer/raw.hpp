@@ -31,10 +31,10 @@ namespace ospf
                 using typename Impl::CRefType;
 
             public:
-                Ptr(void) noexcept
+                constexpr Ptr(void) noexcept
                     : _from(PointerCategory::Raw), _ptr(nullptr) {}
 
-                Ptr(std::nullptr_t _) noexcept
+                constexpr Ptr(std::nullptr_t _) noexcept
                     : _from(PointerCategory::Raw), _ptr(nullptr) {}
 
                 Ptr(const PtrType ptr) noexcept

@@ -32,10 +32,10 @@ namespace ospf
                 using SharedPtrType = std::shared_ptr<T>;
 
             public:
-                Ptr(void) noexcept
+                constexpr Ptr(void) noexcept
                     : _ptr(nullptr) {}
                 
-                Ptr(const std::nullptr_t _) noexcept
+                constexpr Ptr(const std::nullptr_t _) noexcept
                     : _ptr(nullptr) {}
 
                 Ptr(SharedPtrType ptr) noexcept

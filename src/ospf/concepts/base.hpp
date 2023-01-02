@@ -2,6 +2,7 @@
 
 #include <magic_enum.hpp>
 #include <type_traits>
+#include <format>
 
 namespace ospf
 {
@@ -30,5 +31,18 @@ namespace ospf
 
         template<typename T, typename U>
         concept DecaySameAs = is_decay_same_as<T, U>;
+    };
+};
+
+namespace std
+{
+    template<ospf::EnumType T, typename CharT>
+    struct formatter<T, CharT> : formatter<string_view, CharT>
+    {
+        template<typename FormatContext>
+        inline static decltype(auto) format(const T value, FormatContext& fc)
+        {
+            return formatter<string_view, CharT>::format(ospf::to_string(value), fc);
+        }
     };
 };

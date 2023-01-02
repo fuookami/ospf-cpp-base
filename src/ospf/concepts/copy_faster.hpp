@@ -40,6 +40,7 @@ namespace ospf
         };
 
         template<ReferenceFaster T>
+            requires std::movable<std::decay_t<T>>
         inline constexpr decltype(auto) move(std::add_rvalue_reference_t<std::decay_t<T>> value) noexcept
         {
             return std::forward<std::decay_t<T>>(value);

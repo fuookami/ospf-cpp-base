@@ -35,7 +35,7 @@ namespace ospf
             using CodeType = C;
 
         public:
-            template<typename T = void>
+            template<typename = void>
                 requires WithDefault<C>
             constexpr Error(void)
                 : Error(DefaultValue<C>::value) {}
@@ -121,16 +121,19 @@ namespace ospf
     };
 };
 
-template<typename C>
-    requires std::is_enum_v<C> && ospf::WithDefault<C>
-struct ospf::DefaultValue<ospf::Error<C>>
+namespace ospf
 {
-    static constexpr const Error<C> value = Error<C>{};
-};
+    template<typename C>
+        requires std::is_enum_v<C> && WithDefault<C>
+    struct DefaultValue<Error<C>>
+    {
+        static constexpr const Error<C> value = Error<C>{};
+    };
 
-template<typename C, typename T>
-    requires std::is_enum_v<C> && ospf::NotSameAs<T, void> && ospf::WithDefault<C>
-struct ospf::DefaultValue<ospf::ExError<C, T>>
-{
-    static constexpr const ExError<C, T> value = ExError<C, T>{};
+    template<typename C, typename T>
+        requires std::is_enum_v<C> && NotSameAs<T, void> && WithDefault<C>
+    struct DefaultValue<ExError<C, T>>
+    {
+        static constexpr const ExError<C, T> value = ExError<C, T>{};
+    };
 };

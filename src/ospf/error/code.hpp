@@ -48,16 +48,11 @@ namespace ospf
     };
 };
 
-template<typename CharT>
-struct std::formatter<ospf::OSPFErrCode, CharT>: std::formatter<std::string_view, CharT> {
-    template<typename FormatContext>
-    auto format(const ospf::OSPFErrCode code, FormatContext& fc) {
-        return std::formatter<std::string_view, CharT>::format(ospf::to_string(code), fc);
-    }
-};
-
-template<>
-struct ospf::DefaultValue<ospf::OSPFErrCode>
+namespace ospf
 {
-    static constexpr const OSPFErrCode value = OSPFErrCode::None;
+    template<>
+    struct DefaultValue<OSPFErrCode>
+    {
+        static constexpr const OSPFErrCode value = OSPFErrCode::None;
+    };
 };

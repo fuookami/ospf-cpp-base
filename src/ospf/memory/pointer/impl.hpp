@@ -218,18 +218,40 @@ namespace std
             return func(reinterpret_cast<typename PtrType::CPtrType>(static_cast<ospf::ptraddr>(ptr)));
         }
     };
+
+    template<typename T, typename Ptr, typename CharT>
+    struct formatter<ospf::memory::pointer::PtrImpl<T, Ptr>, CharT> : formatter<string_view, CharT>
+    {
+        using PtrType = memory::pointer::PtrImpl<T, Ptr>;
+
+        template<typename FormatContext>
+        inline static decltype(auto) format(const PtrType& ptr, FormatContext& fc)
+        {
+            if (ptr == nullptr)
+            {
+                return formatter<string_view, CharT>::format("null", fc);
+            }
+            else
+            {
+                return formatter<T, CharT>::format(*ptr, fc);
+            }
+        }
+    };
 };
 
-template<typename T, typename Ptr>
-    requires ospf::WithTag<T>
-struct ospf::TagValue<ospf::memory::pointer::PtrImpl<T, Ptr>>
+namespace ospf
 {
-    using Type = typename TagValue<T>::Type;
-    using PtrType = memory::pointer::PtrImpl<T, Ptr>;
-
-    inline decltype(auto) value(const PtrType& ptr) const
+    template<typename T, typename Ptr>
+        requires WithTag<T>
+    struct TagValue<memory::pointer::PtrImpl<T, Ptr>>
     {
-        static constexpr const auto extractor = TagValue<T>{};
-        return extractor(*ptr);
-    }
+        using Type = typename TagValue<T>::Type;
+        using PtrType = memory::pointer::PtrImpl<T, Ptr>;
+
+        inline decltype(auto) value(const PtrType& ptr) const
+        {
+            static constexpr const auto extractor = TagValue<T>{};
+            return extractor(*ptr);
+        }
+    };
 };

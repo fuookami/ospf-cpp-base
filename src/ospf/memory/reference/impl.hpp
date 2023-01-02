@@ -106,18 +106,33 @@ namespace std
             return func(*ref);
         }
     };
+
+    template<typename T, typename Ref, typename CharT>
+    struct formatter<ospf::memory::reference::RefImpl<T, Ref>, CharT> : formatter<string_view, CharT>
+    {
+        using RefType = ospf::memory::reference::RefImpl<T, Ref>;
+
+        template<typename FormatContext>
+        inline static decltype(auto) format(const RefType& ref, FormatContext& fc)
+        {
+            return formatter<T, CharT>::format(*ref, fc);
+        }
+    };
 };
 
-template<typename T, typename Ref>
-    requires ospf::WithTag<T>
-struct ospf::TagValue<ospf::memory::reference::RefImpl<T, Ref>>
+namespace ospf
 {
-    using Type = typename TagValue<T>::Type;
-    using RefType = typename memory::reference::RefImpl<T, Ref>;
-
-    inline decltype(auto) value(const RefType& ref) const noexcept
+    template<typename T, typename Ref>
+        requires WithTag<T>
+    struct TagValue<memory::reference::RefImpl<T, Ref>>
     {
-        static constexpr const auto extractor = TagValue<T>{};
-        return extractor(*ref);
-    }
+        using Type = typename TagValue<T>::Type;
+        using RefType = typename memory::reference::RefImpl<T, Ref>;
+
+        inline decltype(auto) value(const RefType& ref) const noexcept
+        {
+            static constexpr const auto extractor = TagValue<T>{};
+            return extractor(*ref);
+        }
+    };
 };

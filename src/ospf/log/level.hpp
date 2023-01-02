@@ -64,16 +64,11 @@ namespace ospf
     };
 };
 
-template<typename CharT>
-struct std::formatter<ospf::LogLevel, CharT> : std::formatter<std::string_view, CharT> {
-    template<typename FormatContext>
-    auto format(const ospf::LogLevel level, FormatContext& fc) {
-        return std::formatter<std::string_view, CharT>::format(ospf::to_string(level), fc);
-    }
-};
-
-template<>
-struct ospf::DefaultValue<ospf::LogLevel>
+namespace ospf
 {
-    static constexpr const LogLevel value = default_log_level;
+    template<>
+    struct DefaultValue<LogLevel>
+    {
+        static constexpr const LogLevel value = default_log_level;
+    };
 };

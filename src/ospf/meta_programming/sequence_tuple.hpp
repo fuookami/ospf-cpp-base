@@ -15,7 +15,7 @@ namespace ospf
 
         public:
             constexpr SequenceTuple(Elems... elems)
-                : m_tuple{ elems... } {}
+                : _tuple{ elems... } {}
             constexpr SequenceTuple(const SequenceTuple& ano) = default;
             constexpr SequenceTuple(SequenceTuple&& ano) noexcept = default;
             constexpr SequenceTuple& operator=(const SequenceTuple& rhs) = default;
@@ -32,14 +32,14 @@ namespace ospf
                 requires (i < Types::length)
             inline constexpr decltype(auto) get(void) noexcept
             {
-                return std::get<i>(m_tuple);
+                return std::get<i>(_tuple);
             }
 
             template<usize i>
                 requires (i < Types::length)
             inline constexpr decltype(auto) get(void) const noexcept
             {
-                return std::get<i>(m_tuple);
+                return std::get<i>(_tuple);
             }
 
             template<typename Pred>
@@ -48,16 +48,16 @@ namespace ospf
                 return all<0_uz>(pred);
             }
 
-            template<typename T, typename Pred>
-            inline constexpr decltype(auto) accumulate(const T lhs, const Pred& pred) const noexcept
+            template<typename T, typename Func>
+            inline constexpr decltype(auto) accumulate(T&& lhs, const Func& func) const noexcept
             {
-                return accumulate<0_uz>(lhs, pred);
+                return accumulate<0_uz>(std::forward<T>(lhs), func);
             }
 
-            template<typename Pred>
-            inline constexpr void for_each(const Pred& pred) const noexcept
+            template<typename Func>
+            inline constexpr void for_each(const Func& func) const noexcept
             {
-                for_each<0_uz>(pred);
+                for_each<0_uz>(func);
             }
 
             template<typename T>
@@ -66,7 +66,7 @@ namespace ospf
                 return std::apply([e](const auto&... elems)
                     {
                         return SequenceTuple<Elems..., T>{ elems..., e };
-                    }, m_tuple);
+                    }, _tuple);
             }
 
             template<typename T>
@@ -83,13 +83,13 @@ namespace ospf
             }
 
         private:
-            template<usize i, typename Pred>
-            inline constexpr void for_each(const Pred& pred) const noexcept
+            template<usize i, typename Func>
+            inline constexpr void for_each(const Func& func) const noexcept
             {
                 if constexpr (i != Types::length)
                 {
-                    pred(std::get<i>(m_tuple));
-                    for_each<i + 1_uz>(pred);
+                    func(std::get<i>(_tuple));
+                    for_each<i + 1_uz>(func);
                 }
             }
 
@@ -98,7 +98,7 @@ namespace ospf
             {
                 if constexpr (i != Types::length)
                 {
-                    return pred(std::get<i>(m_tuple)) && all<i + 1_uz>(pred);
+                    return pred(std::get<i>(_tuple)) && all<i + 1_uz>(pred);
                 }
                 else
                 {
@@ -106,12 +106,12 @@ namespace ospf
                 }
             }
 
-            template<usize i, typename T, typename Pred>
-            inline constexpr decltype(auto) accumulate(const T lhs, const Pred& pred) const noexcept
+            template<usize i, typename T, typename Func>
+            inline constexpr decltype(auto) accumulate(T&& lhs, const Func& func) const noexcept
             {
                 if constexpr (i != Types::length)
                 {
-                    return accumulate<i + 1_uz>(pred(lhs, std::get<i>(m_tuple)), pred);
+                    return accumulate<i + 1_uz>(func(std::forward<T>(lhs), std::get<i>(_tuple)), func);
                 }
                 else
                 {
@@ -120,7 +120,7 @@ namespace ospf
             }
 
         private:
-            std::tuple<Elems...> m_tuple;
+            std::tuple<Elems...> _tuple;
         };
     };
 };

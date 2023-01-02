@@ -264,8 +264,8 @@ namespace ospf
                     return *this;
                 }
 
-                template<typename U = void>
-                    requires ReferenceFaster<ValueType>
+                template<typename = void>
+                    requires ReferenceFaster<ValueType> && std::movable<ValueType>
                 inline TaggedMapEntry<T, E, C>& or_insert(RRefType<ValueType> value)
                 {
                     const auto [iter, succeeded] = _map->insert(move<ValueType>(value));
@@ -289,7 +289,7 @@ namespace ospf
                 }
 
                 template<typename U>
-                    requires ReferenceFaster<U>&& std::is_convertible_v<U, ValueType>
+                    requires ReferenceFaster<U> && std::is_convertible_v<U, ValueType> && std::movable<U>
                 inline TaggedMapEntry<T, E, C>& or_insert(RRefType<U> value)
                 {
                     const auto [iter, succeeded] = _map->insert(ValueType{ move<U>(value) });
@@ -413,8 +413,8 @@ namespace ospf
                     return std::make_pair(IteratorType{ iter }, succeeded);
                 }
 
-                template<typename U = void>
-                    requires ReferenceFaster<ValueType>
+                template<typename = void>
+                    requires ReferenceFaster<ValueType> && std::movable<ValueType>
                 inline decltype(auto) insert(RRefType<ValueType> value)
                 {
                     const auto [iter, succeeded] = _map.insert(std::make_pair(_key_extractor(value), move<ValueType>(value)));
@@ -429,7 +429,7 @@ namespace ospf
                 }
 
                 template<typename U>
-                    requires ReferenceFaster<U> && std::is_convertible_v<U, ValueType>
+                    requires ReferenceFaster<U> && std::is_convertible_v<U, ValueType> && std::movable<U>
                 inline decltype(auto) insert(RRefType<U> value)
                 {
                     return insert(ValueType{ move<U>(value) });
@@ -469,8 +469,8 @@ namespace ospf
                     return std::make_pair(IteratorType{ iter }, succeeded);
                 }
 
-                template<typename U = void>
-                    requires ReferenceFaster<ValueType>
+                template<typename = void>
+                    requires ReferenceFaster<ValueType> && std::movable<ValueType>
                 inline decltype(auto) insert_or_assign(RRefType<ValueType> value)
                 {
                     const auto [iter, succeeded] = _map.insert_or_assign(_key_extractor(value), move<ValueType>(value));
@@ -485,7 +485,7 @@ namespace ospf
                 }
 
                 template<typename U>
-                    requires ReferenceFaster<U>&& std::is_convertible_v<U, ValueType>
+                    requires ReferenceFaster<U> && std::is_convertible_v<U, ValueType> && std::movable<U>
                 inline decltype(auto) insert_or_assign(RRefType<U> value)
                 {
                     return insert_or_assign(ValueType{ move<U>(value) });

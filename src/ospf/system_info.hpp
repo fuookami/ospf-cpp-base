@@ -123,38 +123,43 @@ namespace ospf
     static const Endian local_endian = detail::get_local_endian();
 };
 
-template <>
-constexpr magic_enum::customize::customize_t magic_enum::customize::enum_name<ospf::HardwarePlatform>(const ospf::HardwarePlatform value) noexcept {
-    switch (value) {
-    case ospf::HardwarePlatform::X64:
-        return "x64";
-    case ospf::HardwarePlatform::X86:
-        return "x86";
-    case ospf::HardwarePlatform::A64:
-        return "a64";
-    case ospf::HardwarePlatform::A32:
-        return "a32";
-    case ospf::HardwarePlatform::IA64:
-        return "ia64";
-    case ospf::HardwarePlatform::Unknown:
-        return "unknown";
-    default:
-        return default_tag;
+namespace magic_enum::customize
+{
+    template <>
+    constexpr customize_t enum_name<ospf::HardwarePlatform>(const ospf::HardwarePlatform value) noexcept
+    {
+        switch (value) {
+        case ospf::HardwarePlatform::X64:
+            return "x64";
+        case ospf::HardwarePlatform::X86:
+            return "x86";
+        case ospf::HardwarePlatform::A64:
+            return "a64";
+        case ospf::HardwarePlatform::A32:
+            return "a32";
+        case ospf::HardwarePlatform::IA64:
+            return "ia64";
+        case ospf::HardwarePlatform::Unknown:
+            return "unknown";
+        default:
+            return default_tag;
+        }
     }
-}
 
-template<>
-constexpr magic_enum::customize::customize_t magic_enum::customize::enum_name<ospf::OperationSystem>(const ospf::OperationSystem value) noexcept {
-    switch (value) {
-    case ospf::OperationSystem::Windows:
-        return "Windows";
-    case ospf::OperationSystem::Linux:
-        return "Linux";
-    case ospf::OperationSystem::MacOS:
-        return "Mac OS";
-    case ospf::OperationSystem::Unknown:
-        return "unknown";
-    default:
-        return default_tag;
+    template<>
+    constexpr customize_t enum_name<ospf::OperationSystem>(const ospf::OperationSystem value) noexcept
+    {
+        switch (value) {
+        case ospf::OperationSystem::Windows:
+            return "Windows";
+        case ospf::OperationSystem::Linux:
+            return "Linux";
+        case ospf::OperationSystem::MacOS:
+            return "Mac OS";
+        case ospf::OperationSystem::Unknown:
+            return "unknown";
+        default:
+            return default_tag;
+        }
     }
-}
+};

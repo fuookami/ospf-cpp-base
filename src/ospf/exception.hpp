@@ -65,7 +65,7 @@ namespace ospf
         : public exception::Exception<E, Exception<E>>
     {
     public:
-        template<typename T = void>
+        template<typename = void>
             requires WithDefault<E>
         constexpr Exception(void)
             : Exception(DefaultValue<E>::value) {}
@@ -105,7 +105,7 @@ namespace ospf
         : public exception::Exception<E, ExException<E>>
     {
     public:
-        template<typename T = void>
+        template<typename = void>
             requires WithDefault<E>
         constexpr ExException(void)
             : ExException(DefaultValue<E>::value) {}
@@ -159,16 +159,19 @@ namespace ospf
     using ExOSPFException = ExException<ExOSPFError<T>>;
 };
 
-template<ospf::ErrorType E>
-    requires ospf::WithDefault<E>
-struct ospf::DefaultValue<ospf::Exception<E>>
+namespace ospf
 {
-    static constexpr const Exception<E> value = Exception<E>{};
-};
+    template<ErrorType E>
+        requires WithDefault<E>
+    struct DefaultValue<Exception<E>>
+    {
+        static constexpr const Exception<E> value = Exception<E>{};
+    };
 
-template<ospf::ExErrorType E>
-    requires ospf::WithDefault<E>
-struct ospf::DefaultValue<ospf::Exception<E>>
-{
-    static constexpr const ExException<E> value = ExException<E>{};
+    template<ExErrorType E>
+        requires WithDefault<E>
+    struct DefaultValue<Exception<E>>
+    {
+        static constexpr const ExException<E> value = ExException<E>{};
+    };
 };
