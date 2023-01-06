@@ -357,3 +357,12 @@ namespace ospf
         extern template class Result<Succeed, OSPFError>;
     };
 };
+
+namespace std
+{
+    template<typename T, ospf::ErrorType E>
+    inline void swap(ospf::Result<T, E>& lhs, ospf::Result<T, E>& rhs) noexcept
+    {
+        lhs.swap(rhs);
+    }
+};

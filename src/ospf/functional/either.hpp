@@ -609,6 +609,12 @@ namespace std
                 });
         }
     };
+
+    template<typename T, typename U>
+    inline void swap(ospf::Either<T, U>& lhs, ospf::Either<T, U>& rhs) noexcept
+    {
+        lhs.swap(rhs);
+    }
 };
 
 namespace ospf

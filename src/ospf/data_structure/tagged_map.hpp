@@ -2,6 +2,7 @@
 
 #include <ospf/concepts/with_tag.hpp>
 #include <ospf/memory/reference.hpp>
+#include <ospf/meta_programming/iterator.hpp>
 
 namespace ospf
 {
@@ -34,6 +35,11 @@ namespace ospf
             >
                 requires NotSameAs<std::invoke_result_t<E<T>, T>, void>
             class TaggedMapConstIterator
+                : public ForwardIteratorImpl<
+                    OriginType<T>, 
+                    typename C<OriginType<std::invoke_result_t<E<T>, T>>, OriginType<T>>::const_iterator, 
+                    TaggedMapConstIterator<T, E, C>
+                >
             {
                 friend class TaggedMap<T, E, C>;
 
@@ -43,65 +49,33 @@ namespace ospf
                 using ValueType = OriginType<T>;
                 using MapType = C<KeyType, ValueType>;
                 using IterType = typename MapType::const_iterator;
+
+            private:
+                using Base = ForwardIteratorImpl<
+                    OriginType<T>,
+                    typename C<OriginType<std::invoke_result_t<E<T>, T>>, OriginType<T>>::const_iterator,
+                    TaggedMapConstIterator<T, E, C>
+                >;
                 
             public:
                 TaggedMapConstIterator(const IterType it)
-                    : _iter(it) {}
+                    : Base(it) {}
                 TaggedMapConstIterator(const TaggedMapConstIterator& ano) = default;
                 TaggedMapConstIterator(TaggedMapConstIterator&& ano) noexcept = default;
                 TaggedMapConstIterator& operator=(const TaggedMapConstIterator& rhs) = default;
                 TaggedMapConstIterator& operator=(TaggedMapConstIterator&& rhs) noexcept = default;
                 ~TaggedMapConstIterator(void) noexcept = default;
 
-            public:
-                inline const T& operator*(void) const noexcept
+            OSPF_CRTP_PERMISSION:
+                inline static const ValueType& OSPF_CRTP_FUNCTION(get)(const IterType iter) noexcept
                 {
-                    return _iter->second;
+                    return iter->second;
                 }
 
-                inline const CPtrType<T> operator->(void) const noexcept
+                inline static RetType<TaggedMapConstIterator> OSPF_CRTP_FUNCTION(construct)(const IterType iter) noexcept
                 {
-                    return &_iter->second;
+                    return TaggedMapConstIterator{ iter };
                 }
-
-                inline TaggedMapConstIterator& operator++(void) noexcept
-                {
-                    ++_iter;
-                    return *this;
-                }
-
-                inline TaggedMapConstIterator& operator++(int) noexcept
-                {
-                    TaggedMapConstIterator ret{ *this };
-                    ++_iter;
-                    return *this;
-                }
-
-                inline TaggedMapConstIterator& operator--(void) noexcept
-                {
-                    --_iter;
-                    return *this;
-                }
-
-                inline TaggedMapConstIterator& operator--(int) noexcept
-                {
-                    TaggedMapConstIterator ret{ *this };
-                    --_iter;
-                    return *this;
-                }
-
-                inline const bool operator==(const TaggedMapConstIterator& rhs) const noexcept
-                {
-                    return _iter == rhs._iter;
-                }
-
-                inline const bool operator!=(const TaggedMapConstIterator& rhs) const noexcept
-                {
-                    return _iter != rhs._iter;
-                }
-
-            private:
-                IterType _iter;
             };
 
             template<
@@ -111,19 +85,22 @@ namespace ospf
             >
                 requires NotSameAs<std::invoke_result_t<E<T>, T>, void>
             class TaggedMapIterator
+                : public TaggedMapConstIterator<T, E, C>
             {
                 friend class TaggedMap<T, E, C>;
 
+                using Base = TaggedMapConstIterator<T, E, C>;
+
             public:
-                using KeyExtratorType = E<T>;
-                using KeyType = OriginType<std::invoke_result_t<KeyExtratorType, T>>;
-                using ValueType = OriginType<T>;
-                using MapType = C<KeyType, ValueType>;
-                using IterType = typename MapType::iterator;
+                using typename Base::KeyExtratorType = E<T>;
+                using typename Base::KeyType;
+                using typename Base::ValueType;
+                using typename Base::MapType;
+                using typename Base::IterType;
 
             public:
                 TaggedMapIterator(const IterType it)
-                    : _iter(it) {}
+                    : Base(it) {}
                 TaggedMapIterator(const TaggedMapIterator& ano) = default;
                 TaggedMapIterator(TaggedMapIterator&& ano) noexcept = default;
                 TaggedMapIterator& operator=(const TaggedMapIterator& rhs) = default;
@@ -133,67 +110,13 @@ namespace ospf
             public:
                 inline ValueType& operator*(void) const noexcept
                 {
-                    return _iter->second;
+                    return const_cast<ValueType&>(Base::operator*());
                 }
 
                 inline const PtrType<ValueType> const operator->(void) const noexcept
                 {
-                    return &_iter->second;
+                    return &const_cast<ValueType&>(Base::operator*());
                 }
-
-                inline operator TaggedMapConstIterator<T, E, C>(void) const noexcept
-                {
-                    return TaggedMapConstIterator<T, E, C>{ static_cast<typename MapType::const_iterator>(_iter) };
-                }
-
-                inline TaggedMapIterator& operator++(void) noexcept
-                {
-                    ++_iter;
-                    return *this;
-                }
-
-                inline TaggedMapIterator& operator++(int) noexcept
-                {
-                    TaggedMapIterator ret{ *this };
-                    ++_iter;
-                    return *this;
-                }
-
-                inline TaggedMapIterator& operator--(void) noexcept
-                {
-                    --_iter;
-                    return *this;
-                }
-
-                inline TaggedMapIterator& operator--(int) noexcept
-                {
-                    TaggedMapIterator ret{ *this };
-                    --_iter;
-                    return *this;
-                }
-
-                inline const bool operator==(const TaggedMapIterator& rhs) const noexcept
-                {
-                    return _iter == rhs._iter;
-                }
-
-                inline const bool operator!=(const TaggedMapIterator& rhs) const noexcept
-                {
-                    return _iter != rhs._iter;
-                }
-
-                inline const bool operator==(const TaggedMapConstIterator<T, E, C>& rhs) const noexcept
-                {
-                    return static_cast<TaggedMapConstIterator<T, E, C>>(*this) == rhs;
-                }
-
-                inline const bool operator!=(const TaggedMapConstIterator<T, E, C>& rhs) const noexcept
-                {
-                    return static_cast<TaggedMapConstIterator<T, E, C>>(*this) != rhs;
-                }
-
-            private:
-                IterType _iter;
             };
 
             template<
@@ -678,4 +601,17 @@ namespace ospf
         >
         using TaggedMultiMap = tagged_map::TaggedMap<OriginType<T>, E, C>;
     };
+};
+
+namespace std
+{
+    template<
+        typename T, 
+        template<typename V> class E, 
+        template<typename K, typename V> class C
+    >
+    inline void swap(ospf::TaggedMap<T, E, C>& lhs, ospf::TaggedMap<T, E, C>& rhs) noexcept
+    {
+        lhs.swap(rhs);
+    }
 };

@@ -28,6 +28,7 @@
     <ClInclude Include="src\ospf\concepts\with_tag.hpp" />
     <ClInclude Include="src\ospf\config.hpp" />
     <ClInclude Include="src\ospf\data_structure.hpp" />
+    <ClInclude Include="src\ospf\data_structure\any_array.hpp" />
     <ClInclude Include="src\ospf\data_structure\optional_array.hpp" />
     <ClInclude Include="src\ospf\data_structure\pointer_array.hpp" />
     <ClInclude Include="src\ospf\data_structure\reference_array.hpp" />
@@ -67,6 +68,7 @@
     <ClInclude Include="src\ospf\meta_programming.hpp" />
     <ClInclude Include="src\ospf\meta_programming\crtp.hpp" />
     <ClInclude Include="src\ospf\meta_programming\function_trait.hpp" />
+    <ClInclude Include="src\ospf\meta_programming\iterator.hpp" />
     <ClInclude Include="src\ospf\meta_programming\named_flag.hpp" />
     <ClInclude Include="src\ospf\meta_programming\name_transfer.hpp" />
     <ClInclude Include="src\ospf\meta_programming\name_transfer\backend.hpp" />
