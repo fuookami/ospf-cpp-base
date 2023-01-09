@@ -1,6 +1,7 @@
 #pragma once
 
 #include <ospf/basic_definition.hpp>
+#include <ospf/concepts/with_default.hpp>
 #include <ospf/literal_constant.hpp>
 #include <ospf/memory/reference.hpp>
 #include <ospf/meta_programming/iterator.hpp>
@@ -1352,7 +1353,7 @@ namespace ospf
                     _container.assign(length, std::optional<ValueType>{ move<ValueType>(value) });
                 }
 
-                template<typename It>
+                template<std::input_iterator It>
                 inline constexpr void assign(const It first, const It last)
                 {
                     _container.assign(first, last);
@@ -1420,31 +1421,230 @@ namespace ospf
                     _container.clear();
                 }
 
-                inline constexpr const IterType insert(const ConstIterType pos, CLRefType<ValueType> value) noexcept
+                inline constexpr decltype(auto) insert(const ConstIterType pos, CLRefType<ValueType> value)
                 {
                     return IterType{ _container.insert(pos._iter, value) };
                 }
 
                 template<typename = void>
                     requires ReferenceFaster<ValueType> && std::movable<ValueType>
-                inline constexpr const IterType insert(const ConstIterType pos, RRefType<ValueType> value) noexcept
+                inline constexpr decltype(auto) insert(const ConstIterType pos, RRefType<ValueType> value)
                 {
                     return IterType{ _container.insert(pos._iter, move<ValueType>(value)) };
                 }
 
-                inline constexpr const UncheckedIterType insert(const ConstUncheckedIterType pos, CLRefType<ValueType> value) noexcept
+                inline constexpr decltype(auto) insert(const ConstUncheckedIterType pos, CLRefType<ValueType> value)
                 {
                     return UncheckedIterType{ _container.insert(pos._iter, value) };
                 }
 
                 template<typename = void>
                     requires ReferenceFaster<ValueType>&& std::movable<ValueType>
-                inline constexpr const UncheckedIterType insert(const ConstUncheckedIterType pos, RRefType<ValueType> value) noexcept
+                inline constexpr decltype(auto) insert(const ConstUncheckedIterType pos, RRefType<ValueType> value)
                 {
                     return UncheckedIterType{ _container.insert(pos._iter, move<ValueType>(value)) };
                 }
 
-                // todo
+                template<std::input_iterator It>
+                inline constexpr decltype(auto) insert(const ConstIterType pos, const It first, const It last)
+                {
+                    return IterType{ _container.insert(pos._iter, first, last) };
+                }
+
+                template<std::input_iterator It>
+                inline constexpr decltype(auto) insert(const ConstUncheckedIterType pos, const It first, const It last)
+                {
+                    return UncheckedIterType{ _container.insert(pos._iter, first, last) };
+                }
+
+                inline constexpr decltype(auto) insert(const ConstIterType pos, std::initializer_list<ValueType> eles)
+                {
+                    auto it = pos._iter;
+                    for (auto i{ 0_uz }; i != eles.size(); ++i)
+                    {
+                        it = _container.insert(it, move<ValueType>(eles[i]));
+                    }
+                    return IterType{ it };
+                }
+
+                inline constexpr decltype(auto) insert(const ConstUncheckedIterType pos, std::initializer_list<ValueType> eles)
+                {
+                    auto it = pos._iter;
+                    for (auto i{ 0_uz }; i != eles.size(); ++i)
+                    {
+                        it = _container.insert(it, move<ValueType>(eles[i]));
+                    }
+                    return UncheckedIterType{ it };
+                }
+
+                inline constexpr decltype(auto) insert(const ConstIterType pos, std::initializer_list<std::optional<ValueType>> eles)
+                {
+                    return IterType{ _container.insert(pos, std::move(eles)) };
+                }
+
+                inline constexpr decltype(auto) insert(const ConstUncheckedIterType pos, std::initializer_list<std::optional<ValueType>> eles)
+                {
+                    return UncheckedIterType{ _container.insert(pos, std::move(eles)) };
+                }
+
+                template<typename... Args>
+                    requires std::constructible_from<ValueType, Args...>
+                inline decltype(auto) emplace(const ConstIterType pos, Args&&... args)
+                {
+                    return IterType{ _container.emplace(pos._iter, std::forward<Args>(args)...) };
+                }
+
+                template<typename... Args>
+                    requires std::constructible_from<ValueType, Args...>
+                inline decltype(auto) emplace(const ConstUncheckedIterType pos, Args&&... args)
+                {
+                    return UncheckedIterType{ _container.emplace(pos._iter, std::forward<Args>(args)...) };
+                }
+
+                inline decltype(auto) erase(const ConstIterType pos)
+                {
+                    return IterType{ _container.erase(pos) };
+                }
+
+                inline decltype(auto) erase(const ConstUncheckedIterType pos)
+                {
+                    return UncheckedIterType{ _container.erase(pos) };
+                }
+
+                inline decltype(auto) erase(const ConstIterType first, const ConstIterType last)
+                {
+                    return IterType{ _container.erase(first, last) };
+                }
+
+                inline decltype(auto) erase(const ConstUncheckedIterType first, const ConstUncheckedIterType last)
+                {
+                    return UncheckedIterType{ _container.erase(first, last) };
+                }
+
+                inline void push_back(const std::nullopt_t _)
+                {
+                    _container.push_back(std::nullopt);
+                }
+
+                inline void push_back(CLRefType<ValueType> value)
+                {
+                    _container.push_back(std::optional<ValueType>{ value });
+                }
+
+                template<typename = void>
+                    requires ReferenceFaster<ValueType> && std::movable<ValueType>
+                inline void push_back(RRefType<ValueType> value)
+                {
+                    _container.push_back(std::optional<ValueType>{ move<ValueType>(value) });
+                }
+
+                template<typename... Args>
+                    requires std::constructible_from<ValueType, Args...>
+                inline ValueType& emplace_back(Args&&... args)
+                {
+                    return *_container.emplace_back(std::optional<ValueType>{ ValueType{ std::forward<Args>(args)... } });
+                }
+
+                inline RetType<std::optional<ValueType>> pop_back(void)
+                {
+                    auto back = move<std::optional<ValueType>>(this->back());
+                    _container.pop_back();
+                    return back;
+                }
+
+                inline void push_front(const std::nullopt_t _)
+                {
+                    _container.insert(_container.begin(), std::nullopt);
+                }
+
+                template<typename = void>
+                    requires requires (ContainerType& container) { container.push_front(std::nullopt); }
+                inline void push_front(const std::nullopt_t _)
+                {
+                    _container.push_front(std::nullopt);
+                }
+
+                inline void push_front(CLRefType<ValueType> value)
+                {
+                    _container.insert(_container.begin(), std::optional<ValueType>{ value });
+                }
+
+                template<typename = void>
+                    requires requires (ContainerType& container) { container.push_front(std::declval<std::optional<ValueType>>()); }
+                inline void push_front(CLRefType<ValueType> value)
+                {
+                    _container.push_front(std::optional<ValueType>{ value });
+                }
+
+                template<typename = void>
+                    requires ReferenceFaster<ValueType>&& std::movable<ValueType>
+                inline void push_front(RRefType<ValueType> value)
+                {
+                    _container.insert(_container.begin(), std::optional<ValueType>{ move<ValueType>(value) });
+                }
+
+                template<typename = void>
+                    requires ReferenceFaster<ValueType> && std::movable<ValueType> 
+                        && requires (ContainerType& container) { container.push_front(std::declval<std::optional<ValueType>>()); }
+                inline void push_front(RRefType<ValueType> value)
+                {
+                    _container.push_front(std::optional<ValueType>{ move<ValueType>(value) });
+                }
+
+                template<typename... Args>
+                    requires std::constructible_from<ValueType, Args...>
+                inline ValueType& emplace_front(Args&&... args)
+                {
+                    return **_container.insert(_container.begin(), std::optional<ValueType>{ ValueType{ std::forward<Args>(args)... } });
+                }
+
+                template<typename... Args>
+                    requires std::constructible_from<ValueType, Args...>
+                        && requires (ContainerType& container) { container.emplace_front(std::declval<std::optional<ValueType>>()); }
+                inline ValueType& emplace_front(Args&&... args)
+                {
+                    return *_container.emplace_front(std::optional<ValueType>{ ValueType{ std::forward<Args>(args)... } });
+                }
+
+                inline RetType<std::optional<ValueType>> pop_front(void)
+                {
+                    auto value = move<std::optional<ValueType>>(this->front());
+                    _container.erase(_container.begin());
+                    return value;
+                }
+
+                template<typename = void>
+                    requires requires (ContainerType& container) { container.pop_front(); }
+                inline RetType<std::optional<ValueType>> pop_front(void)
+                {
+                    auto value = move<std::optional<ValueType>>(this->front());
+                    _container.pop_front();
+                    return value;
+                }
+
+                // todo: posh_front, emplace_front, pop_front
+                
+                inline void resize(const usize length)
+                {
+                    resize(length, std::nullopt);
+                }
+
+                inline void resize(const usize length, CLRefType<ValueType> value)
+                {
+                    resize(length, std::optional<ValueType>{ value });
+                }
+
+                template<typename = void>
+                    requires ReferenceFaster<ValueType> && std::movable<ValueType>
+                inline void resize(const usize length, RRefType<ValueType> value)
+                {
+                    resize(length, std::optional<ValueType>{ move<ValueType>(value) });
+                }
+
+                inline void resize(const usize length, const std::optional<ValueType>& value)
+                {
+                    resize(length, value);
+                }
 
             public:
                 inline constexpr const bool operator==(const DynamicOptionalArray& rhs) const noexcept

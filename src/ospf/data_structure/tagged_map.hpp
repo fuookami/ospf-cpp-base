@@ -130,12 +130,12 @@ namespace ospf
             public:
                 using SelfType = TaggedMap<T, E, C>;
                 using ValueType = typename SelfType::ValueType;
-                using IteratorType = typename SelfType::IteratorType;
+                using IterType = typename SelfType::IterType;
 
             public:
                 TaggedMapEntry(const SelfType& map)
                     : _iter(std::nullopt), _map(map) {}
-                TaggedMapEntry(const IteratorType iter, const SelfType& map)
+                TaggedMapEntry(const IterType iter, const SelfType& map)
                     : _iter(iter), _map(map) {}
 
             public:
@@ -224,7 +224,7 @@ namespace ospf
                 }
 
             private:
-                std::optional<IteratorType> _iter;
+                std::optional<IterType> _iter;
                 Ref<SelfType> _map;
             };
 
@@ -241,15 +241,15 @@ namespace ospf
                 using KeyType = OriginType<std::invoke_result_t<KeyExtratorType, T>>;
                 using ValueType = OriginType<T>;
                 using MapType = C<KeyType, ValueType>;
-                using ConstIteratorType = TaggedMapConstIterator<T, E, C>;
-                using IteratorType = TaggedMapIterator<T, E, C>;
+                using ConstIterType = TaggedMapConstIterator<T, E, C>;
+                using IterType = TaggedMapIterator<T, E, C>;
                 using EntryType = TaggedMapEntry<T, E, C>;
 
             public:
                 TaggedMap(KeyExtratorType key_extractor = KeyExtratorType{})
                     : _key_extractor(move<KeyExtratorType>(key_extractor)) {}
 
-                template<typename It>
+                template<std::input_iterator It>
                 TaggedMap(const It first, const It last, KeyExtratorType key_extractor = KeyExtratorType{})
                     : TaggedMap(move<KeyExtratorType>(key_extractor))
                 {
@@ -280,32 +280,32 @@ namespace ospf
             public:
                 inline decltype(auto) begin(void) noexcept
                 {
-                    return IteratorType{ _map.begin() };
+                    return IterType{ _map.begin() };
                 }
 
                 inline decltype(auto) begin(void) const noexcept
                 {
-                    return ConstIteratorType{ _map.begin() };
+                    return ConstIterType{ _map.begin() };
                 }
 
                 inline decltype(auto) cbegin(void) const noexcept
                 {
-                    return ConstIteratorType{ _map.cbegin() };
+                    return ConstIterType{ _map.cbegin() };
                 }
 
                 inline decltype(auto) end(void) noexcept
                 {
-                    return IteratorType{ _map.end() };
+                    return IterType{ _map.end() };
                 }
 
                 inline decltype(auto) end(void) const noexcept
                 {
-                    return ConstIteratorType{ _map.end() };
+                    return ConstIterType{ _map.end() };
                 }
 
                 inline decltype(auto) cend(void) const noexcept
                 {
-                    return ConstIteratorType{ _map.cend() };
+                    return ConstIterType{ _map.cend() };
                 }
 
             public:
@@ -333,7 +333,7 @@ namespace ospf
                 inline decltype(auto) insert(CLRefType<ValueType> value)
                 {
                     const auto [iter, succeeded] = _map.insert(std::make_pair(_key_extractor(value), value));
-                    return std::make_pair(IteratorType{ iter }, succeeded);
+                    return std::make_pair(IterType{ iter }, succeeded);
                 }
 
                 template<typename = void>
@@ -341,7 +341,7 @@ namespace ospf
                 inline decltype(auto) insert(RRefType<ValueType> value)
                 {
                     const auto [iter, succeeded] = _map.insert(std::make_pair(_key_extractor(value), move<ValueType>(value)));
-                    return std::make_pair(IteratorType{ iter }, succeeded);
+                    return std::make_pair(IterType{ iter }, succeeded);
                 }
 
                 template<typename U>
@@ -358,7 +358,7 @@ namespace ospf
                     return insert(ValueType{ move<U>(value) });
                 }
 
-                template<typename It>
+                template<std::input_iterator It>
                 inline void insert(It first, const It last)
                 {
                     while (first != last)
@@ -389,7 +389,7 @@ namespace ospf
                 inline decltype(auto) insert_or_assign(CLRefType<ValueType> value)
                 {
                     const auto [iter, succeeded] = _map.insert_or_assign(_key_extractor(value), value);
-                    return std::make_pair(IteratorType{ iter }, succeeded);
+                    return std::make_pair(IterType{ iter }, succeeded);
                 }
 
                 template<typename = void>
@@ -397,7 +397,7 @@ namespace ospf
                 inline decltype(auto) insert_or_assign(RRefType<ValueType> value)
                 {
                     const auto [iter, succeeded] = _map.insert_or_assign(_key_extractor(value), move<ValueType>(value));
-                    return std::make_pair(IteratorType{ iter }, succeeded);
+                    return std::make_pair(IterType{ iter }, succeeded);
                 }
 
                 template<typename U>
@@ -413,20 +413,28 @@ namespace ospf
                 {
                     return insert_or_assign(ValueType{ move<U>(value) });
                 }
+
+                template<typename... Args>
+                    requires std::constructible_from<ValueType, Args...>
+                inline decltype(auto) emplace(Args&&... args)
+                {
+                    const auto [iter, succeeded] = _map.emplace(std::forward<Args>(args)...);
+                    return std::make_pair(IterType{ iter }, succeeded);
+                }
                 
-                inline decltype(auto) erase(const IteratorType iter)
+                inline decltype(auto) erase(const IterType iter)
                 {
-                    return IteratorType{ _map.erase(iter._iter) };
+                    return IterType{ _map.erase(iter._iter) };
                 }
 
-                inline decltype(auto) erase(const ConstIteratorType iter)
+                inline decltype(auto) erase(const ConstIterType iter)
                 {
-                    return IteratorType{ _map.erase(iter._iter) };
+                    return IterType{ _map.erase(iter._iter) };
                 }
 
-                inline decltype(auto) erase(const ConstIteratorType first, const ConstIteratorType last)
+                inline decltype(auto) erase(const ConstIterType first, const ConstIterType last)
                 {
-                    return IteratorType{ _map.erase(first._iter, last._iter) };
+                    return IterType{ _map.erase(first._iter, last._iter) };
                 }
 
                 inline const usize erase(CLRefType<KeyType> key)
@@ -496,12 +504,12 @@ namespace ospf
 
                 inline decltype(auto) find(CLRefType<KeyType> key) noexcept
                 {
-                    return IteratorType{ _map.find(key) };
+                    return IterType{ _map.find(key) };
                 }
 
                 inline decltype(auto) find(CLRefType<KeyType> key) const noexcept
                 {
-                    return ConstIteratorType{ _map.find(key) };
+                    return ConstIterType{ _map.find(key) };
                 }
 
                 inline decltype(auto) find(CLRefType<ValueType> value) noexcept
@@ -517,13 +525,13 @@ namespace ospf
                 template<typename K>
                 inline decltype(auto) find(CLRefType<K> key) noexcept
                 {
-                    return IteratorType{ _map.find(key) };
+                    return IterType{ _map.find(key) };
                 }
 
                 template<typename K>
                 inline decltype(auto) find(CLRefType<K> key) const noexcept
                 {
-                    return ConstIteratorType{ _map.find(key) };
+                    return ConstIterType{ _map.find(key) };
                 }
 
                 inline decltype(auto) entry(CLRefType<KeyType> key) noexcept
@@ -558,27 +566,27 @@ namespace ospf
                 inline decltype(auto) equal_range(CLRefType<KeyType> key)
                 {
                     const auto [bg_it, ed_it] = _map.equal_range(key);
-                    return std::make_pair(IteratorType{ bg_it }, IteratorType{ ed_it });
+                    return std::make_pair(IterType{ bg_it }, IterType{ ed_it });
                 }
 
                 inline decltype(auto) equal_range(CLRefType<KeyType> key) const
                 {
                     const auto [bg_it, ed_it] = _map.equal_range(key);
-                    return std::make_pair(ConstIteratorType{ bg_it }, ConstIteratorType{ ed_it });
+                    return std::make_pair(ConstIterType{ bg_it }, ConstIterType{ ed_it });
                 }
 
                 template<typename K>
                 inline decltype(auto) equal_range(CLRefType<K> key)
                 {
                     const auto [bg_it, ed_it] = _map.equal_range(key);
-                    return std::make_pair(IteratorType{ bg_it }, IteratorType{ ed_it });
+                    return std::make_pair(IterType{ bg_it }, IterType{ ed_it });
                 }
 
                 template<typename K>
                 inline decltype(auto) equal_range(CLRefType<K> key) const
                 {
                     const auto [bg_it, ed_it] = _map.equal_range(key);
-                    return std::make_pair(ConstIteratorType{ bg_it }, ConstIteratorType{ ed_it });
+                    return std::make_pair(ConstIterType{ bg_it }, ConstIterType{ ed_it });
                 }
 
             private:
