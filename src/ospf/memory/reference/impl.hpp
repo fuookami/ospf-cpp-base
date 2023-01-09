@@ -75,6 +75,7 @@ namespace ospf
                     return cref() != ref.cref();
                 }
 
+            public:
                 template<typename U, typename R>
                 inline const bool operator<(const RefImpl<U, R>& ref) const noexcept
                 {
@@ -99,6 +100,7 @@ namespace ospf
                     return cref() >= ref.cref();
                 }
 
+            public:
                 template<typename U, typename R>
                 inline decltype(auto) operator<=>(const RefImpl<U, R>& ref) const noexcept
                 {

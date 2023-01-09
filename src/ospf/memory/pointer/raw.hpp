@@ -21,8 +21,7 @@ namespace ospf
                 friend class Ref;
 
             private:
-                using Self = Ptr<T, PointerCategory::Raw>;
-                using Impl = PtrImpl<T, Self>;
+                using Impl = PtrImpl<T, Ptr<T, PointerCategory::Raw>>;
 
             public:
                 using typename Impl::PtrType;
@@ -404,7 +403,7 @@ namespace ospf
 #endif
                 }
 
-                inline void swap(Ptr<T, PointerCategory::Raw>& ano)
+                inline void swap(Ptr& ano)
                 {
                     std::swap(_from, ano._from);
                     std::swap(_ptr, ano._ptr);

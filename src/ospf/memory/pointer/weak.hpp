@@ -19,8 +19,7 @@ namespace ospf
                 friend class Ref;
 
             private:
-                using Self = Ptr<T, PointerCategory::Weak>;
-                using Impl = PtrImpl<T, Self>;
+                using Impl = PtrImpl<T, Ptr<T, PointerCategory::Weak>>;
 
             public:
                 using typename Impl::PtrType;
@@ -110,7 +109,7 @@ namespace ospf
                     _ptr.reset();
                 }
 
-                inline void swap(Self& ano) noexcept
+                inline void swap(Ptr& ano) noexcept
                 {
                     std::swap(_ptr, ano._ptr);
                 }

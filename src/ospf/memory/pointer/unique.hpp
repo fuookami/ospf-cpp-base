@@ -170,8 +170,7 @@ namespace ospf
                 friend class Ref;
 
             private:
-                using Self = Ptr<T, PointerCategory::Unique>;
-                using Impl = PtrImpl<T, Self>;
+                using Impl = PtrImpl<T, Ptr<T, PointerCategory::Unique>>;
 
             public:
                 using typename Impl::PtrType;
@@ -323,7 +322,7 @@ namespace ospf
                     _ptr.reset(const_cast<ospf::PtrType<U>>(cptr));
                 }
 
-                inline void swap(Self& ano) OSPF_UNIQUE_PTR_NOEXCEPT
+                inline void swap(Ptr& ano) OSPF_UNIQUE_PTR_NOEXCEPT
                 {
 #ifdef OSPF_UNIQUE_PTR_CHECK_NEEDED
                     _lock(ano._lock);

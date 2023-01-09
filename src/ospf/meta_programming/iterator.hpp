@@ -222,6 +222,7 @@ namespace ospf
                     return this->_iter >= ano._iter;
                 }
 
+            public:
                 template<typename Iter, typename Other>
                 inline constexpr decltype(auto) operator<=>(const RandomIteratorImpl<T, Iter, Other>& ano) const noexcept
                 {

@@ -17,8 +17,7 @@ namespace ospf
                 friend class Ref;
 
             private:
-                using Self = Ref<T, ReferenceCategory::Reference>;
-                using Impl = RefImpl<T, Self>;
+                using Impl = RefImpl<T, Ref<T, ReferenceCategory::Reference>>;
 
             public:
                 using typename Impl::PtrType;

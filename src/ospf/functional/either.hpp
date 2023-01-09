@@ -535,43 +535,45 @@ namespace ospf
                 return _variant.template emplace<1_uz>(RightType{ std::forward<Args>(args)... });
             }
 
-            inline void swap(const Either<T, U>& other) noexcept
+            inline void swap(const Either& other) noexcept
             {
                 std::swap(_variant, other._variant);
             }
 
         public:
-            inline constexpr const bool operator==(const Either<T, U>& rhs) const noexcept
+            inline constexpr const bool operator==(const Either& rhs) const noexcept
             {
                 return _variant == rhs._variant;
             }
 
-            inline constexpr const bool operator!=(const Either<T, U>& rhs) const noexcept
+            inline constexpr const bool operator!=(const Either& rhs) const noexcept
             {
                 return _variant != rhs._variant;
             }
 
-            inline constexpr const bool operator<(const Either<T, U>& rhs) const noexcept
+        public:
+            inline constexpr const bool operator<(const Either& rhs) const noexcept
             {
                 return _variant < rhs._variant;
             }
 
-            inline constexpr const bool operator<=(const Either<T, U>& rhs) const noexcept
+            inline constexpr const bool operator<=(const Either& rhs) const noexcept
             {
                 return _variant <= rhs._variant;
             }
 
-            inline constexpr const bool operator>(const Either<T, U>& rhs) const noexcept
+            inline constexpr const bool operator>(const Either& rhs) const noexcept
             {
                 return _variant > rhs._variant;
             }
 
-            inline constexpr const bool operator>=(const Either<T, U>& rhs) const noexcept
+            inline constexpr const bool operator>=(const Either& rhs) const noexcept
             {
                 return _variant >= rhs._variant;
             }
 
-            inline constexpr decltype(auto) operator<=>(const Either<T, U>& rhs) const noexcept
+        public:
+            inline constexpr decltype(auto) operator<=>(const Either& rhs) const noexcept
             {
                 return _variant <=> rhs._variant;
             }

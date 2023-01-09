@@ -14,8 +14,7 @@ namespace ospf
                 : public RefImpl<T, Ref<T, ReferenceCategory::UniqueBorrow>>
             {
             private:
-                using Self = Ref<T, ReferenceCategory::UniqueBorrow>;
-                using Impl = RefImpl<T, Self>;
+                using Impl = RefImpl<T, Ref<T, ReferenceCategory::UniqueBorrow>>;
 
             public:
                 using typename Impl::PtrType;

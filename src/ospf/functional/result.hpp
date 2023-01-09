@@ -9,6 +9,7 @@ namespace ospf
     {
         struct Succeed 
         {
+        public:
             inline constexpr const bool operator==(const Succeed _) const noexcept
             {
                 return true;
@@ -19,6 +20,7 @@ namespace ospf
                 return false;
             }
 
+        public:
             inline constexpr const std::strong_ordering operator<=>(const Succeed _) const noexcept
             {
                 return std::strong_ordering::equal;
@@ -306,45 +308,47 @@ namespace ospf
                 return _either.emplace(std::forward<Args>(args)...);
             }
 
-            inline void swap(Result<T, E>& other) noexcept
+            inline void swap(Result& other) noexcept
             {
                 std::swap(_either, other._either);
             }
 
          public:
-            inline constexpr const bool operator==(const Result<T, E>& rhs) const noexcept
+            inline constexpr const bool operator==(const Result& rhs) const noexcept
             {
                 return unwrap_if_succeeded() == rhs.unwrap_if_succeeded();
             }
 
-            inline constexpr const bool operator!=(const Result<T, E>& rhs) const noexcept
+            inline constexpr const bool operator!=(const Result& rhs) const noexcept
             {
                 return unwrap_if_succeeded() != rhs.unwrap_if_succeeded();
             }
 
-            inline constexpr const bool operator<(const Result<T, E>& rhs) const noexcept
+        public:
+            inline constexpr const bool operator<(const Result& rhs) const noexcept
             {
                 return unwrap_if_succeeded() < rhs.unwrap_if_succeeded();
             }
 
-            inline constexpr const bool operator<=(const Result<T, E>& rhs) const noexcept
+            inline constexpr const bool operator<=(const Result& rhs) const noexcept
             {
                 return unwrap_if_succeeded() <= rhs.unwrap_if_succeeded();
             }
 
-            inline constexpr const bool operator>(const Result<T, E>& rhs) const noexcept
+            inline constexpr const bool operator>(const Result& rhs) const noexcept
             {
                 return unwrap_if_succeeded() > rhs.unwrap_if_succeeded();
             }
 
-            inline constexpr const bool operator>=(const Result<T, E>& rhs) const noexcept
+            inline constexpr const bool operator>=(const Result& rhs) const noexcept
             {
                 return unwrap_if_succeeded() >= rhs.unwrap_if_succeeded();
             }
 
-            inline constexpr decltype(auto) operator<=>(const Result<T, E>& rhs) const noexcept
+        public:
+            inline constexpr decltype(auto) operator<=>(const Result& rhs) const noexcept
             {
-                return const_cast<Result<T, E>&>(*this).unwrap_if_succeeded() <=> const_cast<Result<T, E>&>(rhs).unwrap_if_succeeded();
+                return const_cast<Result&>(*this).unwrap_if_succeeded() <=> const_cast<Result&>(rhs).unwrap_if_succeeded();
             }
 
         private:

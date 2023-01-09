@@ -13,8 +13,7 @@ namespace ospf
                 : RefImpl<T, Ref<T, ReferenceCategory::Borrow>>
             {
             private:
-                using Self = Ref<T, ReferenceCategory::Borrow>;
-                using Impl = RefImpl<T, Self>;
+                using Impl = RefImpl<T, Ref<T, ReferenceCategory::Borrow>>;
 
             public:
                 using typename Impl::PtrType;
