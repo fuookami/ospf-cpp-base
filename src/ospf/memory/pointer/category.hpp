@@ -16,7 +16,7 @@ namespace ospf
                 Raw
             };
 
-            template<typename T, PointerCategory category = PointerCategory::Raw>
+            template<typename T, PointerCategory cat = PointerCategory::Raw>
             class Ptr;
         };
     };
@@ -24,9 +24,9 @@ namespace ospf
 
 namespace std
 {
-    template<typename T, ospf::memory::pointer::PointerCategory category>
-        requires requires(ospf::memory::pointer::Ptr<T, category>& lhs, ospf::memory::pointer::Ptr<T, category>& rhs) { lhs.swap(rhs); }
-    inline void swap(ospf::memory::pointer::Ptr<T, category>& lhs, ospf::memory::pointer::Ptr<T, category>& rhs) noexcept
+    template<typename T, ospf::memory::pointer::PointerCategory cat>
+        requires requires(ospf::memory::pointer::Ptr<T, cat>& lhs, ospf::memory::pointer::Ptr<T, cat>& rhs) { lhs.swap(rhs); }
+    inline void swap(ospf::memory::pointer::Ptr<T, cat>& lhs, ospf::memory::pointer::Ptr<T, cat>& rhs) noexcept
     {
         lhs.swap(rhs);
     }

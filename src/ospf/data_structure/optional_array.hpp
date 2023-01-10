@@ -14,7 +14,7 @@ namespace ospf
         {
             template<
                 typename T,
-                usize l,
+                usize len,
                 template<typename T, usize l> class C
             >
             class StaticOptionalArray;
@@ -31,7 +31,7 @@ namespace ospf
             {
                 template<
                     typename T,
-                    usize l,
+                    usize len,
                     template<typename T, usize l> class C
                 >
                 friend class StaticOptionalArray;
@@ -60,7 +60,7 @@ namespace ospf
                 constexpr ~OptionalArrayConstIterator(void) noexcept = default;
 
             public:
-                inline constexpr const bool has_value(void) const noexcept
+                inline constexpr const bool has_value(void) const
                 {
                     return this->_iter->has_value();
                 }
@@ -83,7 +83,7 @@ namespace ospf
             {
                 template<
                     typename T,
-                    usize l,
+                    usize len,
                     template<typename T, usize l> class C
                 >
                 friend class StaticOptionalArray;
@@ -112,7 +112,7 @@ namespace ospf
                 constexpr ~OptionalArrayIterator(void) noexcept = default;
 
             public:
-                inline constexpr const bool has_value(void) const noexcept
+                inline constexpr const bool has_value(void) const
                 {
                     return this->_iter->has_value();
                 }
@@ -141,7 +141,7 @@ namespace ospf
             {
                 template<
                     typename T,
-                    usize l,
+                    usize len,
                     template<typename T, usize l> class C
                 >
                 friend class StaticOptionalArray;
@@ -170,7 +170,7 @@ namespace ospf
                 constexpr ~OptionalArrayConstReverseIterator(void) noexcept = default;
 
             public:
-                inline constexpr const bool has_value(void) const noexcept
+                inline constexpr const bool has_value(void) const
                 {
                     return this->_iter->has_value();
                 }
@@ -193,7 +193,7 @@ namespace ospf
             {
                 template<
                     typename T,
-                    usize l,
+                    usize len,
                     template<typename T, usize l> class C
                 >
                 friend class StaticOptionalArray;
@@ -222,7 +222,7 @@ namespace ospf
                 constexpr ~OptionalArrayReverseIterator(void) noexcept = default;
 
             public:
-                inline constexpr const bool has_value(void) const noexcept
+                inline constexpr const bool has_value(void) const
                 {
                     return this->_iter->has_value();
                 }
@@ -245,7 +245,7 @@ namespace ospf
             {
                 template<
                     typename T,
-                    usize l,
+                    usize len,
                     template<typename T, usize l> class C
                 >
                 friend class StaticOptionalArray;
@@ -274,7 +274,7 @@ namespace ospf
                 constexpr ~OptionalArrayConstUncheckedIterator(void) noexcept = default;
 
             public:
-                inline constexpr const bool has_value(void) const noexcept
+                inline constexpr const bool has_value(void) const
                 {
                     return this->_iter->has_value();
                 }
@@ -297,7 +297,7 @@ namespace ospf
             {
                 template<
                     typename T,
-                    usize l,
+                    usize len,
                     template<typename T, usize l> class C
                 >
                 friend class StaticOptionalArray;
@@ -326,7 +326,7 @@ namespace ospf
                 constexpr ~OptionalArrayUncheckedIterator(void) noexcept = default;
 
             public:
-                inline constexpr const bool has_value(void) const noexcept
+                inline constexpr const bool has_value(void) const
                 {
                     return this->_iter->has_value();
                 }
@@ -355,7 +355,7 @@ namespace ospf
             {
                 template<
                     typename T,
-                    usize l,
+                    usize len,
                     template<typename T, usize l> class C
                 >
                 friend class StaticOptionalArray;
@@ -384,7 +384,7 @@ namespace ospf
                 constexpr ~OptionalArrayConstUncheckedReverseIterator(void) noexcept = default;
 
             public:
-                inline constexpr const bool has_value(void) const noexcept
+                inline constexpr const bool has_value(void) const
                 {
                     return this->_iter->has_value();
                 }
@@ -407,7 +407,7 @@ namespace ospf
             {
                 template<
                     typename T,
-                    usize l,
+                    usize len,
                     template<typename T, usize l> class C
                 >
                 friend class StaticOptionalArray;
@@ -436,7 +436,7 @@ namespace ospf
                 constexpr ~OptionalArrayUncheckedReverseIterator(void) noexcept = default;
 
             public:
-                inline constexpr const bool has_value(void) const noexcept
+                inline constexpr const bool has_value(void) const
                 {
                     return this->_iter->has_value();
                 }
@@ -454,17 +454,147 @@ namespace ospf
             };
 
             template<typename T, typename C>
-            class OptionalArrayAccessPolicy;
+            struct OptionalArrayAccessPolicy;
+
+            template<
+                typename T,
+                usize len,
+                template<typename U, usize l> class C
+            >
+            struct OptionalArrayAccessPolicy<T, C<std::optional<OriginType<T>>, len>>
+            {
+            public:
+                using ValueType = OriginType<T>;
+                using ContainerType = C<std::optional<ValueType>, len>;
+                using IterType = OptionalArrayIterator<ValueType, ContainerType>;
+                using ConstIterType = OptionalArrayConstIterator<ValueType, ContainerType>;
+                using ReverseIterType = OptionalArrayReverseIterator<ValueType, ContainerType>;
+                using ConstReverseIterType = OptionalArrayConstReverseIterator<ValueType, ContainerType>;
+                using UncheckedIterType = OptionalArrayUncheckedIterator<ValueType, ContainerType>;
+                using ConstUncheckedIterType = OptionalArrayConstUncheckedIterator<ValueType, ContainerType>;
+                using UncheckedReverseIterType = OptionalArrayUncheckedReverseIterator<ValueType, ContainerType>;
+                using ConstUncheckedReverseIterType = OptionalArrayConstUncheckedReverseIterator<ValueType, ContainerType>;
+
+            public:
+                inline static constexpr const usize size(const ContainerType& array) noexcept
+                {
+                    return len;
+                }
+
+                inline static constexpr std::optional<ValueType>& get(ContainerType& array, const usize i)
+                {
+                    return array.at(i);
+                }
+
+                inline static constexpr const std::optional<ValueType>& get(const ContainerType& array, const usize i)
+                {
+                    return array.at(i);
+                }
+
+                inline static constexpr std::optional<ValueType>& get_uncheked(ContainerType& array, const usize i)
+                {
+                    return array[i];
+                }
+
+                inline static constexpr const std::optional<ValueType>& get_uncheked(const ContainerType& array, const usize i)
+                {
+                    return array[i];
+                }
+
+            public:
+                inline static constexpr decltype(auto) begin(ContainerType& array) noexcept
+                {
+                    return IterType{ array.begin() };
+                }
+
+                inline static constexpr decltype(auto) cbegin(const ContainerType& array) noexcept
+                {
+                    return ConstIterType{ array.begin() };
+                }
+
+                inline static constexpr decltype(auto) begin_unchecked(ContainerType& array) noexcept
+                {
+                    return UncheckedIterType{ array.begin() };
+                }
+
+                inline static constexpr decltype(auto) cbegin_unchecked(const ContainerType& array) noexcept
+                {
+                    return ConstUncheckedIterType{ array.begin() };
+                }
+
+            public:
+                inline static constexpr decltype(auto) end(ContainerType& array) noexcept
+                {
+                    return IterType{ array.end() };
+                }
+
+                inline static constexpr decltype(auto) cend(const ContainerType& array) noexcept
+                {
+                    return ConstIterType{ array.end() };
+                }
+
+                inline static constexpr decltype(auto) end_unchecked(ContainerType& array) noexcept
+                {
+                    return UncheckedIterType{ array.end() };
+                }
+
+                inline static constexpr decltype(auto) cend_unchecked(const ContainerType& array) noexcept
+                {
+                    return ConstUncheckedIterType{ array.end() };
+                }
+
+            public:
+                inline static constexpr decltype(auto) rbegin(ContainerType& array) noexcept
+                {
+                    return ReverseIterType{ array.rbegin() };
+                }
+
+                inline static constexpr decltype(auto) crbegin(const ContainerType& array) noexcept
+                {
+                    return ConstReverseIterType{ array.rbegin() };
+                }
+
+                inline static constexpr decltype(auto) rbegin_unchecked(ContainerType& array) noexcept
+                {
+                    return UncheckedReverseIterType{ array.rbegin() };
+                }
+
+                inline static constexpr decltype(auto) crbegin_unchecked(const ContainerType& array) noexcept
+                {
+                    return ConstUncheckedReverseIterType{ array.rbegin() };
+                }
+
+            public:
+                inline static constexpr decltype(auto) rend(ContainerType& array) noexcept
+                {
+                    return ReverseIterType{ array.rend() };
+                }
+
+                inline static constexpr decltype(auto) crend(const ContainerType& array) noexcept
+                {
+                    return ConstReverseIterType{ array.rend() };
+                }
+
+                inline static constexpr decltype(auto) rend_unchecked(ContainerType& array) noexcept
+                {
+                    return UncheckedReverseIterType{ array.rend() };
+                }
+
+                inline static constexpr decltype(auto) crend_unchecked(const ContainerType& array) noexcept
+                {
+                    return ConstUncheckedReverseIterType{ array.rend() };
+                }
+            };
 
             template<
                 typename T,
                 template<typename U> class C
             >
-            class OptionalArrayAccessPolicy<T, C<T>>
+            struct OptionalArrayAccessPolicy<T, C<std::optional<OriginType<T>>>>
             {
             public:
                 using ValueType = OriginType<T>;
-                using ContainerType = C<T>;
+                using ContainerType = C<std::optional<ValueType>>;
                 using IterType = OptionalArrayIterator<ValueType, ContainerType>;
                 using ConstIterType = OptionalArrayConstIterator<ValueType, ContainerType>;
                 using ReverseIterType = OptionalArrayReverseIterator<ValueType, ContainerType>;
@@ -511,217 +641,87 @@ namespace ospf
                 }
 
             public:
-                inline constexpr decltype(auto) begin(ContainerType& array) noexcept
+                inline static constexpr decltype(auto) begin(ContainerType& array) noexcept
                 {
                     return IterType{ array.begin() };
                 }
 
-                inline constexpr decltype(auto) cbegin(const ContainerType& array) noexcept
+                inline static constexpr decltype(auto) cbegin(const ContainerType& array) noexcept
                 {
                     return ConstIterType{ array.cbegin() };
                 }
 
-                inline constexpr decltype(auto) begin_unchecked(ContainerType& array) noexcept
+                inline static constexpr decltype(auto) begin_unchecked(ContainerType& array) noexcept
                 {
                     return UncheckedIterType{ array.begin() };
                 }
 
-                inline constexpr decltype(auto) cbegin_unchecked(const ContainerType& array) noexcept
+                inline static constexpr decltype(auto) cbegin_unchecked(const ContainerType& array) noexcept
                 {
                     return ConstUncheckedIterType{ array.cbegin() };
                 }
 
             public:
-                inline constexpr decltype(auto) end(ContainerType& array) noexcept
+                inline static constexpr decltype(auto) end(ContainerType& array) noexcept
                 {
                     return IterType{ array.end() };
                 }
 
-                inline constexpr decltype(auto) cend(const ContainerType& array) noexcept
+                inline static constexpr decltype(auto) cend(const ContainerType& array) noexcept
                 {
                     return ConstIterType{ array.cend() };
                 }
 
-                inline constexpr decltype(auto) end_unchecked(ContainerType& array) noexcept
+                inline static constexpr decltype(auto) end_unchecked(ContainerType& array) noexcept
                 {
                     return UncheckedIterType{ array.end() };
                 }
 
-                inline constexpr decltype(auto) cend_unchecked(const ContainerType& array) noexcept
+                inline static constexpr decltype(auto) cend_unchecked(const ContainerType& array) noexcept
                 {
                     return ConstUncheckedIterType{ array.cend() };
                 }
 
             public:
-                inline constexpr decltype(auto) rbegin(ContainerType& array) noexcept
+                inline static constexpr decltype(auto) rbegin(ContainerType& array) noexcept
                 {
                     return ReverseIterType{ array.rbegin() };
                 }
 
-                inline constexpr decltype(auto) crbegin(const ContainerType& array) noexcept
+                inline static constexpr decltype(auto) crbegin(const ContainerType& array) noexcept
                 {
                     return ConstReverseIterType{ array.crbegin() };
                 }
 
-                inline constexpr decltype(auto) rbegin_unchecked(ContainerType& array) noexcept
+                inline static constexpr decltype(auto) rbegin_unchecked(ContainerType& array) noexcept
                 {
                     return UncheckedReverseIterType{ array.rbegin() };
                 }
 
-                inline constexpr decltype(auto) crbegin_unchecked(const ContainerType& array) noexcept
+                inline static constexpr decltype(auto) crbegin_unchecked(const ContainerType& array) noexcept
                 {
                     return ConstUncheckedReverseIterType{ array.crbegin() };
                 }
 
             public:
-                inline constexpr decltype(auto) rend(ContainerType& array) noexcept
+                inline static constexpr decltype(auto) rend(ContainerType& array) noexcept
                 {
                     return ReverseIterType{ array.rend() };
                 }
 
-                inline constexpr decltype(auto) crend(const ContainerType& array) noexcept
+                inline static constexpr decltype(auto) crend(const ContainerType& array) noexcept
                 {
                     return ConstReverseIterType{ array.crend() };
                 }
 
-                inline constexpr decltype(auto) rend_unchecked(ContainerType& array) noexcept
+                inline static constexpr decltype(auto) rend_unchecked(ContainerType& array) noexcept
                 {
                     return UncheckedReverseIterType{ array.rend() };
                 }
 
-                inline constexpr decltype(auto) crend_unchecked(const ContainerType& array) noexcept
+                inline static constexpr decltype(auto) crend_unchecked(const ContainerType& array) noexcept
                 {
                     return ConstUncheckedReverseIterType{ array.crend() };
-                }
-            };
-
-            template<
-                typename T,
-                usize l,
-                template<typename U, usize l> class C
-            >
-            class OptionalArrayAccessPolicy<T, C<T, l>>
-            {
-            public:
-                using ValueType = OriginType<T>;
-                using ContainerType = C<T, l>;
-                using IterType = OptionalArrayIterator<ValueType, ContainerType>;
-                using ConstIterType = OptionalArrayConstIterator<ValueType, ContainerType>;
-                using ReverseIterType = OptionalArrayReverseIterator<ValueType, ContainerType>;
-                using ConstReverseIterType = OptionalArrayConstReverseIterator<ValueType, ContainerType>;
-                using UncheckedIterType = OptionalArrayUncheckedIterator<ValueType, ContainerType>;
-                using ConstUncheckedIterType = OptionalArrayConstUncheckedIterator<ValueType, ContainerType>;
-                using UncheckedReverseIterType = OptionalArrayUncheckedReverseIterator<ValueType, ContainerType>;
-                using ConstUncheckedReverseIterType = OptionalArrayConstUncheckedReverseIterator<ValueType, ContainerType>;
-
-            public:
-                inline static constexpr const usize size(const ContainerType& array) noexcept
-                {
-                    return l;
-                }
-
-                inline static constexpr std::optional<ValueType>& get(ContainerType& array, const usize i)
-                {
-                    return array.at(i);
-                }
-
-                inline static constexpr const std::optional<ValueType>& get(const ContainerType& array, const usize i)
-                {
-                    return array.at(i);
-                }
-
-                inline static constexpr std::optional<ValueType>& get_uncheked(ContainerType& array, const usize i)
-                {
-                    return array[i];
-                }
-
-                inline static constexpr const std::optional<ValueType>& get_uncheked(const ContainerType& array, const usize i)
-                {
-                    return array[i];
-                }
-
-            public:
-                inline constexpr decltype(auto) begin(ContainerType& array) noexcept
-                {
-                    return IterType{ array.begin() };
-                }
-
-                inline constexpr decltype(auto) cbegin(const ContainerType& array) noexcept
-                {
-                    return ConstIterType{ array.begin() };
-                }
-
-                inline constexpr decltype(auto) begin_unchecked(ContainerType& array) noexcept
-                {
-                    return UncheckedIterType{ array.begin() };
-                }
-
-                inline constexpr decltype(auto) cbegin_unchecked(const ContainerType& array) noexcept
-                {
-                    return ConstUncheckedIterType{ array.begin() };
-                }
-
-            public:
-                inline constexpr decltype(auto) end(ContainerType& array) noexcept
-                {
-                    return IterType{ array.end() };
-                }
-
-                inline constexpr decltype(auto) cend(const ContainerType& array) noexcept
-                {
-                    return ConstIterType{ array.end() };
-                }
-
-                inline constexpr decltype(auto) end_unchecked(ContainerType& array) noexcept
-                {
-                    return UncheckedIterType{ array.end() };
-                }
-
-                inline constexpr decltype(auto) cend_unchecked(const ContainerType& array) noexcept
-                {
-                    return ConstUncheckedIterType{ array.end() };
-                }
-
-            public:
-                inline constexpr decltype(auto) rbegin(ContainerType& array) noexcept
-                {
-                    return ReverseIterType{ array.rbegin() };
-                }
-
-                inline constexpr decltype(auto) crbegin(const ContainerType& array) noexcept
-                {
-                    return ConstReverseIterType{ array.rbegin() };
-                }
-
-                inline constexpr decltype(auto) rbegin_unchecked(ContainerType& array) noexcept
-                {
-                    return UncheckedReverseIterType{ array.rbegin() };
-                }
-
-                inline constexpr decltype(auto) crbegin_unchecked(const ContainerType& array) noexcept
-                {
-                    return ConstUncheckedReverseIterType{ array.rbegin() };
-                }
-
-            public:
-                inline constexpr decltype(auto) rend(ContainerType& array) noexcept
-                {
-                    return ReverseIterType{ array.rend() };
-                }
-
-                inline constexpr decltype(auto) crend(const ContainerType& array) noexcept
-                {
-                    return ConstReverseIterType{ array.rend() };
-                }
-
-                inline constexpr decltype(auto) rend_unchecked(ContainerType& array) noexcept
-                {
-                    return UncheckedReverseIterType{ array.rend() };
-                }
-
-                inline constexpr decltype(auto) crend_unchecked(const ContainerType& array) noexcept
-                {
-                    return ConstUncheckedReverseIterType{ array.rend() };
                 }
             };
 
@@ -732,8 +732,8 @@ namespace ospf
 
             public:
                 using ValueType = OriginType<T>;
-                using ContainerType = C;
-                using AccessPolicyType = OptionalArrayAccessPolicy<T, C>;
+                using ContainerType = OriginType<C>;
+                using AccessPolicyType = OptionalArrayAccessPolicy<ValueType, ContainerType>;
                 using IterType = typename AccessPolicyType::IterType;
                 using ConstIterType = typename AccessPolicyType::ConstIterType;
                 using ReverseIterType = typename AccessPolicyType::ReverseIterType;
@@ -947,13 +947,11 @@ namespace ospf
                     return AccessPolicyType::size(const_container());
                 }
 
-
             public:
                 inline void swap(OptionalArrayImpl<T, C, Self>& ano) noexcept
                 {
                     std::swap(container(), ano.container());
                 }
-
 
             protected:
                 inline ContainerType& container(void) noexcept
@@ -1138,13 +1136,14 @@ namespace ospf
 
             template<
                 typename T,
-                usize l,
+                usize len,
                 template<typename T, usize l> class C
             >
             class StaticOptionalArray
-                : public OptionalArrayImpl<T, C<std::optional<T>, l>, StaticOptionalArray<T, l, C>>
+                : public OptionalArrayImpl<T, C<std::optional<OriginType<T>>, len>, StaticOptionalArray<T, len, C>>
             {
-                using Impl = OptionalArrayImpl<T, C<std::optional<T>, l>, StaticOptionalArray<T, l, C>>;
+                using Impl = OptionalArrayImpl<T, C<std::optional<OriginType<T>>, len>, StaticOptionalArray<T, len, C>>;
+                using UncheckedAccessorImpl = OptionalArrayUncheckedAccessorImpl<T, C<std::optional<T>, len>, StaticOptionalArray<T, len, C>>;
 
             public:
                 using typename Impl::ValueType;
@@ -1166,7 +1165,7 @@ namespace ospf
 
                 StaticOptionalArray(std::initializer_list<ValueType> eles)
                 {
-                    for (auto i{ 0_uz }, j{ (std::min)(l, eles.size) }; i != j; ++i)
+                    for (auto i{ 0_uz }, j{ (std::min)(len, eles.size) }; i != j; ++i)
                     {
                         _container[i] = std::optional<ValueType>{ move<ValueType>(eles[i]) };
                     }
@@ -1183,16 +1182,21 @@ namespace ospf
                 constexpr ~StaticOptionalArray(void) = default;
 
             public:
+                inline constexpr RetType<UncheckedAccessorImpl> unchecked(void) const noexcept
+                {
+                    return UncheckedAccessorImpl{ dynamic_cast<const Impl&>(*this) };
+                }
+
                 template<typename = void>
-                    requires requires (ContainerType& container) { { container.data() } -> DecaySameAs<PtrType<T>>; }
-                inline constexpr const PtrType<T> data(void) noexcept
+                    requires requires (ContainerType& container) { { container.data() } -> DecaySameAs<PtrType<std::optional<ValueType>>>; }
+                inline constexpr const PtrType<std::optional<ValueType>> data(void) noexcept
                 {
                     return _container.data();
                 }
 
                 template<typename = void>
-                    requires requires (const ContainerType& container) { { container.data() } -> DecaySameAs<CPtrType<T>>; }
-                inline constexpr const CPtrType<T> data(void) const noexcept
+                    requires requires (const ContainerType& container) { { container.data() } -> DecaySameAs<CPtrType<std::optional<ValueType>>>; }
+                inline constexpr const CPtrType<std::optional<ValueType>> data(void) const noexcept
                 {
                     return _container.data();
                 }
@@ -1211,19 +1215,19 @@ namespace ospf
 
                 inline constexpr void fill(const std::nullopt_t _ = std::nullopt) noexcept
                 {
-                    _container.fill(std::nullopt);
+                    _container.fill(std::optional<ValueType>{ std::nullopt });
                 }
 
                 inline constexpr void fill(CLRefType<ValueType> value) noexcept
                 {
-                    _container.fill(std::optional<ValueType>(value));
+                    _container.fill(std::optional<ValueType>{ value });
                 }
 
                 template<typename = void>
                     requires ReferenceFaster<ValueType> && std::movable<ValueType>
                 inline void fill(RRefType<ValueType> value) noexcept
                 {
-                    _container.fill(std::optional<ValueType>(move<ValueType>(value)));
+                    _container.fill(std::optional<ValueType>{ move<ValueType>(value) });
                 }
 
             public:
@@ -1284,9 +1288,10 @@ namespace ospf
                 template<typename T> class C
             >
             class DynamicOptionalArray
-                : public OptionalArrayImpl<T, C<std::optional<T>>, DynamicOptionalArray<T, C>>
+                : public OptionalArrayImpl<T, C<std::optional<OriginType<T>>>, DynamicOptionalArray<T, C>>
             {
-                using Impl = OptionalArrayImpl<T, C<std::optional<T>>, DynamicOptionalArray<T, C>>;
+                using Impl = OptionalArrayImpl<T, C<std::optional<OriginType<T>>>, DynamicOptionalArray<T, C>>;
+                using UncheckedAccessorImpl = OptionalArrayUncheckedAccessorImpl<T, C<std::optional<OriginType<T>>>, DynamicOptionalArray<T, C>>;
 
             public:
                 using typename Impl::ValueType;
@@ -1314,7 +1319,7 @@ namespace ospf
                 DynamicOptionalArray(const usize length, RRefType<ValueType> value)
                     : _container(length, std::optional<ValueType>{ move<ValueType>(value) }) {}
 
-                template<typename It>
+                template<std::input_iterator It>
                 constexpr DynamicOptionalArray(const It first, const It last)
                     : _container(first, last) {}
 
@@ -1374,16 +1379,21 @@ namespace ospf
                 }
 
             public:
+                inline constexpr RetType<UncheckedAccessorImpl> unchecked(void) const noexcept
+                {
+                    return UncheckedAccessorImpl{ dynamic_cast<const Impl&>(*this) };
+                }
+
                 template<typename = void>
-                    requires requires (ContainerType& container) { { container.data() } -> DecaySameAs<PtrType<T>>; }
-                inline constexpr const PtrType<T> data(void) noexcept
+                    requires requires (ContainerType& container) { { container.data() } -> DecaySameAs<PtrType<std::optional<ValueType>>>; }
+                inline constexpr const PtrType<std::optional<ValueType>> data(void) noexcept
                 {
                     return _container.data();
                 }
 
                 template<typename = void>
-                    requires requires (const ContainerType& container) { { container.data() } -> DecaySameAs<CPtrType<T>>; }
-                inline constexpr const CPtrType<T> data(void) const noexcept
+                    requires requires (const ContainerType& container) { { container.data() } -> DecaySameAs<CPtrType<std::optional<ValueType>>>; }
+                inline constexpr const CPtrType<std::optional<ValueType>> data(void) const noexcept
                 {
                     return _container.data();
                 }
@@ -1621,8 +1631,6 @@ namespace ospf
                     _container.pop_front();
                     return value;
                 }
-
-                // todo: posh_front, emplace_front, pop_front
                 
                 inline void resize(const usize length)
                 {
@@ -1702,16 +1710,16 @@ namespace ospf
 
         template<
             typename T, 
-            usize l,
+            usize len,
             template<typename T, usize l> class C = std::array
         >
-        using OptionalArray = optional_array::StaticOptionalArray<OriginType<T>, l, C>;
+        using OptArray = optional_array::StaticOptionalArray<OriginType<T>, len, C>;
 
         template<
             typename T,
             template<typename T> class C = std::vector
         >
-        using DynOptionalArray = optional_array::DynamicOptionalArray<OriginType<T>, C>;
+        using DynOptArray = optional_array::DynamicOptionalArray<OriginType<T>, C>;
     };
 };
 

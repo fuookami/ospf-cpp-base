@@ -118,45 +118,45 @@ namespace ospf
                 }
 
             private:
-                template<pointer::PointerCategory category, typename... Args>
+                template<pointer::PointerCategory cat, typename... Args>
                 inline decltype(auto) make_ptr_from_pool(Args&&... args) noexcept
                 {
                     auto ptr = _pool.malloc();
                     if (ptr == nullptr)
                     {
-                        return pointer::Ptr<T, category>{};
+                        return pointer::Ptr<T, cat>{};
                     }
                     else
                     {
-                        if constexpr (category == pointer::PointerCategory::Raw)
+                        if constexpr (cat == pointer::PointerCategory::Raw)
                         {
-                            return pointer::Ptr<T, category>{ ::new (ptr) T(std::forward<Args>(args)...) };
+                            return pointer::Ptr<T, cat>{ ::new (ptr) T(std::forward<Args>(args)...) };
                         }
                         else
                         {
-                            return pointer::Ptr<T, category>{ ::new (ptr) T(std::forward<Args>(args)...), deleter() };
+                            return pointer::Ptr<T, cat>{ ::new (ptr) T(std::forward<Args>(args)...), deleter() };
                         }
                     }
                 }
 
-                template<typename U, pointer::PointerCategory category, typename... Args>
+                template<typename U, pointer::PointerCategory cat, typename... Args>
                     requires std::is_convertible_v<PtrType<T>, PtrType<U>>
                 inline decltype(auto) make_base_ptr_from_pool(Args&&... args) noexcept
                 {
                     auto ptr = _pool.malloc();
                     if (ptr == nullptr)
                     {
-                        return pointer::Ptr<U, category>{};
+                        return pointer::Ptr<U, cat>{};
                     }
                     else
                     {
-                        if constexpr (category == pointer::PointerCategory::Raw)
+                        if constexpr (cat == pointer::PointerCategory::Raw)
                         {
-                            return pointer::Ptr<U, category>{ static_cast<PtrType<U>>(::new (ptr) T(std::forward<Args>(args)...)) };
+                            return pointer::Ptr<U, cat>{ static_cast<PtrType<U>>(::new (ptr) T(std::forward<Args>(args)...)) };
                         }
                         else
                         {
-                            return pointer::Ptr<U, category>{ static_cast<PtrType<U>>(::new (ptr) T(std::forward<Args>(args)...)), base_deleter<U>() };
+                            return pointer::Ptr<U, cat>{ static_cast<PtrType<U>>(::new (ptr) T(std::forward<Args>(args)...)), base_deleter<U>() };
                         }
                     }
                 }
