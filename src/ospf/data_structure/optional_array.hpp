@@ -5,6 +5,7 @@
 #include <ospf/literal_constant.hpp>
 #include <ospf/memory/reference.hpp>
 #include <ospf/meta_programming/iterator.hpp>
+#include <boost/iterator/transform_iterator.hpp>
 
 namespace ospf
 {
@@ -761,14 +762,14 @@ namespace ospf
                     return at(i).has_value();
                 }
 
-                inline void set(const usize i, CLRefType<ValueType> value)
+                inline constexpr void set(const usize i, CLRefType<ValueType> value)
                 {
                     AccessPolicyType::get(container())[i] = OptType{ value };
                 }
 
                 template<typename = void>
                     requires ReferenceFaster<ValueType> && std::movable<ValueType>
-                inline void set(const usize i, RRefType<ValueType> value)
+                inline constexpr void set(const usize i, RRefType<ValueType> value)
                 {
                     AccessPolicyType::get(container())[i] = OptType{ move<ValueType>(value) };
                 }
@@ -957,12 +958,12 @@ namespace ospf
                 }
 
             protected:
-                inline ContainerType& container(void) noexcept
+                inline constexpr ContainerType& container(void) noexcept
                 {
                     return Trait::get_container(self());
                 }
 
-                inline const ContainerType& const_container(void) const noexcept
+                inline constexpr const ContainerType& const_container(void) const noexcept
                 {
                     return Trait::get_const_container(self());
                 }
@@ -970,13 +971,13 @@ namespace ospf
             private:
                 struct Trait : public Self
                 {
-                    inline static ContainerType& get_container(Self& self) noexcept
+                    inline static constexpr ContainerType& get_container(Self& self) noexcept
                     {
                         static const auto get_impl = &Self::OSPF_CRTP_FUNCTION(get_container);
                         return (self.*get_impl)();
                     }
 
-                    inline static const ContainerType& get_const_container(const Self& self) noexcept
+                    inline static constexpr const ContainerType& get_const_container(const Self& self) noexcept
                     {
                         static const auto get_impl = &Self::OSPF_CRTP_FUNCTION(get_const_container);
                         return (self.*get_impl)();
@@ -1235,6 +1236,11 @@ namespace ospf
                     _container.fill(OptType{ move<ValueType>(value) });
                 }
 
+                inline constexpr void fill(CLRefType<OptType> value) noexcept
+                {
+                    _container.fill(value);
+                }
+
             public:
                 inline constexpr const bool operator==(const StaticOptionalArray& rhs) const noexcept
                 {
@@ -1274,12 +1280,12 @@ namespace ospf
                 }
 
             OSPF_CRTP_PERMISSION:
-                inline ContainerType& OSPF_CRTP_FUNCTION(get_container)(void) noexcept
+                inline constexpr ContainerType& OSPF_CRTP_FUNCTION(get_container)(void) noexcept
                 {
                     return _container;
                 }
 
-                inline const ContainerType& OSPF_CRTP_FUNCTION(get_const_container)(void) const noexcept
+                inline constexpr const ContainerType& OSPF_CRTP_FUNCTION(get_const_container)(void) const noexcept
                 {
                     return _container;
                 }
@@ -1326,6 +1332,23 @@ namespace ospf
                     : _container(length, OptType{ move<ValueType>(value) }) {}
 
                 template<std::input_iterator It>
+                    requires requires (const It it) { { *it } -> std::same_as<CLRefType<ValueType>>; }
+                constexpr DynamicOptionalArray(const It first, const It last)
+                    : _container(
+                        boost::make_transform_iterator(first, [](CLRefType<ValueType> value) { return OptType{ value }; }),
+                        boost::make_transform_iterator(last, [](CLRefType<ValueType> value) { return OptType{ value }; })
+                    ) {}
+
+                template<std::input_iterator It>
+                    requires requires (const It it) { { *it } -> DecaySameAs<ValueType>; }
+                constexpr DynamicOptionalArray(const It first, const It last)
+                    : _container(
+                        boost::make_transform_iterator(first, [](LRefType<ValueType> value) { return OptType{ move<ValueType>(value) }; }),
+                        boost::make_transform_iterator(last, [](LRefType<ValueType> value) { return OptType{ move<ValueType>(value) }; })
+                    ) {}
+
+                template<std::input_iterator It>
+                    requires requires (const It it) { { *it } -> DecaySameAs<OptType>; }
                 constexpr DynamicOptionalArray(const It first, const It last)
                     : _container(first, last) {}
 
@@ -1359,12 +1382,40 @@ namespace ospf
                     _container.assign(length, OptType{ value });
                 }
 
+                template<typename = void>
+                    requires ReferenceFaster<ValueType>&& std::movable<ValueType>
                 inline constexpr void assign(const usize length, RRefType<ValueType> value)
                 {
                     _container.assign(length, OptType{ move<ValueType>(value) });
                 }
 
+                inline constexpr void assign(const usize length, CLRefType<OptType> value)
+                {
+                    _container.assign(length, value);
+                }
+
                 template<std::input_iterator It>
+                    requires requires (const It it) { { *it } -> DecaySameAs<ValueType>; }
+                inline constexpr void assign(const It first, const It last)
+                {
+                    if constexpr (std::is_same_v<decltype(*it), CLRefType<ValueType>>)
+                    {
+                        _container.assign(
+                            boost::make_transform_iterator(first, [](CLRefType<ValueType> value) { return OptType{ value }; }),
+                            boost::make_transform_iterator(last, [](CLRefType<ValueType> value) { return OptType{ value }; })
+                        );
+                    }
+                    else
+                    {
+                        _container.assign(
+                            boost::make_transform_iterator(first, [](LRefType<ValueType> value) { return OptType{ move<ValueType>(value) }; }),
+                            boost::make_transform_iterator(last, [](LRefType<ValueType> value) { return OptType{ move<ValueType>(value) }; })
+                        );
+                    }
+                }
+
+                template<std::input_iterator It>
+                    requires requires (const It it) { { *it } -> DecaySameAs<OptType>; }
                 inline constexpr void assign(const It first, const It last)
                 {
                     _container.assign(first, last);
@@ -1437,37 +1488,113 @@ namespace ospf
                     _container.clear();
                 }
 
+                inline constexpr const IterType insert(const ConstIterType pos, const std::nullopt_t _)
+                {
+                    return IterType{ _container.insert(pos._iter, OptType{ std::nullopt }) };
+                }
+
                 inline constexpr const IterType insert(const ConstIterType pos, CLRefType<ValueType> value)
                 {
-                    return IterType{ _container.insert(pos._iter, value) };
+                    return IterType{ _container.insert(pos._iter, OptType{ value }) };
                 }
 
                 template<typename = void>
                     requires ReferenceFaster<ValueType> && std::movable<ValueType>
                 inline constexpr const IterType insert(const ConstIterType pos, RRefType<ValueType> value)
                 {
-                    return IterType{ _container.insert(pos._iter, move<ValueType>(value)) };
+                    return IterType{ _container.insert(pos._iter, OptType{ move<ValueType>(value) }) };
+                }
+
+                inline constexpr const IterType insert(const ConstIterType pos, CLRefType<OptType> value)
+                {
+                    return IterType{ _container.insert(pos._iter, value) };
+                }
+
+                template<typename = void>
+                    requires ReferenceFaster<ValueType> && std::movable<ValueType>
+                inline constexpr const IterType insert(const ConstIterType pos, RRefType<OptType> value)
+                {
+                    return IterType{ _container.insert(pos._iter, move<OptType>(value)) };
+                }
+
+                inline constexpr const UncheckedIterType insert(const ConstUncheckedIterType pos, const std::nullopt_t _)
+                {
+                    return UncheckedIterType{ _container.insert(pos._iter, OptType{ std::nullopt }) };
                 }
 
                 inline constexpr const UncheckedIterType insert(const ConstUncheckedIterType pos, CLRefType<ValueType> value)
+                {
+                    return UncheckedIterType{ _container.insert(pos._iter, OptType{ value }) };
+                }
+
+                template<typename = void>
+                    requires ReferenceFaster<ValueType> && std::movable<ValueType>
+                inline constexpr const UncheckedIterType insert(const ConstUncheckedIterType pos, RRefType<ValueType> value)
+                {
+                    return UncheckedIterType{ _container.insert(pos._iter, OptType{ move<ValueType>(value) }) };
+                }
+
+                inline constexpr const UncheckedIterType insert(const ConstUncheckedIterType pos, CLRefType<OptType> value)
                 {
                     return UncheckedIterType{ _container.insert(pos._iter, value) };
                 }
 
                 template<typename = void>
-                    requires ReferenceFaster<ValueType>&& std::movable<ValueType>
-                inline constexpr const UncheckedIterType insert(const ConstUncheckedIterType pos, RRefType<ValueType> value)
+                    requires ReferenceFaster<OptType> && std::movable<OptType>
+                inline constexpr const UncheckedIterType insert(const ConstUncheckedIterType pos, RRefType<OptType> value)
                 {
-                    return UncheckedIterType{ _container.insert(pos._iter, move<ValueType>(value)) };
+                    return UncheckedIterType{ _container.insert(pos._iter, move<OptType>(value)) };
                 }
 
                 template<std::input_iterator It>
+                    requires requires (const It it) { { *it } -> DecaySameAs<ValueType>; }
+                inline constexpr const IterType insert(const ConstIterType pos, const It first, const It last)
+                {
+                    if constexpr (std::is_same_v<decltype(*it), CLRefType<ValueType>>)
+                    {
+                        return IterType{ _container.insert(pos._iter,
+                            boost::make_transform_iterator(first, [](CLRefType<ValueType> value) { return OptType{ value }; }),
+                            boost::make_transform_iterator(last, [](CLRefType<ValueType> value) { return OptType{ value }; })
+                        ) };
+                    }
+                    else
+                    {
+                        return IterType{ _container.insert(pos._iter,
+                            boost::make_transform_iterator(first, [](LRefType<ValueType> value) { return OptType{ move<ValueType>(value) }; }),
+                            boost::make_transform_iterator(last, [](LRefType<ValueType> value) { return OptType{ move<ValueType>(value) }; })
+                        ) };
+                    }
+                }
+
+                template<std::input_iterator It>
+                    requires requires (const It it) { { *it } -> DecaySameAs<OptType>; }
                 inline constexpr const IterType insert(const ConstIterType pos, const It first, const It last)
                 {
                     return IterType{ _container.insert(pos._iter, first, last) };
                 }
 
                 template<std::input_iterator It>
+                    requires requires (const It it) { { *it } -> DecaySameAs<ValueType>; }
+                inline constexpr const UncheckedIterType insert(const ConstUncheckedIterType pos, const It first, const It last)
+                {
+                    if constexpr (std::is_same_v<decltype(*it), CLRefType<ValueType>>)
+                    {
+                        return UncheckedIterType{ _container.insert(pos._iter,
+                            boost::make_transform_iterator(first, [](CLRefType<ValueType> value) { return OptType{ value }; }),
+                            boost::make_transform_iterator(last, [](CLRefType<ValueType> value) { return OptType{ value }; })
+                        ) };
+                    }
+                    else
+                    {
+                        return UncheckedIterType{ _container.insert(pos._iter,
+                            boost::make_transform_iterator(first, [](LRefType<ValueType> value) { return OptType{ move<ValueType>(value) }; }),
+                            boost::make_transform_iterator(last, [](LRefType<ValueType> value) { return OptType{ move<ValueType>(value) }; })
+                        ) };
+                    }
+                }
+
+                template<std::input_iterator It>
+                    requires requires (const It it) { { *it } -> DecaySameAs<OptType>; }
                 inline constexpr const UncheckedIterType insert(const ConstUncheckedIterType pos, const It first, const It last)
                 {
                     return UncheckedIterType{ _container.insert(pos._iter, first, last) };
@@ -1478,7 +1605,7 @@ namespace ospf
                     auto it = pos._iter;
                     for (auto i{ 0_uz }; i != eles.size(); ++i)
                     {
-                        it = _container.insert(it, move<ValueType>(eles[i]));
+                        it = _container.insert(it, OptType{ move<ValueType>(eles[i]) });
                     }
                     return IterType{ it };
                 }
@@ -1488,99 +1615,126 @@ namespace ospf
                     auto it = pos._iter;
                     for (auto i{ 0_uz }; i != eles.size(); ++i)
                     {
-                        it = _container.insert(it, move<ValueType>(eles[i]));
+                        it = _container.insert(it, OptType{ move<ValueType>(eles[i]) });
                     }
                     return UncheckedIterType{ it };
                 }
 
                 inline constexpr const IterType insert(const ConstIterType pos, std::initializer_list<OptType> eles)
                 {
-                    return IterType{ _container.insert(pos, std::move(eles)) };
+                    return IterType{ _container.insert(pos._iter, std::move(eles)) };
                 }
 
                 inline constexpr const UncheckedIterType insert(const ConstUncheckedIterType pos, std::initializer_list<OptType> eles)
                 {
-                    return UncheckedIterType{ _container.insert(pos, std::move(eles)) };
+                    return UncheckedIterType{ _container.insert(pos._iter, std::move(eles)) };
+                }
+
+                inline constexpr const IterType emplace(const ConstIterType pos, const std::nullopt_t _)
+                {
+                    return IterType{ _container.emplace(pos._iter, std::nullopt) };
                 }
 
                 template<typename... Args>
                     requires std::constructible_from<ValueType, Args...>
-                inline const IterType emplace(const ConstIterType pos, Args&&... args)
+                inline constexpr const IterType emplace(const ConstIterType pos, Args&&... args)
                 {
-                    return IterType{ _container.emplace(pos._iter, std::forward<Args>(args)...) };
+                    return IterType{ _container.emplace(pos._iter, ValueType{ std::forward<Args>(args)...) } };
+                }
+
+                inline constexpr const UncheckedIterType emplace(const ConstUncheckedIterType pos, const std::nullopt_t _)
+                {
+                    return UncheckedIterType{ _container.emplace(pos._iter, std::nullopt) };
                 }
 
                 template<typename... Args>
                     requires std::constructible_from<ValueType, Args...>
-                inline const UncheckedIterType emplace(const ConstUncheckedIterType pos, Args&&... args)
+                inline constexpr const UncheckedIterType emplace(const ConstUncheckedIterType pos, Args&&... args)
                 {
-                    return UncheckedIterType{ _container.emplace(pos._iter, std::forward<Args>(args)...) };
+                    return UncheckedIterType{ _container.emplace(pos._iter, ValueType{ std::forward<Args>(args)...) } };
                 }
 
-                inline const IterType erase(const ConstIterType pos)
+                inline constexpr const IterType erase(const ConstIterType pos)
                 {
-                    return IterType{ _container.erase(pos) };
+                    return IterType{ _container.erase(pos._iter) };
                 }
 
-                inline const UncheckedIterType erase(const ConstUncheckedIterType pos)
+                inline constexpr const UncheckedIterType erase(const ConstUncheckedIterType pos)
                 {
-                    return UncheckedIterType{ _container.erase(pos) };
+                    return UncheckedIterType{ _container.erase(pos._iter) };
                 }
 
-                inline const IterType erase(const ConstIterType first, const ConstIterType last)
+                inline constexpr const IterType erase(const ConstIterType first, const ConstIterType last)
                 {
-                    return IterType{ _container.erase(first, last) };
+                    return IterType{ _container.erase(first._iter, last._iter) };
                 }
 
-                inline const UncheckedIterType erase(const ConstUncheckedIterType first, const ConstUncheckedIterType last)
+                inline constexpr const UncheckedIterType erase(const ConstUncheckedIterType first, const ConstUncheckedIterType last)
                 {
-                    return UncheckedIterType{ _container.erase(first, last) };
+                    return UncheckedIterType{ _container.erase(first._iter, last._iter) };
                 }
 
-                inline void push_back(const std::nullopt_t _)
+                inline constexpr void push_back(const std::nullopt_t _)
                 {
                     _container.push_back(std::nullopt);
                 }
 
-                inline void push_back(CLRefType<ValueType> value)
+                inline constexpr void push_back(CLRefType<ValueType> value)
                 {
                     _container.push_back(OptType{ value });
                 }
 
                 template<typename = void>
                     requires ReferenceFaster<ValueType> && std::movable<ValueType>
-                inline void push_back(RRefType<ValueType> value)
+                inline constexpr void push_back(RRefType<ValueType> value)
                 {
                     _container.push_back(OptType{ move<ValueType>(value) });
                 }
 
-                template<typename... Args>
-                    requires std::constructible_from<ValueType, Args...>
-                inline ValueType& emplace_back(Args&&... args)
+                inline constexpr void push_back(CLRefType<OptType> value)
                 {
-                    return *_container.emplace_back(OptType{ ValueType{ std::forward<Args>(args)... } });
+                    _container.push_back(value);
                 }
 
-                inline RetType<OptType> pop_back(void)
+                template<typename = void>
+                    requires ReferenceFaster<OptType> && std::movable<OptType>
+                inline constexpr void push_back(RRefType<OptType> value)
+                {
+                    _container.push_back(value);
+                }
+
+                inline constexpr OptType& emplace_back(const std::nullopt_t _)
+                {
+                    return _container.emplace_back(std::nullopt);
+                }
+
+                template<typename... Args>
+                    requires std::constructible_from<ValueType, Args...>
+                inline constexpr ValueType& emplace_back(Args&&... args)
+                {
+                    return *_container.emplace_back(ValueType{ std::forward<Args>(args)... });
+                }
+
+                inline constexpr RetType<OptType> pop_back(void)
                 {
                     auto back = move<OptType>(this->back());
                     _container.pop_back();
                     return back;
                 }
 
-                inline void push_front(const std::nullopt_t _)
+                inline constexpr void push_front(const std::nullopt_t _)
                 {
                     _container.insert(_container.begin(), std::nullopt);
                 }
 
                 template<typename = void>
                     requires requires (ContainerType& container) { container.push_front(std::nullopt); }
-                inline void push_front(const std::nullopt_t _)
+                inline constexpr void push_front(const std::nullopt_t _)
                 {
                     _container.push_front(std::nullopt);
                 }
 
-                inline void push_front(CLRefType<ValueType> value)
+                inline constexpr void push_front(CLRefType<ValueType> value)
                 {
                     _container.insert(_container.begin(), OptType{ value });
                 }
@@ -1593,8 +1747,8 @@ namespace ospf
                 }
 
                 template<typename = void>
-                    requires ReferenceFaster<ValueType>&& std::movable<ValueType>
-                inline void push_front(RRefType<ValueType> value)
+                    requires ReferenceFaster<ValueType> && std::movable<ValueType>
+                inline constexpr void push_front(RRefType<ValueType> value)
                 {
                     _container.insert(_container.begin(), OptType{ move<ValueType>(value) });
                 }
@@ -1602,27 +1756,39 @@ namespace ospf
                 template<typename = void>
                     requires ReferenceFaster<ValueType> && std::movable<ValueType> 
                         && requires (ContainerType& container) { container.push_front(std::declval<OptType>()); }
-                inline void push_front(RRefType<ValueType> value)
+                inline constexpr void push_front(RRefType<ValueType> value)
                 {
                     _container.push_front(OptType{ move<ValueType>(value) });
                 }
 
+                inline constexpr OptType& emplace_front(const std::nullopt_t _)
+                {
+                    return *_container.emplace(_container.begin(), std::nullopt);
+                }
+
+                template<typename = void>
+                    requires requires (ContainerType& container) { container.emplace_front(std::nullopt); }
+                inline constexpr OptType& emplace_front(const std::nullopt_t _)
+                {
+                    return *_container.emplace_front(std::nullopt);
+                }
+                
                 template<typename... Args>
                     requires std::constructible_from<ValueType, Args...>
-                inline ValueType& emplace_front(Args&&... args)
+                inline constexpr ValueType& emplace_front(Args&&... args)
                 {
-                    return **_container.insert(_container.begin(), OptType{ ValueType{ std::forward<Args>(args)... } });
+                    return **_container.emplace(_container.begin(), ValueType{ std::forward<Args>(args)... });
                 }
 
                 template<typename... Args>
                     requires std::constructible_from<ValueType, Args...>
-                        && requires (ContainerType& container) { container.emplace_front(std::declval<OptType>()); }
-                inline ValueType& emplace_front(Args&&... args)
+                        && requires (ContainerType& container) { container.emplace_front(std::declval<ValueType>()); }
+                inline constexpr ValueType& emplace_front(Args&&... args)
                 {
-                    return *_container.emplace_front(OptType{ ValueType{ std::forward<Args>(args)... } });
+                    return *_container.emplace_front(ValueType{ std::forward<Args>(args)... });
                 }
 
-                inline RetType<OptType> pop_front(void)
+                inline constexpr RetType<OptType> pop_front(void)
                 {
                     auto value = move<OptType>(this->front());
                     _container.erase(_container.begin());
@@ -1631,31 +1797,31 @@ namespace ospf
 
                 template<typename = void>
                     requires requires (ContainerType& container) { container.pop_front(); }
-                inline RetType<OptType> pop_front(void)
+                inline constexpr RetType<OptType> pop_front(void)
                 {
                     auto value = move<OptType>(this->front());
                     _container.pop_front();
                     return value;
                 }
                 
-                inline void resize(const usize length)
+                inline constexpr void resize(const usize length)
                 {
                     resize(length, std::nullopt);
                 }
 
-                inline void resize(const usize length, CLRefType<ValueType> value)
+                inline constexpr void resize(const usize length, CLRefType<ValueType> value)
                 {
                     resize(length, OptType{ value });
                 }
 
                 template<typename = void>
                     requires ReferenceFaster<ValueType> && std::movable<ValueType>
-                inline void resize(const usize length, RRefType<ValueType> value)
+                inline constexpr void resize(const usize length, RRefType<ValueType> value)
                 {
                     resize(length, OptType{ move<ValueType>(value) });
                 }
 
-                inline void resize(const usize length, const OptType& value)
+                inline constexpr void resize(const usize length, CLRefType<OptType> value)
                 {
                     resize(length, value);
                 }
@@ -1699,12 +1865,12 @@ namespace ospf
                 }
 
             OSPF_CRTP_PERMISSION:
-                inline ContainerType& OSPF_CRTP_FUNCTION(get_container)(void) noexcept
+                inline constexpr ContainerType& OSPF_CRTP_FUNCTION(get_container)(void) noexcept
                 {
                     return _container;
                 }
 
-                inline const ContainerType& OSPF_CRTP_FUNCTION(get_const_container)(void) const noexcept
+                inline constexpr const ContainerType& OSPF_CRTP_FUNCTION(get_const_container)(void) const noexcept
                 {
                     return _container;
                 }

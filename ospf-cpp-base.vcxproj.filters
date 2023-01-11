@@ -246,8 +246,8 @@
     <ClInclude Include="src\ospf\log\level.hpp">
       <Filter>src\ospf\log</Filter>
     </ClInclude>
-    <ClInclude Include="src\ospf\data_structure\any_array.hpp">
-      <Filter>src\ospf\data-structure</Filter>
+    <ClInclude Include="src\ospf\iterator.hpp">
+      <Filter>src\ospf</Filter>
     </ClInclude>
     <ClInclude Include="src\ospf\meta_programming\iterator.hpp">
       <Filter>src\ospf\meta-programming</Filter>

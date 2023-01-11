@@ -12,11 +12,11 @@
 
 #ifndef OSPF_CRTP_IMPL
 #define OSPF_CRTP_IMPL private:\
-    inline Self& self(void) & noexcept\
+    inline constexpr Self& self(void) & noexcept\
     {\
         return static_cast<Self&>(*this);\
     }\
-    inline const Self& self(void) const & noexcept\
+    inline constexpr const Self& self(void) const & noexcept\
     {\
         return static_cast<const Self&>(*this);\
     }\

@@ -6,6 +6,7 @@
 #include <ospf/memory/pointer.hpp>
 #include <ospf/memory/reference.hpp>
 #include <ospf/meta_programming/iterator.hpp>
+#include <boost/iterator/transform_iterator.hpp>
 
 namespace ospf
 {
@@ -950,12 +951,12 @@ namespace ospf
                 }
 
             protected:
-                inline ContainerType& container(void) noexcept
+                inline constexpr ContainerType& container(void) noexcept
                 {
                     return Trait::get_container(self());
                 }
 
-                inline const ContainerType& const_container(void) const noexcept
+                inline constexpr const ContainerType& const_container(void) const noexcept
                 {
                     return Trait::get_const_container(self());
                 }
@@ -963,13 +964,13 @@ namespace ospf
             private:
                 struct Trait : public Self
                 {
-                    inline static ContainerType& get_container(Self& self) noexcept
+                    inline static constexpr ContainerType& get_container(Self& self) noexcept
                     {
                         static const auto get_impl = &Self::OSPF_CRTP_FUNCTION(get_container);
                         return (self.*get_impl)();
                     }
 
-                    inline static const ContainerType& get_const_container(const Self& self) noexcept
+                    inline static constexpr const ContainerType& get_const_container(const Self& self) noexcept
                     {
                         static const auto get_impl = &Self::OSPF_CRTP_FUNCTION(get_const_container);
                         return (self.*get_impl)();
@@ -1216,22 +1217,39 @@ namespace ospf
                 public:
                     inline constexpr void clear(void) noexcept
                     {
-                        _container.fill();
+                        for (auto i{ 0_uz }; i != _container.size(); ++i)
+                        {
+                            _container[i] = PointerType{ nullptr };
+                        }
                     }
 
                     inline constexpr void fill(const std::nullptr_t _ = nullptr) noexcept
                     {
-                        _container.fill(PointerType{ nullptr });
+                        for (auto i{ 0_uz }; i != _container.size(); ++i)
+                        {
+                            _container[i] = PointerType{ nullptr };
+                        }
                     }
 
+                    template<typename = void>
+                        requires std::is_copy_constructible_v<PointerType>
                     inline constexpr void fill(const PtrType<ValueType> ptr) noexcept
                     {
                         _container.fill(PointerType{ ptr });
                     }
 
+                    template<typename = void>
+                        requires std::is_copy_constructible_v<PointerType>
                     inline constexpr void fill(const CPtrType<ValueType> ptr) noexcept
                     {
                         _container.fill(PointerType{ ptr });
+                    }
+
+                    template<typename = void>
+                        requires std::is_copy_constructible_v<PointerType>
+                    inline constexpr void fill(const PointerType& ptr) noexcept
+                    {
+                        _container.fill(ptr);
                     }
 
                 public:
@@ -1273,12 +1291,12 @@ namespace ospf
                     }
 
                 OSPF_CRTP_PERMISSION:
-                    inline ContainerType& OSPF_CRTP_FUNCTION(get_container)(void) noexcept
+                    inline constexpr ContainerType& OSPF_CRTP_FUNCTION(get_container)(void) noexcept
                     {
                         return _container;
                     }
 
-                    inline const ContainerType& OSPF_CRTP_FUNCTION(get_const_container)(void) const noexcept
+                    inline constexpr const ContainerType& OSPF_CRTP_FUNCTION(get_const_container)(void) const noexcept
                     {
                         return _container;
                     }
@@ -1329,10 +1347,27 @@ namespace ospf
 
                     template<typename = void>
                         requires std::is_copy_constructible_v<PointerType>
-                    constexpr DynamicPointerArray(const usize length, const PointerType ptr)
+                    constexpr DynamicPointerArray(const usize length, const PointerType& ptr)
                         : _container(length, ptr) {}
 
                     template<std::input_iterator It>
+                        requires requires (const It it) { { *it } -> DecaySameAs<PtrType<ValueType>>; }
+                    constexpr DynamicPointerArray(const It first, const It last)
+                        : _container(
+                            boost::make_transform_iterator(first, [](const PtrType<ValueType> ptr) { PointerType{ ptr } }),
+                            boost::make_transform_iterator(last, [](const PtrType<ValueType> ptr) { PointerType{ ptr } })
+                        ) {}
+
+                    template<std::input_iterator It>
+                        requires requires (const It it) { { *it } -> DecaySameAs<CPtrType<ValueType>>; }
+                    constexpr DynamicPointerArray(const It first, const It last)
+                        : _container(
+                            boost::make_transform_iterator(first, [](const CPtrType<ValueType> ptr) { PointerType{ ptr } }),
+                            boost::make_transform_iterator(last, [](const CPtrType<ValueType> ptr) { PointerType{ ptr } })
+                        ) {}
+
+                    template<std::input_iterator It>
+                        requires requires (const It it) { { *it } -> DecaySameAs<PointerType>; }
                     constexpr DynamicPointerArray(const It first, const It last)
                         : _container(first, last) {}
 
@@ -1367,7 +1402,11 @@ namespace ospf
                 public:
                     inline constexpr void assign(const usize length, const std::nullptr_t _ = nullptr)
                     {
-                        _container.assign(length, PointerType{ nullptr });
+                        _container.clear();
+                        for (auto i{ 0_uz }; i != length; ++i)
+                        {
+                            _container.push_back(PointerType{ nullptr });
+                        }
                     }
 
                     template<typename = void>
@@ -1386,12 +1425,33 @@ namespace ospf
 
                     template<typename = void>
                         requires std::is_copy_constructible_v<PointerType>
-                    inline constexpr void assign(const usize length, const PointerType ptr)
+                    inline constexpr void assign(const usize length, const PointerType& ptr)
                     {
                         _container.assign(length, ptr);
                     }
 
                     template<std::input_iterator It>
+                        requires requires (const It it) { { *it } -> DecaySameAs<PtrType<ValueType>>; }
+                    inline constexpr void assign(const It first, const It last)
+                    {
+                        _container.assign(
+                            boost::make_transform_iterator(first, [](const PtrType<ValueType> ptr) { PointerType{ ptr } }),
+                            boost::make_transform_iterator(last, [](const PtrType<ValueType> ptr) { PointerType{ ptr } })
+                        );
+                    }
+
+                    template<std::input_iterator It>
+                        requires requires (const It it) { { *it } -> DecaySameAs<CPtrType<ValueType>>; }
+                    inline constexpr void assign(const It first, const It last)
+                    {
+                        _container.assign(
+                            boost::make_transform_iterator(first, [](const CPtrType<ValueType> ptr) { PointerType{ ptr } }),
+                            boost::make_transform_iterator(last, [](const CPtrType<ValueType> ptr) { PointerType{ ptr } })
+                        );
+                    }
+
+                    template<std::input_iterator It>
+                        requires requires (const It it) { { *it } -> DecaySameAs<PointerType>; }
                     inline constexpr void assign(const It first, const It last)
                     {
                         _container.assign(first, last);
@@ -1473,10 +1533,396 @@ namespace ospf
                         _container.clear();
                     }
 
-                    // todo: insert, emplace, erase
-                    // todo: push_back, emplace_back, pop_back
-                    // todo: push_front, emplace_front, pop_front
-                    // todo: resize
+                    inline constexpr const IterType insert(const ConstIterType pos, const std::nullptr_t _)
+                    {
+                        return IterType{ _container.insert(pos._iter, PointerType{ nullptr }) };
+                    }
+
+                    inline constexpr const IterType insert(const ConstIterType pos, const PtrType<ValueType> ptr)
+                    {
+                        return IterType{ _container.insert(pos._iter, PointerType{ ptr }) };
+                    }
+
+                    inline constexpr const IterType insert(const ConstIterType pos, const CPtrType<ValueType> ptr)
+                    {
+                        return IterType{ _container.insert(pos._iter, PointerType{ ptr }) };
+                    }
+
+                    inline constexpr const IterType insert(const ConstIterType pos, PointerType& ptr)
+                    {
+                        return IterType{ _container.insert(pos._iter, move<PointerType>(ptr)) };
+                    }
+
+                    inline constexpr const UncheckedIterType insert(const ConstUncheckedIterType pos, const std::nullptr_t _)
+                    {
+                        return UncheckedIterType{ _container.insert(pos._iter, PointerType{ nullptr }) };
+                    }
+
+                    inline constexpr const UncheckedIterType insert(const ConstUncheckedIterType pos, const PtrType<ValueType> ptr)
+                    {
+                        return UncheckedIterType{ _container.insert(pos._iter, PointerType{ ptr }) };
+                    }
+
+                    inline constexpr const UncheckedIterType insert(const ConstUncheckedIterType pos, const CPtrType<ValueType> ptr)
+                    {
+                        return UncheckedIterType{ _container.insert(pos._iter, PointerType{ ptr }) };
+                    }
+
+                    inline constexpr const UncheckedIterType insert(const ConstUncheckedIterType pos, PointerType& ptr)
+                    {
+                        return UncheckedIterType{ _container.insert(pos._iter, move<PointerType>(ptr)) };
+                    }
+
+                    template<std::input_iterator It>
+                        requires requires (const It it) { { *it } -> DecaySameAs<PtrType<ValueType>>; }
+                    inline constexpr const IterType insert(const ConstIterType pos, const It first, const It last)
+                    {
+                        return IterType{ _container.insert(pos._iter,
+                            boost::make_transform_iterator(first, [](const PtrType<ValueType> ptr) { PointerType{ ptr } }),
+                            boost::make_transform_iterator(last, [](const PtrType<ValueType> ptr) { PointerType{ ptr } })
+                        ) };
+                    }
+
+                    template<std::input_iterator It>
+                        requires requires (const It it) { { *it } -> DecaySameAs<CPtrType<ValueType>>; }
+                    inline constexpr const IterType insert(const ConstIterType pos, const It first, const It last)
+                    {
+                        return IterType{ _container.insert(pos._iter,
+                            boost::make_transform_iterator(first, [](const CPtrType<ValueType> ptr) { PointerType{ ptr } }),
+                            boost::make_transform_iterator(last, [](const CPtrType<ValueType> ptr) { PointerType{ ptr } })
+                        ) };
+                    }
+
+                    template<std::input_iterator It>
+                        requires requires (const It it) { { *it } -> DecaySameAs<PointerType>; }
+                    inline constexpr const IterType insert(const ConstIterType pos, const It first, const It last)
+                    {
+                        return IterType{ _container.insert(pos, first, last) };
+                    }
+
+                    template<std::input_iterator It>
+                        requires requires (const It it) { { *it } -> DecaySameAs<PtrType<ValueType>>; }
+                    inline constexpr const ConstUncheckedIterType insert(const ConstUncheckedIterType pos, const It first, const It last)
+                    {
+                        return ConstUncheckedIterType{ _container.insert(pos._iter,
+                            boost::make_transform_iterator(first, [](const PtrType<ValueType> ptr) { PointerType{ ptr } }),
+                            boost::make_transform_iterator(last, [](const PtrType<ValueType> ptr) { PointerType{ ptr } })
+                        ) };
+                    }
+
+                    template<std::input_iterator It>
+                        requires requires (const It it) { { *it } -> DecaySameAs<CPtrType<ValueType>>; }
+                    inline constexpr const ConstUncheckedIterType insert(const ConstUncheckedIterType pos, const It first, const It last)
+                    {
+                        return ConstUncheckedIterType{ _container.insert(pos._iter,
+                            boost::make_transform_iterator(first, [](const CPtrType<ValueType> ptr) { PointerType{ ptr } }),
+                            boost::make_transform_iterator(last, [](const CPtrType<ValueType> ptr) { PointerType{ ptr } })
+                        ) };
+                    }
+
+                    template<std::input_iterator It>
+                        requires requires (const It it) { { *it } -> DecaySameAs<PointerType>; }
+                    inline constexpr const ConstUncheckedIterType insert(const ConstUncheckedIterType pos, const It first, const It last)
+                    {
+                        return ConstUncheckedIterType{ _container.insert(pos, first, last) };
+                    }
+
+                    inline constexpr const IterType insert(const ConstIterType pos, std::initializer_list<PtrType<ValueType>> ptrs)
+                    {
+                        auto it = pos._iter;
+                        for (auto i{ 0_uz }; i != ptrs.size(); ++i)
+                        {
+                            it = _container.insert(it, PointerType{ ptrs[i] });
+                        }
+                        return IterType{ it };
+                    }
+
+                    inline constexpr const IterType insert(const ConstIterType pos, std::initializer_list<CPtrType<ValueType>> ptrs)
+                    {
+                        auto it = pos._iter;
+                        for (auto i{ 0_uz }; i != ptrs.size(); ++i)
+                        {
+                            it = _container.insert(it, PointerType{ ptrs[i] });
+                        }
+                        return IterType{ it };
+                    }
+
+                    inline constexpr const IterType insert(const ConstIterType pos, std::initializer_list<PointerType> ptrs)
+                    {
+                        return IterType{ _container.insert(pos, std::move(ptrs)) };
+                    }
+
+                    inline constexpr const UncheckedIterType insert(const ConstUncheckedIterType pos, std::initializer_list<PtrType<ValueType>> ptrs)
+                    {
+                        auto it = pos._iter;
+                        for (auto i{ 0_uz }; i != ptrs.size(); ++i)
+                        {
+                            it = _container.insert(it, PointerType{ ptrs[i] });
+                        }
+                        return UncheckedIterType{ it };
+                    }
+
+                    inline constexpr const UncheckedIterType insert(const ConstUncheckedIterType pos, std::initializer_list<CPtrType<ValueType>> ptrs)
+                    {
+                        auto it = pos._iter;
+                        for (auto i{ 0_uz }; i != ptrs.size(); ++i)
+                        {
+                            it = _container.insert(it, PointerType{ ptrs[i] });
+                        }
+                        return UncheckedIterType{ it };
+                    }
+
+                    inline constexpr const UncheckedIterType insert(const ConstUncheckedIterType pos, std::initializer_list<PointerType> ptrs)
+                    {
+                        return UncheckedIterType{ _container.insert(pos._iter, std::move(ptrs)) };
+                    }
+
+                    inline constexpr const IterType emplace(const ConstIterType pos, const std::nullptr_t _)
+                    {
+                        return IterType{ _container.emplace(pos._iter, nullptr) };
+                    }
+
+                    inline constexpr const IterType emplace(const ConstIterType pos, const PtrType<ValueType> ptr)
+                    {
+                        return IterType{ _container.emplace(pos._iter, ptr) };
+                    }
+
+                    inline constexpr const IterType emplace(const ConstIterType pos, const CPtrType<ValueType> ptr)
+                    {
+                        return IterType{ _container.emplace(pos._iter, ptr) };
+                    }
+
+                    template<typename... Args>
+                        requires std::constructible_from<PointerType, Args...>
+                    inline constexpr const IterType emplace(const ConstIterType pos, Args&&... args)
+                    {
+                        return IterType{ _container.emplace(pos._iter, std::forward<Args>(args)...) };
+                    }
+
+                    inline constexpr const UncheckedIterType emplace(const ConstUncheckedIterType pos, const std::nullptr_t _)
+                    {
+                        return UncheckedIterType{ _container.emplace(pos._iter, nullptr) };
+                    }
+
+                    inline constexpr const UncheckedIterType emplace(const ConstUncheckedIterType pos, const PtrType<ValueType> ptr)
+                    {
+                        return UncheckedIterType{ _container.emplace(pos._iter, ptr) };
+                    }
+
+                    inline constexpr const UncheckedIterType emplace(const ConstUncheckedIterType pos, const CPtrType<ValueType> ptr)
+                    {
+                        return UncheckedIterType{ _container.emplace(pos._iter, ptr) };
+                    }
+
+                    template<typename... Args>
+                        requires std::constructible_from<PointerType, Args...>
+                    inline constexpr const UncheckedIterType emplace(const ConstUncheckedIterType pos, Args&&... args)
+                    {
+                        return UncheckedIterType{ _container.emplace(pos._iter, std::forward<Args>(args)...) };
+                    }
+
+                    inline constexpr const IterType erase(const ConstIterType pos)
+                    {
+                        return IterType{ _container.erase(pos._iter) };
+                    }
+
+                    inline constexpr const UncheckedIterType erase(const ConstUncheckedIterType pos)
+                    {
+                        return UncheckedIterType{ _container.erase(pos._iter) };
+                    }
+
+                    inline constexpr const IterType erase(const ConstIterType first, const ConstIterType last)
+                    {
+                        return IterType{ _container.erase(first._iter, last._iter) };
+                    }
+
+                    inline constexpr const UncheckedIterType erase(const ConstUncheckedIterType first, const ConstUncheckedIterType last)
+                    {
+                        return UncheckedIterType{ _container.erase(first._iter, last._iter) };
+                    }
+
+                    inline constexpr void push_back(const std::nullptr_t _)
+                    {
+                        _container.push_back(PointerType{ nullptr });
+                    }
+
+                    inline constexpr void push_back(const PtrType<ValueType> ptr)
+                    {
+                        _container.push_back(PointerType{ ptr });
+                    }
+
+                    inline constexpr void push_back(const CPtrType<ValueType> ptr)
+                    {
+                        _container.push_back(PointerType{ ptr });
+                    }
+
+                    inline constexpr void push_back(PointerType& ptr)
+                    {
+                        _container.push_back(move<PointerType>(ptr));
+                    }
+
+                    inline constexpr void emplace_back(const std::nullptr_t _)
+                    {
+                        _container.emplace_back(nullptr);
+                    }
+
+                    inline constexpr void emplace_back(const PtrType<ValueType> ptr)
+                    {
+                        _container.emplace_back(ptr);
+                    }
+
+                    inline constexpr void emplace_back(const CPtrType<ValueType> ptr)
+                    {
+                        _container.emplace_back(ptr);
+                    }
+
+                    template<typename... Args>
+                        requires std::constructible_from<PointerType, Args...>
+                    inline constexpr void emplace_back(Args&&... args)
+                    {
+                        _container.emplace_back(std::forward<Args>(args)...);
+                    }
+
+                    inline constexpr RetType<PointerType> pop_back(void)
+                    {
+                        auto back = move<PointerType>(this->back());
+                        _container.pop_back();
+                        return back;
+                    }
+
+                    inline constexpr void push_front(const std::nullptr_t _)
+                    {
+                        _container.insert(_container.begin(), nullptr);
+                    }
+
+                    template<typename = void>
+                        requires requires (ContainerType& container) { container.push_front(nullptr); }
+                    inline constexpr void push_front(const std::nullptr_t _)
+                    {
+                        _container.push_front(nullptr);
+                    }
+                    
+                    inline constexpr void push_front(const PtrType<ValueType> ptr)
+                    {
+                        _container.insert(_container.begin(), PointerType{ ptr });
+                    }
+
+                    template<typename = void>
+                        requires requires (ContainerType& container) { container.push_front(std::declval<PointerType>()); }
+                    inline constexpr void push_front(const PtrType<ValueType> ptr)
+                    {
+                        _container.push_front(PointerType{ ptr });
+                    }
+
+                    inline constexpr void push_front(const CPtrType<ValueType> ptr)
+                    {
+                        _container.insert(_container.begin(), PointerType{ ptr });
+                    }
+
+                    template<typename = void>
+                        requires requires (ContainerType& container) { container.push_front(std::declval<PointerType>()); }
+                    inline constexpr void push_front(const CPtrType<ValueType> ptr)
+                    {
+                        _container.push_front(PointerType{ ptr });
+                    }
+
+                    inline constexpr void push_front(PointerType& ptr)
+                    {
+                        _container.insert(_container.begin(), move<PointerType>(ptr));
+                    }
+
+                    template<typename = void>
+                        requires requires (ContainerType& container) { container.push_front(std::declval<PointerType>()); }
+                    inline constexpr void push_front(PointerType& ptr)
+                    {
+                        _container.push_front(move<PointerType>(ptr));
+                    }
+
+                    inline constexpr void emplace_front(const std::nullptr_t _)
+                    {
+                        _container.emplace(_container.begin(), nullptr);
+                    }
+
+                    template<typename = void>
+                        requires requires (ContainerType& container) { container.emplace_front(nullptr); }
+                    inline constexpr void emplace_front(const std::nullptr_t _)
+                    {
+                        _container.emplace_front(nullptr);
+                    }
+
+                    inline constexpr void emplace_front(const PtrType<ValueType> ptr)
+                    {
+                        _container.emplace(_container.begin(), ptr);
+                    }
+
+                    template<typename = void>
+                        requires requires (ContainerType& container) { container.emplace_front(std::declval<PtrType<ValueType>>()); }
+                    inline constexpr void emplace_back(const PtrType<ValueType> ptr)
+                    {
+                        _container.emplace_front(ptr);
+                    }
+
+                    inline constexpr void emplace_front(const CPtrType<ValueType> ptr)
+                    {
+                        _container.emplace(_container.begin(), ptr);
+                    }
+
+                    template<typename = void>
+                        requires requires (ContainerType& container) { container.emplace_front(std::declval<CPtrType<ValueType>>()); }
+                    inline constexpr void emplace_front(const CPtrType<ValueType> ptr)
+                    {
+                        _container.emplace_front(ptr);
+                    }
+
+                    template<typename... Args>
+                        requires std::constructible_from<PointerType, Args...>
+                    inline constexpr void emplace_front(Args&&... args)
+                    {
+                        _container.emplace(_container.begin(), std::forward<Args>(args)...);
+                    }
+
+                    template<typename... Args>
+                        requires std::constructible_from<PointerType, Args...>
+                            && requires (ContainerType& container) { container.emplace_front(std::declval<Args>()...); }
+                    inline constexpr void emplace_front(Args&&... args)
+                    {
+                        _container.emplace_front(std::forward<Args>(args)...);
+                    }
+
+                    inline constexpr RetType<PointerType> pop_front(void)
+                    {
+                        auto front = move<PointerType>(this->front());
+                        _container.pop_front();
+                        return front;
+                    }
+
+                    template<typename = void>
+                        requires std::default_initializable<PointerType>
+                    inline constexpr void resize(const usize length)
+                    {
+                        _container.resize(length);
+                    }
+
+                    template<typename = void>
+                        requires std::copy_constructible<PointerType>
+                    inline constexpr void resize(const usize length, const PtrType<ValueType> ptr)
+                    {
+                        _container.resize(length, PointerType{ ptr });
+                    }
+
+                    template<typename = void>
+                        requires std::copy_constructible<PointerType>
+                    inline constexpr void resize(const usize length, const CPtrType<ValueType> ptr)
+                    {
+                        _container.resize(length, PointerType{ ptr });
+                    }
+
+                    template<typename = void>
+                        requires std::copy_constructible<PointerType>
+                    inline constexpr void resize(const usize length, const PointerType& ptr)
+                    {
+                        _container.resize(length, ptr);
+                    }
 
                 public:
                     inline constexpr const bool operator==(const DynamicPointerArray& rhs) const noexcept
@@ -1517,12 +1963,12 @@ namespace ospf
                     }
 
                 OSPF_CRTP_PERMISSION:
-                    inline ContainerType& OSPF_CRTP_FUNCTION(get_container)(void) noexcept
+                    inline constexpr ContainerType& OSPF_CRTP_FUNCTION(get_container)(void) noexcept
                     {
                         return _container;
                     }
 
-                    inline const ContainerType& OSPF_CRTP_FUNCTION(get_const_container)(void) const noexcept
+                    inline constexpr const ContainerType& OSPF_CRTP_FUNCTION(get_const_container)(void) const noexcept
                     {
                         return _container;
                     }
