@@ -141,11 +141,11 @@ namespace ospf
 namespace std
 {
     template<typename T, typename Ref>
-    struct hash<ospf::memory::reference::RefImpl<T, Ref>>
+    struct hash<ospf::reference::RefImpl<T, Ref>>
     {
-        using RefType = ospf::memory::reference::RefImpl<T, Ref>;
+        using RefType = ospf:::reference::RefImpl<T, Ref>;
 
-        inline const ospf::usize operator()(const RefType& ref) const noexcept
+        inline const ospf::usize operator()(ospf::ArgCLRefType<RefType> ref) const noexcept
         {
             static const auto func = hash<T>{};
             return func(*ref);
@@ -153,12 +153,12 @@ namespace std
     };
 
     template<typename T, typename Ref, typename CharT>
-    struct formatter<ospf::memory::reference::RefImpl<T, Ref>, CharT> : formatter<string_view, CharT>
+    struct formatter<ospf::reference::RefImpl<T, Ref>, CharT> : formatter<string_view, CharT>
     {
-        using RefType = ospf::memory::reference::RefImpl<T, Ref>;
+        using RefType = ospf::reference::RefImpl<T, Ref>;
 
         template<typename FormatContext>
-        inline static decltype(auto) format(const RefType& ref, FormatContext& fc)
+        inline static decltype(auto) format(ospf::ArgCLRefType<RefType> ref, FormatContext& fc)
         {
             return formatter<T, CharT>::format(*ref, fc);
         }
@@ -169,12 +169,12 @@ namespace ospf
 {
     template<typename T, typename Ref>
         requires WithTag<T>
-    struct TagValue<memory::reference::RefImpl<T, Ref>>
+    struct TagValue<reference::RefImpl<T, Ref>>
     {
         using Type = typename TagValue<T>::Type;
-        using RefType = typename memory::reference::RefImpl<T, Ref>;
+        using RefType = typename reference::RefImpl<T, Ref>;
 
-        inline decltype(auto) value(const RefType& ref) const noexcept
+        inline RetType<Type> value(ospf::ArgCLRefType<RefType> ref) const noexcept
         {
             static constexpr const auto extractor = TagValue<T>{};
             return extractor(*ref);

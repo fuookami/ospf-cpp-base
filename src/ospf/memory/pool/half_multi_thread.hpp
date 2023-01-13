@@ -24,7 +24,7 @@ namespace ospf
                     Deleter& operator=(Deleter&& rhs) noexcept = default;
                     ~Deleter(void) noexcept = default;
 
-                    inline void operator()(PtrType<T> ptr) const noexcept
+                    inline void operator()(const PtrType<T> ptr) const noexcept
                     {
                         pool->destory(ptr);
                     }
@@ -44,9 +44,9 @@ namespace ospf
                     BaseDeleter& operator=(BaseDeleter&& rhs) noexcept = default;
                     ~BaseDeleter(void) noexcept = default;
 
-                    inline void operator()(PtrType<U> ptr) const noexcept
+                    inline void operator()(const PtrType<U> ptr) const noexcept
                     {
-                        auto temp = static_cast<PtrType<T>>(ptr);
+                        auto temp = static_cast<const PtrType<T>>(ptr);
                         assert(temp != nullptr);
                         pool->destory(temp);
                     }
@@ -71,7 +71,7 @@ namespace ospf
                 }
 
                 template<typename U, typename... Args>
-                    requires std::is_convertible_v<PtrType<T>, PtrType<U>>&& std::is_constructible_v<T, Args...>
+                    requires std::is_convertible_v<PtrType<T>, PtrType<U>> && std::is_constructible_v<T, Args...>
                 inline Ptr<U> make_base_ptr(Args&&... args) noexcept
                 {
                     return make_base_ptr_from_pool<U, pointer::PointerCategory::Raw>(std::forward<Args>(args)...);
@@ -85,7 +85,7 @@ namespace ospf
                 }
 
                 template<typename U, typename... Args>
-                    requires std::is_convertible_v<PtrType<T>, PtrType<U>>&& std::is_constructible_v<T, Args...>
+                    requires std::is_convertible_v<PtrType<T>, PtrType<U>> && std::is_constructible_v<T, Args...>
                 inline Unique<U> make_base_unique(Args&&... args) noexcept
                 {
                     return make_base_ptr_from_pool<U, pointer::PointerCategory::Unique>(std::forward<Args>(args)...);
@@ -99,7 +99,7 @@ namespace ospf
                 }
 
                 template<typename U, typename... Args>
-                    requires std::is_convertible_v<PtrType<T>, PtrType<U>>&& std::is_constructible_v<T, Args...>
+                    requires std::is_convertible_v<PtrType<T>, PtrType<U>> && std::is_constructible_v<T, Args...>
                 inline Shared<U> make_base_shared(Args&&... args) noexcept
                 {
                     return make_base_ptr_from_pool<U, pointer::PointerCategory::Shared>(std::forward<Args>(args)...);

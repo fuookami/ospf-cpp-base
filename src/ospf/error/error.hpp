@@ -77,7 +77,7 @@ namespace ospf
         {
         public:
             using typename Error<C>::CodeType;
-            using ArgType = T;
+            using ArgType = OriginType<T>;
 
         public:
             constexpr ExError(void)
@@ -89,11 +89,11 @@ namespace ospf
             constexpr explicit ExError(C code, std::string msg)
                 : Error<C>(code, move<std::string>(msg)), _arg(std::nullopt) {}
 
-            constexpr explicit ExError(C code, std::string msg, RRefType<T> arg)
-                : Error<C>(code, move<std::string>(msg)), _arg(move(arg)) {}
+            constexpr explicit ExError(C code, std::string msg, ArgRRefType<ArgType> arg)
+                : Error<C>(code, move<std::string>(msg)), _arg(move<ArgType>(arg)) {}
 
-            constexpr explicit ExError(Error<C> error, RRefType<T> arg)
-                : Error<C>(std::move(error)), _arg(move(arg)) {}
+            constexpr explicit ExError(Error<C> error, ArgRRefType<ArgType> arg)
+                : Error<C>(std::move(error)), _arg(move<ArgType>(arg)) {}
 
         public:
             constexpr ExError(const ExError& ano) = default;

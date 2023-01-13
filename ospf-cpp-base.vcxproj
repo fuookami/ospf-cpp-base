@@ -21,6 +21,8 @@
   <ItemGroup>
     <ClInclude Include="src\ospf\auto_link.hpp" />
     <ClInclude Include="src\ospf\basic_definition.hpp" />
+    <ClInclude Include="src\ospf\bytes\deserializer.hpp" />
+    <ClInclude Include="src\ospf\bytes\serializer.hpp" />
     <ClInclude Include="src\ospf\concepts.hpp" />
     <ClInclude Include="src\ospf\concepts\copy_faster.hpp" />
     <ClInclude Include="src\ospf\concepts\base.hpp" />
@@ -45,6 +47,8 @@
     <ClInclude Include="src\ospf\jni.hpp" />
     <ClInclude Include="src\ospf\jni\auto_link.hpp" />
     <ClInclude Include="src\ospf\jni\jstring.hpp" />
+    <ClInclude Include="src\ospf\json\deserializer.hpp" />
+    <ClInclude Include="src\ospf\json\serializer.hpp" />
     <ClInclude Include="src\ospf\literal_constant.hpp" />
     <ClInclude Include="src\ospf\local_info.hpp" />
     <ClInclude Include="src\ospf\log\level.hpp" />
@@ -82,6 +86,8 @@
     <ClInclude Include="src\ospf\parallelism\guard_thread.hpp" />
     <ClInclude Include="src\ospf\parallelism\task.hpp" />
     <ClInclude Include="src\ospf\parallelism\thread_pool.hpp" />
+    <ClInclude Include="src\ospf\protobuf\deserializer.hpp" />
+    <ClInclude Include="src\ospf\protobuf\serializer.hpp" />
     <ClInclude Include="src\ospf\random.hpp" />
     <ClInclude Include="src\ospf\string.hpp" />
     <ClInclude Include="src\ospf\string\hasher.hpp" />

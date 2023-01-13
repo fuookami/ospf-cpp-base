@@ -18,7 +18,7 @@ namespace ospf
         };
 
         template<typename T>
-        inline RetType<T> reverse_bits(const CLRefType<T> value) noexcept
+        inline RetType<T> reverse_bits(ArgCLRefType<T> value) noexcept
         {
             if constexpr (sizeof(T) == 1_uz)
             {

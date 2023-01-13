@@ -56,7 +56,7 @@ namespace ospf
                 using Base = RandomIteratorImpl<ValueType, IterType, ReferenceArrayConstIterator<T, cat, C>>;
 
             public:
-                constexpr ReferenceArrayConstIterator(const IterType iter)
+                constexpr ReferenceArrayConstIterator(ArgCLRefType<IterType> iter)
                     : Base(iter) {}
                 constexpr ReferenceArrayConstIterator(const ReferenceArrayConstIterator& ano) = default;
                 constexpr ReferenceArrayConstIterator(ReferenceArrayConstIterator&& ano) noexcept = default;
@@ -65,12 +65,12 @@ namespace ospf
                 constexpr ~ReferenceArrayConstIterator(void) noexcept = default;
 
             OSPF_CRTP_PERMISSION:
-                inline static constexpr const ValueType& OSPF_CRTP_FUNCTION(get)(const IterType iter) noexcept
+                inline static constexpr CLRefType<ValueType> OSPF_CRTP_FUNCTION(get)(ArgCLRefType<IterType> iter) noexcept
                 {
                     return **iter;
                 }
 
-                inline static constexpr RetType<ReferenceArrayConstIterator> OSPF_CRTP_FUNCTION(construct)(const IterType iter) noexcept
+                inline static constexpr RetType<ReferenceArrayConstIterator> OSPF_CRTP_FUNCTION(construct)(ArgCLRefType<IterType> iter) noexcept
                 {
                     return ReferenceArrayConstIterator{ iter };
                 }
@@ -104,7 +104,7 @@ namespace ospf
                 using Base = RandomIteratorImpl<ValueType, IterType, ReferenceArrayIterator<T, cat, C>>;
 
             public:
-                constexpr ReferenceArrayIterator(const IterType iter)
+                constexpr ReferenceArrayIterator(ArgCLRefType<IterType> iter)
                     : Base(iter) {}
                 constexpr ReferenceArrayIterator(const ReferenceArrayIterator& ano) = default;
                 constexpr ReferenceArrayIterator(ReferenceArrayIterator&& ano) noexcept = default;
@@ -119,12 +119,12 @@ namespace ospf
                 }
 
             OSPF_CRTP_PERMISSION:
-                inline static constexpr ValueType& OSPF_CRTP_FUNCTION(get)(const IterType iter) noexcept
+                inline static constexpr LRefType<ValueType> OSPF_CRTP_FUNCTION(get)(ArgCLRefType<IterType> iter) noexcept
                 {
                     return **iter;
                 }
 
-                inline static constexpr RetType<ReferenceArrayIterator> OSPF_CRTP_FUNCTION(construct)(const IterType iter) noexcept
+                inline static constexpr RetType<ReferenceArrayIterator> OSPF_CRTP_FUNCTION(construct)(ArgCLRefType<IterType> iter) noexcept
                 {
                     return ReferenceArrayIterator{ iter };
                 }
@@ -157,7 +157,7 @@ namespace ospf
                 using Base = RandomIteratorImpl<ValueType, IterType, ReferenceArrayConstReverseIterator<T, cat, C>>;
 
             public:
-                constexpr ReferenceArrayConstReverseIterator(const IterType iter)
+                constexpr ReferenceArrayConstReverseIterator(ArgCLRefType<IterType> iter)
                     : Base(iter) {}
                 constexpr ReferenceArrayConstReverseIterator(const ReferenceArrayConstReverseIterator& ano) = default;
                 constexpr ReferenceArrayConstReverseIterator(ReferenceArrayConstReverseIterator&& ano) noexcept = default;
@@ -166,12 +166,12 @@ namespace ospf
                 constexpr ~ReferenceArrayConstReverseIterator(void) noexcept = default;
 
             OSPF_CRTP_PERMISSION:
-                inline static constexpr const ValueType& OSPF_CRTP_FUNCTION(get)(const IterType iter) noexcept
+                inline static constexpr CLRefType<ValueType> OSPF_CRTP_FUNCTION(get)(ArgCLRefType<IterType> iter) noexcept
                 {
                     return **iter;
                 }
 
-                inline static constexpr RetType<ReferenceArrayConstReverseIterator> OSPF_CRTP_FUNCTION(construct)(const IterType iter) noexcept
+                inline static constexpr RetType<ReferenceArrayConstReverseIterator> OSPF_CRTP_FUNCTION(construct)(ArgCLRefType<IterType> iter) noexcept
                 {
                     return ReferenceArrayConstReverseIterator{ iter };
                 }
@@ -204,7 +204,7 @@ namespace ospf
                 using Base = RandomIteratorImpl<ValueType, IterType, ReferenceArrayConstReverseIterator<T, cat, C>>;
 
             public:
-                constexpr ReferenceArrayReverseIterator(const IterType iter)
+                constexpr ReferenceArrayReverseIterator(ArgCLRefType<IterType> iter)
                     : Base(iter) {}
                 constexpr ReferenceArrayReverseIterator(const ReferenceArrayReverseIterator& ano) = default;
                 constexpr ReferenceArrayReverseIterator(ReferenceArrayReverseIterator&& ano) noexcept = default;
@@ -213,12 +213,12 @@ namespace ospf
                 constexpr ~ReferenceArrayReverseIterator(void) noexcept = default;
 
             OSPF_CRTP_PERMISSION:
-                inline static constexpr ValueType& OSPF_CRTP_FUNCTION(get)(const IterType iter) noexcept
+                inline static constexpr LRefType<ValueType> OSPF_CRTP_FUNCTION(get)(ArgCLRefType<IterType> iter) noexcept
                 {
                     return **iter;
                 }
 
-                inline static constexpr RetType<ReferenceArrayReverseIterator> OSPF_CRTP_FUNCTION(construct)(const IterType iter) noexcept
+                inline static constexpr RetType<ReferenceArrayReverseIterator> OSPF_CRTP_FUNCTION(construct)(ArgCLRefType<IterType> iter) noexcept
                 {
                     return ReferenceArrayReverseIterator{ iter };
                 }
@@ -698,7 +698,7 @@ namespace ospf
 
                 template<typename = void>
                     requires std::is_copy_constructible_v<ReferenceType>
-                constexpr DynamicReferenceArray(const usize length, CLRefType<ValueType> ref)
+                constexpr DynamicReferenceArray(const usize length, const ValueType& ref)
                     : _container(length, ReferenceType{ ref }) {}
 
                 template<typename = void>
@@ -707,19 +707,19 @@ namespace ospf
                     : _container(length, ref) {}
 
                 template<std::input_iterator It>
-                    requires requires (const It it) { { *it } -> std::same_as<LRefType<ValueType>>; }
+                    requires requires (const It it) { { *it } -> std::same_as<ValueType&>; }
                 constexpr DynamicReferenceArray(const It first, const It last)
                     : _container(
-                        boost::make_transform_iterator(first, [](LRefType<ValueType> ref) { return ReferenceType{ ref }; }),
-                        boost::make_transform_iterator(last, [](LRefType<ValueType> ref) { return ReferenceType{ ref }; }),
+                        boost::make_transform_iterator(first, [](ValueType& ref) { return ReferenceType{ ref }; }),
+                        boost::make_transform_iterator(last, [](ValueType& ref) { return ReferenceType{ ref }; }),
                     ) {}
 
                 template<std::input_iterator It>
-                    requires requires (const It it) { { *it } -> std::same_as<CLRefType<ValueType>>; }
+                    requires requires (const It it) { { *it } -> std::same_as<const ValueType&>; }
                 constexpr DynamicReferenceArray(const It first, const It last)
                     : _container(
-                        boost::make_transform_iterator(first, [](CLRefType<ValueType> ref) { return ReferenceType{ ref }; }),
-                        boost::make_transform_iterator(last, [](CLRefType<ValueType> ref) { return ReferenceType{ ref }; }),
+                        boost::make_transform_iterator(first, [](const ValueType& ref) { return ReferenceType{ ref }; }),
+                        boost::make_transform_iterator(last, [](const ValueType& ref) { return ReferenceType{ ref }; }),
                     ) {}
 
                 template<std::input_iterator It>
@@ -740,7 +740,7 @@ namespace ospf
             public:
                 template<typename = void>
                     requires std::is_copy_constructible_v<ReferenceType>
-                inline constexpr void assign(const usize length, CLRefType<ValueType> ref)
+                inline constexpr void assign(const usize length, const ValueType& ref)
                 {
                     _container.assign(length, ReferenceType{ ref });
                 }
@@ -753,22 +753,22 @@ namespace ospf
                 }
 
                 template<std::input_iterator It>
-                    requires requires (const It it) { { *it } -> std::same_as<LRefType<ValueType>>; }
+                    requires requires (const It it) { { *it } -> std::same_as<ValueType&>; }
                 inline constexpr void assign(const It first, const It last)
                 {
                     _container.assign(
-                        boost::make_transform_iterator(first, [](LRefType<ValueType> ref) { return ReferenceType{ ref }; }),
-                        boost::make_transform_iterator(last, [](LRefType<ValueType> ref) { return ReferenceType{ ref }; }),
+                        boost::make_transform_iterator(first, [](ValueType& ref) { return ReferenceType{ ref }; }),
+                        boost::make_transform_iterator(last, [](ValueType& ref) { return ReferenceType{ ref }; }),
                     );
                 }
 
                 template<std::input_iterator It>
-                    requires requires (const It it) { { *it } -> std::same_as<CLRefType<ValueType>>; }
+                    requires requires (const It it) { { *it } -> std::same_as<const ValueType&>; }
                 inline constexpr void assign(const It first, const It last)
                 {
                     _container.assign(
-                        boost::make_transform_iterator(first, [](CLRefType<ValueType> ref) { return ReferenceType{ ref }; }),
-                        boost::make_transform_iterator(last, [](CLRefType<ValueType> ref) { return ReferenceType{ ref }; }),
+                        boost::make_transform_iterator(first, [](const ValueType& ref) { return ReferenceType{ ref }; }),
+                        boost::make_transform_iterator(last, [](const ValueType& ref) { return ReferenceType{ ref }; }),
                     );
                 }
 
@@ -832,7 +832,7 @@ namespace ospf
                     _container.clear();
                 }
 
-                inline constexpr RetType<IterType> insert(CLRefType<ConstIterType> pos, CLRefType<ValueType> ref)
+                inline constexpr RetType<IterType> insert(CLRefType<ConstIterType> pos, const ValueType& ref)
                 {
                     return IterType{ _container.insert(pos._iter, ReferenceType{ ref }) };
                 }
@@ -843,22 +843,22 @@ namespace ospf
                 }
 
                 template<std::input_iterator It>
-                    requires requires (const It it) { { *it } -> std::same_as<LRefType<ValueType>>; }
+                    requires requires (const It it) { { *it } -> std::same_as<ValueType&>; }
                 inline constexpr RetType<IterType> insert(CLRefType<ConstIterType> pos, const It first, const It last)
                 {
                     return IterType{ _container.insert(pos._iter, 
-                        boost::make_transform_iterator(first, [](LRefType<ValueType> ref) { return ReferenceType{ ref }; }),
-                        boost::make_transform_iterator(last, [](LRefType<ValueType> ref) { return ReferenceType{ ref }; }),
+                        boost::make_transform_iterator(first, [](ValueType& ref) { return ReferenceType{ ref }; }),
+                        boost::make_transform_iterator(last, [](ValueType& ref) { return ReferenceType{ ref }; }),
                     ) };
                 }
 
                 template<std::input_iterator It>
-                    requires requires (const It it) { { *it } -> std::same_as<CLRefType<ValueType>>; }
+                    requires requires (const It it) { { *it } -> std::same_as<const ValueType&>; }
                 inline constexpr RetType<IterType> insert(CLRefType<ConstIterType> pos, const It first, const It last)
                 {
                     return IterType{ _container.insert(pos._iter,
-                        boost::make_transform_iterator(first, [](CLRefType<ValueType> ref) { return ReferenceType{ ref }; }),
-                        boost::make_transform_iterator(last, [](CLRefType<ValueType> ref) { return ReferenceType{ ref }; }),
+                        boost::make_transform_iterator(first, [](const ValueType& ref) { return ReferenceType{ ref }; }),
+                        boost::make_transform_iterator(last, [](const ValueType& ref) { return ReferenceType{ ref }; }),
                     ) };
                 }
 
@@ -874,7 +874,7 @@ namespace ospf
                     return IterType{ _container.insert(pos._iter, std::move(refs)) };
                 }
 
-                inline constexpr RetType<IterType> emplace(CLRefType<ConstIterType> pos, CLRefType<ValueType> ref)
+                inline constexpr RetType<IterType> emplace(CLRefType<ConstIterType> pos, const ValueType& ref)
                 {
                     return IterType{ _container.emplace(pos._iter, ref) };
                 }
@@ -896,7 +896,7 @@ namespace ospf
                     return IterType{ _container.erase(first._iter, last._iter) };
                 }
 
-                inline constexpr void push_back(const CLRefType<ValueType> ref)
+                inline constexpr void push_back(const ValueType& ref)
                 {
                     _container.push_back(ReferenceType{ ref });
                 }
@@ -906,7 +906,7 @@ namespace ospf
                     _container.push_back(move<ReferenceType>(ref));
                 }
 
-                inline constexpr void emplace_back(const CLRefType<ValueType> ref)
+                inline constexpr void emplace_back(const ValueType& ref)
                 {
                     _container.emplace_back(ref);
                 }
@@ -925,14 +925,14 @@ namespace ospf
                     return back;
                 }
 
-                inline constexpr void push_front(const CLRefType<ValueType> ref)
+                inline constexpr void push_front(const ValueType& ref)
                 {
                     _container.insert(_container.begin(), ReferenceType{ ref });
                 }
 
                 template<typename = void>
                     requires requires (ContainerType& container) { container.push_front(std::declval<ReferenceType>()); }
-                inline constexpr void push_front(const CLRefType<ValueType> ref)
+                inline constexpr void push_front(const ValueType& ref)
                 {
                     _container.push_front(ReferenceType{ ref });
                 }
@@ -949,14 +949,14 @@ namespace ospf
                     _container.push_front(move<ReferenceType>(ref));
                 }
 
-                inline constexpr void emplace_front(const CLRefType<ValueType> ref)
+                inline constexpr void emplace_front(const ValueType& ref)
                 {
                     _container.emplace_front(ref);
                 }
 
                 template<typename = void>
-                    requires requires (ContainerType& container) { container.emplace_front(std::declval<CLRefType<ValueType>>()); }
-                inline constexpr void emplace_front(const CLRefType<ValueType> ref)
+                    requires requires (ContainerType& container) { container.emplace_front(std::declval<const ValueType&>()); }
+                inline constexpr void emplace_front(const ValueType& ref)
                 {
                     _container.emplace_front(ref);
                 }
@@ -985,7 +985,7 @@ namespace ospf
 
                 template<typename = void>
                     requires std::is_copy_constructible_v<ReferenceType>
-                inline constexpr void resize(const usize length, CLRefType<ValueType> ref)
+                inline constexpr void resize(const usize length, const ValueType& ref)
                 {
                     _container.resize(length, ReferenceType{ ref });
                 }

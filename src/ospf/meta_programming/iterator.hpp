@@ -29,11 +29,13 @@ namespace ospf
             public:
                 using ValueType = OriginType<T>;
                 using IterType = OriginType<I>;
+                using RefType = std::conditional_t<std::is_const_v<decltype(Trait::get(std::declval<IterType>()))>, CLRefType<ValueType>, LRefType<ValueType>>;
+                using PtrType = std::conditional_t<std::is_const_v<decltype(Trait::get(std::declval<IterType>()))>, CPtrType<ValueType>, PtrType<ValueType>>;
 
                 static_assert(std::forward_iterator<IterType>, "Iterator must at least be forward.");
 
             protected:
-                constexpr ForwardIteratorImpl(IterType iter)
+                constexpr ForwardIteratorImpl(ArgCLRefType<IterType> iter)
                     : _iter(iter) {}
             public:
                 constexpr ForwardIteratorImpl(const ForwardIteratorImpl& ano) = default;
@@ -43,28 +45,24 @@ namespace ospf
                 constexpr ~ForwardIteratorImpl(void) noexcept = default;
 
             public:
-                inline constexpr decltype(auto) operator*(void) const noexcept
+                inline constexpr RefType operator*(void) const noexcept
                 {
                     return Trait::get(_iter);
                 }
 
-                inline constexpr const std::conditional_t<
-                    std::is_const_v<decltype(Trait::get(std::declval<IterType>()))>,
-                    CPtrType<ValueType>,
-                    PtrType<ValueType>
-                > operator->(void) const noexcept
+                inline constexpr const PtrType operator->(void) const noexcept
                 {
                     return &Trait::get(_iter);
                 }
 
             public:
-                inline constexpr decltype(auto) operator++(void) noexcept
+                inline constexpr LRefType<Self> operator++(void) noexcept
                 {
                     ++_iter;
                     return self();
                 }
 
-                inline constexpr decltype(auto) operator++(int) noexcept
+                inline constexpr RetType<Self> operator++(int) noexcept
                 {
                     auto ret = Trait::construct(_iter);
                     ++_iter;
@@ -93,13 +91,13 @@ namespace ospf
             private:
                 struct Trait : public Self
                 {
-                    inline static constexpr decltype(auto) get(const IterType iter) noexcept
+                    inline static constexpr decltype(auto) get(ArgCLRefType<IterType> iter) noexcept
                     {
                         static const auto impl = &Self::OSPF_CRTP_FUNCTION(get);
                         return (*impl)(iter);
                     }
 
-                    inline static constexpr RetType<Self> construct(const IterType iter) noexcept
+                    inline static constexpr RetType<Self> construct(ArgCLRefType<IterType> iter) noexcept
                     {
                         static const auto impl = &Self::OSPF_CRTP_FUNCTION(construct);
                         return (*impl)(iter);
@@ -121,13 +119,15 @@ namespace ospf
                 friend class RandomIteratorImpl;
 
             public:
-                using ValueType = OriginType<T>;
-                using IterType = OriginType<I>;
+                using ValueType = typename Base::ValueType;
+                using IterType = typename Base::IterType;
+                using RefType = typename Base::RefType;
+                using PtrType = typename Base::PtrType;
 
                 static_assert(std::bidirectional_iterator<IterType>, "Iterator must at least be forward.");
 
             protected:
-                constexpr BidirectionalIteratorImpl(const IterType iter)
+                constexpr BidirectionalIteratorImpl(ArgCLRefType<IterType> iter)
                     : Base(iter) {}
             public:
                 constexpr BidirectionalIteratorImpl(const BidirectionalIteratorImpl& ano) = default;
@@ -137,13 +137,13 @@ namespace ospf
                 constexpr ~BidirectionalIteratorImpl(void) noexcept = default;
 
             public;
-                inline constexpr decltype(auto) operator--(void) noexcept
+                inline constexpr LRefType<Self> operator--(void) noexcept
                 {
                     --this->_iter;
                     return this->self();
                 }
 
-                inline constexpr decltype(auto) operator--(int) noexcept
+                inline constexpr RetType<Self> operator--(int) noexcept
                 {
                     auto ret = Trait::construct(this->_iter);
                     --this->_iter;
@@ -159,13 +159,15 @@ namespace ospf
                 using typename Base::Trait;
 
             public:
-                using ValueType = OriginType<T>;
-                using IterType = OriginType<I>;
+                using ValueType = typename Base::ValueType;
+                using IterType = typename Base::IterType;
+                using RefType = typename Base::RefType;
+                using PtrType = typename Base::PtrType;
 
                 static_assert(std::random_access_iterator<IterType>, "Iterator must at least be random.");
 
             protected:
-                constexpr RandomIteratorImpl(const IterType iter)
+                constexpr RandomIteratorImpl(ArgCLRefType<IterType> iter)
                     : Base(iter) {}
             public:
                 constexpr RandomIteratorImpl(const RandomIteratorImpl& ano) = default;
@@ -175,23 +177,23 @@ namespace ospf
                 constexpr ~RandomIteratorImpl(void) noexcept = default;
 
             public:
-                inline constexpr decltype(auto) operator+(const ptrdiff diff) const noexcept
+                inline constexpr RetType<Self> operator+(const ptrdiff diff) const noexcept
                 {
                     return Trait::construct(this->_iter + diff);
                 }
 
-                inline constexpr decltype(auto) operator+=(const ptrdiff diff) noexcept
+                inline constexpr LRefType<Self> operator+=(const ptrdiff diff) noexcept
                 {
                     this->_iter += diff;
                     return this->self();
                 }
 
-                inline constexpr decltype(auto) operator-(const ptrdiff diff) const noexcept
+                inline constexpr RetType<Self> operator-(const ptrdiff diff) const noexcept
                 {
                     return Trait::construct(this->_iter - diff);
                 }
 
-                inline constexpr decltype(auto) operator-=(const ptrdiff diff) noexcept
+                inline constexpr LRefType<Self> operator-=(const ptrdiff diff) noexcept
                 {
                     this->_iter -= diff;
                     return this->self();

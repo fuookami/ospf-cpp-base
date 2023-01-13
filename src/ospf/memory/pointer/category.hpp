@@ -24,9 +24,9 @@ namespace ospf
 
 namespace std
 {
-    template<typename T, ospf::memory::pointer::PointerCategory cat>
-        requires requires(ospf::memory::pointer::Ptr<T, cat>& lhs, ospf::memory::pointer::Ptr<T, cat>& rhs) { lhs.swap(rhs); }
-    inline void swap(ospf::memory::pointer::Ptr<T, cat>& lhs, ospf::memory::pointer::Ptr<T, cat>& rhs) noexcept
+    template<typename T, ospf::pointer::PointerCategory cat>
+        requires requires(ospf::pointer::Ptr<T, cat>& lhs, ospf::pointer::Ptr<T, cat>& rhs) { lhs.swap(rhs); }
+    inline void swap(ospf::pointer::Ptr<T, cat>& lhs, ospf::pointer::Ptr<T, cat>& rhs) noexcept
     {
         lhs.swap(rhs);
     }

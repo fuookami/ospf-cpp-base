@@ -207,11 +207,11 @@ namespace ospf
 namespace std
 {
     template<typename T, typename Ptr>
-    struct hash<ospf::memory::pointer::PtrImpl<T, Ptr>>
+    struct hash<ospf::pointer::PtrImpl<T, Ptr>>
     {
-        using PtrType = ospf::memory::pointer::PtrImpl<T, Ptr>;
+        using PtrType = ospf::pointer::PtrImpl<T, Ptr>;
 
-        inline const ospf::usize operator()(const PtrType& ptr) const noexcept
+        inline const ospf::usize operator()(ospf::ArgCLRefType<PtrType> ptr) const noexcept
         {
             static const auto func = hash<typename PtrType::CPtrType>{};
             return func(reinterpret_cast<typename PtrType::CPtrType>(static_cast<ospf::ptraddr>(ptr)));
@@ -219,12 +219,12 @@ namespace std
     };
 
     template<typename T, typename Ptr, typename CharT>
-    struct formatter<ospf::memory::pointer::PtrImpl<T, Ptr>, CharT> : formatter<string_view, CharT>
+    struct formatter<ospf::pointer::PtrImpl<T, Ptr>, CharT> : formatter<string_view, CharT>
     {
-        using PtrType = ospf::memory::pointer::PtrImpl<T, Ptr>;
+        using PtrType = ospf::pointer::PtrImpl<T, Ptr>;
 
         template<typename FormatContext>
-        inline static decltype(auto) format(const PtrType& ptr, FormatContext& fc)
+        inline static decltype(auto) format(ospf::ArgCLRefType<PtrType> ptr, FormatContext& fc)
         {
             if (ptr == nullptr)
             {
@@ -242,12 +242,12 @@ namespace ospf
 {
     template<typename T, typename Ptr>
         requires WithTag<T>
-    struct TagValue<memory::pointer::PtrImpl<T, Ptr>>
+    struct TagValue<pointer::PtrImpl<T, Ptr>>
     {
         using Type = typename TagValue<T>::Type;
-        using PtrType = memory::pointer::PtrImpl<T, Ptr>;
+        using PtrType = pointer::PtrImpl<T, Ptr>;
 
-        inline decltype(auto) value(const PtrType& ptr) const
+        inline RetType<Type> value(ospf::ArgCLRefType<PtrType> ptr) const
         {
             static constexpr const auto extractor = TagValue<T>{};
             return extractor(*ptr);

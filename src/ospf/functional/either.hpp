@@ -22,29 +22,49 @@ namespace ospf
 
             static_assert(NotSameAs<LeftType, RightType>, "Either<T, U> requires T is not same as U.");
 
+        private:
+            using VariantType = std::variant<LeftType, RightType>;
+
         public:
-            inline static RetType<Either> left(CLRefType<LeftType> left_value) noexcept
+            inline static RetType<Either> left(ArgCLRefType<LeftType> left_value)
             {
-                return Either(left_value);
+                return Either{ left_value };
             }
 
-            // todo: left, right
+            template<typename = void>
+                requires ReferenceFaster<LeftType> && std::movable<LeftType>
+            inline static RetType<Either> left(ArgRRefType<LeftType> left_value)
+            {
+                return Either{ move<LeftType>(left_value) };
+            }
+
+            inline static RetType<Either> right(ArgCLRefType<RightType> right_value)
+            {
+                return Either{ right_value };
+            }
+
+            template<typename = void>
+                requires ReferenceFaster<LeftType> && std::movable<LeftType>
+            inline static RetType<Either> right(ArgRRefType<RightType> right_value)
+            {
+                return Either{ move<RightType>(right_value) };
+            }
 
         public:
-            constexpr Either(CLRefType<LeftType> left_value)
+            constexpr Either(ArgCLRefType<LeftType> left_value)
                 : _variant(left_value) {}
 
             template<typename = void>
                 requires ReferenceFaster<LeftType> && std::movable<LeftType>
-            Either(RRefType<LeftType> left_value)
+            Either(ArgRRefType<LeftType> left_value)
                 : _variant(move<LeftType>(left_value)) {}
 
-            constexpr Either(CLRefType<RightType> right_value)
+            constexpr Either(ArgCLRefType<RightType> right_value)
                 : _variant(right_value) {}
 
             template<typename = void>
                 requires ReferenceFaster<LeftType> && std::movable<LeftType>
-            Either(RRefType<RightType> right_value)
+            Either(ArgRRefType<RightType> right_value)
                 : _variant(move<RightType>(right_value)) {}
 
             constexpr Either(const Either& ano) = default;
@@ -54,7 +74,7 @@ namespace ospf
             constexpr Either& operator=(const Either& rhs) = default;
             constexpr Either& operator=(Either&& rhs) noexcept = default;
 
-            constexpr Either& operator=(CLRefType<LeftType> left_value) noexcept
+            constexpr Either& operator=(ArgCLRefType<LeftType> left_value) noexcept
             {
                 _variant.template emplace<0_uz>(left_value);
                 return *this;
@@ -62,13 +82,13 @@ namespace ospf
 
             template<typename = void>
                 requires ReferenceFaster<LeftType> && std::movable<LeftType>
-            Either& operator=(RRefType<LeftType> left_value) noexcept
+            Either& operator=(ArgRRefType<LeftType> left_value) noexcept
             {
                 _variant.template emplace<0_uz>(move<LeftType>(left_value));
                 return *this;
             }
 
-            constexpr Either& operator=(CLRefType<RightType> right_value) noexcept
+            constexpr Either& operator=(ArgCLRefType<RightType> right_value) noexcept
             {
                 _variant.template emplace<1_uz>(right_value);
                 return *this;
@@ -76,7 +96,7 @@ namespace ospf
 
             template<typename = void>
                 requires ReferenceFaster<RightType> && std::movable<RightType>
-            Either& operator=(RRefType<RightType> right_value) noexcept
+            Either& operator=(ArgRRefType<RightType> right_value) noexcept
             {
                 _variant.template emplace<1_uz>(move<RightType>(right_value));
                 return *this;
@@ -86,12 +106,12 @@ namespace ospf
             constexpr ~Either(void) noexcept = default;
 
         public:
-            inline constexpr operator std::variant<LeftType, RightType>& (void) noexcept
+            inline constexpr operator LRefType<VariantType> (void) noexcept
             {
                 return _variant;
             }
 
-            inline constexpr operator const std::variant<LeftType, RightType>& (void) const noexcept
+            inline constexpr operator CLRefType<VariantType>(void) const noexcept
             {
                 return _variant;
             }
@@ -108,12 +128,12 @@ namespace ospf
             }
 
         public:
-            inline constexpr LeftType& left(void) &
+            inline constexpr LRefType<LeftType> left(void) &
             {
                 return std::get<0_uz>(_variant);
             }
 
-            inline constexpr const LeftType& left(void) const &
+            inline constexpr CLRefType<LeftType> left(void) const &
             {
                 return std::get<0_uz>(_variant);
             }
@@ -189,7 +209,7 @@ namespace ospf
                 }
             }
 
-            inline constexpr RetType<LeftType> left_or(CLRefType<LeftType> other) const & noexcept
+            inline constexpr RetType<LeftType> left_or(ArgCLRefType<LeftType> other) const & noexcept
             {
                 if (is_left())
                 {
@@ -203,7 +223,7 @@ namespace ospf
 
             template<typename = void>
                 requires ReferenceFaster<LeftType> && std::movable<LeftType>
-            inline RetType<LeftType> left_or(CLRefType<LeftType> other) && noexcept
+            inline RetType<LeftType> left_or(ArgCLRefType<LeftType> other) && noexcept
             {
                 if (is_left())
                 {
@@ -217,7 +237,7 @@ namespace ospf
 
             template<typename = void>
                 requires ReferenceFaster<LeftType> && std::movable<LeftType>
-            inline RetType<LeftType> left_or(RRefType<LeftType> other) const & noexcept
+            inline RetType<LeftType> left_or(ArgRRefType<LeftType> other) const & noexcept
             {
                 if (is_left())
                 {
@@ -231,7 +251,7 @@ namespace ospf
 
             template<typename = void>
                 requires ReferenceFaster<LeftType> && std::movable<LeftType>
-            inline RetType<LeftType> left_or(RRefType<LeftType> other) && noexcept
+            inline RetType<LeftType> left_or(ArgRRefType<LeftType> other) && noexcept
             {
                 if (is_left())
                 {
@@ -300,12 +320,12 @@ namespace ospf
             }
 
         public:
-            inline constexpr RightType& right(void) &
+            inline constexpr LRefType<RightType> right(void) &
             {
                 return std::get<1_uz>(_variant);
             }
 
-            inline constexpr const RightType& right(void) const &
+            inline constexpr CLRefType<RightType> right(void) const &
             {
                 return std::get<1_uz>(_variant);
             }
@@ -381,7 +401,7 @@ namespace ospf
                 }
             }
 
-            inline constexpr RetType<RightType> right_or(CLRefType<RightType> other) const & noexcept
+            inline constexpr RetType<RightType> right_or(ArgCLRefType<RightType> other) const & noexcept
             {
                 if (is_right())
                 {
@@ -395,7 +415,7 @@ namespace ospf
 
             template<typename = void>
                 requires ReferenceFaster<RightType> && std::movable<RightType>
-            inline RetType<RightType> right_or(CLRefType<RightType> other) && noexcept
+            inline RetType<RightType> right_or(ArgCLRefType<RightType> other) && noexcept
             {
                 if (is_right())
                 {
@@ -409,7 +429,7 @@ namespace ospf
 
             template<typename = void>
                 requires ReferenceFaster<RightType> && std::movable<RightType>
-            inline RetType<RightType> right_or(RRefType<RightType> other) const & noexcept
+            inline RetType<RightType> right_or(ArgRRefType<RightType> other) const & noexcept
             {
                 if (is_right())
                 {
@@ -423,7 +443,7 @@ namespace ospf
 
             template<typename = void>
                 requires ReferenceFaster<RightType> && std::movable<RightType>
-            inline RetType<RightType> right_or(RRefType<RightType> other) && noexcept
+            inline RetType<RightType> right_or(ArgRRefType<RightType> other) && noexcept
             {
                 if (is_right())
                 {
@@ -493,57 +513,63 @@ namespace ospf
 
         public:
             template<typename Func>
-            inline constexpr decltype(auto) visit(Func&& func) noexcept
+            inline constexpr decltype(auto) visit(Func&& func) & noexcept
             {
                 return std::visit(std::forward<Func>(func), _variant);
             }
 
             template<typename Func>
-            inline constexpr decltype(auto) visit(Func&& func) const noexcept
+            inline constexpr decltype(auto) visit(Func&& func) const & noexcept
+            {
+                return std::visit(std::forward<Func>(func), _variant);
+            }
+
+            template<typename Func>
+            inline constexpr decltype(auto) visit(Func&& func) && noexcept
             {
                 return std::visit(std::forward<Func>(func), _variant);
             }
 
         public:
-            inline constexpr void assign(CLRefType<LeftType> left_value) noexcept
+            inline constexpr void assign(ArgCLRefType<LeftType> left_value) noexcept
             {
                 _variant.template emplace<0_uz>(left_value);
             }
 
             template<typename = void>
-                requires ReferenceFaster<LeftType>&& std::movable<LeftType>
-            inline void assign(RRefType<LeftType> left_value) noexcept
+                requires ReferenceFaster<LeftType> && std::movable<LeftType>
+            inline void assign(ArgRRefType<LeftType> left_value) noexcept
             {
                 _variant.template emplace<0_uz>(move<LeftType>(left_value));
             }
 
-            inline constexpr void assign(CLRefType<RightType> right_value) noexcept
+            inline constexpr void assign(ArgCLRefType<RightType> right_value) noexcept
             {
                 _variant.template emplace<1_uz>(right_value);
             }
 
             template<typename = void>
-                requires ReferenceFaster<RightType>&& std::movable<RightType>
-            inline void assign(RRefType<RightType> right_value) noexcept
+                requires ReferenceFaster<RightType> && std::movable<RightType>
+            inline void assign(ArgRRefType<RightType> right_value) noexcept
             {
                 _variant.template emplace<1_uz>(move<RightType>(right_value));
             }
 
             template<typename... Args>
                 requires std::is_constructible_v<LeftType, Args...> && !std::is_constructible_v<RightType, Args...>
-            inline constexpr LeftType& emplace(Args&&... args) noexcept
+            inline constexpr LRefType<LeftType> emplace(Args&&... args) noexcept
             {
                 return _variant.template emplace<0_uz>(LeftType{ std::forward<Args>(args)... });
             }
 
             template<typename... Args>
                 requires std::is_constructible_v<RightType, Args...> && !std::is_constructible_v<LeftType, Args...>
-            inline constexpr RightType& emplace(Args&&... args) noexcept
+            inline constexpr LRefType<RightType> emplace(Args&&... args) noexcept
             {
                 return _variant.template emplace<1_uz>(RightType{ std::forward<Args>(args)... });
             }
 
-            inline void swap(const Either& other) noexcept
+            inline void swap(Either& other) noexcept
             {
                 std::swap(_variant, other._variant);
             }
@@ -587,10 +613,26 @@ namespace ospf
             }
 
         private:
-            std::variant<LeftType, RightType> _variant;
+            VariantType _variant;
         };
 
-        // todo: visit
+        template<typename T, typename U, typename Func>
+        inline constexpr decltype(auto) visit(Func&& func, Either<T, U>& either) noexcept
+        {
+            return either.visit(std::forward<Func>(func));
+        }
+
+        template<typename T, typename U, typename Func>
+        inline constexpr decltype(auto) visit(Func&& func, const Either<T, U>& either) noexcept
+        {
+            return either.visit(std::forward<Func>(func));
+        }
+
+        template<typename T, typename U, typename Func>
+        inline constexpr decltype(auto) visit(Func&& func, Either<T, U>&& either) noexcept
+        {
+            return static_cast<RRefType<Either<T, U>>>(either).visit(std::forward<Func>(func));
+        }
     };
 };
 
@@ -599,7 +641,7 @@ namespace std
     template<typename T, typename U>
     struct hash<ospf::Either<T, U>>
     {
-        inline const ospf::usize operator()(const ospf::Either<T, U>& either) const noexcept
+        inline const ospf::usize operator()(ospf::ArgCLRefType<ospf::Either<T, U>> either) const noexcept
         {
             return either.visit([](const auto& ele)
                 {
@@ -613,7 +655,7 @@ namespace std
     struct formatter<ospf::Either<T, U>, CharT> : formatter<string_view, CharT>
     {
         template<typename FormatContext>
-        inline static decltype(auto) format(const ospf::Either<T, U>& either, FormatContext& fc)
+        inline static decltype(auto) format(ospf::ArgCLRefType<ospf::Either<T, U>> either, FormatContext& fc)
         {
             return either.visit([](const auto& ele)
                 {
@@ -638,7 +680,7 @@ namespace ospf
     {
         using Type = typename TagValue<T>::Type;
 
-        inline RetType<Type> operator()(const Either<T, U>& either) const noexcept
+        inline RetType<Type> operator()(ArgCLRefType<ospf::Either<T, U>> either) const noexcept
         {
             return either.visit([](const auto& ele)
                 {

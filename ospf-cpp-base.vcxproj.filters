@@ -49,6 +49,15 @@
     <Filter Include="src\ospf\log">
       <UniqueIdentifier>{f0129573-eb25-424b-8e37-0a7d98b0f528}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\ospf\json">
+      <UniqueIdentifier>{a74699df-9260-45a0-a781-a40b5644675f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\ospf\protobuf">
+      <UniqueIdentifier>{c5d42c69-44c2-4e03-a610-9b8e5674cf59}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\ospf\bytes">
+      <UniqueIdentifier>{befd4f11-3f27-4d6d-9cef-60dd552e20f2}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\ospf\basic_definition.hpp">
@@ -257,6 +266,24 @@
     </ClInclude>
     <ClInclude Include="src\ospf\data_structure\value_or_reference_array.hpp">
       <Filter>src\ospf\data-structure</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ospf\json\serializer.hpp">
+      <Filter>src\ospf\json</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ospf\json\deserializer.hpp">
+      <Filter>src\ospf\json</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ospf\bytes\serializer.hpp">
+      <Filter>src\ospf\bytes</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ospf\bytes\deserializer.hpp">
+      <Filter>src\ospf\bytes</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ospf\protobuf\deserializer.hpp">
+      <Filter>src\ospf\protobuf</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ospf\protobuf\serializer.hpp">
+      <Filter>src\ospf\protobuf</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
