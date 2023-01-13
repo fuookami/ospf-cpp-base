@@ -37,6 +37,9 @@ namespace ospf
             using EitherType = Either<RetType, ErrType>;
 
         public:
+            // todo: succeeded, failed
+
+        public:
             constexpr Result(CLRefType<RetType> ret_value)
                 : _either(ret_value) {}
 

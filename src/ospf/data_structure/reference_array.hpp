@@ -30,7 +30,7 @@ namespace ospf
 
             template<typename T, reference::ReferenceCategory cat, typename C>
             class ReferenceArrayConstIterator
-                : public RandomIteratorImpl<reference::Ref<OriginType<T>, cat>, typename OriginType<C>::const_iterator, ReferenceArrayConstIterator<T, cat, C>>
+                : public RandomIteratorImpl<OriginType<T>, typename OriginType<C>::const_iterator, ReferenceArrayConstIterator<T, cat, C>>
             {
                 template<
                     typename T,
@@ -46,7 +46,1028 @@ namespace ospf
                     template<typename T> class C
                 >
                 friend class DynamicReferenceArray;
+
+            public:
+                using ValueType = OriginType<T>;
+                using ContainerType = OriginType<C>;
+                using IterType = typename ContainerType::const_iterator;
+
+            private:
+                using Base = RandomIteratorImpl<ValueType, IterType, ReferenceArrayConstIterator<T, cat, C>>;
+
+            public:
+                constexpr ReferenceArrayConstIterator(const IterType iter)
+                    : Base(iter) {}
+                constexpr ReferenceArrayConstIterator(const ReferenceArrayConstIterator& ano) = default;
+                constexpr ReferenceArrayConstIterator(ReferenceArrayConstIterator&& ano) noexcept = default;
+                constexpr ReferenceArrayConstIterator& operator=(const ReferenceArrayConstIterator& rhs) = default;
+                constexpr ReferenceArrayConstIterator& operator=(ReferenceArrayConstIterator&& rhs) noexcept = default;
+                constexpr ~ReferenceArrayConstIterator(void) noexcept = default;
+
+            OSPF_CRTP_PERMISSION:
+                inline static constexpr const ValueType& OSPF_CRTP_FUNCTION(get)(const IterType iter) noexcept
+                {
+                    return **iter;
+                }
+
+                inline static constexpr RetType<ReferenceArrayConstIterator> OSPF_CRTP_FUNCTION(construct)(const IterType iter) noexcept
+                {
+                    return ReferenceArrayConstIterator{ iter };
+                }
             };
+
+            template<typename T, reference::ReferenceCategory cat, typename C>
+            class ReferenceArrayIterator
+                : public RandomIteratorImpl<OriginType<T>, typename OriginType<C>::iterator, ReferenceArrayIterator<T, cat, C>>
+            {
+                template<
+                    typename T,
+                    usize len,
+                    reference::ReferenceCategory cat,
+                    template<typename T, usize l> class C
+                >
+                friend class StaticReferenceArray;
+
+                template<
+                    typename T,
+                    reference::ReferenceCategory cat,
+                    template<typename T> class C
+                >
+                friend class DynamicReferenceArray;
+
+            public:
+                using ValueType = OriginType<T>;
+                using ContainerType = OriginType<C>;
+                using IterType = typename ContainerType::iterator;
+
+            private:
+                using Base = RandomIteratorImpl<ValueType, IterType, ReferenceArrayIterator<T, cat, C>>;
+
+            public:
+                constexpr ReferenceArrayIterator(const IterType iter)
+                    : Base(iter) {}
+                constexpr ReferenceArrayIterator(const ReferenceArrayIterator& ano) = default;
+                constexpr ReferenceArrayIterator(ReferenceArrayIterator&& ano) noexcept = default;
+                constexpr ReferenceArrayIterator& operator=(const ReferenceArrayIterator& rhs) = default;
+                constexpr ReferenceArrayIterator& operator=(ReferenceArrayIterator&& rhs) noexcept = default;
+                constexpr ~ReferenceArrayIterator(void) noexcept = default;
+
+            public:
+                inline constexpr operator RetType<ReferenceArrayConstIterator<T, cat, C>>(void) const noexcept
+                {
+                    return ReferenceArrayConstIterator<T, cat, C>{ this->_iter };
+                }
+
+            OSPF_CRTP_PERMISSION:
+                inline static constexpr ValueType& OSPF_CRTP_FUNCTION(get)(const IterType iter) noexcept
+                {
+                    return **iter;
+                }
+
+                inline static constexpr RetType<ReferenceArrayIterator> OSPF_CRTP_FUNCTION(construct)(const IterType iter) noexcept
+                {
+                    return ReferenceArrayIterator{ iter };
+                }
+            };
+
+            template<typename T, reference::ReferenceCategory cat, typename C>
+            class ReferenceArrayConstReverseIterator
+            {
+                template<
+                    typename T,
+                    usize len,
+                    reference::ReferenceCategory cat,
+                    template<typename T, usize l> class C
+                >
+                friend class StaticReferenceArray;
+
+                template<
+                    typename T,
+                    reference::ReferenceCategory cat,
+                    template<typename T> class C
+                >
+                friend class DynamicReferenceArray;
+
+            public:
+                using ValueType = OriginType<T>;
+                using ContainerType = OriginType<C>;
+                using IterType = typename ContainerType::const_reverse_iterator;
+
+            private:
+                using Base = RandomIteratorImpl<ValueType, IterType, ReferenceArrayConstReverseIterator<T, cat, C>>;
+
+            public:
+                constexpr ReferenceArrayConstReverseIterator(const IterType iter)
+                    : Base(iter) {}
+                constexpr ReferenceArrayConstReverseIterator(const ReferenceArrayConstReverseIterator& ano) = default;
+                constexpr ReferenceArrayConstReverseIterator(ReferenceArrayConstReverseIterator&& ano) noexcept = default;
+                constexpr ReferenceArrayConstReverseIterator& operator=(const ReferenceArrayConstReverseIterator& rhs) = default;
+                constexpr ReferenceArrayConstReverseIterator& operator=(ReferenceArrayConstReverseIterator&& rhs) noexcept = default;
+                constexpr ~ReferenceArrayConstReverseIterator(void) noexcept = default;
+
+            OSPF_CRTP_PERMISSION:
+                inline static constexpr const ValueType& OSPF_CRTP_FUNCTION(get)(const IterType iter) noexcept
+                {
+                    return **iter;
+                }
+
+                inline static constexpr RetType<ReferenceArrayConstReverseIterator> OSPF_CRTP_FUNCTION(construct)(const IterType iter) noexcept
+                {
+                    return ReferenceArrayConstReverseIterator{ iter };
+                }
+            };
+
+            template<typename T, reference::ReferenceCategory cat, typename C>
+            class ReferenceArrayReverseIterator
+            {
+                template<
+                    typename T,
+                    usize len,
+                    reference::ReferenceCategory cat,
+                    template<typename T, usize l> class C
+                >
+                friend class StaticReferenceArray;
+
+                template<
+                    typename T,
+                    reference::ReferenceCategory cat,
+                    template<typename T> class C
+                >
+                friend class DynamicReferenceArray;
+
+            public:
+                using ValueType = OriginType<T>;
+                using ContainerType = OriginType<C>;
+                using IterType = typename ContainerType::reverse_iterator;
+
+            private:
+                using Base = RandomIteratorImpl<ValueType, IterType, ReferenceArrayConstReverseIterator<T, cat, C>>;
+
+            public:
+                constexpr ReferenceArrayReverseIterator(const IterType iter)
+                    : Base(iter) {}
+                constexpr ReferenceArrayReverseIterator(const ReferenceArrayReverseIterator& ano) = default;
+                constexpr ReferenceArrayReverseIterator(ReferenceArrayReverseIterator&& ano) noexcept = default;
+                constexpr ReferenceArrayReverseIterator& operator=(const ReferenceArrayReverseIterator& rhs) = default;
+                constexpr ReferenceArrayReverseIterator& operator=(ReferenceArrayReverseIterator&& rhs) noexcept = default;
+                constexpr ~ReferenceArrayReverseIterator(void) noexcept = default;
+
+            OSPF_CRTP_PERMISSION:
+                inline static constexpr ValueType& OSPF_CRTP_FUNCTION(get)(const IterType iter) noexcept
+                {
+                    return **iter;
+                }
+
+                inline static constexpr RetType<ReferenceArrayReverseIterator> OSPF_CRTP_FUNCTION(construct)(const IterType iter) noexcept
+                {
+                    return ReferenceArrayReverseIterator{ iter };
+                }
+            };
+
+            template<typename T, typename C>
+            struct ReferenceArrayAccessPolicy;
+
+            template<
+                typename T,
+                usize len,
+                reference::ReferenceCategory cat,
+                template<typename U, usize l> class C
+            >
+            struct ReferenceArrayAccessPolicy<T, C<reference::Ref<OriginType<T>, cat>, len>>
+            {
+            public:
+                using ValueType = OriginType<T>;
+                using ReferenceType = reference::Ref<ValueType, cat>;
+                using ContainerType = C<ReferenceType, len>;
+                using IterType = ReferenceArrayIterator<ValueType, cat, ContainerType>;
+                using ConstIterType = ReferenceArrayConstIterator<ValueType, cat, ContainerType>;
+                using ReverseIterType = ReferenceArrayReverseIterator<ValueType, cat, ContainerType>;
+                using ConstReverseIterType = ReferenceArrayConstReverseIterator<ValueType, cat, ContainerType>;
+
+            public:
+                inline static constexpr const usize size(const ContainerType& array) noexcept
+                {
+                    return len;
+                }
+
+                inline static constexpr ValueType& get(ContainerType& array, const usize i)
+                {
+                    return *array.at(i);
+                }
+
+                inline static constexpr const ValueType& get(const ContainerType& array, const usize i)
+                {
+                    return *array.at(i);
+                }
+
+                inline static constexpr ValueType& get_unchecked(ContainerType& array, const usize i)
+                {
+                    return *array[i];
+                }
+
+                inline static constexpr const ValueType& get_unchecked(const ContainerType& array, const usize i)
+                {
+                    return *array[i];
+                }
+
+            public:
+                inline static constexpr RetType<IterType> begin(ContainerType& array) noexcept
+                {
+                    return IterType{ array.begin() };
+                }
+
+                inline static constexpr RetType<ConstIterType> cbegin(const ContainerType& array) noexcept
+                {
+                    return ConstIterType{ array.begin() };
+                }
+
+            public:
+                inline static constexpr RetType<IterType> end(ContainerType& array) noexcept
+                {
+                    return IterType{ array.end() };
+                }
+
+                inline static constexpr RetType<ConstIterType> cend(const ContainerType& array) noexcept
+                {
+                    return ConstIterType{ array.end() };
+                }
+
+            public:
+                inline static constexpr RetType<ReverseIterType> rbegin(ContainerType& array) noexcept
+                {
+                    return ReverseIterType{ array.rbegin() };
+                }
+
+                inline static constexpr RetType<ConstReverseIterType> crbegin(const ContainerType& array) noexcept
+                {
+                    return ConstReverseIterType{ array.rbegin() };
+                }
+
+            public:
+                inline static constexpr RetType<ReverseIterType> rend(ContainerType& array) noexcept
+                {
+                    return ReverseIterType{ array.rend() };
+                }
+
+                inline static constexpr RetType<ConstReverseIterType> crend(const ContainerType& array) noexcept
+                {
+                    return ConstReverseIterType{ array.rend() };
+                }
+            };
+
+            template<
+                typename T,
+                reference::ReferenceCategory cat,
+                template<typename U> class C
+            >
+            struct ReferenceArrayAccessPolicy<T, C<reference::Ref<OriginType<T>, cat>>>
+            {
+            public:
+                using ValueType = OriginType<T>;
+                using ReferenceType = reference::Ref<ValueType, cat>;
+                using ContainerType = C<ReferenceType>;
+                using IterType = ReferenceArrayIterator<ValueType, cat, ContainerType>;
+                using ConstIterType = ReferenceArrayConstIterator<ValueType, cat, ContainerType>;
+                using ReverseIterType = ReferenceArrayReverseIterator<ValueType, cat, ContainerType>;
+                using ConstReverseIterType = ReferenceArrayConstReverseIterator<ValueType, cat, ContainerType>;
+
+            public:
+                inline static constexpr const usize size(const ContainerType& array) noexcept
+                {
+                    return len;
+                }
+
+                inline static constexpr ValueType& get(ContainerType& array, const usize i)
+                {
+                    return *array.at(i);
+                }
+
+                inline static constexpr const ValueType& get(const ContainerType& array, const usize i)
+                {
+                    return *array.at(i);
+                }
+
+                inline static constexpr ValueType& get_unchecked(ContainerType& array, const usize i)
+                {
+                    return *array[i];
+                }
+
+                inline static constexpr const ValueType& get_unchecked(const ContainerType& array, const usize i)
+                {
+                    return *array[i];
+                }
+
+            public:
+                inline static constexpr RetType<IterType> begin(ContainerType& array) noexcept
+                {
+                    return IterType{ array.begin() };
+                }
+
+                inline static constexpr RetType<ConstIterType> cbegin(const ContainerType& array) noexcept
+                {
+                    return ConstIterType{ array.begin() };
+                }
+
+            public:
+                inline static constexpr RetType<IterType> end(ContainerType& array) noexcept
+                {
+                    return IterType{ array.end() };
+                }
+
+                inline static constexpr RetType<ConstIterType> cend(const ContainerType& array) noexcept
+                {
+                    return ConstIterType{ array.end() };
+                }
+
+            public:
+                inline static constexpr RetType<ReverseIterType> rbegin(ContainerType& array) noexcept
+                {
+                    return ReverseIterType{ array.rbegin() };
+                }
+
+                inline static constexpr RetType<ConstReverseIterType> crbegin(const ContainerType& array) noexcept
+                {
+                    return ConstReverseIterType{ array.rbegin() };
+                }
+
+            public:
+                inline static constexpr RetType<ReverseIterType> rend(ContainerType& array) noexcept
+                {
+                    return ReverseIterType{ array.rend() };
+                }
+
+                inline static constexpr RetType<ConstReverseIterType> crend(const ContainerType& array) noexcept
+                {
+                    return ConstReverseIterType{ array.rend() };
+                }
+            };
+
+            template<typename T, typename C, typename Self>
+            class ReferenceArrayImpl
+            {
+                OSPF_CRTP_IMPL
+
+            public:
+                using ValueType = OriginType<T>;
+                using ContainerType = OriginType<C>;
+                using AccessPolicyType = ReferenceArrayAccessPolicy<ValueType, ContainerType>;
+                using ReferenceType = typename AccessPolicyType::ReferenceType;
+                using IterType = typename AccessPolicyType::IterType;
+                using ConstIterType = typename AccessPolicyType::ConstIterType;
+                using ReverseIterType = typename AccessPolicyType::ReverseIterType;
+                using ConstReverseIterType = typename AccessPolicyType::ConstReverseIterType;
+
+            protected:
+                constexpr ReferenceArrayImpl(void) = default;
+            public:
+                constexpr ReferenceArrayImpl(const ReferenceArrayImpl& ano) = default;
+                constexpr ReferenceArrayImpl(ReferenceArrayImpl&& ano) noexcept = default;
+                constexpr ReferenceArrayImpl& operator=(const ReferenceArrayImpl& rhs) = default;
+                constexpr ReferenceArrayImpl& operator=(ReferenceArrayImpl&& rhs) noexcept = default;
+                constexpr ~ReferenceArrayImpl(void) noexcept = default;
+
+            public:
+                inline constexpr ValueType& at(const usize i)
+                {
+                    return AccessPolicyType::get(container(), i);
+                }
+
+                inline constexpr const ValueType& at(const usize i) const
+                {
+                    return AccessPolicyType::get(const_container(), i);
+                }
+
+                inline constexpr ValueType& operator[](const usize i)
+                {
+                    return AccessPolicyType::get_unchecked(container(), i);
+                }
+
+                inline constexpr const ValueType& operator[](const usize i) const
+                {
+                    return AccessPolicyType::get_unchecked(const_container(), i);
+                }
+
+            public:
+                inline constexpr ValueType& front(void)
+                {
+                    return at(0_uz);
+                }
+
+                inline constexpr const ValueType& front(void) const
+                {
+                    return at(0_uz);
+                }
+
+                inline constexpr ValueType& back(void)
+                {
+                    return at(size() - 1_uz);
+                }
+
+                inline constexpr const ValueType& back(void) const
+                {
+                    return at(size() - 1_uz);
+                }
+
+            public:
+                inline constexpr RetType<IterType> begin(void) noexcept
+                {
+                    return AccessPolicyType::begin(container());
+                }
+
+                inline constexpr RetType<ConstIterType> begin(void) const noexcept
+                {
+                    return AccessPolicyType::cbegin(const_container());
+                }
+
+                inline constexpr RetType<ConstIterType> cbegin(void) const noexcept
+                {
+                    return AccessPolicyType::cbegin(const_container());
+                }
+
+            public:
+                inline constexpr RetType<IterType> end(void) noexcept
+                {
+                    return AccessPolicyType::end(container());
+                }
+
+                inline constexpr RetType<ConstIterType> end(void) const noexcept
+                {
+                    return AccessPolicyType::cend(const_container());
+                }
+
+                inline constexpr RetType<ConstIterType> cend(void) const noexcept
+                {
+                    return AccessPolicyType::cend(const_container());
+                }
+
+            public:
+                inline constexpr RetType<ReverseIterType> rbegin(void) noexcept
+                {
+                    return AccessPolicyType::rbegin(container());
+                }
+
+                inline constexpr RetType<ConstReverseIterType> rbegin(void) const noexcept
+                {
+                    return AccessPolicyType::crbegin(const_container());
+                }
+
+                inline constexpr RetType<ConstReverseIterType> crbegin(void) const noexcept
+                {
+                    return AccessPolicyType::crbegin(const_container());
+                }
+
+            public:
+                inline constexpr const bool empty(void) const noexcept
+                {
+                    return size() == 0_uz;
+                }
+
+                inline constexpr const usize size(void) const noexcept
+                {
+                    return AccessPolicyType::size(const_container());
+                }
+
+            public:
+                inline void swap(ReferenceArrayImpl<T, C, Self>& ano) noexcept
+                {
+                    std::swap(container(), ano.container());
+                }
+
+            protected:
+                inline constexpr ContainerType& container(void) noexcept
+                {
+                    return Trait::get_container(self());
+                }
+
+                inline constexpr const ContainerType& const_container(void) const noexcept
+                {
+                    return Trait::get_const_container(self());
+                }
+
+            private:
+                struct Trait : public Self
+                {
+                    inline static constexpr ContainerType& get_container(Self& self) noexcept
+                    {
+                        static const auto get_impl = &Self::OSPF_CRTP_FUNCTION(get_container);
+                        return (self.*get_impl)();
+                    }
+
+                    inline static constexpr const ContainerType& get_const_container(const Self& self) noexcept
+                    {
+                        static const auto get_impl = &Self::OSPF_CRTP_FUNCTION(get_const_container);
+                        return (self.*get_impl)();
+                    }
+                };
+            };
+
+            template<
+                typename T,
+                usize len,
+                reference::ReferenceCategory cat,
+                template<typename T, usize l> class C
+            >
+            class StaticReferenceArray
+                : public ReferenceArrayImpl<T, C<reference::Ref<OriginType<T>, cat>, len>, StaticReferenceArray<T, len, cat, C>>
+            {
+                using Impl = ReferenceArrayImpl<T, C<reference::Ref<OriginType<T>, cat>, len>, StaticReferenceArray<T, len, cat, C>>;
+
+            public:
+                using typename Impl::ValueType;
+                using typename Impl::ReferenceType;
+                using typename Impl::ContainerType;
+                using typename Impl::IterType;
+                using typename Impl::ConstIterType;
+                using typename Impl::ReverseIterType;
+                using typename Impl::ConstReverseIterType;
+
+            public:
+                constexpr StaticReferenceArray(ContainerType container)
+                    : _container(move<ContainerType>(container)) {}
+
+            public:
+                constexpr StaticReferenceArray(const StaticReferenceArray& ano) = default;
+                constexpr StaticReferenceArray(StaticReferenceArray&& ano) noexcept = default;
+                constexpr StaticReferenceArray& operator=(const StaticReferenceArray& rhs) = default;
+                constexpr StaticReferenceArray& operator=(StaticReferenceArray&& rhs) noexcept = default;
+                constexpr ~StaticReferenceArray(void) = default;
+
+            public:
+                template<typename = void>
+                    requires requires (ContainerType& container) { { container.data() } -> DecaySameAs<PtrType<ReferenceType>>; }
+                inline constexpr const PtrType<ReferenceType> data(void) noexcept
+                {
+                    return _container.data();
+                }
+
+                template<typename = void>
+                    requires requires (const ContainerType& container) { { container.data() } -> DecaySameAs<CPtrType<ReferenceType>>; }
+                inline constexpr const CPtrType<ReferenceType> data(void) const noexcept
+                {
+                    return _container.data();
+                }
+
+            public:
+                inline constexpr const usize max_size(void) const noexcept
+                {
+                    return _container.max_size();
+                }
+
+            public:
+                template<typename = void>
+                    requires std::is_copy_constructible_v<ReferenceType>
+                inline constexpr void fill(CLRefType<ReferenceType> ref) noexcept
+                {
+                    return _container.fill(ref);
+                }
+
+            public:
+                inline constexpr const bool operator==(const StaticReferenceArray& rhs) const noexcept
+                {
+                    return _container == rhs._container;
+                }
+
+                inline constexpr const bool operator!=(const StaticReferenceArray& rhs) const noexcept
+                {
+                    return _container != rhs._container;
+                }
+
+            public:
+                inline constexpr const bool operator<(const StaticReferenceArray& rhs) const noexcept
+                {
+                    return _container < rhs._container;
+                }
+
+                inline constexpr const bool operator<=(const StaticReferenceArray& rhs) const noexcept
+                {
+                    return _container <= rhs._container;
+                }
+
+                inline constexpr const bool operator>(const StaticReferenceArray& rhs) const noexcept
+                {
+                    return _container > rhs._container;
+                }
+
+                inline constexpr const bool operator>=(const StaticReferenceArray& rhs) const noexcept
+                {
+                    return _container >= rhs._container;
+                }
+
+            public:
+                inline constexpr decltype(auto) operator<=>(const StaticReferenceArray& rhs) const noexcept
+                {
+                    return _container <=> rhs._container;
+                }
+
+            OSPF_CRTP_PERMISSION :
+                inline constexpr ContainerType& OSPF_CRTP_FUNCTION(get_container)(void) noexcept
+                {
+                    return _container;
+                }
+
+                inline constexpr const ContainerType& OSPF_CRTP_FUNCTION(get_const_container)(void) const noexcept
+                {
+                    return _container;
+                }
+
+            private:
+                ContainerType _container;
+            };
+
+            template<
+                typename T,
+                reference::ReferenceCategory cat,
+                template<typename T> class C
+            >
+            class DynamicReferenceArray
+                : public ReferenceArrayImpl<T, C<reference::Ref<OriginType<T>, cat>>, DynamicReferenceArray<T, cat, C>>
+            {
+                using Impl = ReferenceArrayImpl<T, C<reference::Ref<OriginType<T>, cat>>, DynamicReferenceArray<T, cat, C>>;
+
+            public:
+                using typename Impl::ValueType;
+                using typename Impl::ReferenceType;
+                using typename Impl::ContainerType;
+                using typename Impl::IterType;
+                using typename Impl::ConstIterType;
+                using typename Impl::ReverseIterType;
+                using typename Impl::ConstReverseIterType;
+
+            public:
+                constexpr DynamicReferenceArray(void) = default;
+
+                template<typename = void>
+                    requires std::is_copy_constructible_v<ReferenceType>
+                constexpr DynamicReferenceArray(const usize length, CLRefType<ValueType> ref)
+                    : _container(length, ReferenceType{ ref }) {}
+
+                template<typename = void>
+                    requires std::is_copy_constructible_v<ReferenceType>
+                constexpr DynamicReferenceArray(const usize length, CLRefType<ReferenceType> ref)
+                    : _container(length, ref) {}
+
+                template<std::input_iterator It>
+                    requires requires (const It it) { { *it } -> std::same_as<LRefType<ValueType>>; }
+                constexpr DynamicReferenceArray(const It first, const It last)
+                    : _container(
+                        boost::make_transform_iterator(first, [](LRefType<ValueType> ref) { return ReferenceType{ ref }; }),
+                        boost::make_transform_iterator(last, [](LRefType<ValueType> ref) { return ReferenceType{ ref }; }),
+                    ) {}
+
+                template<std::input_iterator It>
+                    requires requires (const It it) { { *it } -> std::same_as<CLRefType<ValueType>>; }
+                constexpr DynamicReferenceArray(const It first, const It last)
+                    : _container(
+                        boost::make_transform_iterator(first, [](CLRefType<ValueType> ref) { return ReferenceType{ ref }; }),
+                        boost::make_transform_iterator(last, [](CLRefType<ValueType> ref) { return ReferenceType{ ref }; }),
+                    ) {}
+
+                template<std::input_iterator It>
+                    requires requires (const It it) { { *it } -> DecaySameAs<ReferenceType>; }
+                constexpr DynamicReferenceArray(const It first, const It last)
+                    : _container(first, last) {}
+
+                constexpr DynamicReferenceArray(std::initializer_list<ReferenceType> refs)
+                    : _container(std::move(refs)) {}
+
+            public:
+                constexpr DynamicReferenceArray(const DynamicReferenceArray& ano) = default;
+                constexpr DynamicReferenceArray(DynamicReferenceArray&& ano) noexcept = default;
+                constexpr DynamicReferenceArray& operator=(const DynamicReferenceArray& rhs) = default;
+                constexpr DynamicReferenceArray& operator=(DynamicReferenceArray&& rhs) noexcept = default;
+                constexpr ~DynamicReferenceArray(void) noexcept = default;
+
+            public:
+                template<typename = void>
+                    requires std::is_copy_constructible_v<ReferenceType>
+                inline constexpr void assign(const usize length, CLRefType<ValueType> ref)
+                {
+                    _container.assign(length, ReferenceType{ ref });
+                }
+
+                template<typename = void>
+                    requires std::is_copy_constructible_v<ReferenceType>
+                inline constexpr void assign(const usize length, CLRefType<ReferenceType> ref)
+                {
+                    _container.assign(length, ref);
+                }
+
+                template<std::input_iterator It>
+                    requires requires (const It it) { { *it } -> std::same_as<LRefType<ValueType>>; }
+                inline constexpr void assign(const It first, const It last)
+                {
+                    _container.assign(
+                        boost::make_transform_iterator(first, [](LRefType<ValueType> ref) { return ReferenceType{ ref }; }),
+                        boost::make_transform_iterator(last, [](LRefType<ValueType> ref) { return ReferenceType{ ref }; }),
+                    );
+                }
+
+                template<std::input_iterator It>
+                    requires requires (const It it) { { *it } -> std::same_as<CLRefType<ValueType>>; }
+                inline constexpr void assign(const It first, const It last)
+                {
+                    _container.assign(
+                        boost::make_transform_iterator(first, [](CLRefType<ValueType> ref) { return ReferenceType{ ref }; }),
+                        boost::make_transform_iterator(last, [](CLRefType<ValueType> ref) { return ReferenceType{ ref }; }),
+                    );
+                }
+
+                template<std::input_iterator It>
+                    requires requires (const It it) { { *it } -> DecaySameAs<ReferenceType>; }
+                inline constexpr void assign(const It first, const It last)
+                {
+                    _container.assign(first, last);
+                }
+
+                inline constexpr void assign(std::initializer_list<ReferenceType> refs)
+                {
+                    _container.assign(refs);
+                }
+
+            public:
+                template<typename = void>
+                    requires requires (ContainerType& container) { { container.data() } -> DecaySameAs<PtrType<ReferenceType>>; }
+                inline constexpr const PtrType<ReferenceType> data(void) noexcept
+                {
+                    return _container.data();
+                }
+
+                template<typename = void>
+                    requires requires (const ContainerType& container) { { container.data() } -> DecaySameAs<CPtrType<ReferenceType>>; }
+                inline constexpr const CPtrType<ReferenceType> data(void) const noexcept
+                {
+                    return _container.data();
+                }
+
+            public:
+                inline constexpr const usize max_size(void) const noexcept
+                {
+                    return _container.max_size();
+                }
+
+                template<typename = void>
+                    requires requires (ContainerType& container) { container.reserve(std::declval<usize>()); }
+                inline constexpr void reserve(const usize new_capacity)
+                {
+                    _container.reserve(new_capacity);
+                }
+
+                template<typename = void>
+                    requires requires (const ContainerType& container) { { container.capacity() } -> DecaySameAs<usize>; }
+                inline constexpr const usize capacity(void) const noexcept
+                {
+                    return _container.capacity();
+                }
+
+                template<typename = void>
+                    requires requires (ContainerType& container) { container.shrink_to_fit(); }
+                inline void shrink_to_fit(void)
+                {
+                    _container.shrink_to_fit();
+                }
+
+            public:
+                inline constexpr void clear(void) noexcept
+                {
+                    _container.clear();
+                }
+
+                inline constexpr RetType<IterType> insert(CLRefType<ConstIterType> pos, CLRefType<ValueType> ref)
+                {
+                    return IterType{ _container.insert(pos._iter, ReferenceType{ ref }) };
+                }
+
+                inline constexpr RetType<IterType> insert(CLRefType<ConstIterType> pos, RRefType<ReferenceType> ref)
+                {
+                    return IterType{ _container.insert(pos._iter, move<ReferenceType>(ref)) };
+                }
+
+                template<std::input_iterator It>
+                    requires requires (const It it) { { *it } -> std::same_as<LRefType<ValueType>>; }
+                inline constexpr RetType<IterType> insert(CLRefType<ConstIterType> pos, const It first, const It last)
+                {
+                    return IterType{ _container.insert(pos._iter, 
+                        boost::make_transform_iterator(first, [](LRefType<ValueType> ref) { return ReferenceType{ ref }; }),
+                        boost::make_transform_iterator(last, [](LRefType<ValueType> ref) { return ReferenceType{ ref }; }),
+                    ) };
+                }
+
+                template<std::input_iterator It>
+                    requires requires (const It it) { { *it } -> std::same_as<CLRefType<ValueType>>; }
+                inline constexpr RetType<IterType> insert(CLRefType<ConstIterType> pos, const It first, const It last)
+                {
+                    return IterType{ _container.insert(pos._iter,
+                        boost::make_transform_iterator(first, [](CLRefType<ValueType> ref) { return ReferenceType{ ref }; }),
+                        boost::make_transform_iterator(last, [](CLRefType<ValueType> ref) { return ReferenceType{ ref }; }),
+                    ) };
+                }
+
+                template<std::input_iterator It>
+                    requires requires (const It it) { { *it } -> DecaySameAs<ReferenceType>; }
+                inline constexpr RetType<IterType> insert(CLRefType<ConstIterType> pos, const It first, const It last)
+                {
+                    return IterType{ _container.insert(pos._iter, first, last) };
+                }
+
+                inline constexpr RetType<IterType> insert(CLRefType<ConstIterType> pos, std::initializer_list<ReferenceType> refs)
+                {
+                    return IterType{ _container.insert(pos._iter, std::move(refs)) };
+                }
+
+                inline constexpr RetType<IterType> emplace(CLRefType<ConstIterType> pos, CLRefType<ValueType> ref)
+                {
+                    return IterType{ _container.emplace(pos._iter, ref) };
+                }
+
+                template<typename... Args>
+                    requires std::constructible_from<ReferenceType, Args...>
+                inline constexpr RetType<IterType> emplace(CLRefType<ConstIterType> pos, Args&&... args)
+                {
+                    return IterType{ _container.emplace(pos._iter, std::forward<Args>(args)...) };
+                }
+
+                inline constexpr RetType<IterType> erase(CLRefType<ConstIterType> pos)
+                {
+                    return IterType{ _container.erase(pos._iter) };
+                }
+
+                inline constexpr RetType<IterType> erase(CLRefType<ConstIterType> first, CLRefType<ConstIterType> last)
+                {
+                    return IterType{ _container.erase(first._iter, last._iter) };
+                }
+
+                inline constexpr void push_back(const CLRefType<ValueType> ref)
+                {
+                    _container.push_back(ReferenceType{ ref });
+                }
+
+                inline constexpr void push_back(RRefType<ReferenceType> ref)
+                {
+                    _container.push_back(move<ReferenceType>(ref));
+                }
+
+                inline constexpr void emplace_back(const CLRefType<ValueType> ref)
+                {
+                    _container.emplace_back(ref);
+                }
+
+                template<typename... Args>
+                    requires std::constructible_from<ReferenceType, Args...>
+                inline constexpr void emplace_back(Args&&... args)
+                {
+                    _container.emplace_back(std::forward<Args>(args)...);
+                }
+
+                inline constexpr RetType<ReferenceType> pop_back(void)
+                {
+                    auto back = move<ReferenceType>(this->back());
+                    _container.pop_back();
+                    return back;
+                }
+
+                inline constexpr void push_front(const CLRefType<ValueType> ref)
+                {
+                    _container.insert(_container.begin(), ReferenceType{ ref });
+                }
+
+                template<typename = void>
+                    requires requires (ContainerType& container) { container.push_front(std::declval<ReferenceType>()); }
+                inline constexpr void push_front(const CLRefType<ValueType> ref)
+                {
+                    _container.push_front(ReferenceType{ ref });
+                }
+
+                inline constexpr void push_front(RRefType<ReferenceType> ref)
+                {
+                    _container.insert(_container.begin(), move<ReferenceType>(ref));
+                }
+
+                template<typename = void>
+                    requires requires (ContainerType& container) { container.push_front(std::declval<ReferenceType>()); }
+                inline constexpr void push_front(RRefType<ReferenceType> ref)
+                {
+                    _container.push_front(move<ReferenceType>(ref));
+                }
+
+                inline constexpr void emplace_front(const CLRefType<ValueType> ref)
+                {
+                    _container.emplace_front(ref);
+                }
+
+                template<typename = void>
+                    requires requires (ContainerType& container) { container.emplace_front(std::declval<CLRefType<ValueType>>()); }
+                inline constexpr void emplace_front(const CLRefType<ValueType> ref)
+                {
+                    _container.emplace_front(ref);
+                }
+
+                template<typename... Args>
+                    requires std::constructible_from<ReferenceType, Args...>
+                inline constexpr void emplace_front(Args&&... args)
+                {
+                    _container.emplace_front(std::forward<Args>(args)...);
+                }
+
+                template<typename... Args>
+                    requires std::constructible_from<ReferenceType, Args...>
+                        && requires (ContainerType& container) { container.emplace_front(std::declval<Args>()...); }
+                inline constexpr void emplace_front(Args&&... args)
+                {
+                    _container.emplace_front(std::forward<Args>(args)...);
+                }
+
+                inline constexpr RetType<ReferenceType> pop_front(void)
+                {
+                    auto front = move<ReferenceType>(this->front());
+                    _container.pop_front();
+                    return front;
+                }
+
+                template<typename = void>
+                    requires std::is_copy_constructible_v<ReferenceType>
+                inline constexpr void resize(const usize length, CLRefType<ValueType> ref)
+                {
+                    _container.resize(length, ReferenceType{ ref });
+                }
+
+                template<typename = void>
+                    requires std::is_copy_constructible_v<ReferenceType>
+                inline constexpr void resize(const usize length, CLRefType<ReferenceType> ref)
+                {
+                    _container.resize(length, ref);
+                }
+
+            public:
+                inline constexpr const bool operator==(const DynamicReferenceArray& rhs) const noexcept
+                {
+                    return _container == rhs._container;
+                }
+
+                inline constexpr const bool operator!=(const DynamicReferenceArray& rhs) const noexcept
+                {
+                    return _container != rhs._container;
+                }
+
+            public:
+                inline constexpr const bool operator<(const DynamicReferenceArray& rhs) const noexcept
+                {
+                    return _container < rhs._container;
+                }
+
+                inline constexpr const bool operator<=(const DynamicReferenceArray& rhs) const noexcept
+                {
+                    return _container <= rhs._container;
+                }
+
+                inline constexpr const bool operator>(const DynamicReferenceArray& rhs) const noexcept
+                {
+                    return _container > rhs._container;
+                }
+
+                inline constexpr const bool operator>=(const DynamicReferenceArray& rhs) const noexcept
+                {
+                    return _container >= rhs._container;
+                }
+
+            public:
+                inline constexpr decltype(auto) operator<=>(const DynamicReferenceArray& rhs) const noexcept
+                {
+                    return _container <=> rhs._container;
+                }
+
+            OSPF_CRTP_PERMISSION:
+                inline constexpr ContainerType& OSPF_CRTP_FUNCTION(get_container)(void) noexcept
+                {
+                    return _container;
+                }
+
+                inline constexpr const ContainerType& OSPF_CRTP_FUNCTION(get_const_container)(void) const noexcept
+                {
+                    return _container;
+                }
+
+            private:
+                ContainerType _container;
+            };
+
+            template<typename T, reference::ReferenceCategory cat>
+            struct ReferenceArrayTrait
+            {
+                template<
+                    usize len,
+                    template<typename T, usize l> class C
+                >
+                using StaticType = StaticReferenceArray<T, len, cat, C>;
+
+                template<
+                    template<typename T> class C
+                >
+                using DynamicType = DynamicReferenceArray<T, cat, C>;
+            };
+
+            template<typename T, reference::ReferenceCategory cat>
+            struct ReferenceArrayTrait<reference::Ref<T, cat>, cat>
+                : public ReferenceArrayTrait<T, cat> {};
         };
 
         template<
@@ -55,39 +1076,48 @@ namespace ospf
             reference::ReferenceCategory cat = reference::ReferenceCategory::Reference,
             template<typename T, usize l> class C = std::array
         >
-        using RefArray = reference_array::StaticReferenceArray<T, len, cat, C>;
+        using RefArray = typename reference_array::ReferenceArrayTrait<T, cat>::template StaticType<len, C>;
 
         template<
             typename T,
             usize len,
             template<typename T, usize l> class C = std::array
         >
-        using BorrowArray = reference_array::StaticReferenceArray<T, len, reference::ReferenceCategory::Borrow, C>;
+        using BorrowArray = typename reference_array::ReferenceArrayTrait<T, reference::ReferenceCategory::Borrow>::template StaticType<len, C>;
 
         template<
             typename T,
             usize len,
             template<typename T, usize l> class C = std::array
         >
-        using UniqueBorrowArray = reference_array::StaticReferenceArray<T, len, reference::ReferenceCategory::UniqueBorrow, C>;
+        using UniqueBorrowArray = typename reference_array::ReferenceArrayTrait<T, reference::ReferenceCategory::UniqueBorrow>::template StaticType<len, C>;
 
         template<
             typename T,
             reference::ReferenceCategory cat = reference::ReferenceCategory::Reference,
             template<typename T> class C = std::vector
         >
-        using DynRefArray = reference_array::DynamicReferenceArray<T, cat, C>;
+        using DynRefArray = typename reference_array::ReferenceArrayTrait<T, cat>::template DynamicType<C>;
 
         template<
             typename T,
             template<typename T> class C = std::vector
         >
-        using DynBorrowArray = reference_array::DynamicReferenceArray<T, reference::ReferenceCategory::Borrow, C>;
+        using DynBorrowArray = typename reference_array::ReferenceArrayTrait<T, reference::ReferenceCategory::Borrow>::template DynamicType<C>;
 
         template<
             typename T,
             template<typename T> class C = std::vector
         >
-        using DynUniqueBorrowArray = reference_array::DynamicReferenceArray<T, reference::ReferenceCategory::UniqueBorrow, C>;
+        using DynUniqueBorrowArray = typename reference_array::ReferenceArrayTrait<T, reference::ReferenceCategory::UniqueBorrow>::template DynamicType<C>;
     };
+};
+
+namespace std
+{
+    template<typename T, typename C, typename Self>
+    inline void swap(ospf::data_structure::reference_array::ReferenceArrayImpl<T, C, Self>& lhs, ospf::data_structure::reference_array::ReferenceArrayImpl<T, C, Self>& rhs) noexcept
+    {
+        lhs.swap(rhs);
+    }
 };

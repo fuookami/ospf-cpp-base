@@ -252,6 +252,12 @@
     <ClInclude Include="src\ospf\meta_programming\iterator.hpp">
       <Filter>src\ospf\meta-programming</Filter>
     </ClInclude>
+    <ClInclude Include="src\ospf\functional\value_or_reference.h">
+      <Filter>src\ospf\functional</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ospf\data_structure\value_or_reference_array.hpp">
+      <Filter>src\ospf\data-structure</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\ospf\system_info.cpp">

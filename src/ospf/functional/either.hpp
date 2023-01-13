@@ -23,6 +23,14 @@ namespace ospf
             static_assert(NotSameAs<LeftType, RightType>, "Either<T, U> requires T is not same as U.");
 
         public:
+            inline static RetType<Either> left(CLRefType<LeftType> left_value) noexcept
+            {
+                return Either(left_value);
+            }
+
+            // todo: left, right
+
+        public:
             constexpr Either(CLRefType<LeftType> left_value)
                 : _variant(left_value) {}
 
@@ -497,26 +505,26 @@ namespace ospf
             }
 
         public:
-            inline constexpr void reset(CLRefType<LeftType> left_value) noexcept
+            inline constexpr void assign(CLRefType<LeftType> left_value) noexcept
             {
                 _variant.template emplace<0_uz>(left_value);
             }
 
             template<typename = void>
                 requires ReferenceFaster<LeftType>&& std::movable<LeftType>
-            inline void reset(RRefType<LeftType> left_value) noexcept
+            inline void assign(RRefType<LeftType> left_value) noexcept
             {
                 _variant.template emplace<0_uz>(move<LeftType>(left_value));
             }
 
-            inline constexpr void reset(CLRefType<RightType> right_value) noexcept
+            inline constexpr void assign(CLRefType<RightType> right_value) noexcept
             {
                 _variant.template emplace<1_uz>(right_value);
             }
 
             template<typename = void>
                 requires ReferenceFaster<RightType>&& std::movable<RightType>
-            inline void reset(RRefType<RightType> right_value) noexcept
+            inline void assign(RRefType<RightType> right_value) noexcept
             {
                 _variant.template emplace<1_uz>(move<RightType>(right_value));
             }
@@ -581,6 +589,8 @@ namespace ospf
         private:
             std::variant<LeftType, RightType> _variant;
         };
+
+        // todo: visit
     };
 };
 

@@ -8,14 +8,30 @@ namespace ospf
 {
     inline namespace memory
     {
-        template<typename T>
-        using Ref = reference::Ref<OriginType<T>, reference::ReferenceCategory::Reference>;
+        namespace reference
+        {
+            template<typename T, reference::ReferenceCategory cat>
+            struct ReferenceTrait
+            {
+                using Type = reference::Ref<OriginType<T>, cat>;
+            };
+
+            template<typename T, reference::ReferenceCategory cat>
+            struct ReferenceTrait<reference::Ref<T, cat>, cat>
+                : public ReferenceTrait<T, cat> {};
+        };
+
+        template<
+            typename T,
+            reference::ReferenceCategory cat = reference::ReferenceCategory::Reference
+        >
+        using Ref = typename reference::ReferenceTrait<OriginType<T>, cat>::Type;
 
         template<typename T>
-        using Borrow = reference::Ref<OriginType<T>, reference::ReferenceCategory::Borrow>;
+        using Borrow = typename reference::Ref<OriginType<T>, reference::ReferenceCategory::Borrow>::Type;
 
         template<typename T>
-        using UniqueBorrow = reference::Ref<OriginType<T>, reference::ReferenceCategory::UniqueBorrow>;
+        using UniqueBorrow = typename reference::Ref<OriginType<T>, reference::ReferenceCategory::UniqueBorrow>::Type;
     };
 };
 

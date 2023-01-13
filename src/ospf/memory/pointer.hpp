@@ -9,11 +9,14 @@ namespace ospf
 {
     inline namespace memory
     {
-        template<typename T>
+        template<
+            typename T,
+            pointer::PointerCategory cat = pointer::PointerCategory::Raw
+        >
         using Ptr = std::conditional_t<
             std::is_array_v<T>,
-            pointer::Ptr<ArrayType<T>, pointer::PointerCategory::Raw>,
-            pointer::Ptr<OriginType<T>, pointer::PointerCategory::Raw>
+            pointer::Ptr<ArrayType<T>, cat>,
+            pointer::Ptr<OriginType<T>, cat>
         >;
 
         template<typename T>
