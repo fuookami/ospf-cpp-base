@@ -57,7 +57,7 @@ namespace ospf
                 using Base = RandomIteratorImpl<ValueType, IterType, PointerArrayConstIterator<T, cat, C>>;
 
             public:
-                constexpr PointerArrayConstIterator(RetType<IterType> iter)
+                constexpr PointerArrayConstIterator(ArgCLRefType<IterType> iter)
                     : Base(iter) {}
                 constexpr PointerArrayConstIterator(const PointerArrayConstIterator& ano) = default;
                 constexpr PointerArrayConstIterator(PointerArrayConstIterator&& ano) noexcept = default;
@@ -72,12 +72,12 @@ namespace ospf
                 }
 
             OSPF_CRTP_PERMISSION:
-                inline static constexpr const ValueType& OSPF_CRTP_FUNCTION(get)(RetType<IterType> iter) noexcept
+                inline static constexpr CLRefType<ValueType> OSPF_CRTP_FUNCTION(get)(ArgCLRefType<IterType> iter) noexcept
                 {
                     return *iter;
                 }
 
-                inline static constexpr RetType<PointerArrayConstIterator> OSPF_CRTP_FUNCTION(construct)(RetType<IterType> iter) noexcept
+                inline static constexpr RetType<PointerArrayConstIterator> OSPF_CRTP_FUNCTION(construct)(ArgCLRefType<IterType> iter) noexcept
                 {
                     return PointerArrayConstIterator{ iter };
                 }
@@ -111,7 +111,7 @@ namespace ospf
                 using Base = RandomIteratorImpl<ValueType, IterType, PointerArrayIterator<T, cat, C>>;
 
             public:
-                constexpr PointerArrayIterator(RetType<IterType> iter)
+                constexpr PointerArrayIterator(ArgCLRefType<IterType> iter)
                     : Base(iter) {}
                 constexpr PointerArrayIterator(const PointerArrayIterator& ano) = default;
                 constexpr PointerArrayIterator(PointerArrayIterator&& ano) noexcept = default;
@@ -132,12 +132,12 @@ namespace ospf
                 }
 
             OSPF_CRTP_PERMISSION:
-                inline static constexpr ValueType& OSPF_CRTP_FUNCTION(get)(RetType<IterType> iter) noexcept
+                inline static constexpr LRefType<ValueType> OSPF_CRTP_FUNCTION(get)(ArgCLRefType<IterType> iter) noexcept
                 {
                     return *iter;
                 }
 
-                inline static constexpr RetType<PointerArrayIterator> OSPF_CRTP_FUNCTION(construct)(RetType<IterType> iter) noexcept
+                inline static constexpr RetType<PointerArrayIterator> OSPF_CRTP_FUNCTION(construct)(ArgCLRefType<IterType> iter) noexcept
                 {
                     return PointerArrayIterator{ iter };
                 }
@@ -171,7 +171,7 @@ namespace ospf
                 using Base = RandomIteratorImpl<ValueType, IterType, PointerArrayConstReverseIterator<T, cat, C>>;
 
             public:
-                constexpr PointerArrayConstReverseIterator(RetType<IterType> iter)
+                constexpr PointerArrayConstReverseIterator(ArgCLRefType<IterType> iter)
                     : Base(iter) {}
                 constexpr PointerArrayConstReverseIterator(const PointerArrayConstReverseIterator& ano) = default;
                 constexpr PointerArrayConstReverseIterator(PointerArrayConstReverseIterator&& ano) noexcept = default;
@@ -186,12 +186,12 @@ namespace ospf
                 }
 
             OSPF_CRTP_PERMISSION:
-                inline static constexpr const ValueType& OSPF_CRTP_FUNCTION(get)(RetType<IterType> iter) noexcept
+                inline static constexpr CLRefType<ValueType> OSPF_CRTP_FUNCTION(get)(ArgCLRefType<IterType> iter) noexcept
                 {
                     return *iter;
                 }
 
-                inline static constexpr const RetType<PointerArrayConstReverseIterator> OSPF_CRTP_FUNCTION(construct)(RetType<IterType> iter) noexcept
+                inline static constexpr const RetType<PointerArrayConstReverseIterator> OSPF_CRTP_FUNCTION(construct)(ArgCLRefType<IterType> iter) noexcept
                 {
                     return PointerArrayConstReverseIterator{ iter };
                 }
@@ -225,7 +225,7 @@ namespace ospf
                 using Base = RandomIteratorImpl<ValueType, IterType, PointerArrayReverseIterator<T, cat, C>>;
 
             public:
-                constexpr PointerArrayReverseIterator(RetType<IterType> iter)
+                constexpr PointerArrayReverseIterator(ArgCLRefType<IterType> iter)
                     : Base(iter) {}
                 constexpr PointerArrayReverseIterator(const PointerArrayReverseIterator& ano) = default;
                 constexpr PointerArrayReverseIterator(PointerArrayReverseIterator&& ano) noexcept = default;
@@ -240,12 +240,12 @@ namespace ospf
                 }
 
             OSPF_CRTP_PERMISSION:
-                inline static constexpr const ValueType& OSPF_CRTP_FUNCTION(get)(RetType<IterType> iter) noexcept
+                inline static constexpr LRefType<ValueType> OSPF_CRTP_FUNCTION(get)(ArgCLRefType<IterType> iter) noexcept
                 {
                     return *iter;
                 }
 
-                inline static constexpr const RetType<PointerArrayReverseIterator> OSPF_CRTP_FUNCTION(construct)(RetType<IterType> iter) noexcept
+                inline static constexpr const RetType<PointerArrayReverseIterator> OSPF_CRTP_FUNCTION(construct)(ArgCLRefType<IterType> iter) noexcept
                 {
                     return PointerArrayReverseIterator{ iter };
                 }
@@ -279,7 +279,7 @@ namespace ospf
                 using Base = RandomIteratorImpl<ValueType, IterType, PointerArrayConstUncheckedIterator<T, cat, C>>;
 
             public:
-                constexpr PointerArrayConstUncheckedIterator(RetType<IterType> iter)
+                constexpr PointerArrayConstUncheckedIterator(ArgCLRefType<IterType> iter)
                     : Base(iter) {}
                 constexpr PointerArrayConstUncheckedIterator(const PointerArrayConstUncheckedIterator& ano) = default;
                 constexpr PointerArrayConstUncheckedIterator(PointerArrayConstUncheckedIterator&& ano) noexcept = default;
@@ -294,12 +294,12 @@ namespace ospf
                 }
 
             OSPF_CRTP_PERMISSION:
-                inline static constexpr const ValueType& OSPF_CRTP_FUNCTION(get)(RetType<IterType> iter) noexcept
+                inline static constexpr CLRefType<ValueType> OSPF_CRTP_FUNCTION(get)(ArgCLRefType<IterType> iter) noexcept
                 {
                     return **iter;
                 }
 
-                inline static constexpr RetType<PointerArrayConstUncheckedIterator> OSPF_CRTP_FUNCTION(construct)(RetType<IterType> iter) noexcept
+                inline static constexpr RetType<PointerArrayConstUncheckedIterator> OSPF_CRTP_FUNCTION(construct)(ArgCLRefType<IterType> iter) noexcept
                 {
                     return PointerArrayConstUncheckedIterator{ iter };
                 }
@@ -333,7 +333,7 @@ namespace ospf
                 using Base = RandomIteratorImpl<ValueType, IterType, PointerArrayUncheckedIterator<T, cat, C>>;
 
             public:
-                constexpr PointerArrayUncheckedIterator(RetType<IterType> iter)
+                constexpr PointerArrayUncheckedIterator(ArgCLRefType<IterType> iter)
                     : Base(iter) {}
                 constexpr PointerArrayUncheckedIterator(const PointerArrayUncheckedIterator& ano) = default;
                 constexpr PointerArrayUncheckedIterator(PointerArrayUncheckedIterator&& ano) noexcept = default;
@@ -354,12 +354,12 @@ namespace ospf
                 }
 
             OSPF_CRTP_PERMISSION:
-                inline static constexpr const ValueType& OSPF_CRTP_FUNCTION(get)(RetType<IterType> iter) noexcept
+                inline static constexpr LRefType<ValueType> OSPF_CRTP_FUNCTION(get)(ArgCLRefType<IterType> iter) noexcept
                 {
                     return **iter;
                 }
 
-                inline static constexpr RetType<PointerArrayUncheckedIterator> OSPF_CRTP_FUNCTION(construct)(RetType<IterType> iter) noexcept
+                inline static constexpr RetType<PointerArrayUncheckedIterator> OSPF_CRTP_FUNCTION(construct)(ArgCLRefType<IterType> iter) noexcept
                 {
                     return PointerArrayUncheckedIterator{ iter };
                 }
@@ -393,7 +393,7 @@ namespace ospf
                 using Base = RandomIteratorImpl<ValueType, IterType, PointerArrayConstUncheckedReverseIterator<T, cat, C>>;
 
             public:
-                constexpr PointerArrayConstUncheckedReverseIterator(RetType<IterType> iter)
+                constexpr PointerArrayConstUncheckedReverseIterator(ArgCLRefType<IterType> iter)
                     : Base(iter) {}
                 constexpr PointerArrayConstUncheckedReverseIterator(const PointerArrayConstUncheckedReverseIterator& ano) = default;
                 constexpr PointerArrayConstUncheckedReverseIterator(PointerArrayConstUncheckedReverseIterator&& ano) noexcept = default;
@@ -408,12 +408,12 @@ namespace ospf
                 }
 
             OSPF_CRTP_PERMISSION:
-                inline static constexpr const ValueType& OSPF_CRTP_FUNCTION(get)(RetType<IterType> iter) noexcept
+                inline static constexpr CLRefType<ValueType> OSPF_CRTP_FUNCTION(get)(ArgCLRefType<IterType> iter) noexcept
                 {
                     return **iter;
                 }
 
-                inline static constexpr RetType<PointerArrayConstUncheckedReverseIterator> OSPF_CRTP_FUNCTION(construct)(RetType<IterType> iter) noexcept
+                inline static constexpr RetType<PointerArrayConstUncheckedReverseIterator> OSPF_CRTP_FUNCTION(construct)(ArgCLRefType<IterType> iter) noexcept
                 {
                     return PointerArrayConstUncheckedReverseIterator{ iter };
                 }
@@ -447,7 +447,7 @@ namespace ospf
                 using Base = RandomIteratorImpl<ValueType, IterType, PointerArrayUncheckedReverseIterator<T, cat, C>>;
 
             public:
-                constexpr PointerArrayUncheckedReverseIterator(RetType<IterType> iter)
+                constexpr PointerArrayUncheckedReverseIterator(ArgCLRefType<IterType> iter)
                     : Base(iter) {}
                 constexpr PointerArrayUncheckedReverseIterator(const PointerArrayUncheckedReverseIterator& ano) = default;
                 constexpr PointerArrayUncheckedReverseIterator(PointerArrayUncheckedReverseIterator&& ano) noexcept = default;
@@ -462,12 +462,12 @@ namespace ospf
                 }
 
             OSPF_CRTP_PERMISSION:
-                inline static constexpr const ValueType& OSPF_CRTP_FUNCTION(get)(RetType<IterType> iter) noexcept
+                inline static constexpr LRefType<ValueType> OSPF_CRTP_FUNCTION(get)(ArgCLRefType<IterType> iter) noexcept
                 {
                     return **iter;
                 }
 
-                inline static constexpr RetType<PointerArrayUncheckedReverseIterator> OSPF_CRTP_FUNCTION(construct)(RetType<IterType> iter) noexcept
+                inline static constexpr RetType<PointerArrayUncheckedReverseIterator> OSPF_CRTP_FUNCTION(construct)(ArgCLRefType<IterType> iter) noexcept
                 {
                     return PointerArrayUncheckedReverseIterator{ iter };
                 }
@@ -498,111 +498,111 @@ namespace ospf
                 using ConstUncheckedReverseIterType = PointerArrayConstUncheckedReverseIterator<ValueType, cat, ContainerType>;
 
             public:
-                inline static constexpr const usize size(const ContainerType& array) noexcept
+                inline static constexpr const usize size(CLRefType<ContainerType> array) noexcept
                 {
                     return len;
                 }
 
-                inline static constexpr PointerType& get(ContainerType& array, const usize i)
+                inline static constexpr LRefType<PointerType> get(LRefType<ContainerType> array, const usize i)
                 {
                     return array.at(i);
                 }
 
-                inline static constexpr const PointerType& get(const ContainerType& array, const usize i)
+                inline static constexpr CLRefType<PointerType> get(CLRefType<ContainerType> array, const usize i)
                 {
                     return array.at(i);
                 }
 
-                inline static constexpr PointerType& get_unchecked(ContainerType& array, const usize i)
+                inline static constexpr LRefType<PointerType> get_unchecked(LRefType<ContainerType> array, const usize i)
                 {
                     return array[i];
                 }
 
-                inline static constexpr const PointerType& get_unchecked(const ContainerType& array, const usize i)
+                inline static constexpr CLRefType<PointerType> get_unchecked(CLRefType<ContainerType> array, const usize i)
                 {
                     return array[i];
                 }
 
             public:
-                inline static constexpr RetType<IterType> begin(ContainerType& array) noexcept
+                inline static constexpr RetType<IterType> begin(LRefType<ContainerType> array) noexcept
                 {
                     return IterType{ array.begin() };
                 }
 
-                inline static constexpr RetType<ConstIterType> cbegin(const ContainerType& array) noexcept
+                inline static constexpr RetType<ConstIterType> cbegin(CLRefType<ContainerType> array) noexcept
                 {
                     return ConstIterType{ array.begin() };
                 }
 
-                inline static constexpr RetType<UncheckedIterType> begin_unchecked(ContainerType& array) noexcept
+                inline static constexpr RetType<UncheckedIterType> begin_unchecked(LRefType<ContainerType> array) noexcept
                 {
                     return UncheckedIterType{ array.begin() };
                 }
 
-                inline static constexpr RetType<ConstUncheckedIterType> cbegin_unchecked(const ContainerType& array) noexcept
+                inline static constexpr RetType<ConstUncheckedIterType> cbegin_unchecked(CLRefType<ContainerType> array) noexcept
                 {
                     return ConstUncheckedIterType{ array.begin() };
                 }
 
             public:
-                inline static constexpr RetType<IterType> end(ContainerType& array) noexcept
+                inline static constexpr RetType<IterType> end(LRefType<ContainerType> array) noexcept
                 {
                     return IterType{ array.end() };
                 }
 
-                inline static constexpr RetType<ConstIterType> cend(const ContainerType& array) noexcept
+                inline static constexpr RetType<ConstIterType> cend(CLRefType<ContainerType> array) noexcept
                 {
                     return ConstIterType{ array.end() };
                 }
 
-                inline static constexpr RetType<UncheckedIterType> end_unchecked(ContainerType& array) noexcept
+                inline static constexpr RetType<UncheckedIterType> end_unchecked(LRefType<ContainerType> array) noexcept
                 {
                     return UncheckedIterType{ array.end() };
                 }
 
-                inline static constexpr RetType<ConstUncheckedIterType> cend_unchecked(const ContainerType& array) noexcept
+                inline static constexpr RetType<ConstUncheckedIterType> cend_unchecked(CLRefType<ContainerType> array) noexcept
                 {
                     return ConstUncheckedIterType{ array.end() };
                 }
 
             public:
-                inline static constexpr RetType<ReverseIterType> rbegin(ContainerType& array) noexcept
+                inline static constexpr RetType<ReverseIterType> rbegin(LRefType<ContainerType> array) noexcept
                 {
                     return ReverseIterType{ array.rbegin() };
                 }
 
-                inline static constexpr RetType<ConstReverseIterType> crbegin(const ContainerType& array) noexcept
+                inline static constexpr RetType<ConstReverseIterType> crbegin(CLRefType<ContainerType> array) noexcept
                 {
                     return ConstReverseIterType{ array.rbegin() };
                 }
 
-                inline static constexpr RetType<UncheckedReverseIterType> rbegin_unchecked(ContainerType& array) noexcept
+                inline static constexpr RetType<UncheckedReverseIterType> rbegin_unchecked(LRefType<ContainerType> array) noexcept
                 {
                     return UncheckedReverseIterType{ array.rbegin() };
                 }
 
-                inline static constexpr RetType<ConstUncheckedReverseIterType> crbegin_unchecked(const ContainerType& array) noexcept
+                inline static constexpr RetType<ConstUncheckedReverseIterType> crbegin_unchecked(CLRefType<ContainerType> array) noexcept
                 {
                     return ConstUncheckedReverseIterType{ array.rbegin() };
                 }
 
             public:
-                inline static constexpr RetType<ReverseIterType> rend(ContainerType& array) noexcept
+                inline static constexpr RetType<ReverseIterType> rend(LRefType<ContainerType> array) noexcept
                 {
                     return ReverseIterType{ array.rend() };
                 }
 
-                inline static constexpr RetType<ConstReverseIterType> crend(const ContainerType& array) noexcept
+                inline static constexpr RetType<ConstReverseIterType> crend(CLRefType<ContainerType> array) noexcept
                 {
                     return ConstReverseIterType{ array.rend() };
                 }
 
-                inline static constexpr RetType<UncheckedReverseIterType> rend_unchecked(ContainerType& array) noexcept
+                inline static constexpr RetType<UncheckedReverseIterType> rend_unchecked(LRefType<ContainerType> array) noexcept
                 {
                     return UncheckedReverseIterType{ array.rend() };
                 }
 
-                inline static constexpr RetType<ConstUncheckedReverseIterType> crend_unchecked(const ContainerType& array) noexcept
+                inline static constexpr RetType<ConstUncheckedReverseIterType> crend_unchecked(CLRefType<ContainerType> array) noexcept
                 {
                     return ConstUncheckedReverseIterType{ array.rend() };
                 }
@@ -629,111 +629,111 @@ namespace ospf
                 using ConstUncheckedReverseIterType = PointerArrayConstUncheckedReverseIterator<ValueType, cat, ContainerType>;
 
             public:
-                inline static constexpr const usize size(const ContainerType& array) noexcept
+                inline static constexpr const usize size(CLRefType<ContainerType> array) noexcept
                 {
                     return l;
                 }
 
-                inline static constexpr PointerType& get(ContainerType& array, const usize i)
+                inline static constexpr LRefType<PointerType> get(LRefType<ContainerType> array, const usize i)
                 {
                     return array.at(i);
                 }
 
-                inline static constexpr const PointerType& get(const ContainerType& array, const usize i)
+                inline static constexpr CLRefType<PointerType> get(CLRefType<ContainerType> array, const usize i)
                 {
                     return array.at(i);
                 }
 
-                inline static constexpr PointerType& get_unchecked(ContainerType& array, const usize i)
+                inline static constexpr LRefType<PointerType> get_unchecked(LRefType<ContainerType> array, const usize i)
                 {
                     return array[i];
                 }
 
-                inline static constexpr const PointerType& get_unchecked(const ContainerType& array, const usize i)
+                inline static constexpr CLRefType<PointerType> get_unchecked(CLRefType<ContainerType> array, const usize i)
                 {
                     return array[i];
                 }
 
             public:
-                inline static constexpr RetType<IterType> begin(ContainerType& array) noexcept
+                inline static constexpr RetType<IterType> begin(LRefType<ContainerType> array) noexcept
                 {
                     return IterType{ array.begin() };
                 }
 
-                inline static constexpr RetType<ConstIterType> cbegin(const ContainerType& array) noexcept
+                inline static constexpr RetType<ConstIterType> cbegin(CLRefType<ContainerType> array) noexcept
                 {
                     return ConstIterType{ array.begin() };
                 }
 
-                inline static constexpr RetType<UncheckedIterType> begin_unchecked(ContainerType& array) noexcept
+                inline static constexpr RetType<UncheckedIterType> begin_unchecked(LRefType<ContainerType> array) noexcept
                 {
                     return UncheckedIterType{ array.begin() };
                 }
 
-                inline static constexpr RetType<ConstUncheckedIterType> cbegin_unchecked(const ContainerType& array) noexcept
+                inline static constexpr RetType<ConstUncheckedIterType> cbegin_unchecked(CLRefType<ContainerType> array) noexcept
                 {
                     return ConstUncheckedIterType{ array.begin() };
                 }
 
             public:
-                inline static constexpr RetType<IterType> end(ContainerType& array) noexcept
+                inline static constexpr RetType<IterType> end(LRefType<ContainerType> array) noexcept
                 {
                     return IterType{ array.end() };
                 }
 
-                inline static constexpr RetType<ConstIterType> cend(const ContainerType& array) noexcept
+                inline static constexpr RetType<ConstIterType> cend(CLRefType<ContainerType> array) noexcept
                 {
                     return ConstIterType{ array.end() };
                 }
 
-                inline static constexpr RetType<UncheckedIterType> end_unchecked(ContainerType& array) noexcept
+                inline static constexpr RetType<UncheckedIterType> end_unchecked(LRefType<ContainerType> array) noexcept
                 {
                     return UncheckedIterType{ array.end() };
                 }
 
-                inline static constexpr RetType<ConstUncheckedIterType> cend_unchecked(const ContainerType& array) noexcept
+                inline static constexpr RetType<ConstUncheckedIterType> cend_unchecked(CLRefType<ContainerType> array) noexcept
                 {
                     return ConstUncheckedIterType{ array.end() };
                 }
 
             public:
-                inline static constexpr RetType<ReverseIterType> rbegin(ContainerType& array) noexcept
+                inline static constexpr RetType<ReverseIterType> rbegin(LRefType<ContainerType> array) noexcept
                 {
                     return ReverseIterType{ array.rbegin() };
                 }
 
-                inline static constexpr RetType<ConstReverseIterType> crbegin(const ContainerType& array) noexcept
+                inline static constexpr RetType<ConstReverseIterType> crbegin(CLRefType<ContainerType> array) noexcept
                 {
                     return ConstReverseIterType{ array.rbegin() };
                 }
 
-                inline static constexpr RetType<UncheckedReverseIterType> rbegin_unchecked(ContainerType& array) noexcept
+                inline static constexpr RetType<UncheckedReverseIterType> rbegin_unchecked(LRefType<ContainerType> array) noexcept
                 {
                     return UncheckedReverseIterType{ array.rbegin() };
                 }
 
-                inline static constexpr RetType<ConstUncheckedReverseIterType> crbegin_unchecked(const ContainerType& array) noexcept
+                inline static constexpr RetType<ConstUncheckedReverseIterType> crbegin_unchecked(CLRefType<ContainerType> array) noexcept
                 {
                     return ConstUncheckedReverseIterType{ array.rbegin() };
                 }
 
             public:
-                inline static constexpr RetType<ReverseIterType> rend(ContainerType& array) noexcept
+                inline static constexpr RetType<ReverseIterType> rend(LRefType<ContainerType> array) noexcept
                 {
                     return ReverseIterType{ array.rend() };
                 }
 
-                inline static constexpr RetType<ConstReverseIterType> crend(const ContainerType& array) noexcept
+                inline static constexpr RetType<ConstReverseIterType> crend(CLRefType<ContainerType> array) noexcept
                 {
                     return ConstReverseIterType{ array.rend() };
                 }
 
-                inline static constexpr RetType<UncheckedReverseIterType> rend_unchecked(ContainerType& array) noexcept
+                inline static constexpr RetType<UncheckedReverseIterType> rend_unchecked(LRefType<ContainerType> array) noexcept
                 {
                     return UncheckedReverseIterType{ array.rend() };
                 }
 
-                inline static constexpr RetType<ConstUncheckedReverseIterType> crend_unchecked(const ContainerType& array) noexcept
+                inline static constexpr RetType<ConstUncheckedReverseIterType> crend_unchecked(CLRefType<ContainerType> array) noexcept
                 {
                     return ConstUncheckedReverseIterType{ array.rend() };
                 }
@@ -951,7 +951,7 @@ namespace ospf
                 }
 
             public:
-                inline void swap(PointerArrayImpl<T, C, Self>& ano) noexcept
+                inline void swap(PointerArrayImpl& ano) noexcept
                 {
                     std::swap(container(), ano.container());
                 }
@@ -1253,7 +1253,7 @@ namespace ospf
 
                     template<typename = void>
                         requires std::is_copy_constructible_v<PointerType>
-                    inline constexpr void fill(CLRefType<PointerType> ptr) noexcept
+                    inline constexpr void fill(ArgCLRefType<PointerType> ptr) noexcept
                     {
                         _container.fill(ptr);
                     }
@@ -1297,12 +1297,12 @@ namespace ospf
                     }
 
                 OSPF_CRTP_PERMISSION:
-                    inline constexpr ContainerType& OSPF_CRTP_FUNCTION(get_container)(void) noexcept
+                    inline constexpr LRefType<ContainerType> OSPF_CRTP_FUNCTION(get_container)(void) noexcept
                     {
                         return _container;
                     }
 
-                    inline constexpr const ContainerType& OSPF_CRTP_FUNCTION(get_const_container)(void) const noexcept
+                    inline constexpr CLRefType<ContainerType> OSPF_CRTP_FUNCTION(get_const_container)(void) const noexcept
                     {
                         return _container;
                     }
@@ -1355,31 +1355,31 @@ namespace ospf
 
                     template<typename = void>
                         requires std::is_copy_constructible_v<PointerType>
-                    constexpr DynamicPointerArray(const usize length, CLRefType<PointerType> ptr)
+                    constexpr DynamicPointerArray(const usize length, ArgCLRefType<PointerType> ptr)
                         : _container(length, ptr) {}
 
                     template<std::input_iterator It>
                         requires requires (const It it) { { *it } -> DecaySameAs<PtrType<ValueType>>; }
-                    constexpr DynamicPointerArray(const It first, const It last)
+                    constexpr DynamicPointerArray(It&& first, It&& last)
                         : _container(
-                            boost::make_transform_iterator(first, [](const PtrType<ValueType> ptr) { PointerType{ ptr } }),
-                            boost::make_transform_iterator(last, [](const PtrType<ValueType> ptr) { PointerType{ ptr } })
+                            boost::make_transform_iterator(std::forward<It>(first), [](const PtrType<ValueType> ptr) { PointerType{ptr} }),
+                            boost::make_transform_iterator(std::forward<It>(last), [](const PtrType<ValueType> ptr) { PointerType{ptr} })
                         ) {}
 
                     template<std::input_iterator It>
                         requires requires (const It it) { { *it } -> DecaySameAs<CPtrType<ValueType>>; }
-                    constexpr DynamicPointerArray(const It first, const It last)
+                    constexpr DynamicPointerArray(It&& first, It&& last)
                         : _container(
-                            boost::make_transform_iterator(first, [](const CPtrType<ValueType> ptr) { PointerType{ ptr } }),
-                            boost::make_transform_iterator(last, [](const CPtrType<ValueType> ptr) { PointerType{ ptr } })
+                            boost::make_transform_iterator(std::forward<It>(first), [](const CPtrType<ValueType> ptr) { PointerType{ ptr } }),
+                            boost::make_transform_iterator(std::forward<It>(last), [](const CPtrType<ValueType> ptr) { PointerType{ ptr } })
                         ) {}
 
                     template<std::input_iterator It>
                         requires requires (const It it) { { *it } -> DecaySameAs<PointerType>; }
-                    constexpr DynamicPointerArray(const It first, const It last)
-                        : _container(first, last) {}
+                    constexpr DynamicPointerArray(It&& first, It&& last)
+                        : _container(std::forward<It>(first), std::forward<It>(last)) {}
 
-                    constexpr DynamicPointerArray(std::initializer_list<PtrType<ValueType>> ptrs)
+                    constexpr DynamicPointerArray(const std::initializer_list<PtrType<ValueType>> ptrs)
                         : _container(ptrs.size())
                     {
                         for (auto i{ 0_uz }; i != ptrs.size(); ++i)
@@ -1388,7 +1388,7 @@ namespace ospf
                         }
                     }
 
-                    constexpr DynamicPointerArray(std::initializer_list<CPtrType<ValueType>> ptrs)
+                    constexpr DynamicPointerArray(const std::initializer_list<CPtrType<ValueType>> ptrs)
                         : _container(ptrs.size())
                     {
                         for (auto i{ 0_uz }; i != ptrs.size(); ++i)
@@ -1433,39 +1433,39 @@ namespace ospf
 
                     template<typename = void>
                         requires std::is_copy_constructible_v<PointerType>
-                    inline constexpr void assign(const usize length, CLRefType<PointerType> ptr)
+                    inline constexpr void assign(const usize length, ArgCLRefType<PointerType> ptr)
                     {
                         _container.assign(length, ptr);
                     }
 
                     template<std::input_iterator It>
                         requires requires (const It it) { { *it } -> DecaySameAs<PtrType<ValueType>>; }
-                    inline constexpr void assign(const It first, const It last)
+                    inline constexpr void assign(It&& first, It&& last)
                     {
                         _container.assign(
-                            boost::make_transform_iterator(first, [](const PtrType<ValueType> ptr) { PointerType{ ptr } }),
-                            boost::make_transform_iterator(last, [](const PtrType<ValueType> ptr) { PointerType{ ptr } })
+                            boost::make_transform_iterator(std::forward<It>(first), [](const PtrType<ValueType> ptr) { PointerType{ptr} }),
+                            boost::make_transform_iterator(std::forward<It>(last), [](const PtrType<ValueType> ptr) { PointerType{ptr} })
                         );
                     }
 
                     template<std::input_iterator It>
                         requires requires (const It it) { { *it } -> DecaySameAs<CPtrType<ValueType>>; }
-                    inline constexpr void assign(const It first, const It last)
+                    inline constexpr void assign(It&& first, It&& last)
                     {
                         _container.assign(
-                            boost::make_transform_iterator(first, [](const CPtrType<ValueType> ptr) { PointerType{ ptr } }),
-                            boost::make_transform_iterator(last, [](const CPtrType<ValueType> ptr) { PointerType{ ptr } })
+                            boost::make_transform_iterator(std::forward<It>(first), [](const CPtrType<ValueType> ptr) { PointerType{ptr} }),
+                            boost::make_transform_iterator(std::forward<It>(last), [](const CPtrType<ValueType> ptr) { PointerType{ptr} })
                         );
                     }
 
                     template<std::input_iterator It>
                         requires requires (const It it) { { *it } -> DecaySameAs<PointerType>; }
-                    inline constexpr void assign(const It first, const It last)
+                    inline constexpr void assign(It&& first, It&& last)
                     {
-                        _container.assign(first, last);
+                        _container.assign(std::forward<It>(first), std::forward<It>(last));
                     }
 
-                    inline constexpr void assign(std::initializer_list<PtrType<ValueType>> ptrs)
+                    inline constexpr void assign(const std::initializer_list<PtrType<ValueType>> ptrs)
                     {
                         _container.assign(ptrs.size());
                         for (auto i{ 0_uz }; i != ptrs.size(); ++i)
@@ -1483,7 +1483,7 @@ namespace ospf
                         }
                     }
 
-                    inline constexpr void assign(const std::initializer_list<PointerType> ptrs)
+                    inline constexpr void assign(std::initializer_list<PointerType> ptrs)
                     {
                         _container.assign(std::move(ptrs));
                     }
@@ -1541,111 +1541,101 @@ namespace ospf
                         _container.clear();
                     }
 
-                    inline constexpr RetType<IterType> insert(CLRefType<ConstIterType> pos, const std::nullptr_t _)
+                    inline constexpr RetType<IterType> insert(ArgCLRefType<ConstIterType> pos, const std::nullptr_t _)
                     {
                         return IterType{ _container.insert(pos._iter, PointerType{ nullptr }) };
                     }
 
-                    inline constexpr RetType<IterType> insert(CLRefType<ConstIterType> pos, const PtrType<ValueType> ptr)
+                    inline constexpr RetType<IterType> insert(ArgCLRefType<ConstIterType> pos, const PtrType<ValueType> ptr)
                     {
                         return IterType{ _container.insert(pos._iter, PointerType{ ptr }) };
                     }
 
-                    inline constexpr RetType<IterType> insert(CLRefType<ConstIterType> pos, const CPtrType<ValueType> ptr)
+                    inline constexpr RetType<IterType> insert(ArgCLRefType<ConstIterType> pos, const CPtrType<ValueType> ptr)
                     {
                         return IterType{ _container.insert(pos._iter, PointerType{ ptr }) };
                     }
 
-                    inline constexpr RetType<IterType> insert(CLRefType<ConstIterType> pos, RRefType<PointerType> ptr)
+                    inline constexpr RetType<IterType> insert(ArgCLRefType<ConstIterType> pos, ArgRRefType<PointerType> ptr)
                     {
                         return IterType{ _container.insert(pos._iter, move<PointerType>(ptr)) };
                     }
 
-                    inline constexpr RetType<UncheckedIterType> insert(CLRefType<ConstUncheckedIterType> pos, const std::nullptr_t _)
+                    inline constexpr RetType<UncheckedIterType> insert(ArgCLRefType<ConstUncheckedIterType> pos, const std::nullptr_t _)
                     {
                         return UncheckedIterType{ _container.insert(pos._iter, PointerType{ nullptr }) };
                     }
 
-                    inline constexpr RetType<UncheckedIterType> insert(CLRefType<ConstUncheckedIterType> pos, const PtrType<ValueType> ptr)
+                    inline constexpr RetType<UncheckedIterType> insert(ArgCLRefType<ConstUncheckedIterType> pos, const PtrType<ValueType> ptr)
                     {
                         return UncheckedIterType{ _container.insert(pos._iter, PointerType{ ptr }) };
                     }
 
-                    inline constexpr RetType<UncheckedIterType> insert(CLRefType<ConstUncheckedIterType> pos, const CPtrType<ValueType> ptr)
+                    inline constexpr RetType<UncheckedIterType> insert(ArgCLRefType<ConstUncheckedIterType> pos, const CPtrType<ValueType> ptr)
                     {
                         return UncheckedIterType{ _container.insert(pos._iter, PointerType{ ptr }) };
                     }
 
-                    inline constexpr RetType<UncheckedIterType> insert(CLRefType<ConstUncheckedIterType> pos, RRefType<PointerType> ptr)
+                    inline constexpr RetType<UncheckedIterType> insert(ArgCLRefType<ConstUncheckedIterType> pos, ArgRRefType<PointerType> ptr)
                     {
                         return UncheckedIterType{ _container.insert(pos._iter, move<PointerType>(ptr)) };
                     }
 
                     template<std::input_iterator It>
                         requires requires (const It it) { { *it } -> DecaySameAs<PtrType<ValueType>>; }
-                    inline constexpr RetType<IterType> insert(CLRefType<ConstIterType> pos, const It first, const It last)
+                    inline constexpr RetType<IterType> insert(ArgCLRefType<ConstIterType> pos, It&& first, It&& last)
                     {
                         return IterType{ _container.insert(pos._iter,
-                            boost::make_transform_iterator(first, [](const PtrType<ValueType> ptr) { PointerType{ ptr } }),
-                            boost::make_transform_iterator(last, [](const PtrType<ValueType> ptr) { PointerType{ ptr } })
+                            boost::make_transform_iterator(std::forward<It>(first), [](const PtrType<ValueType> ptr) { PointerType{ptr} }),
+                            boost::make_transform_iterator(std::forward<It>(last), [](const PtrType<ValueType> ptr) { PointerType{ ptr } })
                         ) };
                     }
 
                     template<std::input_iterator It>
                         requires requires (const It it) { { *it } -> DecaySameAs<CPtrType<ValueType>>; }
-                    inline constexpr RetType<IterType> insert(CLRefType<ConstIterType> pos, const It first, const It last)
+                    inline constexpr RetType<IterType> insert(ArgCLRefType<ConstIterType> pos, It&& first, It&& last)
                     {
                         return IterType{ _container.insert(pos._iter,
-                            boost::make_transform_iterator(first, [](const CPtrType<ValueType> ptr) { PointerType{ ptr } }),
-                            boost::make_transform_iterator(last, [](const CPtrType<ValueType> ptr) { PointerType{ ptr } })
+                            boost::make_transform_iterator(std::forward<It>(first), [](const CPtrType<ValueType> ptr) { PointerType{ ptr } }),
+                            boost::make_transform_iterator(std::forward<It>(last), [](const CPtrType<ValueType> ptr) { PointerType{ ptr } })
                         ) };
                     }
 
                     template<std::input_iterator It>
                         requires requires (const It it) { { *it } -> DecaySameAs<PointerType>; }
-                    inline constexpr RetType<IterType> insert(CLRefType<ConstIterType> pos, const It first, const It last)
+                    inline constexpr RetType<IterType> insert(ArgCLRefType<ConstIterType> pos, It&& first, It&& last)
                     {
-                        return IterType{ _container.insert(pos, first, last) };
+                        return IterType{ _container.insert(pos, std::forward<It>(first), std::forward<It>(last)) };
                     }
 
                     template<std::input_iterator It>
                         requires requires (const It it) { { *it } -> DecaySameAs<PtrType<ValueType>>; }
-                    inline constexpr RetType<ConstUncheckedIterType> insert(CLRefType<ConstUncheckedIterType> pos, const It first, const It last)
+                    inline constexpr RetType<ConstUncheckedIterType> insert(ArgCLRefType<ConstUncheckedIterType> pos, It&& first, It&& last)
                     {
                         return ConstUncheckedIterType{ _container.insert(pos._iter,
-                            boost::make_transform_iterator(first, [](const PtrType<ValueType> ptr) { PointerType{ ptr } }),
-                            boost::make_transform_iterator(last, [](const PtrType<ValueType> ptr) { PointerType{ ptr } })
+                            boost::make_transform_iterator(std::forward<It>(first), [](const PtrType<ValueType> ptr) { PointerType{ ptr } }),
+                            boost::make_transform_iterator(std::forward<It>(last), [](const PtrType<ValueType> ptr) { PointerType{ ptr } })
                         ) };
                     }
 
                     template<std::input_iterator It>
                         requires requires (const It it) { { *it } -> DecaySameAs<CPtrType<ValueType>>; }
-                    inline constexpr RetType<ConstUncheckedIterType> insert(CLRefType<ConstUncheckedIterType> pos, const It first, const It last)
+                    inline constexpr RetType<ConstUncheckedIterType> insert(ArgCLRefType<ConstUncheckedIterType> pos, It&& first, It&& last)
                     {
                         return ConstUncheckedIterType{ _container.insert(pos._iter,
-                            boost::make_transform_iterator(first, [](const CPtrType<ValueType> ptr) { PointerType{ ptr } }),
-                            boost::make_transform_iterator(last, [](const CPtrType<ValueType> ptr) { PointerType{ ptr } })
+                            boost::make_transform_iterator(std::forward<It>(first), [](const CPtrType<ValueType> ptr) { PointerType{ ptr } }),
+                            boost::make_transform_iterator(std::forward<It>(last), [](const CPtrType<ValueType> ptr) { PointerType{ ptr } })
                         ) };
                     }
 
                     template<std::input_iterator It>
                         requires requires (const It it) { { *it } -> DecaySameAs<PointerType>; }
-                    inline constexpr RetType<ConstUncheckedIterType> insert(CLRefType<ConstUncheckedIterType> pos, const It first, const It last)
+                    inline constexpr RetType<ConstUncheckedIterType> insert(ArgCLRefType<ConstUncheckedIterType> pos, It&& first, It&& last)
                     {
-                        return ConstUncheckedIterType{ _container.insert(pos, first, last) };
+                        return ConstUncheckedIterType{ _container.insert(pos, std::forward<It>(first), std::forward<It>(last)) };
                     }
 
-                    inline constexpr RetType<IterType> insert(CLRefType<ConstIterType> pos, std::initializer_list<PtrType<ValueType>> ptrs)
-                    {
-                        auto it = pos._iter;
-                        for (auto i{ 0_uz }; i != ptrs.size(); ++i)
-                        {
-                            it = _container.insert(it, PointerType{ ptrs[i] });
-                        }
-                        return IterType{ it };
-                    }
-
-                    inline constexpr RetType<IterType> insert(CLRefType<ConstIterType> pos, std::initializer_list<CPtrType<ValueType>> ptrs)
+                    inline constexpr RetType<IterType> insert(ArgCLRefType<ConstIterType> pos, const std::initializer_list<PtrType<ValueType>> ptrs)
                     {
                         auto it = pos._iter;
                         for (auto i{ 0_uz }; i != ptrs.size(); ++i)
@@ -1655,12 +1645,22 @@ namespace ospf
                         return IterType{ it };
                     }
 
-                    inline constexpr RetType<IterType> insert(CLRefType<ConstIterType> pos, std::initializer_list<PointerType> ptrs)
+                    inline constexpr RetType<IterType> insert(ArgCLRefType<ConstIterType> pos, const std::initializer_list<CPtrType<ValueType>> ptrs)
+                    {
+                        auto it = pos._iter;
+                        for (auto i{ 0_uz }; i != ptrs.size(); ++i)
+                        {
+                            it = _container.insert(it, PointerType{ ptrs[i] });
+                        }
+                        return IterType{ it };
+                    }
+
+                    inline constexpr RetType<IterType> insert(ArgCLRefType<ConstIterType> pos, std::initializer_list<PointerType> ptrs)
                     {
                         return IterType{ _container.insert(pos, std::move(ptrs)) };
                     }
 
-                    inline constexpr RetType<UncheckedIterType> insert(CLRefType<ConstUncheckedIterType> pos, std::initializer_list<PtrType<ValueType>> ptrs)
+                    inline constexpr RetType<UncheckedIterType> insert(ArgCLRefType<ConstUncheckedIterType> pos, const std::initializer_list<PtrType<ValueType>> ptrs)
                     {
                         auto it = pos._iter;
                         for (auto i{ 0_uz }; i != ptrs.size(); ++i)
@@ -1670,7 +1670,7 @@ namespace ospf
                         return UncheckedIterType{ it };
                     }
 
-                    inline constexpr RetType<UncheckedIterType> insert(CLRefType<ConstUncheckedIterType> pos, std::initializer_list<CPtrType<ValueType>> ptrs)
+                    inline constexpr RetType<UncheckedIterType> insert(ArgCLRefType<ConstUncheckedIterType> pos, const std::initializer_list<CPtrType<ValueType>> ptrs)
                     {
                         auto it = pos._iter;
                         for (auto i{ 0_uz }; i != ptrs.size(); ++i)
@@ -1680,71 +1680,71 @@ namespace ospf
                         return UncheckedIterType{ it };
                     }
 
-                    inline constexpr RetType<UncheckedIterType> insert(CLRefType<ConstUncheckedIterType> pos, std::initializer_list<PointerType> ptrs)
+                    inline constexpr RetType<UncheckedIterType> insert(ArgCLRefType<ConstUncheckedIterType> pos, std::initializer_list<PointerType> ptrs)
                     {
                         return UncheckedIterType{ _container.insert(pos._iter, std::move(ptrs)) };
                     }
 
-                    inline constexpr RetType<IterType> emplace(CLRefType<ConstIterType> pos, const std::nullptr_t _)
+                    inline constexpr RetType<IterType> emplace(ArgCLRefType<ConstIterType> pos, const std::nullptr_t _)
                     {
                         return IterType{ _container.emplace(pos._iter, nullptr) };
                     }
 
-                    inline constexpr RetType<IterType> emplace(CLRefType<ConstIterType> pos, const PtrType<ValueType> ptr)
+                    inline constexpr RetType<IterType> emplace(ArgCLRefType<ConstIterType> pos, const PtrType<ValueType> ptr)
                     {
                         return IterType{ _container.emplace(pos._iter, ptr) };
                     }
 
-                    inline constexpr RetType<IterType> emplace(CLRefType<ConstIterType> pos, const CPtrType<ValueType> ptr)
+                    inline constexpr RetType<IterType> emplace(ArgCLRefType<ConstIterType> pos, const CPtrType<ValueType> ptr)
                     {
                         return IterType{ _container.emplace(pos._iter, ptr) };
                     }
 
                     template<typename... Args>
                         requires std::constructible_from<PointerType, Args...>
-                    inline constexpr RetType<IterType> emplace(CLRefType<ConstIterType> pos, Args&&... args)
+                    inline constexpr RetType<IterType> emplace(ArgCLRefType<ConstIterType> pos, Args&&... args)
                     {
                         return IterType{ _container.emplace(pos._iter, std::forward<Args>(args)...) };
                     }
 
-                    inline constexpr RetType<UncheckedIterType> emplace(CLRefType<ConstUncheckedIterType> pos, const std::nullptr_t _)
+                    inline constexpr RetType<UncheckedIterType> emplace(ArgCLRefType<ConstUncheckedIterType> pos, const std::nullptr_t _)
                     {
                         return UncheckedIterType{ _container.emplace(pos._iter, nullptr) };
                     }
 
-                    inline constexpr RetType<UncheckedIterType> emplace(CLRefType<ConstUncheckedIterType> pos, const PtrType<ValueType> ptr)
+                    inline constexpr RetType<UncheckedIterType> emplace(ArgCLRefType<ConstUncheckedIterType> pos, const PtrType<ValueType> ptr)
                     {
                         return UncheckedIterType{ _container.emplace(pos._iter, ptr) };
                     }
 
-                    inline constexpr RetType<UncheckedIterType> emplace(CLRefType<ConstUncheckedIterType> pos, const CPtrType<ValueType> ptr)
+                    inline constexpr RetType<UncheckedIterType> emplace(ArgCLRefType<ConstUncheckedIterType> pos, const CPtrType<ValueType> ptr)
                     {
                         return UncheckedIterType{ _container.emplace(pos._iter, ptr) };
                     }
 
                     template<typename... Args>
                         requires std::constructible_from<PointerType, Args...>
-                    inline constexpr RetType<UncheckedIterType> emplace(CLRefType<ConstUncheckedIterType> pos, Args&&... args)
+                    inline constexpr RetType<UncheckedIterType> emplace(ArgCLRefType<ConstUncheckedIterType> pos, Args&&... args)
                     {
                         return UncheckedIterType{ _container.emplace(pos._iter, std::forward<Args>(args)...) };
                     }
 
-                    inline constexpr RetType<IterType> erase(CLRefType<ConstIterType> pos)
+                    inline constexpr RetType<IterType> erase(ArgCLRefType<ConstIterType> pos)
                     {
                         return IterType{ _container.erase(pos._iter) };
                     }
 
-                    inline constexpr RetType<UncheckedIterType> erase(CLRefType<ConstUncheckedIterType> pos)
+                    inline constexpr RetType<UncheckedIterType> erase(ArgCLRefType<ConstUncheckedIterType> pos)
                     {
                         return UncheckedIterType{ _container.erase(pos._iter) };
                     }
 
-                    inline constexpr RetType<IterType> erase(CLRefType<ConstIterType> first, CLRefType<ConstIterType> last)
+                    inline constexpr RetType<IterType> erase(ArgCLRefType<ConstIterType> first, ArgCLRefType<ConstIterType> last)
                     {
                         return IterType{ _container.erase(first._iter, last._iter) };
                     }
 
-                    inline constexpr RetType<UncheckedIterType> erase(CLRefType<ConstUncheckedIterType> first, CLRefType<ConstUncheckedIterType> last)
+                    inline constexpr RetType<UncheckedIterType> erase(ArgCLRefType<ConstUncheckedIterType> first, ArgCLRefType<ConstUncheckedIterType> last)
                     {
                         return UncheckedIterType{ _container.erase(first._iter, last._iter) };
                     }
@@ -1764,7 +1764,7 @@ namespace ospf
                         _container.push_back(PointerType{ ptr });
                     }
 
-                    inline constexpr void push_back(RRefType<PointerType> ptr)
+                    inline constexpr void push_back(ArgRRefType<PointerType> ptr)
                     {
                         _container.push_back(move<PointerType>(ptr));
                     }
@@ -1834,14 +1834,14 @@ namespace ospf
                         _container.push_front(PointerType{ ptr });
                     }
 
-                    inline constexpr void push_front(RRefType<PointerType> ptr)
+                    inline constexpr void push_front(ArgRRefType<PointerType> ptr)
                     {
                         _container.insert(_container.begin(), move<PointerType>(ptr));
                     }
 
                     template<typename = void>
                         requires requires (ContainerType& container) { container.push_front(std::declval<PointerType>()); }
-                    inline constexpr void push_front(RRefType<PointerType> ptr)
+                    inline constexpr void push_front(ArgRRefType<PointerType> ptr)
                     {
                         _container.push_front(move<PointerType>(ptr));
                     }
@@ -1927,7 +1927,7 @@ namespace ospf
 
                     template<typename = void>
                         requires std::copy_constructible<PointerType>
-                    inline constexpr void resize(const usize length, CLRefType<PointerType> ptr)
+                    inline constexpr void resize(const usize length, ArgCLRefType<PointerType> ptr)
                     {
                         _container.resize(length, ptr);
                     }
@@ -1971,12 +1971,12 @@ namespace ospf
                     }
 
                 OSPF_CRTP_PERMISSION:
-                    inline constexpr ContainerType& OSPF_CRTP_FUNCTION(get_container)(void) noexcept
+                    inline constexpr LRefType<ContainerType> OSPF_CRTP_FUNCTION(get_container)(void) noexcept
                     {
                         return _container;
                     }
 
-                    inline constexpr const ContainerType& OSPF_CRTP_FUNCTION(get_const_container)(void) const noexcept
+                    inline constexpr CLRefType<ContainerType> OSPF_CRTP_FUNCTION(get_const_container)(void) const noexcept
                     {
                         return _container;
                     }
@@ -2031,7 +2031,7 @@ namespace ospf
 namespace std
 {
     template<typename T, typename C, typename Self>
-    inline void swap(ospf::data_structure::pointer_array::PointerArrayImpl<T, C, Self>& lhs, ospf::data_structure::pointer_array::PointerArrayImpl<T, C, Self>& rhs) noexcept
+    inline void swap(ospf::pointer_array::PointerArrayImpl<T, C, Self>& lhs, ospf::pointer_array::PointerArrayImpl<T, C, Self>& rhs) noexcept
     {
         lhs.swap(rhs);
     }

@@ -969,7 +969,7 @@ namespace ospf
                 }
 
             public:
-                inline void swap(OptionalArrayImpl<T, C, Self>& ano) noexcept
+                inline void swap(OptionalArrayImpl& ano) noexcept
                 {
                     std::swap(container(), ano.container());
                 }
@@ -1949,7 +1949,7 @@ namespace ospf
 namespace std
 {
     template<typename T, typename C, typename Self>
-    inline void swap(ospf::data_structure::optional_array::OptionalArrayImpl<T, C, Self>& lhs, ospf::data_structure::optional_array::OptionalArrayImpl<T, C, Self>& rhs) noexcept
+    inline void swap(ospf::optional_array::OptionalArrayImpl<T, C, Self>& lhs, ospf::optional_array::OptionalArrayImpl<T, C, Self>& rhs) noexcept
     {
         lhs.swap(rhs);
     }
