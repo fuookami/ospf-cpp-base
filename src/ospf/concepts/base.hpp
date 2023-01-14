@@ -37,7 +37,8 @@ namespace ospf
 namespace std
 {
     template<ospf::EnumType T, typename CharT>
-    struct formatter<T, CharT> : formatter<string_view, CharT>
+    struct formatter<T, CharT> 
+        : public formatter<string_view, CharT>
     {
         template<typename FormatContext>
         inline static decltype(auto) format(const T value, FormatContext& fc)

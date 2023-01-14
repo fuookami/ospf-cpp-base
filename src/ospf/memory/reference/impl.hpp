@@ -22,98 +22,140 @@ namespace ospf
                 using CRefType = CLRefType<T>;
 
             protected:
-                RefImpl(void) noexcept = default;
+                constexpr RefImpl(void) noexcept = default;
             public:
-                RefImpl(const RefImpl& ano) = default;
-                RefImpl(RefImpl&& ano) noexcept = default;
-                RefImpl& operator=(const RefImpl& rhs) = default;
-                RefImpl& operator=(RefImpl&& rhs) noexcept = default;
-                ~RefImpl(void) noexcept = default;
+                constexpr RefImpl(const RefImpl& ano) = default;
+                constexpr RefImpl(RefImpl&& ano) noexcept = default;
+                constexpr RefImpl& operator=(const RefImpl& rhs) = default;
+                constexpr RefImpl& operator=(RefImpl&& rhs) noexcept = default;
+                constexpr ~RefImpl(void) noexcept = default;
 
             public:
-                inline const PtrType operator->(void) noexcept
+                inline constexpr const PtrType operator->(void) noexcept
                 {
                     return &ref();
                 }
 
-                inline const CPtrType operator->(void) const noexcept
+                inline constexpr const CPtrType operator->(void) const noexcept
                 {
                     return &cref();
                 }
 
-                inline RefType operator*(void) noexcept
+                inline constexpr RefType operator*(void) noexcept
                 {
                     return ref();
                 }
 
-                inline CRefType operator*(void) const noexcept
+                inline constexpr CRefType operator*(void) const noexcept
                 {
                     return cref();
                 }
 
             public:
-                inline operator RefType(void) noexcept
+                inline constexpr operator RefType(void) noexcept
                 {
                     return ref();
                 }
 
-                inline operator CRefType(void) const noexcept
+                inline constexpr operator CRefType(void) const noexcept
                 {
                     return cref();
                 }
 
             public:
                 template<typename U, typename R>
-                inline const bool operator==(const RefImpl<U, R>& ref) const noexcept
+                inline constexpr const bool operator==(const RefImpl<U, R>& rhs) const noexcept
                 {
-                    return cref() == ref.cref();
+                    return cref() == rhs.cref();
                 }
 
                 template<typename U, typename R>
-                inline const bool operator!=(const RefImpl<U, R>& ref) const noexcept
+                inline constexpr const bool operator!=(const RefImpl<U, R>& rhs) const noexcept
                 {
-                    return cref() != ref.cref();
+                    return cref() != rhs.cref();
                 }
 
-            public:
-                template<typename U, typename R>
-                inline const bool operator<(const RefImpl<U, R>& ref) const noexcept
+                template<typename U>
+                inline constexpr const bool operator==(const U& rhs) const noexcept
                 {
-                    return cref() < ref.cref();
+                    return cref() == rhs;
                 }
 
-                template<typename U, typename R>
-                inline const bool operator<=(const RefImpl<U, R>& ref) const noexcept
+                template<typename U>
+                inline constexpr const bool operator!=(const U& rhs) const noexcept
                 {
-                    return cref() <= ref.cref();
-                }
-
-                template<typename U, typename R>
-                inline const bool operator>(const RefImpl<U, R>& ref) const noexcept
-                {
-                    return cref() > ref.cref();
-                }
-
-                template<typename U, typename R>
-                inline const bool operator>=(const RefImpl<U, R>& ref) const noexcept
-                {
-                    return cref() >= ref.cref();
+                    return cref() != rhs;
                 }
 
             public:
                 template<typename U, typename R>
-                inline decltype(auto) operator<=>(const RefImpl<U, R>& ref) const noexcept
+                inline constexpr const bool operator<(const RefImpl<U, R>& rhs) const noexcept
                 {
-                    return cref() <=> ref.cref();
+                    return cref() < rhs.cref();
+                }
+
+                template<typename U, typename R>
+                inline constexpr const bool operator<=(const RefImpl<U, R>& rhs) const noexcept
+                {
+                    return cref() <= rhs.cref();
+                }
+
+                template<typename U, typename R>
+                inline constexpr const bool operator>(const RefImpl<U, R>& rhs) const noexcept
+                {
+                    return cref() > rhs.cref();
+                }
+
+                template<typename U, typename R>
+                inline constexpr const bool operator>=(const RefImpl<U, R>& rhs) const noexcept
+                {
+                    return cref() >= rhs.cref();
+                }
+
+                template<typename U>
+                inline constexpr const bool operator<(const U& rhs) const noexcept
+                {
+                    return cref() < rhs;
+                }
+
+                template<typename U>
+                inline constexpr const bool operator<=(const U& rhs) const noexcept
+                {
+                    return cref() <= rhs;
+                }
+
+                template<typename U>
+                inline constexpr const bool operator>(const U& rhs) const noexcept
+                {
+                    return cref() > rhs;
+                }
+
+                template<typename U>
+                inline constexpr const bool operator>=(const U& rhs) const noexcept
+                {
+                    return cref() >= rhs;
+                }
+
+            public:
+                template<typename U, typename R>
+                inline constexpr decltype(auto) operator<=>(const RefImpl<U, R>& rhs) const noexcept
+                {
+                    return cref() <=> rhs.cref();
+                }
+
+                template<typename U>
+                inline constexpr decltype(auto) operator<=>(const U& rhs) const noexcept
+                {
+                    return cref() <=> rhs;
                 }
 
             protected:
-                inline RefType ref(void) noexcept
+                inline constexpr RefType ref(void) noexcept
                 {
                     return Trait::get_ref(self());
                 }
 
-                inline CRefType cref(void) const noexcept
+                inline constexpr CRefType cref(void) const noexcept
                 {
                     return Trait::get_cref(self());
                 }
@@ -121,13 +163,13 @@ namespace ospf
             private:
                 struct Trait : public Self
                 {
-                    inline static RefType get_ref(Self& self) noexcept
+                    inline static constexpr RefType get_ref(Self& self) noexcept
                     {
                         static const auto get_impl = &Self::OSPF_CRTP_FUNCTION(get_ref);
                         return (self.*get_impl)();
                     }
 
-                    inline static CRefType get_cref(const Self& self) noexcept
+                    inline static constexpr CRefType get_cref(const Self& self) noexcept
                     {
                         static const auto get_impl = &Self::OSPF_CRTP_FUNCTION(get_cref);
                         return (self.*get_impl)();
@@ -138,12 +180,54 @@ namespace ospf
     };
 };
 
+template<typename T, typename U, typename R>
+inline constexpr const bool operator==(const T& lhs, const ospf::reference::RefImpl<U, R>& rhs) noexcept
+{
+    return lhs == *rhs;
+}
+
+template<typename T, typename U, typename R>
+inline constexpr const bool operator!=(const T& lhs, const ospf::reference::RefImpl<U, R>& rhs) noexcept
+{
+    return lhs != *rhs;
+}
+
+template<typename T, typename U, typename R>
+inline constexpr const bool operator<(const T& lhs, const ospf::reference::RefImpl<U, R>& rhs) noexcept
+{
+    return lhs < *rhs;
+}
+
+template<typename T, typename U, typename R>
+inline constexpr const bool operator<=(const T& lhs, const ospf::reference::RefImpl<U, R>& rhs) noexcept
+{
+    return lhs <= *rhs;
+}
+
+template<typename T, typename U, typename R>
+inline constexpr const bool operator>(const T& lhs, const ospf::reference::RefImpl<U, R>& rhs) noexcept
+{
+    return lhs > *rhs;
+}
+
+template<typename T, typename U, typename R>
+inline constexpr const bool operator>=(const T& lhs, const ospf::reference::RefImpl<U, R>& rhs) noexcept
+{
+    return lhs >= *rhs;
+}
+
+template<typename T, typename U, typename R>
+inline constexpr decltype(auto) operator<=>(const T& lhs, const ospf::reference::RefImpl<U, R>& rhs) noexcept
+{
+    return lhs <=> *rhs;
+}
+
 namespace std
 {
     template<typename T, typename Ref>
     struct hash<ospf::reference::RefImpl<T, Ref>>
     {
-        using RefType = ospf:::reference::RefImpl<T, Ref>;
+        using RefType = ospf::reference::RefImpl<T, Ref>;
 
         inline const ospf::usize operator()(ospf::ArgCLRefType<RefType> ref) const noexcept
         {
@@ -153,7 +237,8 @@ namespace std
     };
 
     template<typename T, typename Ref, typename CharT>
-    struct formatter<ospf::reference::RefImpl<T, Ref>, CharT> : formatter<string_view, CharT>
+    struct formatter<ospf::reference::RefImpl<T, Ref>, CharT> 
+        : public formatter<T, CharT>
     {
         using RefType = ospf::reference::RefImpl<T, Ref>;
 
@@ -172,9 +257,9 @@ namespace ospf
     struct TagValue<reference::RefImpl<T, Ref>>
     {
         using Type = typename TagValue<T>::Type;
-        using RefType = typename reference::RefImpl<T, Ref>;
+        using RefType = reference::RefImpl<T, Ref>;
 
-        inline RetType<Type> value(ospf::ArgCLRefType<RefType> ref) const noexcept
+        inline RetType<Type> value(ArgCLRefType<RefType> ref) const noexcept
         {
             static constexpr const auto extractor = TagValue<T>{};
             return extractor(*ref);

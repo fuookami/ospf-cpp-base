@@ -652,7 +652,8 @@ namespace std
     };
 
     template<typename T, typename U, typename CharT>
-    struct formatter<ospf::Either<T, U>, CharT> : formatter<string_view, CharT>
+    struct formatter<ospf::Either<T, U>, CharT> 
+        : public formatter<string_view, CharT>
     {
         template<typename FormatContext>
         inline static decltype(auto) format(ospf::ArgCLRefType<ospf::Either<T, U>> either, FormatContext& fc)

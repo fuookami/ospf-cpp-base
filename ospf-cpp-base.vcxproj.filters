@@ -49,13 +49,16 @@
     <Filter Include="src\ospf\log">
       <UniqueIdentifier>{f0129573-eb25-424b-8e37-0a7d98b0f528}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\ospf\json">
-      <UniqueIdentifier>{a74699df-9260-45a0-a781-a40b5644675f}</UniqueIdentifier>
+    <Filter Include="src\ospf\serialization">
+      <UniqueIdentifier>{356c576d-4b5f-469d-a0a7-0db69daaa18a}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\ospf\protobuf">
+    <Filter Include="src\ospf\serialization\protobuf">
       <UniqueIdentifier>{c5d42c69-44c2-4e03-a610-9b8e5674cf59}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\ospf\bytes">
+    <Filter Include="src\ospf\serialization\json">
+      <UniqueIdentifier>{a74699df-9260-45a0-a781-a40b5644675f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\ospf\serialization\bytes">
       <UniqueIdentifier>{befd4f11-3f27-4d6d-9cef-60dd552e20f2}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
@@ -267,23 +270,26 @@
     <ClInclude Include="src\ospf\data_structure\value_or_reference_array.hpp">
       <Filter>src\ospf\data-structure</Filter>
     </ClInclude>
-    <ClInclude Include="src\ospf\json\serializer.hpp">
-      <Filter>src\ospf\json</Filter>
+    <ClInclude Include="src\ospf\serialization\bytes\deserializer.hpp">
+      <Filter>src\ospf\serialization\bytes</Filter>
     </ClInclude>
-    <ClInclude Include="src\ospf\json\deserializer.hpp">
-      <Filter>src\ospf\json</Filter>
+    <ClInclude Include="src\ospf\serialization\bytes\serializer.hpp">
+      <Filter>src\ospf\serialization\bytes</Filter>
     </ClInclude>
-    <ClInclude Include="src\ospf\bytes\serializer.hpp">
-      <Filter>src\ospf\bytes</Filter>
+    <ClInclude Include="src\ospf\serialization\json\deserializer.hpp">
+      <Filter>src\ospf\serialization\json</Filter>
     </ClInclude>
-    <ClInclude Include="src\ospf\bytes\deserializer.hpp">
-      <Filter>src\ospf\bytes</Filter>
+    <ClInclude Include="src\ospf\serialization\json\serializer.hpp">
+      <Filter>src\ospf\serialization\json</Filter>
     </ClInclude>
-    <ClInclude Include="src\ospf\protobuf\deserializer.hpp">
-      <Filter>src\ospf\protobuf</Filter>
+    <ClInclude Include="src\ospf\serialization\protobuf\deserializer.hpp">
+      <Filter>src\ospf\serialization\protobuf</Filter>
     </ClInclude>
-    <ClInclude Include="src\ospf\protobuf\serializer.hpp">
-      <Filter>src\ospf\protobuf</Filter>
+    <ClInclude Include="src\ospf\serialization\protobuf\serializer.hpp">
+      <Filter>src\ospf\serialization\protobuf</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ospf\meta_programming\variadic_macro.hpp">
+      <Filter>src\ospf\meta-programming</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
