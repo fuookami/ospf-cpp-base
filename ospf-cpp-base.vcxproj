@@ -39,7 +39,7 @@
     <ClInclude Include="src\ospf\exception.hpp" />
     <ClInclude Include="src\ospf\functional.hpp" />
     <ClInclude Include="src\ospf\functional\either.hpp" />
-    <ClInclude Include="src\ospf\functional\value_or_reference.h" />
+    <ClInclude Include="src\ospf\functional\value_or_reference.hpp" />
     <ClInclude Include="src\ospf\functional\result.hpp" />
     <ClInclude Include="src\ospf\iterator.hpp" />
     <ClInclude Include="src\ospf\jni.hpp" />
@@ -88,8 +88,6 @@
     <ClInclude Include="src\ospf\serialization\bytes\serializer.hpp" />
     <ClInclude Include="src\ospf\serialization\json\deserializer.hpp" />
     <ClInclude Include="src\ospf\serialization\json\serializer.hpp" />
-    <ClInclude Include="src\ospf\serialization\protobuf\deserializer.hpp" />
-    <ClInclude Include="src\ospf\serialization\protobuf\serializer.hpp" />
     <ClInclude Include="src\ospf\string.hpp" />
     <ClInclude Include="src\ospf\string\hasher.hpp" />
     <ClInclude Include="src\ospf\system_info.hpp" />

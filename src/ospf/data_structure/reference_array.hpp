@@ -334,7 +334,7 @@ namespace ospf
             public:
                 inline static constexpr const usize size(CLRefType<ContainerType> array) noexcept
                 {
-                    return len;
+                    return array.size();
                 }
 
                 inline static constexpr LRefType<ValueType> get(LRefType<ContainerType> array, const usize i)
@@ -365,7 +365,7 @@ namespace ospf
 
                 inline static constexpr RetType<ConstIterType> cbegin(CLRefType<ContainerType> array) noexcept
                 {
-                    return ConstIterType{ array.begin() };
+                    return ConstIterType{ array.cbegin() };
                 }
 
             public:
@@ -376,7 +376,7 @@ namespace ospf
 
                 inline static constexpr RetType<ConstIterType> cend(CLRefType<ContainerType> array) noexcept
                 {
-                    return ConstIterType{ array.end() };
+                    return ConstIterType{ array.cend() };
                 }
 
             public:
@@ -387,7 +387,7 @@ namespace ospf
 
                 inline static constexpr RetType<ConstReverseIterType> crbegin(CLRefType<ContainerType> array) noexcept
                 {
-                    return ConstReverseIterType{ array.rbegin() };
+                    return ConstReverseIterType{ array.crbegin() };
                 }
 
             public:
@@ -398,7 +398,7 @@ namespace ospf
 
                 inline static constexpr RetType<ConstReverseIterType> crend(CLRefType<ContainerType> array) noexcept
                 {
-                    return ConstReverseIterType{ array.rend() };
+                    return ConstReverseIterType{ array.crend() };
                 }
             };
 
@@ -615,10 +615,10 @@ namespace ospf
 
             public:
                 template<typename = void>
-                    requires std::is_copy_constructible_v<ReferenceType>
+                    requires std::copy_constructible<ReferenceType>
                 inline constexpr void fill(ArgCLRefType<ReferenceType> ref) noexcept
                 {
-                    return _container.fill(ref);
+                    _container.fill(ref);
                 }
 
             public:
@@ -697,12 +697,12 @@ namespace ospf
                 constexpr DynamicReferenceArray(void) = default;
 
                 template<typename = void>
-                    requires std::is_copy_constructible_v<ReferenceType>
+                    requires std::copy_constructible<ReferenceType>
                 constexpr DynamicReferenceArray(const usize length, CLRefType<ValueType> ref)
                     : _container(length, ReferenceType{ ref }) {}
 
                 template<typename = void>
-                    requires std::is_copy_constructible_v<ReferenceType>
+                    requires std::copy_constructible<ReferenceType>
                 constexpr DynamicReferenceArray(const usize length, ArgCLRefType<ReferenceType> ref)
                     : _container(length, ref) {}
 
@@ -739,14 +739,14 @@ namespace ospf
 
             public:
                 template<typename = void>
-                    requires std::is_copy_constructible_v<ReferenceType>
+                    requires std::copy_constructible<ReferenceType>
                 inline constexpr void assign(const usize length, CLRefType<ValueType> ref)
                 {
                     _container.assign(length, ReferenceType{ ref });
                 }
 
                 template<typename = void>
-                    requires std::is_copy_constructible_v<ReferenceType>
+                    requires std::copy_constructible<ReferenceType>
                 inline constexpr void assign(const usize length, ArgCLRefType<ReferenceType> ref)
                 {
                     _container.assign(length, ref);
@@ -984,14 +984,14 @@ namespace ospf
                 }
 
                 template<typename = void>
-                    requires std::is_copy_constructible_v<ReferenceType>
+                    requires std::copy_constructible<ReferenceType>
                 inline constexpr void resize(const usize length, CLRefType<ValueType> ref)
                 {
                     _container.resize(length, ReferenceType{ ref });
                 }
 
                 template<typename = void>
-                    requires std::is_copy_constructible_v<ReferenceType>
+                    requires std::copy_constructible<ReferenceType>
                 inline constexpr void resize(const usize length, ArgCLRefType<ReferenceType> ref)
                 {
                     _container.resize(length, ref);

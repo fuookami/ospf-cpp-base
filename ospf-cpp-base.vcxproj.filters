@@ -52,9 +52,6 @@
     <Filter Include="src\ospf\serialization">
       <UniqueIdentifier>{356c576d-4b5f-469d-a0a7-0db69daaa18a}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\ospf\serialization\protobuf">
-      <UniqueIdentifier>{c5d42c69-44c2-4e03-a610-9b8e5674cf59}</UniqueIdentifier>
-    </Filter>
     <Filter Include="src\ospf\serialization\json">
       <UniqueIdentifier>{a74699df-9260-45a0-a781-a40b5644675f}</UniqueIdentifier>
     </Filter>
@@ -264,7 +261,7 @@
     <ClInclude Include="src\ospf\meta_programming\iterator.hpp">
       <Filter>src\ospf\meta-programming</Filter>
     </ClInclude>
-    <ClInclude Include="src\ospf\functional\value_or_reference.h">
+    <ClInclude Include="src\ospf\functional\value_or_reference.hpp">
       <Filter>src\ospf\functional</Filter>
     </ClInclude>
     <ClInclude Include="src\ospf\data_structure\value_or_reference_array.hpp">
@@ -281,12 +278,6 @@
     </ClInclude>
     <ClInclude Include="src\ospf\serialization\json\serializer.hpp">
       <Filter>src\ospf\serialization\json</Filter>
-    </ClInclude>
-    <ClInclude Include="src\ospf\serialization\protobuf\deserializer.hpp">
-      <Filter>src\ospf\serialization\protobuf</Filter>
-    </ClInclude>
-    <ClInclude Include="src\ospf\serialization\protobuf\serializer.hpp">
-      <Filter>src\ospf\serialization\protobuf</Filter>
     </ClInclude>
     <ClInclude Include="src\ospf\meta_programming\variadic_macro.hpp">
       <Filter>src\ospf\meta-programming</Filter>

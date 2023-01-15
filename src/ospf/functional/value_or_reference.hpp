@@ -12,13 +12,13 @@ namespace ospf
         {
         public:
             using ValueType = OriginType<T>;
+            using ReferenceType = reference::Ref<ValueType, cat>;
             using PtrType = PtrType<ValueType>;
             using CPtrType = CPtrType<ValueType>;
             using RefType = LRefType<ValueType>;
             using CRefType = CLRefType<ValueType>;
 
         private:
-            using ReferenceType = reference::Ref<ValueType, cat>;
             using EitherType = Either<ValueType, ReferenceType>;
 
         public:
@@ -34,15 +34,28 @@ namespace ospf
                 return ValOrRef{ move<ValueType>(val) };
             }
 
-            inline static constexpr RetType<ValOrRef> ref(CLRefType<ValueType> val) noexcept
+            template<typename... Args>
+                requires std::constructible_from<ValueType, Args...>
+            inline static constexpr RetType<ValOrRef> value(Args&&... args) noexcept
             {
-                return ValOrRef{ ReferenceType{ val } };
+                return ValOrRef{ ValueType{ std::forward<Args>(args)... }};
+            }
+
+            inline static constexpr RetType<ValOrRef> ref(CLRefType<ValueType> ref) noexcept
+            {
+                return ValOrRef{ ReferenceType{ ref } };
             }
 
             inline static constexpr RetType<ValOrRef> ref(ArgRRefType<ReferenceType> ref) noexcept
             {
                 return ValOrRef{ move<ReferenceType>(ref) };
             }
+
+        public:
+            template<typename = void>
+                requires WithDefault<ValueType>
+            constexpr ValOrRef(void)
+                : _either(EitherType::left(DefaultValue<ValueType>::value)) {}
 
         private:
             constexpr ValOrRef(ArgCLRefType<ValueType> value)
@@ -260,13 +273,11 @@ namespace ospf
         {
         public:
             using ValueType = OriginType<T>;
+            using ReferenceType = reference::Ref<ValueType, cat>;
             using PtrType = PtrType<ValueType>;
             using CPtrType = CPtrType<ValueType>;
             using RefType = LRefType<ValueType>;
             using CRefType = CLRefType<ValueType>;
-
-        private:
-            using ReferenceType = reference::Ref<ValueType, cat>;
 
         public:
             inline static constexpr RetType<ValOrRef> value(ArgCLRefType<ValueType> val) noexcept
@@ -274,19 +285,34 @@ namespace ospf
                 return ValOrRef{ val };
             }
 
-            inline static constexpr RetType<ValOrRef> ref(ArgCLRefType<ValueType> val) noexcept
+            template<typename... Args>
+                requires std::constructible_from<ValueType, Args...>
+            inline static constexpr RetType<ValOrRef> value(Args&&... args) noexcept
             {
-                return ValOrRef{ val };
+                return ValOrRef{ ValueType{ std::forward<Args>(args)... } };
+            }
+
+            inline static constexpr RetType<ValOrRef> ref(ArgCLRefType<ValueType> ref) noexcept
+            {
+                return ValOrRef{ ref };
             }
 
             inline static constexpr RetType<ValOrRef> ref(ArgCLRefType<ReferenceType> ref) noexcept
             {
-                return ValOrRef{ val };
+                return ValOrRef{ ref };
             }
 
         public:
+            template<typename = void>
+                requires WithDefault<ValueType>
+            constexpr ValOrRef(void)
+                : _value(DefaultValue<ValueType>::value) {}
+
+        private:
             constexpr ValOrRef(ArgCLRefType<ValueType> value)
                 : _value(value) {}
+
+        public:
             constexpr ValOrRef(const ValOrRef& ano) = default;
             constexpr ValOrRef(ValOrRef&& ano) noexcept = default;
             constexpr ValOrRef& operator=(const ValOrRef& rhs) = default;

@@ -1,3 +1,6 @@
 [submodule "3rd-party/magic_enum"]
 	path = 3rd-party/magic_enum
 	url = https://github.com/Neargye/magic_enum.git
+[submodule "3rd-party/rapidjson"]
+	path = 3rd-party/rapidjson
+	url = https://github.com/Tencent/rapidjson.git

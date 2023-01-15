@@ -651,7 +651,7 @@ namespace ospf
 
                 inline static constexpr RetType<ConstIterType> cbegin(CLRefType<ContainerType> array) noexcept
                 {
-                    return ConstIterType{ array.begin() };
+                    return ConstIterType{ array.cbegin() };
                 }
 
                 inline static constexpr RetType<UncheckedIterType> begin_unchecked(LRefType<ContainerType> array) noexcept
@@ -661,7 +661,7 @@ namespace ospf
 
                 inline static constexpr RetType<ConstUncheckedIterType> cbegin_unchecked(CLRefType<ContainerType> array) noexcept
                 {
-                    return ConstUncheckedIterType{ array.begin() };
+                    return ConstUncheckedIterType{ array.cbegin() };
                 }
 
             public:
@@ -672,7 +672,7 @@ namespace ospf
 
                 inline static constexpr RetType<ConstIterType> cend(CLRefType<ContainerType> array) noexcept
                 {
-                    return ConstIterType{ array.end() };
+                    return ConstIterType{ array.cend() };
                 }
 
                 inline static constexpr RetType<UncheckedIterType> end_unchecked(LRefType<ContainerType> array) noexcept
@@ -682,7 +682,7 @@ namespace ospf
 
                 inline static constexpr RetType<ConstUncheckedIterType> cend_unchecked(CLRefType<ContainerType> array) noexcept
                 {
-                    return ConstUncheckedIterType{ array.end() };
+                    return ConstUncheckedIterType{ array.cend() };
                 }
 
             public:
@@ -693,7 +693,7 @@ namespace ospf
 
                 inline static constexpr RetType<ConstReverseIterType> crbegin(CLRefType<ContainerType> array) noexcept
                 {
-                    return ConstReverseIterType{ array.rbegin() };
+                    return ConstReverseIterType{ array.crbegin() };
                 }
 
                 inline static constexpr RetType<UncheckedReverseIterType> rbegin_unchecked(LRefType<ContainerType> array) noexcept
@@ -703,7 +703,7 @@ namespace ospf
 
                 inline static constexpr RetType<ConstUncheckedReverseIterType> crbegin_unchecked(CLRefType<ContainerType> array) noexcept
                 {
-                    return ConstUncheckedReverseIterType{ array.rbegin() };
+                    return ConstUncheckedReverseIterType{ array.crbegin() };
                 }
 
             public:
@@ -714,7 +714,7 @@ namespace ospf
 
                 inline static constexpr RetType<ConstReverseIterType> crend(CLRefType<ContainerType> array) noexcept
                 {
-                    return ConstReverseIterType{ array.rend() };
+                    return ConstReverseIterType{ array.crend() };
                 }
 
                 inline static constexpr RetType<UncheckedReverseIterType> rend_unchecked(LRefType<ContainerType> array) noexcept
@@ -724,7 +724,7 @@ namespace ospf
 
                 inline static constexpr RetType<ConstUncheckedReverseIterType> crend_unchecked(CLRefType<ContainerType> array) noexcept
                 {
-                    return ConstUncheckedReverseIterType{ array.rend() };
+                    return ConstUncheckedReverseIterType{ array.crend() };
                 }
             };
 
@@ -1183,19 +1183,19 @@ namespace ospf
             public:
                 StaticOptionalArray(void) = default;
 
-                StaticOptionalArray(ContainerType container)
+                StaticOptionalArray(ArgRRefType<ContainerType> container)
                     : _container(move<ContainerType>(container)) {}
 
-                StaticOptionalArray(std::initializer_list<ValueType> eles)
+                StaticOptionalArray(std::initializer_list<ValueType> values)
                 {
-                    for (auto i{ 0_uz }, j{ (std::min)(len, eles.size) }; i != j; ++i)
+                    for (auto i{ 0_uz }, j{ (std::min)(len, values.size) }; i != j; ++i)
                     {
-                        _container[i] = OptType{ move<ValueType>(eles[i]) };
+                        _container[i] = OptType{ move<ValueType>(values[i]) };
                     }
                 }
 
-                StaticOptionalArray(std::initializer_list<OptType> eles)
-                    : _container(std::move(eles)) {}
+                StaticOptionalArray(std::initializer_list<OptType> values)
+                    : _container(std::move(values)) {}
 
             public:
                 constexpr StaticOptionalArray(const StaticOptionalArray& ano) = default;
@@ -1233,26 +1233,40 @@ namespace ospf
             public:
                 inline constexpr void clear(void) noexcept
                 {
-                    _container.fill();
+                    fill(std::nullopt);
                 }
 
                 inline constexpr void fill(const std::nullopt_t _ = std::nullopt) noexcept
                 {
-                    _container.fill(OptType{ std::nullopt });
+                    if constexpr (std::copy_constructible<OptType>)
+                    {
+                        _container.fill(OptType{ std::nullopt });
+                    }
+                    else
+                    {
+                        for (auto i{ 0_uz }; i != _container.size(); ++i)
+                        {
+                            _container[i] = OptType{ std::nullopt };
+                        }
+                    }
                 }
 
+                template<typename = void>
+                    requires std::copy_constructible<OptType>
                 inline constexpr void fill(ArgCLRefType<ValueType> value) noexcept
                 {
                     _container.fill(OptType{ value });
                 }
 
                 template<typename = void>
-                    requires ReferenceFaster<ValueType> && std::movable<ValueType>
+                    requires std::copy_constructible<OptType> && ReferenceFaster<ValueType> && std::movable<ValueType>
                 inline void fill(ArgRRefType<ValueType> value) noexcept
                 {
                     _container.fill(OptType{ move<ValueType>(value) });
                 }
 
+                template<typename = void>
+                    requires std::copy_constructible<OptType>
                 inline constexpr void fill(ArgCLRefType<OptType> value) noexcept
                 {
                     _container.fill(value);
@@ -1337,17 +1351,23 @@ namespace ospf
             public:
                 constexpr DynamicOptionalArray(void) = default;
 
+                template<typename = void>
+                    requires std::default_initializable<OptType>
                 constexpr explicit DynamicOptionalArray(const usize length)
                     : _container(length) {}
 
+                template<typename = void>
+                    requires std::copy_constructible<OptType>
                 constexpr DynamicOptionalArray(const usize length, ArgCLRefType<ValueType> value)
                     : _container(length, OptType{ value }) {}
 
                 template<typename = void>
-                    requires ReferenceFaster<ValueType> && std::movable<ValueType>
+                    requires std::copy_constructible<OptType> && ReferenceFaster<ValueType> && std::movable<ValueType>
                 DynamicOptionalArray(const usize length, ArgRRefType<ValueType> value)
                     : _container(length, OptType{ move<ValueType>(value) }) {}
 
+                template<typename = void>
+                    requires std::copy_constructible<OptType>
                 DynamicOptionalArray(const usize length, ArgCLRefType<OptType> value)
                     : _container(length, value) {}
 
@@ -1358,15 +1378,15 @@ namespace ospf
                     if constexpr (std::is_same_v<decltype(*it), CLRefType<ValueType>>)
                     {
                         _container.assign(
-                            boost::make_transform_iterator(std::forward<It>(first), [](CLRefType<ValueType> value) { return OptType{ value }; }),
-                            boost::make_transform_iterator(std::forward<It>(last), [](CLRefType<ValueType> value) { return OptType{ value }; })
+                            boost::make_transform_iterator(std::forward<It>(first), [](ArgCLRefType<ValueType> value) { return OptType{ value }; }),
+                            boost::make_transform_iterator(std::forward<It>(last), [](ArgCLRefType<ValueType> value) { return OptType{ value }; })
                         );
                     }
                     else
                     {
                         _container.assign(
-                            boost::make_transform_iterator(std::forward<It>(first), [](LRefType<ValueType> value) { return OptType{ move<ValueType>(value) }; }),
-                            boost::make_transform_iterator(std::forward<It>(last), [](LRefType<ValueType> value) { return OptType{ move<ValueType>(value) }; })
+                            boost::make_transform_iterator(std::forward<It>(first), [](ArgLRefType<ValueType> value) { return OptType{ move<ValueType>(value) }; }),
+                            boost::make_transform_iterator(std::forward<It>(last), [](ArgLRefType<ValueType> value) { return OptType{ move<ValueType>(value) }; })
                         );
                     }
                 }
@@ -1376,17 +1396,17 @@ namespace ospf
                 constexpr DynamicOptionalArray(It&& first, It&& last)
                     : _container(std::forward<It>(first), std::forward<It>(last)) {}
 
-                constexpr DynamicOptionalArray(std::initializer_list<ValueType> eles)
-                    : _container(eles.size())
+                constexpr DynamicOptionalArray(std::initializer_list<ValueType> values)
+                    : _container(values.size())
                 {
-                    for (auto i{ 0_uz }; i != eles.size(); ++i)
+                    for (auto i{ 0_uz }; i != values.size(); ++i)
                     {
-                        _container[i] = move<ValueType>(eles[i]);
+                        _container[i] = move<ValueType>(values[i]);
                     }
                 }
 
-                constexpr DynamicOptionalArray(std::initializer_list<OptType> eles)
-                    : _container(std::move(eles)) {}
+                constexpr DynamicOptionalArray(std::initializer_list<OptType> values)
+                    : _container(std::move(values)) {}
 
             public:
                 constexpr DynamicOptionalArray(const DynamicOptionalArray& ano) = default;
@@ -1398,21 +1418,36 @@ namespace ospf
             public:
                 inline constexpr void assign(const usize length, const std::nullopt_t _ = std::nullopt)
                 {
-                    _container.assign(length, OptType{ std::nullopt });
+                    if constexpr (std::copy_constructible<OptType>)
+                    {
+                        _container.assign(length, OptType{ std::nullopt });
+                    }
+                    else
+                    {
+                        _container.clear();
+                        for (auto i{ 0_uz }; i != length; ++i)
+                        {
+                            _container.push_back(OptType{ std::nullopt });
+                        }
+                    }
                 }
 
+                template<typename = void>
+                    requires std::copy_constructible<OptType>
                 inline constexpr void assign(const usize length, ArgCLRefType<ValueType> value)
                 {
                     _container.assign(length, OptType{ value });
                 }
 
                 template<typename = void>
-                    requires ReferenceFaster<ValueType> && std::movable<ValueType>
+                    requires std::copy_constructible<OptType> && ReferenceFaster<ValueType> && std::movable<ValueType>
                 inline constexpr void assign(const usize length, ArgRRefType<ValueType> value)
                 {
                     _container.assign(length, OptType{ move<ValueType>(value) });
                 }
 
+                template<typename = void>
+                    requires std::copy_constructible<OptType>
                 inline constexpr void assign(const usize length, ArgCLRefType<OptType> value)
                 {
                     _container.assign(length, value);
@@ -1425,15 +1460,15 @@ namespace ospf
                     if constexpr (std::is_same_v<decltype(*it), CLRefType<ValueType>>)
                     {
                         _container.assign(
-                            boost::make_transform_iterator(std::forward<It>(first), [](CLRefType<ValueType> value) { return OptType{ value }; }),
-                            boost::make_transform_iterator(std::forward<It>(last), [](CLRefType<ValueType> value) { return OptType{ value }; })
+                            boost::make_transform_iterator(std::forward<It>(first), [](ArgCLRefType<ValueType> value) { return OptType{ value }; }),
+                            boost::make_transform_iterator(std::forward<It>(last), [](ArgCLRefType<ValueType> value) { return OptType{ value }; })
                         );
                     }
                     else
                     {
                         _container.assign(
-                            boost::make_transform_iterator(std::forward<It>(first), [](LRefType<ValueType> value) { return OptType{ move<ValueType>(value) }; }),
-                            boost::make_transform_iterator(std::forward<It>(last), [](LRefType<ValueType> value) { return OptType{ move<ValueType>(value) }; })
+                            boost::make_transform_iterator(std::forward<It>(first), [](ArgLRefType<ValueType> value) { return OptType{ move<ValueType>(value) }; }),
+                            boost::make_transform_iterator(std::forward<It>(last), [](ArgLRefType<ValueType> value) { return OptType{ move<ValueType>(value) }; })
                         );
                     }
                 }
@@ -1445,18 +1480,18 @@ namespace ospf
                     _container.assign(std::forward<It>(first), std::forward<It>(last));
                 }
 
-                inline constexpr void assign(std::initializer_list<ValueType> eles)
+                inline constexpr void assign(std::initializer_list<ValueType> values)
                 {
-                    _container.assign(eles.size());
-                    for (auto i{ 0_uz }; i != eles.size(); ++i)
+                    _container.assign(values.size());
+                    for (auto i{ 0_uz }; i != values.size(); ++i)
                     {
-                        _container[i] = move<ValueType>(eles[i]);
+                        _container[i] = move<ValueType>(values[i]);
                     }
                 }
 
-                inline constexpr void assign(std::initializer_list<OptType> eles)
+                inline constexpr void assign(std::initializer_list<OptType> values)
                 {
-                    _container.assign(std::move(eles));
+                    _container.assign(std::move(values));
                 }
 
             public:
@@ -1577,15 +1612,15 @@ namespace ospf
                     if constexpr (std::is_same_v<decltype(*it), CLRefType<ValueType>>)
                     {
                         return IterType{ _container.insert(pos._iter,
-                            boost::make_transform_iterator(std::forward<It>(first), [](CLRefType<ValueType> value) { return OptType{ value }; }),
-                            boost::make_transform_iterator(std::forward<It>(last), [](CLRefType<ValueType> value) { return OptType{ value }; })
+                            boost::make_transform_iterator(std::forward<It>(first), [](ArgCLRefType<ValueType> value) { return OptType{ value }; }),
+                            boost::make_transform_iterator(std::forward<It>(last), [](ArgCLRefType<ValueType> value) { return OptType{ value }; })
                         ) };
                     }
                     else
                     {
                         return IterType{ _container.insert(pos._iter,
-                            boost::make_transform_iterator(std::forward<It>(first), [](LRefType<ValueType> value) { return OptType{ move<ValueType>(value) }; }),
-                            boost::make_transform_iterator(std::forward<It>(last), [](LRefType<ValueType> value) { return OptType{ move<ValueType>(value) }; })
+                            boost::make_transform_iterator(std::forward<It>(first), [](ArgLRefType<ValueType> value) { return OptType{ move<ValueType>(value) }; }),
+                            boost::make_transform_iterator(std::forward<It>(last), [](ArgLRefType<ValueType> value) { return OptType{ move<ValueType>(value) }; })
                         ) };
                     }
                 }
@@ -1604,15 +1639,15 @@ namespace ospf
                     if constexpr (std::is_same_v<decltype(*it), CLRefType<ValueType>>)
                     {
                         return UncheckedIterType{ _container.insert(pos._iter,
-                            boost::make_transform_iterator(std::forward<It>(first), [](CLRefType<ValueType> value) { return OptType{ value }; }),
-                            boost::make_transform_iterator(std::forward<It>(last), [](CLRefType<ValueType> value) { return OptType{ value }; })
+                            boost::make_transform_iterator(std::forward<It>(first), [](ArgCLRefType<ValueType> value) { return OptType{ value }; }),
+                            boost::make_transform_iterator(std::forward<It>(last), [](ArgCLRefType<ValueType> value) { return OptType{ value }; })
                         ) };
                     }
                     else
                     {
                         return UncheckedIterType{ _container.insert(pos._iter,
-                            boost::make_transform_iterator(std::forward<It>(first), [](LRefType<ValueType> value) { return OptType{ move<ValueType>(value) }; }),
-                            boost::make_transform_iterator(std::forward<It>(last), [](LRefType<ValueType> value) { return OptType{ move<ValueType>(value) }; })
+                            boost::make_transform_iterator(std::forward<It>(first), [](ArgLRefType<ValueType> value) { return OptType{ move<ValueType>(value) }; }),
+                            boost::make_transform_iterator(std::forward<It>(last), [](ArgLRefType<ValueType> value) { return OptType{ move<ValueType>(value) }; })
                         ) };
                     }
                 }
@@ -1624,34 +1659,34 @@ namespace ospf
                     return UncheckedIterType{ _container.insert(pos._iter, first, std::forward<It>(last)) };
                 }
 
-                inline constexpr RetType<IterType> insert(ArgCLRefType<ConstIterType> pos, std::initializer_list<ValueType> eles)
+                inline constexpr RetType<IterType> insert(ArgCLRefType<ConstIterType> pos, std::initializer_list<ValueType> values)
                 {
                     auto it = pos._iter;
-                    for (auto i{ 0_uz }; i != eles.size(); ++i)
+                    for (auto i{ 0_uz }; i != values.size(); ++i)
                     {
-                        it = _container.insert(it, OptType{ move<ValueType>(eles[i]) });
+                        it = _container.insert(it, OptType{ move<ValueType>(values[i]) });
                     }
                     return IterType{ it };
                 }
 
-                inline constexpr RetType<UncheckedIterType> insert(ArgCLRefType<ConstUncheckedIterType> pos, std::initializer_list<ValueType> eles)
+                inline constexpr RetType<UncheckedIterType> insert(ArgCLRefType<ConstUncheckedIterType> pos, std::initializer_list<ValueType> values)
                 {
                     auto it = pos._iter;
-                    for (auto i{ 0_uz }; i != eles.size(); ++i)
+                    for (auto i{ 0_uz }; i != values.size(); ++i)
                     {
-                        it = _container.insert(it, OptType{ move<ValueType>(eles[i]) });
+                        it = _container.insert(it, OptType{ move<ValueType>(values[i]) });
                     }
                     return UncheckedIterType{ it };
                 }
 
-                inline constexpr RetType<IterType> insert(ArgCLRefType<ConstIterType> pos, std::initializer_list<OptType> eles)
+                inline constexpr RetType<IterType> insert(ArgCLRefType<ConstIterType> pos, std::initializer_list<OptType> values)
                 {
-                    return IterType{ _container.insert(pos._iter, std::move(eles)) };
+                    return IterType{ _container.insert(pos._iter, std::move(values)) };
                 }
 
-                inline constexpr RetType<UncheckedIterType> insert(ArgCLRefType<ConstUncheckedIterType> pos, std::initializer_list<OptType> eles)
+                inline constexpr RetType<UncheckedIterType> insert(ArgCLRefType<ConstUncheckedIterType> pos, std::initializer_list<OptType> values)
                 {
-                    return UncheckedIterType{ _container.insert(pos._iter, std::move(eles)) };
+                    return UncheckedIterType{ _container.insert(pos._iter, std::move(values)) };
                 }
 
                 inline constexpr RetType<IterType> emplace(ArgCLRefType<ConstIterType> pos, const std::nullopt_t _)
@@ -1855,26 +1890,32 @@ namespace ospf
                     return value;
                 }
                 
+                template<typename = void>
+                    requires std::default_initializable<OptType>
                 inline constexpr void resize(const usize length)
                 {
-                    resize(length, OptType{ std::nullopt });
-                }
-
-                inline constexpr void resize(const usize length, ArgCLRefType<ValueType> value)
-                {
-                    resize(length, OptType{ value });
+                    _container.resize(length);
                 }
 
                 template<typename = void>
-                    requires ReferenceFaster<ValueType> && std::movable<ValueType>
-                inline constexpr void resize(const usize length, ArgRRefType<ValueType> value)
+                    requires std::copy_constructible<OptType>
+                inline constexpr void resize(const usize length, ArgCLRefType<ValueType> value)
                 {
-                    resize(length, OptType{ move<ValueType>(value) });
+                    _container.resize(length, OptType{ value });
                 }
 
+                template<typename = void>
+                    requires std::copy_constructible<OptType> && ReferenceFaster<ValueType> && std::movable<ValueType>
+                inline constexpr void resize(const usize length, ArgRRefType<ValueType> value)
+                {
+                    _container.resize(length, OptType{ move<ValueType>(value) });
+                }
+
+                template<typename = void>
+                    requires std::copy_constructible<OptType>
                 inline constexpr void resize(const usize length, ArgCLRefType<OptType> value)
                 {
-                    resize(length, value);
+                    _container.resize(length, value);
                 }
 
             public:

@@ -631,7 +631,7 @@ namespace ospf
             public:
                 inline static constexpr const usize size(CLRefType<ContainerType> array) noexcept
                 {
-                    return l;
+                    return array.size();
                 }
 
                 inline static constexpr LRefType<PointerType> get(LRefType<ContainerType> array, const usize i)
@@ -662,7 +662,7 @@ namespace ospf
 
                 inline static constexpr RetType<ConstIterType> cbegin(CLRefType<ContainerType> array) noexcept
                 {
-                    return ConstIterType{ array.begin() };
+                    return ConstIterType{ array.cbegin() };
                 }
 
                 inline static constexpr RetType<UncheckedIterType> begin_unchecked(LRefType<ContainerType> array) noexcept
@@ -672,7 +672,7 @@ namespace ospf
 
                 inline static constexpr RetType<ConstUncheckedIterType> cbegin_unchecked(CLRefType<ContainerType> array) noexcept
                 {
-                    return ConstUncheckedIterType{ array.begin() };
+                    return ConstUncheckedIterType{ array.cbegin() };
                 }
 
             public:
@@ -683,7 +683,7 @@ namespace ospf
 
                 inline static constexpr RetType<ConstIterType> cend(CLRefType<ContainerType> array) noexcept
                 {
-                    return ConstIterType{ array.end() };
+                    return ConstIterType{ array.cend() };
                 }
 
                 inline static constexpr RetType<UncheckedIterType> end_unchecked(LRefType<ContainerType> array) noexcept
@@ -693,7 +693,7 @@ namespace ospf
 
                 inline static constexpr RetType<ConstUncheckedIterType> cend_unchecked(CLRefType<ContainerType> array) noexcept
                 {
-                    return ConstUncheckedIterType{ array.end() };
+                    return ConstUncheckedIterType{ array.cend() };
                 }
 
             public:
@@ -704,7 +704,7 @@ namespace ospf
 
                 inline static constexpr RetType<ConstReverseIterType> crbegin(CLRefType<ContainerType> array) noexcept
                 {
-                    return ConstReverseIterType{ array.rbegin() };
+                    return ConstReverseIterType{ array.crbegin() };
                 }
 
                 inline static constexpr RetType<UncheckedReverseIterType> rbegin_unchecked(LRefType<ContainerType> array) noexcept
@@ -714,7 +714,7 @@ namespace ospf
 
                 inline static constexpr RetType<ConstUncheckedReverseIterType> crbegin_unchecked(CLRefType<ContainerType> array) noexcept
                 {
-                    return ConstUncheckedReverseIterType{ array.rbegin() };
+                    return ConstUncheckedReverseIterType{ array.crbegin() };
                 }
 
             public:
@@ -725,7 +725,7 @@ namespace ospf
 
                 inline static constexpr RetType<ConstReverseIterType> crend(CLRefType<ContainerType> array) noexcept
                 {
-                    return ConstReverseIterType{ array.rend() };
+                    return ConstReverseIterType{ array.crend() };
                 }
 
                 inline static constexpr RetType<UncheckedReverseIterType> rend_unchecked(LRefType<ContainerType> array) noexcept
@@ -735,7 +735,7 @@ namespace ospf
 
                 inline static constexpr RetType<ConstUncheckedReverseIterType> crend_unchecked(CLRefType<ContainerType> array) noexcept
                 {
-                    return ConstUncheckedReverseIterType{ array.rend() };
+                    return ConstUncheckedReverseIterType{ array.crend() };
                 }
             };
 
@@ -774,43 +774,43 @@ namespace ospf
                 }
 
             public:
-                inline constexpr PointerType& at(const usize i)
+                inline constexpr LRefType<PointerType> at(const usize i)
                 {
                     return AccessPolicyType::get(container(), i);
                 }
 
-                inline constexpr const PointerType& at(const usize i) const
+                inline constexpr CLRefType<PointerType> at(const usize i) const
                 {
                     return AccessPolicyType::get(const_container(), i);
                 }
 
-                inline constexpr PointerType& operator[](const usize i)
+                inline constexpr LRefType<PointerType> operator[](const usize i)
                 {
                     return AccessPolicyType::get_unchecked(container(), i);
                 }
 
-                inline constexpr const PointerType& operator[](const usize i) const
+                inline constexpr CLRefType<PointerType> operator[](const usize i) const
                 {
                     return AccessPolicyType::get_unchecked(const_container(), i);
                 }
 
             public:
-                inline constexpr PointerType& front(void)
+                inline constexpr LRefType<PointerType> front(void)
                 {
                     return at(0_uz);
                 }
 
-                inline constexpr const PointerType& front(void) const
+                inline constexpr CLRefType<PointerType> front(void) const
                 {
                     return at(0_uz);
                 }
 
-                inline constexpr PointerType& back(void)
+                inline constexpr LRefType<PointerType> back(void)
                 {
                     return at(size() - 1_uz);
                 }
 
-                inline constexpr const PointerType& back(void) const
+                inline constexpr CLRefType<PointerType> back(void) const
                 {
                     return at(size() - 1_uz);
                 }
@@ -1017,43 +1017,43 @@ namespace ospf
                     }
 
                 public:
-                    inline constexpr PointerType& at(const usize i)
+                    inline constexpr LRefType<PointerType> at(const usize i)
                     {
                         return *_impl.at(i);
                     }
 
-                    inline constexpr const PointerType& at(const usize i) const
+                    inline constexpr CLRefType<PointerType> at(const usize i) const
                     {
                         return *_impl.at(i);
                     }
 
-                    inline constexpr PointerType& operator[](const usize i)
+                    inline constexpr LRefType<PointerType> operator[](const usize i)
                     {
                         return *_impl[i];
                     }
 
-                    inline constexpr const PointerType& operator[](const usize i)
+                    inline constexpr CLRefType<PointerType> operator[](const usize i)
                     {
                         return *_impl[i];
                     }
 
                 public:
-                    inline constexpr PointerType& front(void)
+                    inline constexpr LRefType<PointerType> front(void)
                     {
                         return *_impl.front();
                     }
 
-                    inline constexpr const PointerType& front(void) const
+                    inline constexpr CLRefType<PointerType> front(void) const
                     {
                         return *_impl.front();
                     }
 
-                    inline constexpr PointerType& back(void)
+                    inline constexpr LRefType<PointerType> back(void)
                     {
                         return *_impl.back();
                     }
 
-                    inline constexpr const PointerType& back(void) const
+                    inline constexpr CLRefType<PointerType> back(void) const
                     {
                         return *_impl.back();
                     }
@@ -1223,36 +1223,40 @@ namespace ospf
                 public:
                     inline constexpr void clear(void) noexcept
                     {
-                        for (auto i{ 0_uz }; i != _container.size(); ++i)
-                        {
-                            _container[i] = PointerType{ nullptr };
-                        }
+                        fill(nullptr);
                     }
 
                     inline constexpr void fill(const std::nullptr_t _ = nullptr) noexcept
                     {
-                        for (auto i{ 0_uz }; i != _container.size(); ++i)
+                        if constexpr (std::copy_constructible<PointerType>)
                         {
-                            _container[i] = PointerType{ nullptr };
+                            _container.fill(PointerType{ nullptr });
+                        }
+                        else
+                        {
+                            for (auto i{ 0_uz }; i != _container.size(); ++i)
+                            {
+                                _container[i] = PointerType{ nullptr };
+                            }
                         }
                     }
 
                     template<typename = void>
-                        requires std::is_copy_constructible_v<PointerType>
+                        requires std::copy_constructible<PointerType>
                     inline constexpr void fill(const PtrType<ValueType> ptr) noexcept
                     {
                         _container.fill(PointerType{ ptr });
                     }
 
                     template<typename = void>
-                        requires std::is_copy_constructible_v<PointerType>
+                        requires std::copy_constructible<PointerType>
                     inline constexpr void fill(const CPtrType<ValueType> ptr) noexcept
                     {
                         _container.fill(PointerType{ ptr });
                     }
 
                     template<typename = void>
-                        requires std::is_copy_constructible_v<PointerType>
+                        requires std::copy_constructible<PointerType>
                     inline constexpr void fill(ArgCLRefType<PointerType> ptr) noexcept
                     {
                         _container.fill(ptr);
@@ -1344,17 +1348,17 @@ namespace ospf
                         : _container(length) {}
 
                     template<typename = void>
-                        requires std::is_copy_constructible_v<PointerType>
+                        requires std::copy_constructible<PointerType>
                     constexpr DynamicPointerArray(const usize length, const PtrType<ValueType> ptr)
                         : _container(length, PointerType{ ptr }) {}
 
                     template<typename = void>
-                        requires std::is_copy_constructible_v<PointerType>
+                        requires std::copy_constructible<PointerType>
                     constexpr DynamicPointerArray(const usize length, const CPtrType<ValueType> ptr)
                         : _container(length, PointerType{ ptr }) {}
 
                     template<typename = void>
-                        requires std::is_copy_constructible_v<PointerType>
+                        requires std::copy_constructible<PointerType>
                     constexpr DynamicPointerArray(const usize length, ArgCLRefType<PointerType> ptr)
                         : _container(length, ptr) {}
 
@@ -1410,29 +1414,36 @@ namespace ospf
                 public:
                     inline constexpr void assign(const usize length, const std::nullptr_t _ = nullptr)
                     {
-                        _container.clear();
-                        for (auto i{ 0_uz }; i != length; ++i)
+                        if constexpr (std::copy_constructible<PointerType>)
                         {
-                            _container.push_back(PointerType{ nullptr });
+                            _container.assign(length, PointerType{ nullptr });
+                        }
+                        else
+                        {
+                            _container.clear();
+                            for (auto i{ 0_uz }; i != length; ++i)
+                            {
+                                _container.push_back(PointerType{ nullptr });
+                            }
                         }
                     }
 
                     template<typename = void>
-                        requires std::is_copy_constructible_v<PointerType>
+                        requires std::copy_constructible<PointerType>
                     inline constexpr void assign(const usize length, const PtrType<ValueType> ptr)
                     {
                         _container.assign(length, PointerType{ ptr });
                     }
 
                     template<typename = void>
-                        requires std::is_copy_constructible_v<PointerType>
+                        requires std::copy_constructible<PointerType>
                     inline constexpr void assign(const usize length, const CPtrType<ValueType> ptr)
                     {
                         _container.assign(length, PointerType{ ptr });
                     }
 
                     template<typename = void>
-                        requires std::is_copy_constructible_v<PointerType>
+                        requires std::copy_constructible<PointerType>
                     inline constexpr void assign(const usize length, ArgCLRefType<PointerType> ptr)
                     {
                         _container.assign(length, ptr);
