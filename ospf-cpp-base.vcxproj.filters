@@ -58,6 +58,12 @@
     <Filter Include="src\ospf\serialization\bytes">
       <UniqueIdentifier>{befd4f11-3f27-4d6d-9cef-60dd552e20f2}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\ospf\serialization\csv">
+      <UniqueIdentifier>{2c3c0249-cf8c-40f7-9ff4-e757d838568d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\ospf\data-structure\data_table">
+      <UniqueIdentifier>{717e68a7-81b6-4c3d-968f-ca66e86d1a99}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\ospf\basic_definition.hpp">
@@ -281,6 +287,39 @@
     </ClInclude>
     <ClInclude Include="src\ospf\meta_programming\variadic_macro.hpp">
       <Filter>src\ospf\meta-programming</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ospf\data_structure\data_table.hpp">
+      <Filter>src\ospf\data-structure</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ospf\data_structure\serializer.hpp">
+      <Filter>src\ospf\serialization\csv</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ospf\data_structure\deserializer.hpp">
+      <Filter>src\ospf\serialization\csv</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ospf\data_structure\data_table\cell.hpp">
+      <Filter>src\ospf\data-structure\data_table</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ospf\data_structure\data_table\line.hpp">
+      <Filter>src\ospf\data-structure\data_table</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ospf\data_structure\data_table\concept.hpp">
+      <Filter>src\ospf\data-structure\data_table</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ospf\serialization\csv\table.hpp">
+      <Filter>src\ospf\serialization\csv</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ospf\data_structure\data_table\table.hpp">
+      <Filter>src\ospf\data-structure\data_table</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ospf\meta_programming\type_info.hpp">
+      <Filter>src\ospf\meta-programming</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ospf\data_structure\store_type.hpp">
+      <Filter>src\ospf\data-structure</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ospf\data_structure\data_table\header.hpp">
+      <Filter>src\ospf\data-structure\data_table</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
