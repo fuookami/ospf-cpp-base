@@ -59,6 +59,8 @@ namespace ospf
 
         template<typename Func>
         static constexpr const usize args_length = FuncArgTypesList<OriginType<Func>>::length;
+        template<typename Func, usize len>
+        static constexpr const bool args_length_is = args_length<Func> == len;
         template<typename Func, typename T>
         static constexpr const usize arg_type_index = FuncArgTypesList<OriginType<Func>>::template index<T>;
     };

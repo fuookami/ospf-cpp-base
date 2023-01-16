@@ -34,11 +34,9 @@
     <ClInclude Include="src\ospf\data_structure\data_table\header.hpp" />
     <ClInclude Include="src\ospf\data_structure\data_table\line.hpp" />
     <ClInclude Include="src\ospf\data_structure\data_table\table.hpp" />
-    <ClInclude Include="src\ospf\data_structure\deserializer.hpp" />
     <ClInclude Include="src\ospf\data_structure\optional_array.hpp" />
     <ClInclude Include="src\ospf\data_structure\pointer_array.hpp" />
     <ClInclude Include="src\ospf\data_structure\reference_array.hpp" />
-    <ClInclude Include="src\ospf\data_structure\serializer.hpp" />
     <ClInclude Include="src\ospf\data_structure\store_type.hpp" />
     <ClInclude Include="src\ospf\data_structure\tagged_map.hpp" />
     <ClInclude Include="src\ospf\data_structure\value_or_reference_array.hpp" />
@@ -47,6 +45,7 @@
     <ClInclude Include="src\ospf\error\error.hpp" />
     <ClInclude Include="src\ospf\exception.hpp" />
     <ClInclude Include="src\ospf\functional.hpp" />
+    <ClInclude Include="src\ospf\functional\range_bound.hpp" />
     <ClInclude Include="src\ospf\functional\either.hpp" />
     <ClInclude Include="src\ospf\functional\value_or_reference.hpp" />
     <ClInclude Include="src\ospf\functional\result.hpp" />
@@ -79,6 +78,7 @@
     <ClInclude Include="src\ospf\meta_programming.hpp" />
     <ClInclude Include="src\ospf\meta_programming\crtp.hpp" />
     <ClInclude Include="src\ospf\meta_programming\function_trait.hpp" />
+    <ClInclude Include="src\ospf\meta_programming\infix_function.hpp" />
     <ClInclude Include="src\ospf\meta_programming\iterator.hpp" />
     <ClInclude Include="src\ospf\meta_programming\named_flag.hpp" />
     <ClInclude Include="src\ospf\meta_programming\name_transfer.hpp" />
@@ -96,6 +96,8 @@
     <ClInclude Include="src\ospf\random.hpp" />
     <ClInclude Include="src\ospf\serialization\bytes\deserializer.hpp" />
     <ClInclude Include="src\ospf\serialization\bytes\serializer.hpp" />
+    <ClInclude Include="src\ospf\serialization\csv\deserializer.hpp" />
+    <ClInclude Include="src\ospf\serialization\csv\serializer.hpp" />
     <ClInclude Include="src\ospf\serialization\csv\table.hpp" />
     <ClInclude Include="src\ospf\serialization\json\deserializer.hpp" />
     <ClInclude Include="src\ospf\serialization\json\serializer.hpp" />

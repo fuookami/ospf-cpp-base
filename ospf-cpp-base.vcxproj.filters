@@ -291,12 +291,6 @@
     <ClInclude Include="src\ospf\data_structure\data_table.hpp">
       <Filter>src\ospf\data-structure</Filter>
     </ClInclude>
-    <ClInclude Include="src\ospf\data_structure\serializer.hpp">
-      <Filter>src\ospf\serialization\csv</Filter>
-    </ClInclude>
-    <ClInclude Include="src\ospf\data_structure\deserializer.hpp">
-      <Filter>src\ospf\serialization\csv</Filter>
-    </ClInclude>
     <ClInclude Include="src\ospf\data_structure\data_table\cell.hpp">
       <Filter>src\ospf\data-structure\data_table</Filter>
     </ClInclude>
@@ -320,6 +314,18 @@
     </ClInclude>
     <ClInclude Include="src\ospf\data_structure\data_table\header.hpp">
       <Filter>src\ospf\data-structure\data_table</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ospf\serialization\csv\serializer.hpp">
+      <Filter>src\ospf\serialization\csv</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ospf\serialization\csv\deserializer.hpp">
+      <Filter>src\ospf\serialization\csv</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ospf\functional\range_bound.hpp">
+      <Filter>src\ospf\functional</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ospf\meta_programming\infix_function.hpp">
+      <Filter>src\ospf\meta-programming</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

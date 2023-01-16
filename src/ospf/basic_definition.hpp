@@ -50,7 +50,9 @@ namespace ospf
     using dec = boost::multiprecision::number<boost::multiprecision::cpp_dec_float<digits, i32, std::allocator<u32>>>;
 
     using ubyte = std::byte;
+    using ibyte = std::conditional_t<sizeof(ubyte) == 8, i64, i32>;
     using usize = std::size_t;
+    using isize = std::conditional_t<sizeof(usize) == 8, i64, i32>;
     using ptrdiff = std::ptrdiff_t;
     using ptraddr = std::intptr_t;
 };
