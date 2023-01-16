@@ -59,28 +59,90 @@ namespace ospf
             Bound(ArgRRefType<Included> included)
                 : _variant(move<Included>(included)) {}
 
+        public:
+            inline const bool inclusive(void) const noexcept
+            {
+                return _variant.index() == 0_uz;
+            }
+
+            inline const bool exclusive(void) const noexcept
+            {
+                return _variant.index() == 1_uz;
+            }
+
+            inline const bool unbounded(void) const noexcept
+            {
+                return _variant.index() == 2_uz;
+            }
+
+        public:
+            inline ArgCLRefType<IndexType> operator*(void) const
+            {
+                return std::visit([](const auto& arg)
+                    {
+                        using Type = OriginType<decltype(arg)>;
+                        if constexpr (std::is_same_v<Type, Included> || std::is_same_v<Type, Excluded>)
+                        {
+                            return arg.value;
+                        }
+                        else
+                        {
+                            throw std::bad_variant_access{};
+                            return 0_uz;
+                        }
+                    }, _variant);
+            }
+
         private:
             VariantType _variant;
         };
 
-        template<typename R>
-        concept RangeBounds = NotSameAs<typename R::IndexType, void>
-            && requires (const R& range)
-                {
-                    { range.start_bound() } -> DecaySameAs<Bound<typename R::IndexType>>;
-                    { range.end_bound() } -> DecaySameAs<Bound<typename R::IndexType>>;
-                    { range.contains(std::declval<typename R::ValueType>()) } -> DecaySameAs<bool>;
-                };
-        
         template<typename I>
-        struct Range
+        class RangeBounds
         {
+        public:
             using IndexType = OriginType<I>;
             using BoundType = Bound<IndexType>;
+            using IncludedType = typename BoundType::Included;
+            using ExcludedType = typename BoundType::Excluded;
 
-            Range(ArgRRefType<IndexType> start_bound, ArgRRefType<IndexType> end_bound)
-                : _start_bound(BoundType::Included{ move<IndexType>(start_bound) }), _end_bound(BoundType::Included{ move<IndexType>(end_bound) }) {}
+            //tex:$(- \infty , \infty)$
+            inline static constexpr RetType<RangeBounds> full(void) noexcept
+            {
+                return RangeBounds{ BoundType{ unbounded }, BoundType{ unbounded } };
+            }
 
+            //tex:$[L, \infty )$
+            inline static constexpr RetType<RangeBounds> from(ArgRRefType<IndexType> start_bound) noexcept
+            {
+                return RangeBounds{ BoundType{ IncludedType{ move<IndexType>(start_bound) } }, BoundType{ unbounded } };
+            }
+
+            //tex:$(- \infty , R)$
+            inline static constexpr RetType<RangeBounds> to(ArgRRefType<IndexType> end_bound) noexcept
+            {
+                return RangeBounds{ BoundType{ unbounded } }, BoundType{ ExcludedType{ move<IndexType>(end_bound) } };
+            }
+
+            //tex:$[L, R)$
+            inline static constexpr RetType<RangeBounds> range(ArgRRefType<IndexType> start_bound, ArgRRefType<IndexType> end_bound) noexcept
+            {
+                return RangeBounds{ BoundType{ IncludedType{ move<IndexType>(start_bound) } }, BoundType{ ExcludedType{ move<IndexType>(end_bound) } } };
+            }
+
+            //tex:$[L, R]$
+            inline static constexpr RetType<RangeBounds> inclusive(ArgRRefType<IndexType> start_bound, ArgRRefType<IndexType> end_bound) noexcept
+            {
+                return RangeBounds{ BoundType{ IncludedType{ move<IndexType>(start_bound) } }, BoundType{ IncludedType{ move<IndexType>(end_bound) } } };
+            }
+
+            //tex:$(- \infty, R]$
+            inline static constexpr RetType<RangeBounds> to_inclusive(ArgRRefType<IndexType> end_bound) noexcept
+            {
+                return RangeBounds{ BoundType{ unbounded } }, BoundType{ IncludedType{ move<IndexType>(end_bound) } };
+            }
+
+        public:
             inline constexpr ArgCLRefType<Bound<IndexType>> start_bound(void) const noexcept
             {
                 return _start_bound;
@@ -95,59 +157,45 @@ namespace ospf
                 requires std::three_way_comparable<IndexType> || std::totally_ordered<IndexType>
             inline constexpr const bool contains(ArgCLRefType<IndexType> value) const noexcept
             {
-                return *_start_bound <= value && value <= *_end_bound;
+                return in_start_bound(value) && in_end_bound(value);
             }
 
+        private:
+            inline constexpr const bool in_start_bound(ArgCLRefType<IndexType> value) const noexcept
+            {
+                if (_start_bound.inclusive())
+                {
+                    return *_start_bound <= value;
+                }
+                else if (_start_bound.exclusive())
+                {
+                    return *_start_bound < value;
+                }
+                else
+                {
+                    return true;
+                }
+            }
+
+            inline constexpr const bool in_end_bound(ArgCLRefType<IndexType> value) const noexcept
+            {
+                if (_end_bound.inclusive())
+                {
+                    return value <= *_end_bound;
+                }
+                else if (_end_bound.exclusive())
+                {
+                    return value < *_end_bound;
+                }
+                else
+                {
+                    return true;
+                }
+            }
+
+        private:
             BoundType _start_bound;
             BoundType _end_bound
-        };
-
-        template<typename I>
-        struct RangeFrom
-        {
-
-        };
-
-        template<typename I>
-        struct RangeTo
-        {
-
-        };
-
-        template<typename I>
-        struct RangeInclusive
-        {
-
-        };
-
-        template<typename I>
-        struct RangeToInclusive
-        {
-
-        };
-
-        template<typename I>
-        struct FullRange
-        {
-            using IndexType = OriginType<I>;
-            using BoundType = Bound<IndexType>;
-
-            inline static constexpr Bound<IndexType> start_bound(void) const noexcept
-            {
-                return BoundType{ unbounded };
-            }
-
-            inline static constexpr Bound<IndexType> end_bound(void) const noexcept
-            {
-                return BoundType{ unbounded };
-            }
-
-            template<typename = void>
-                requires std::three_way_comparable<IndexType> || std::totally_ordered<IndexType>
-            inline constexpr const bool contains(ArgCLRefType<IndexType> value) const noexcept
-            {
-                return true;
-            }
         };
     };
 };

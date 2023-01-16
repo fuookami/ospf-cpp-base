@@ -387,29 +387,29 @@ namespace ospf
         using Try = Result<Succeed, E>;
 
         extern template class Result<Succeed, OSPFError>;
-
-        template<typename T, typename E, typename Func>
-        inline constexpr decltype(auto) visit(Func&& func, Result<T, E>& result) noexcept
-        {
-            return result.visit(std::forward<Func>(func));
-        }
-
-        template<typename T, typename E, typename Func>
-        inline constexpr decltype(auto) visit(Func&& func, const Result<T, E>& result) noexcept
-        {
-            return result.visit(std::forward<Func>(func));
-        }
-
-        template<typename T, typename E, typename Func>
-        inline constexpr decltype(auto) visit(Func&& func, Result<T, E>&& result) noexcept
-        {
-            return static_cast<RRefType<Result<T, E>>>(result).visit(std::forward<Func>(func));
-        }
     };
 };
 
 namespace std
 {
+    template<typename T, typename E, typename Func>
+    inline constexpr decltype(auto) visit(Func&& func, ospf::Result<T, E>& result) noexcept
+    {
+        return result.visit(std::forward<Func>(func));
+    }
+
+    template<typename T, typename E, typename Func>
+    inline constexpr decltype(auto) visit(Func&& func, const ospf::Result<T, E>& result) noexcept
+    {
+        return result.visit(std::forward<Func>(func));
+    }
+
+    template<typename T, typename E, typename Func>
+    inline constexpr decltype(auto) visit(Func&& func, ospf::Result<T, E>&& result) noexcept
+    {
+        return static_cast<ospf::RRefType<Result<T, E>>>(result).visit(std::forward<Func>(func));
+    }
+
     template<typename T, ospf::ErrorType E>
     inline void swap(ospf::Result<T, E>& lhs, ospf::Result<T, E>& rhs) noexcept
     {

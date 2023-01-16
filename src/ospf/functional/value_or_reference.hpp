@@ -245,7 +245,7 @@ namespace ospf
 
             inline constexpr CRefType deref(void) const noexcept
             {
-                return visit([](const auto& arg)
+                return std::visit([](const auto& arg)
                     {
                         using ThisType = OriginType<decltype(arg)>;
                         if constexpr (std::is_same_v<ThisType, ValueType>)

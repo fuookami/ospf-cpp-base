@@ -615,24 +615,6 @@ namespace ospf
         private:
             VariantType _variant;
         };
-
-        template<typename T, typename U, typename Func>
-        inline constexpr decltype(auto) visit(Func&& func, Either<T, U>& either) noexcept
-        {
-            return either.visit(std::forward<Func>(func));
-        }
-
-        template<typename T, typename U, typename Func>
-        inline constexpr decltype(auto) visit(Func&& func, const Either<T, U>& either) noexcept
-        {
-            return either.visit(std::forward<Func>(func));
-        }
-
-        template<typename T, typename U, typename Func>
-        inline constexpr decltype(auto) visit(Func&& func, Either<T, U>&& either) noexcept
-        {
-            return static_cast<RRefType<Either<T, U>>>(either).visit(std::forward<Func>(func));
-        }
     };
 };
 
@@ -664,6 +646,24 @@ namespace std
                 });
         }
     };
+
+    template<typename T, typename U, typename Func>
+    inline constexpr decltype(auto) visit(Func&& func, ospf::Either<T, U>& either) noexcept
+    {
+        return either.visit(std::forward<Func>(func));
+    }
+
+    template<typename T, typename U, typename Func>
+    inline constexpr decltype(auto) visit(Func&& func, const ospf::Either<T, U>& either) noexcept
+    {
+        return either.visit(std::forward<Func>(func));
+    }
+
+    template<typename T, typename U, typename Func>
+    inline constexpr decltype(auto) visit(Func&& func, ospf::Either<T, U>&& either) noexcept
+    {
+        return static_cast<ospf::RRefType<Either<T, U>>>(either).visit(std::forward<Func>(func));
+    }
 
     template<typename T, typename U>
     inline void swap(ospf::Either<T, U>& lhs, ospf::Either<T, U>& rhs) noexcept
