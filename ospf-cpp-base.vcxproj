@@ -34,6 +34,8 @@
     <ClInclude Include="src\ospf\data_structure\data_table\header.hpp" />
     <ClInclude Include="src\ospf\data_structure\data_table\line.hpp" />
     <ClInclude Include="src\ospf\data_structure\data_table\table.hpp" />
+    <ClInclude Include="src\ospf\data_structure\multi_array.hpp" />
+    <ClInclude Include="src\ospf\data_structure\multi_array\shape.hpp" />
     <ClInclude Include="src\ospf\data_structure\optional_array.hpp" />
     <ClInclude Include="src\ospf\data_structure\pointer_array.hpp" />
     <ClInclude Include="src\ospf\data_structure\reference_array.hpp" />
@@ -108,6 +110,7 @@
     <ClInclude Include="src\ospf\uuid.hpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\ospf\data_structure\multi_array\shape.cpp" />
     <ClCompile Include="src\ospf\error\error.cpp" />
     <ClCompile Include="src\ospf\exception.cpp" />
     <ClCompile Include="src\ospf\functional\result.cpp" />

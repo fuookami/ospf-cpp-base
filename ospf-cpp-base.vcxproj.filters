@@ -64,6 +64,9 @@
     <Filter Include="src\ospf\data-structure\data_table">
       <UniqueIdentifier>{717e68a7-81b6-4c3d-968f-ca66e86d1a99}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\ospf\data-structure\multi_array">
+      <UniqueIdentifier>{12d393c7-fc42-47c5-a6ff-3043158092b0}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\ospf\basic_definition.hpp">
@@ -327,6 +330,12 @@
     <ClInclude Include="src\ospf\meta_programming\infix_function.hpp">
       <Filter>src\ospf\meta-programming</Filter>
     </ClInclude>
+    <ClInclude Include="src\ospf\data_structure\multi_array.hpp">
+      <Filter>src\ospf\data-structure</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ospf\data_structure\multi_array\shape.hpp">
+      <Filter>src\ospf\data-structure\multi_array</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\ospf\system_info.cpp">
@@ -367,6 +376,9 @@
     </ClCompile>
     <ClCompile Include="src\ospf\functional\result.cpp">
       <Filter>src\ospf\functional</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ospf\data_structure\multi_array\shape.cpp">
+      <Filter>src\ospf\data-structure\multi_array</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
