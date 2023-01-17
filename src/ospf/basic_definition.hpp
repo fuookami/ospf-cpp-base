@@ -55,4 +55,6 @@ namespace ospf
     using isize = std::conditional_t<sizeof(usize) == 8, i64, i32>;
     using ptrdiff = std::ptrdiff_t;
     using ptraddr = std::intptr_t;
+
+    static constexpr const auto npos = static_cast<usize>(-1);
 };

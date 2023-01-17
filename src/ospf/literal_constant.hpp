@@ -5,6 +5,12 @@
 #include <ospf/basic_definition.hpp>
 #include <cassert>
 
+inline constexpr const ospf::isize operator"" _iz(unsigned long long int value)
+{
+    assert(value <= 0x8000000000000000);
+    return static_cast<ospf::isize>(value);
+}
+
 inline constexpr const ospf::usize operator"" _uz(unsigned long long int value)
 {
     return static_cast<ospf::usize>(value);
