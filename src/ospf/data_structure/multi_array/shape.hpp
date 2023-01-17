@@ -137,7 +137,7 @@ namespace ospf
                 {
                     const auto offset = this->offset()[i];
                     vector[i] = index / offset;
-                    index = index % offset;
+                    index %= offset;
                 }
                 return vector;
             }
@@ -152,7 +152,7 @@ namespace ospf
                     if (carry)
                     {
                         vector[i] += 1_uz;
-                        carry = false
+                        carry = false;
                     }
                     if (vector[i] == this->shape()[i])
                     {
@@ -234,14 +234,11 @@ namespace ospf
             using VectorViewType = typename Impl::VectorViewType;
 
         public:
-            constexpr Shape<1_uz>(ArgCLRefType<VectorType> shape)
+            constexpr Shape(ArgCLRefType<VectorType> shape)
                 : _shape(move<VectorType>(shape)), _offset(0_uz), _size(0_uz)
             {
-                std::tie(_offset, _size) = offset(_shape)
+                std::tie(_offset, _size) = offset(_shape);
             }
-
-            constexpr Shape<1_uz>(std::initializer_list<usize> shape)
-                : Shape(VectorType{ std::move(shape) }) {}
 
         public:
             constexpr Shape(const Shape& ano) = default;
@@ -315,12 +312,15 @@ namespace ospf
             using VectorType = typename Impl::VectorType;
             using VectorViewType = typename Impl::VectorViewType;
 
+        private:
+            static constexpr const VectorType _zero{ 0_uz };
+
         public:
-            constexpr Shape<1_uz>(ArgCLRefType<VectorType> shape)
+            constexpr Shape<1_uz>(ArgRRefType<VectorType> shape)
                 : _shape(move<VectorType>(shape)) {}
             
             constexpr Shape<1_uz>(const usize shape = 1_uz)
-                : _shape(VectorType{ shape }) {}
+                : Shape(VectorType{ shape }) {}
 
         public:
             constexpr Shape(const Shape& ano) = default;
@@ -332,7 +332,7 @@ namespace ospf
         OSPF_CRTP_PERMISSION:
             inline constexpr RetType<VectorType> OSPF_CRTP_FUNCTION(get_zero)(void) const noexcept
             {
-                return VectorType{ 0_uz };
+                return _zero;
             }
 
             inline constexpr const usize OSPF_CRTP_FUNCTION(get_size)(void) const noexcept
@@ -357,8 +357,7 @@ namespace ospf
 
             inline constexpr RetType<VectorViewType> OSPF_CRTP_FUNCTION(get_offset)(void) const noexcept
             {
-                const auto zero = get_zero();
-                return VectorViewType{ zero };
+                return VectorViewType{ _zero };
             }
 
         private:

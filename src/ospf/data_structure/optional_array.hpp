@@ -72,7 +72,7 @@ namespace ospf
                     return *iter;
                 }
 
-                inline static constexpr RetType<OptionalArrayConstIterator> OSPF_CRTP_FUNCTION(construct)(ArgCLRefType<IterType> iter) noexcept
+                inline static constexpr const OptionalArrayConstIterator OSPF_CRTP_FUNCTION(construct)(ArgCLRefType<IterType> iter) noexcept
                 {
                     return OptionalArrayConstIterator{ iter };
                 }
@@ -119,7 +119,7 @@ namespace ospf
                 }
 
             public:
-                inline constexpr operator RetType<OptionalArrayConstIterator<T, C>>(void) const noexcept
+                inline constexpr operator const OptionalArrayConstIterator<T, C>(void) const noexcept
                 {
                     return OptionalArrayConstIterator<T, C>{ this->_iter };
                 }
@@ -130,7 +130,7 @@ namespace ospf
                     return *iter;
                 }
 
-                inline static constexpr RetType<OptionalArrayIterator> OSPF_CRTP_FUNCTION(construct)(ArgCLRefType<IterType> iter) noexcept
+                inline static constexpr const OptionalArrayIterator OSPF_CRTP_FUNCTION(construct)(ArgCLRefType<IterType> iter) noexcept
                 {
                     return OptionalArrayIterator{ iter };
                 }
@@ -182,7 +182,7 @@ namespace ospf
                     return *iter;
                 }
 
-                inline static constexpr RetType<OptionalArrayConstReverseIterator> OSPF_CRTP_FUNCTION(construct)(ArgCLRefType<IterType> iter) noexcept
+                inline static constexpr const OptionalArrayConstReverseIterator OSPF_CRTP_FUNCTION(construct)(ArgCLRefType<IterType> iter) noexcept
                 {
                     return OptionalArrayConstReverseIterator{ iter };
                 }
@@ -234,9 +234,9 @@ namespace ospf
                     return *iter;
                 }
 
-                inline static constexpr RetType<OptionalArrayConstReverseIterator> OSPF_CRTP_FUNCTION(construct)(ArgCLRefType<IterType> iter) noexcept
+                inline static constexpr const OptionalArrayReverseIterator OSPF_CRTP_FUNCTION(construct)(ArgCLRefType<IterType> iter) noexcept
                 {
-                    return OptionalArrayConstReverseIterator{ iter };
+                    return OptionalArrayReverseIterator{ iter };
                 }
             };
 
@@ -286,7 +286,7 @@ namespace ospf
                     return **iter;
                 }
 
-                inline static constexpr RetType<OptionalArrayConstUncheckedIterator> OSPF_CRTP_FUNCTION(construct)(ArgCLRefType<IterType> iter) noexcept
+                inline static constexpr const OptionalArrayConstUncheckedIterator OSPF_CRTP_FUNCTION(construct)(ArgCLRefType<IterType> iter) noexcept
                 {
                     return OptionalArrayConstUncheckedIterator{ iter };
                 }
@@ -333,7 +333,7 @@ namespace ospf
                 }
 
             public:
-                inline constexpr operator RetType<OptionalArrayConstUncheckedIterator<T, C>>(void) const noexcept
+                inline constexpr operator const OptionalArrayConstUncheckedIterator<T, C>(void) const noexcept
                 {
                     return OptionalArrayConstUncheckedIterator<T, C>{ this->_iter };
                 }
@@ -344,7 +344,7 @@ namespace ospf
                     return **iter;
                 }
 
-                inline static constexpr RetType<OptionalArrayUncheckedIterator> OSPF_CRTP_FUNCTION(construct)(ArgCLRefType<IterType> iter) noexcept
+                inline static constexpr const OptionalArrayUncheckedIterator OSPF_CRTP_FUNCTION(construct)(ArgCLRefType<IterType> iter) noexcept
                 {
                     return OptionalArrayUncheckedIterator{ iter };
                 }
@@ -396,7 +396,7 @@ namespace ospf
                     return **iter;
                 }
 
-                inline static constexpr RetType<OptionalArrayConstUncheckedReverseIterator> OSPF_CRTP_FUNCTION(construct)(ArgCLRefType<IterType> iter) noexcept
+                inline static constexpr const OptionalArrayConstUncheckedReverseIterator OSPF_CRTP_FUNCTION(construct)(ArgCLRefType<IterType> iter) noexcept
                 {
                     return OptionalArrayConstUncheckedReverseIterator{ iter };
                 }
@@ -448,7 +448,7 @@ namespace ospf
                     return **iter;
                 }
 
-                inline static constexpr RetType<OptionalArrayUncheckedReverseIterator> OSPF_CRTP_FUNCTION(construct)(ArgCLRefType<IterType> iter) noexcept
+                inline static constexpr const OptionalArrayUncheckedReverseIterator OSPF_CRTP_FUNCTION(construct)(ArgCLRefType<IterType> iter) noexcept
                 {
                     return OptionalArrayUncheckedReverseIterator{ iter };
                 }
@@ -1205,7 +1205,7 @@ namespace ospf
                 constexpr ~StaticOptionalArray(void) = default;
 
             public:
-                inline constexpr UncheckedAccessorImpl unchecked(void) const noexcept
+                inline constexpr const UncheckedAccessorImpl unchecked(void) const noexcept
                 {
                     return UncheckedAccessorImpl{ dynamic_cast<const Impl&>(*this) };
                 }

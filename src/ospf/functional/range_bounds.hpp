@@ -1,10 +1,7 @@
 #pragma once
 
-#include <ospf/concepts/base.hpp>
-#include <ospf/type_family.hpp>
-#include <ospf/meta_programming/iterator.hpp>
+#include <ospf/functional/integer_iterator.hpp>
 #include <ospf/memory/reference.hpp>
-#include <ospf/exception.hpp>
 #include <variant>
 
 namespace ospf
@@ -13,142 +10,6 @@ namespace ospf
     {
         struct Unbounded {};
         static constexpr const auto unbounded = Unbounded{};
-
-        template<typename T>
-            requires std::integral<T>
-                && requires
-                { 
-                    { static_cast<T>(0) } -> DecaySameAs<T>;
-                    { static_cast<T>(1) } -> DecaySameAs<T>;
-                    { -std::declval<T>() } -> DecaySameAs<T>;
-                }
-        class IntegerIterator
-        {
-        public:
-            using ValueType = OriginType<T>;
-
-        public:
-            constexpr IntegerIterator(void)
-                : _has_next(false), _curr(static_cast<ValueType>(0)), _last(static_cast<ValueType>(0)), _step(static_cast<ValueType>(0)) {}
-
-            constexpr IntegerIterator(ArgRRefType<ValueType> curr, ArgRRefType<ValueType> last, ArgRRefType<ValueType> step, const bool reverse = false)
-                : _has_next(true), _curr(static_cast<ValueType>(0)), _last(static_cast<ValueType>(0)), _step(reverse ? move<ValueType>(step) : -move<ValueType>(step))
-            {
-                // todo
-            }
-
-        public:
-            constexpr IntegerIterator(const IntegerIterator& ano) = default;
-            constexpr IntegerIterator(IntegerIterator&& ano) noexcept = default;
-            constexpr IntegerIterator& operator=(const IntegerIterator& rhs) = default;
-            constexpr IntegerIterator& operator=(IntegerIterator&& rhs) noexcept = default;
-            constexpr ~IntegerIterator(void) noexcept = default;
-
-        public:
-            inline constexpr ArgCLRefType<ValueType> operator*(void) const noexcept
-            {
-                return _curr;
-            }
-
-            inline constexpr const CPtrType<ValueType> operator->(void) const noexcept
-            {
-                return &_curr;
-            }
-
-        public:
-            inline constexpr LRefType<IntegerIterator> operator++(void) noexcept
-            {
-                next();
-                return *this;
-            }
-
-            inline constexpr RetType<IntegerIterator> operator++(int) noexcept
-            {
-                auto ret = *this;
-                next();
-                return ret;
-            }
-
-        public:
-            template<typename I>
-            inline constexpr const bool operator==(const IntegerIterator<I>& ano) const noexcept
-            {
-                if (!_has_next && !_has_next)
-                {
-                    return true;
-                }
-                else if (_has_next && _has_next)
-                {
-                    return _curr == ano._curr
-                        && _last == ano._last
-                        && _step == ano._step;
-                }
-                else
-                {
-                    return false;
-                }
-            }
-
-            template<typename I>
-            inline constexpr const bool operator!=(const IntegerIterator<I>& ano) const noexcept
-            {
-                if (!_has_next && !_has_next)
-                {
-                    return false;
-                }
-                else if (_has_next && _has_next)
-                {
-                    return _curr != ano._curr
-                        || _last != ano._last
-                        || _step != ano._step;
-                }
-                else
-                {
-                    return true;
-                }
-            }
-
-        private:
-            inline constexpr void next(void) noexcept
-            {
-                // todo
-            }
-
-        private:
-            bool _has_next;
-            ValueType _curr;
-            ValueType _last;
-            ValueType _step;
-        };
-
-        template<typename T>
-            requires std::unsigned_integral<T>
-                && requires
-                {
-                    { static_cast<T>(0) } -> DecaySameAs<T>;
-                    { static_cast<T>(1) } -> DecaySameAs<T>;
-                }
-        class IntegerIterator<T>
-        {
-        public:
-            using ValueType = OriginType<T>;
-
-        public:
-            constexpr IntegerIterator(const IntegerIterator& ano) = default;
-            constexpr IntegerIterator(IntegerIterator&& ano) noexcept = default;
-            constexpr IntegerIterator& operator=(const IntegerIterator& rhs) = default;
-            constexpr IntegerIterator& operator=(IntegerIterator&& rhs) noexcept = default;
-            constexpr ~IntegerIterator(void) noexcept = default;
-
-            // todo
-
-        private:
-            bool _has_next;
-            bool _reverse;
-            ValueType _curr;
-            ValueType _last;
-            ValueType _step;
-        };
 
         template<typename I>
         class Bound
@@ -189,14 +50,24 @@ namespace ospf
             using VariantType = std::variant<Included, Excluded, Unbounded>;
 
         public:
-            constexpr Bound(const Unbounded _ = unbounded)
-                : _varaint(unbounded) {}
+            constexpr Bound(const Unbounded _ = ospf::unbounded)
+                : _variant(ospf::unbounded) {}
 
             constexpr Bound(ArgCLRefType<Included> included)
                 : _variant(included) {}
 
+            template<typename = void>
+                requires ReferenceFaster<Included> && std::movable<Included>
             constexpr Bound(ArgRRefType<Included> included)
                 : _variant(move<Included>(included)) {}
+
+            constexpr Bound(ArgCLRefType<Excluded> excluded)
+                : _variant(excluded) {}
+
+            template<typename = void>
+                requires ReferenceFaster<Excluded> && std::movable<Excluded>
+            constexpr Bound(ArgRRefType<Excluded> excluded)
+                : _variant(move<Excluded>(excluded)) {}
 
         public:
             constexpr Bound(const Bound& ano) = default;
@@ -234,7 +105,7 @@ namespace ospf
                         else
                         {
                             throw OSPFException{ OSPFErrCode::ApplicationError, "unbounded accessed" };
-                            return 0_uz;
+                            return IndexType{ };
                         }
                     }, _variant);
             }
@@ -252,8 +123,18 @@ namespace ospf
         template<typename R>
         concept RangeBoundsType = requires (const R& r)
         {
+            { r.empty() } -> DecaySameAs<bool>;
             { r.start_bound() } -> DecaySameAs<typename R::BoundType>;
-            // todo
+            { r.end_bound() } -> DecaySameAs<typename R::BoundType>;
+            { r.contains(std::declval<typename R::IndexType>()) } -> DecaySameAs<bool>;
+        };
+
+        template<typename R>
+        concept IntegerRangeBoundsType = RangeBoundsType<R> && std::integral<typename R::IndexType>
+            && requires (const R& r)
+        {
+            { r.begin() } -> std::forward_iterator;
+            { r.end() } -> std::forward_iterator;
         };
 
         template<typename I>
@@ -267,11 +148,11 @@ namespace ospf
             using RangeBoundsType = RangeBounds<I>;
             using IndexType = typename RangeBoundsType::IndexType;
             using BoundType = typename RangeBoundsType::BoundType;
-            using IncludedType = typename RangeBoundsType::Included;
-            using ExcludedType = typename RangeBoundsType::Excluded;
+            using IncludedType = typename RangeBoundsType::IncludedType;
+            using ExcludedType = typename RangeBoundsType::ExcludedType;
 
         private:
-            constexpr IntegerRangeBoundsWithStepWrapper(CLRefType<RangeBoundsType> bounds, ArgRRefType<IndexType> step, const bool reverse = false)
+            constexpr IntegerRangeBoundsWithStepWrapper(const RangeBoundsType& bounds, ArgRRefType<IndexType> step, const bool reverse = false)
                 : _reverse(reverse), _bounds(bounds), _step(move<IndexType>(step)) {}
 
         public:
@@ -284,14 +165,13 @@ namespace ospf
         public:
             inline constexpr RetType<IntegerIterator<IndexType>> begin(void) const noexcept
             {
-                if (_reverse)
-                {
-                    // todo
-                }
-                else
-                {
-                    return IntegerIterator<IndexType>{ *_start_bound, * _end_bound, _step };
-                }
+                return IntegerIterator<IndexType>
+                { 
+                    _bounds->start_bound().exclusive() ? (*_bounds->start_bound() + _step) : *_bounds->start_bound(),
+                    _bounds->end_bound().inclusive() ? (*_bounds->end_bound() + _step) : *_bounds->end_bound(),
+                    _step, 
+                    _reverse
+                };
             }
 
             inline constexpr RetType<IntegerIterator<IndexType>> end(void) const noexcept
@@ -314,8 +194,8 @@ namespace ospf
             using RangeBoundsType = RangeBounds<I>;
             using IndexType = typename RangeBoundsType::IndexType;
             using BoundType = typename RangeBoundsType::BoundType;
-            using IncludedType = typename RangeBoundsType::Included;
-            using ExcludedType = typename RangeBoundsType::Excluded;
+            using IncludedType = typename RangeBoundsType::IncludedType;
+            using ExcludedType = typename RangeBoundsType::ExcludedType;
 
         private:
             constexpr RangeBoundsReverseWrapper(const RangeBoundsType& bounds)
@@ -352,6 +232,33 @@ namespace ospf
             }
         
         public:
+            template<typename = void>
+                requires std::integral<IndexType>
+                    && requires
+                    {
+                        { static_cast<IndexType>(1) } -> DecaySameAs<IndexType>;
+                    }
+            inline constexpr RetType<IntegerIterator<IndexType>> begin(void) const noexcept
+            {
+                static const auto one = static_cast<IndexType>(1);
+
+                return IntegerIterator<IndexType>
+                { 
+                    _bounds->start_bound().exclusive() ? (*_bounds->start_bound() + one) : *_bounds->start_bound(),
+                    _bounds->end_bound().inclusive() ? (*_bounds->end_bound() + one) : *_bounds->end_bound(),
+                    one,
+                    true
+                };
+            }
+
+            template<typename = void>
+                requires std::integral<IndexType>
+            inline constexpr RetType<IntegerIterator<IndexType>> end(void) const noexcept
+            {
+                return IntegerIterator<IndexType>{ };
+            }
+
+        public:
             inline constexpr RetType<IntegerRangeBoundsWithStepWrapper<IndexType>> step(ArgRRefType<IndexType> step) const noexcept
             {
                 return IntegerRangeBoundsWithStepWrapper<IndexType>{ *this, move<IndexType>(step), true };
@@ -371,39 +278,39 @@ namespace ospf
             using ExcludedType = typename BoundType::Excluded;
 
             //tex:$(- \infty , \infty)$
-            inline static constexpr RetType<RangeBounds> full(void) noexcept
+            inline static constexpr RangeBounds full(void) noexcept
             {
                 return RangeBounds{ BoundType{ unbounded }, BoundType{ unbounded } };
             }
 
             //tex:$[L, \infty )$
-            inline static constexpr RetType<RangeBounds> from(ArgRRefType<IndexType> start_bound) noexcept
+            inline static constexpr RangeBounds from(ArgRRefType<IndexType> start_bound) noexcept
             {
                 return RangeBounds{ BoundType{ IncludedType{ move<IndexType>(start_bound) } }, BoundType{ unbounded } };
             }
 
             //tex:$(- \infty , R)$
-            inline static constexpr RetType<RangeBounds> to(ArgRRefType<IndexType> end_bound) noexcept
+            inline static constexpr RangeBounds to(ArgRRefType<IndexType> end_bound) noexcept
             {
-                return RangeBounds{ BoundType{ unbounded } }, BoundType{ ExcludedType{ move<IndexType>(end_bound) } };
+                return RangeBounds{ BoundType{ unbounded }, BoundType{ ExcludedType{ move<IndexType>(end_bound) } } };
             }
 
             //tex:$[L, R)$
-            inline static constexpr RetType<RangeBounds> range(ArgRRefType<IndexType> start_bound, ArgRRefType<IndexType> end_bound) noexcept
+            inline static constexpr RangeBounds range(ArgRRefType<IndexType> start_bound, ArgRRefType<IndexType> end_bound) noexcept
             {
                 return RangeBounds{ BoundType{ IncludedType{ move<IndexType>(start_bound) } }, BoundType{ ExcludedType{ move<IndexType>(end_bound) } } };
             }
 
             //tex:$[L, R]$
-            inline static constexpr RetType<RangeBounds> inclusive(ArgRRefType<IndexType> start_bound, ArgRRefType<IndexType> end_bound) noexcept
+            inline static constexpr RangeBounds inclusive(ArgRRefType<IndexType> start_bound, ArgRRefType<IndexType> end_bound) noexcept
             {
                 return RangeBounds{ BoundType{ IncludedType{ move<IndexType>(start_bound) } }, BoundType{ IncludedType{ move<IndexType>(end_bound) } } };
             }
 
             //tex:$(- \infty, R]$
-            inline static constexpr RetType<RangeBounds> to_inclusive(ArgRRefType<IndexType> end_bound) noexcept
+            inline static constexpr RangeBounds to_inclusive(ArgRRefType<IndexType> end_bound) noexcept
             {
-                return RangeBounds{ BoundType{ unbounded } }, BoundType{ IncludedType{ move<IndexType>(end_bound) } };
+                return RangeBounds{ BoundType{ unbounded }, BoundType{ IncludedType{ move<IndexType>(end_bound) } } };
             }
 
         private:
@@ -452,12 +359,12 @@ namespace ospf
             }
 
         public:
-            inline constexpr RetType<RangeBoundsReverseWrapper<IndexType>> reverse(void) const noexcept
+            inline constexpr RangeBoundsReverseWrapper<IndexType> reverse(void) const noexcept
             {
                 return RangeBoundsReverseWrapper<IndexType>{ *this };
             }
 
-            inline constexpr RetType<IntegerRangeBoundsWithStepWrapper<IndexType>> step(ArgRRefType<IndexType> step) const noexcept
+            inline constexpr IntegerRangeBoundsWithStepWrapper<IndexType> step(ArgRRefType<IndexType> step) const noexcept
             {
                 return IntegerRangeBoundsWithStepWrapper<IndexType>{ *this, move<IndexType>(step) };
             }
@@ -471,7 +378,14 @@ namespace ospf
                     }
             inline constexpr RetType<IntegerIterator<IndexType>> begin(void) const noexcept
             {
-                return IntegerIterator<IndexType>{ *_start_bound, *_end_bound, static_cast<IndexType>(1) };
+                static const auto one = static_cast<IndexType>(1);
+
+                return IntegerIterator<IndexType>
+                { 
+                    _start_bound.exclusive() ? (*_start_bound + one) : *_start_bound,
+                    _end_bound.inclusive() ? (*_end_bound + one) : *_end_bound,
+                    one
+                };
             }
 
             template<typename = void>
@@ -518,6 +432,11 @@ namespace ospf
             BoundType _start_bound;
             BoundType _end_bound;
         };
+
+        extern template class Bound<usize>;
+        extern template class Bound<isize>;
+        extern template class RangeBounds<usize>;
+        extern template class RangeBounds<isize>;
     };
 };
 

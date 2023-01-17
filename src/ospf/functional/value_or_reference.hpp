@@ -22,31 +22,31 @@ namespace ospf
             using EitherType = Either<ValueType, ReferenceType>;
 
         public:
-            inline static constexpr RetType<ValOrRef> value(ArgCLRefType<ValueType> val) noexcept
+            inline static constexpr ValOrRef value(ArgCLRefType<ValueType> val) noexcept
             {
                 return ValOrRef{ val };
             }
 
             template<typename = void>
                 requires ReferenceFaster<ValueType> && std::movable<ValueType>
-            inline static constexpr RetType<ValOrRef> value(ArgRRefType<ValueType> val) noexcept
+            inline static constexpr ValOrRef value(ArgRRefType<ValueType> val) noexcept
             {
                 return ValOrRef{ move<ValueType>(val) };
             }
 
             template<typename... Args>
                 requires std::constructible_from<ValueType, Args...>
-            inline static constexpr RetType<ValOrRef> value(Args&&... args) noexcept
+            inline static constexpr ValOrRef value(Args&&... args) noexcept
             {
                 return ValOrRef{ ValueType{ std::forward<Args>(args)... }};
             }
 
-            inline static constexpr RetType<ValOrRef> ref(CLRefType<ValueType> ref) noexcept
+            inline static constexpr ValOrRef ref(CLRefType<ValueType> ref) noexcept
             {
                 return ValOrRef{ ReferenceType{ ref } };
             }
 
-            inline static constexpr RetType<ValOrRef> ref(ArgRRefType<ReferenceType> ref) noexcept
+            inline static constexpr ValOrRef ref(ArgRRefType<ReferenceType> ref) noexcept
             {
                 return ValOrRef{ move<ReferenceType>(ref) };
             }
@@ -122,13 +122,13 @@ namespace ospf
             }
 
             template<typename U, reference::ReferenceCategory c>
-            inline constexpr const bool operator==(const reference::RefImpl<U, c>& rhs) const noexcept
+            inline constexpr const bool operator==(const reference::Ref<U, c>& rhs) const noexcept
             {
                 return _value == *rhs;
             }
 
             template<typename U, reference::ReferenceCategory c>
-            inline constexpr const bool operator!=(const reference::RefImpl<U, c>& rhs) const noexcept
+            inline constexpr const bool operator!=(const reference::Ref<U, c>& rhs) const noexcept
             {
                 return _value != *rhs;
             }
@@ -143,6 +143,18 @@ namespace ospf
             inline constexpr const bool operator!=(const U& rhs) const noexcept
             {
                 return deref() != rhs;
+            }
+
+            template<typename U>
+            inline constexpr const bool operator==(const std::optional<U>& rhs) const noexcept
+            {
+                return static_cast<bool>(rhs) && deref() == *rhs;
+            }
+
+            template<typename U>
+            inline constexpr const bool operator!=(const std::optional<U>& rhs) const noexcept
+            {
+                return !static_cast<bool>(rhs) || deref() != *rhs;
             }
 
         public:
@@ -171,25 +183,25 @@ namespace ospf
             }
 
             template<typename U, reference::ReferenceCategory c>
-            inline constexpr const bool operator<(const reference::RefImpl<U, c>& rhs) const noexcept
+            inline constexpr const bool operator<(const reference::Ref<U, c>& rhs) const noexcept
             {
                 return deref() < *rhs;
             }
 
             template<typename U, reference::ReferenceCategory c>
-            inline constexpr const bool operator<=(const reference::RefImpl<U, c>& rhs) const noexcept
+            inline constexpr const bool operator<=(const reference::Ref<U, c>& rhs) const noexcept
             {
                 return deref() <= *rhs;
             }
 
             template<typename U, reference::ReferenceCategory c>
-            inline constexpr const bool operator>(const reference::RefImpl<U, c>& rhs) const noexcept
+            inline constexpr const bool operator>(const reference::Ref<U, c>& rhs) const noexcept
             {
                 return deref() > *rhs;
             }
 
             template<typename U, reference::ReferenceCategory c>
-            inline constexpr const bool operator>=(const reference::RefImpl<U, c>& rhs) const noexcept
+            inline constexpr const bool operator>=(const reference::Ref<U, c>& rhs) const noexcept
             {
                 return deref() > *rhs;
             }
@@ -218,6 +230,30 @@ namespace ospf
                 return deref() >= rhs;
             }
 
+            template<typename U>
+            inline constexpr const bool operator<(const std::optional<U>& rhs) const noexcept
+            {
+                return static_cast<bool>(rhs) && deref() < *rhs;
+            }
+
+            template<typename U>
+            inline constexpr const bool operator<=(const std::optional<U>& rhs) const noexcept
+            {
+                return static_cast<bool>(rhs) && deref() <= *rhs;
+            }
+
+            template<typename U>
+            inline constexpr const bool operator>(const std::optional<U>& rhs) const noexcept
+            {
+                return static_cast<bool>(rhs) && deref() > *rhs;
+            }
+
+            template<typename U>
+            inline constexpr const bool operator>=(const std::optional<U>& rhs) const noexcept
+            {
+                return static_cast<bool>(rhs) && deref() >= *rhs;
+            }
+
         public:
             template<typename U, reference::ReferenceCategory c>
             inline constexpr const bool operator<=>(const ValOrRef<U, c>& rhs) const noexcept
@@ -226,15 +262,28 @@ namespace ospf
             }
 
             template<typename U, reference::ReferenceCategory c>
-            inline constexpr decltype(auto) operator<=>(const reference::RefImpl<U, c>& rhs) const noexcept
+            inline constexpr decltype(auto) operator<=>(const reference::Ref<U, c>& rhs) const noexcept
             {
                 return deref() <=> *rhs;
             }
 
             template<typename U>
-            inline constexpr const bool operator<=>(const U& rhs) const noexcept
+            inline constexpr decltype(auto) operator<=>(const U& rhs) const noexcept
             {
                 return deref() <=> rhs;
+            }
+
+            template<typename U>
+            inline constexpr decltype(auto) operator<=>(const std::optional<U>& rhs) const noexcept
+            {
+                if (static_cast<bool>(rhs))
+                {
+                    return deref() <=> *rhs;
+                }
+                else
+                {
+                    return true <=> static_cast<bool>(rhs);
+                }
             }
 
         private:
@@ -388,6 +437,18 @@ namespace ospf
                 return _value != rhs;
             }
 
+            template<typename U>
+            inline constexpr const bool operator==(const std::optional<U>& rhs) const noexcept
+            {
+                return static_cast<bool>(rhs) && _value == *rhs;
+            }
+
+            template<typename U>
+            inline constexpr const bool operator!=(const std::optional<U>& rhs) const noexcept
+            {
+                return !static_cast<bool>(rhs) || _value != *rhs;
+            }
+
         public:
             template<typename U, reference::ReferenceCategory c>
             inline constexpr const bool operator<(const ValOrRef<U, c>& rhs) const noexcept
@@ -414,25 +475,25 @@ namespace ospf
             }
 
             template<typename U, reference::ReferenceCategory c>
-            inline constexpr const bool operator<(const reference::RefImpl<U, c>& rhs) const noexcept
+            inline constexpr const bool operator<(const reference::Ref<U, c>& rhs) const noexcept
             {
                 return _value < *rhs;
             }
 
             template<typename U, reference::ReferenceCategory c>
-            inline constexpr const bool operator<=(const reference::RefImpl<U, c>& rhs) const noexcept
+            inline constexpr const bool operator<=(const reference::Ref<U, c>& rhs) const noexcept
             {
                 return _value <= *rhs;
             }
 
             template<typename U, reference::ReferenceCategory c>
-            inline constexpr const bool operator>(const reference::RefImpl<U, c>& rhs) const noexcept
+            inline constexpr const bool operator>(const reference::Ref<U, c>& rhs) const noexcept
             {
                 return _value > *rhs;
             }
 
             template<typename U, reference::ReferenceCategory c>
-            inline constexpr const bool operator>=(const reference::RefImpl<U, c>& rhs) const noexcept
+            inline constexpr const bool operator>=(const reference::Ref<U, c>& rhs) const noexcept
             {
                 return _value > *rhs;
             }
@@ -461,6 +522,30 @@ namespace ospf
                 return _value >= rhs;
             }
 
+            template<typename U>
+            inline constexpr const bool operator<(const std::optional<U>& rhs) const noexcept
+            {
+                return static_cast<bool>(rhs) && _value < *rhs;
+            }
+
+            template<typename U>
+            inline constexpr const bool operator<=(const std::optional<U>& rhs) const noexcept
+            {
+                return static_cast<bool>(rhs) && _value <= *rhs;
+            }
+
+            template<typename U>
+            inline constexpr const bool operator>(const std::optional<U>& rhs) const noexcept
+            {
+                return static_cast<bool>(rhs) && _value > *rhs;
+            }
+
+            template<typename U>
+            inline constexpr const bool operator>=(const std::optional<U>& rhs) const noexcept
+            {
+                return static_cast<bool>(rhs) && _value >= *rhs;
+            }
+
         public:
             template<typename U, reference::ReferenceCategory c>
             inline constexpr decltype(auto) operator<=>(const ValOrRef<U, c>& rhs) const noexcept
@@ -469,7 +554,7 @@ namespace ospf
             }
 
             template<typename U, reference::ReferenceCategory c>
-            inline constexpr decltype(auto) operator<=>(const reference::RefImpl<U, c>& rhs) const noexcept
+            inline constexpr decltype(auto) operator<=>(const reference::Ref<U, c>& rhs) const noexcept
             {
                 return _value <=> *rhs;
             }
@@ -480,20 +565,33 @@ namespace ospf
                 return _value <=> rhs;
             }
 
+            template<typename U>
+            inline constexpr decltype(auto) operator<=>(const std::optional<U>& rhs) const noexcept
+            {
+                if (static_cast<bool>(rhs))
+                {
+                    return _value <=> *rhs;
+                }
+                else
+                {
+                    return true <=> static_cast<bool>(rhs);
+                }
+            }
+
         private:
             ValueType _value;
         };
     };
 };
 
-template<typename T, typename U, typename R, ospf::reference::ReferenceCategory cat>
-inline constexpr const bool operator==(const ospf::reference::RefImpl<T, R>& lhs, const ospf::ValOrRef<U, cat>& rhs) noexcept
+template<typename T, typename U, ospf::reference::ReferenceCategory cat1, ospf::reference::ReferenceCategory cat2>
+inline constexpr const bool operator==(const ospf::reference::Ref<T, cat1>& lhs, const ospf::ValOrRef<U, cat2>& rhs) noexcept
 {
     return *lhs == *rhs;
 }
 
-template<typename T, typename U, typename R, ospf::reference::ReferenceCategory cat>
-inline constexpr const bool operator!=(const ospf::reference::RefImpl<T, R>& lhs, const ospf::ValOrRef<U, cat>& rhs) noexcept
+template<typename T, typename U, ospf::reference::ReferenceCategory cat1, ospf::reference::ReferenceCategory cat2>
+inline constexpr const bool operator!=(const ospf::reference::Ref<T, cat1>& lhs, const ospf::ValOrRef<U, cat2>& rhs) noexcept
 {
     return *lhs != *rhs;
 }
@@ -510,26 +608,39 @@ inline constexpr const bool operator!=(const T& lhs, const ospf::ValOrRef<U, cat
     return lhs != *rhs;
 }
 
-template<typename T, typename U, typename R, ospf::reference::ReferenceCategory cat>
-inline constexpr const bool operator<(const ospf::reference::RefImpl<T, R>& lhs, const ospf::ValOrRef<U, cat>& rhs) noexcept
+template<typename T, typename U, ospf::reference::ReferenceCategory cat>
+inline constexpr const bool operator==(const std::optional<U>& lhs, const ospf::ValOrRef<U, cat>& rhs) noexcept
+{
+    return static_cast<bool>(lhs) && lhs == *rhs;
+}
+
+template<typename T, typename U, ospf::reference::ReferenceCategory cat>
+inline constexpr const bool operator!=(const std::optional<U>& lhs, const ospf::ValOrRef<U, cat>& rhs) noexcept
+{
+    return !static_cast<bool>(lhs) || lhs != *rhs;
+}
+
+
+template<typename T, typename U, ospf::reference::ReferenceCategory cat1, ospf::reference::ReferenceCategory cat2>
+inline constexpr const bool operator<(const ospf::reference::Ref<T, cat1>& lhs, const ospf::ValOrRef<U, cat2>& rhs) noexcept
 {
     return *lhs < *rhs;
 }
 
-template<typename T, typename U, typename R, ospf::reference::ReferenceCategory cat>
-inline constexpr const bool operator<=(const ospf::reference::RefImpl<T, R>& lhs, const ospf::ValOrRef<U, cat>& rhs) noexcept
+template<typename T, typename U, ospf::reference::ReferenceCategory cat1, ospf::reference::ReferenceCategory cat2>
+inline constexpr const bool operator<=(const ospf::reference::Ref<T, cat1>& lhs, const ospf::ValOrRef<U, cat2>& rhs) noexcept
 {
     return *lhs <= *rhs;
 }
 
-template<typename T, typename U, typename R, ospf::reference::ReferenceCategory cat>
-inline constexpr const bool operator>(const ospf::reference::RefImpl<T, R>& lhs, const ospf::ValOrRef<U, cat>& rhs) noexcept
+template<typename T, typename U, ospf::reference::ReferenceCategory cat1, ospf::reference::ReferenceCategory cat2>
+inline constexpr const bool operator>(const ospf::reference::Ref<T, cat1>& lhs, const ospf::ValOrRef<U, cat2>& rhs) noexcept
 {
     return *lhs > *rhs;
 }
 
-template<typename T, typename U, typename R, ospf::reference::ReferenceCategory cat>
-inline constexpr const bool operator>=(const ospf::reference::RefImpl<T, R>& lhs, const ospf::ValOrRef<U, cat>& rhs) noexcept
+template<typename T, typename U, ospf::reference::ReferenceCategory cat1, ospf::reference::ReferenceCategory cat2>
+inline constexpr const bool operator>=(const ospf::reference::Ref<T, cat1>& lhs, const ospf::ValOrRef<U, cat2>& rhs) noexcept
 {
     return *lhs >= *rhs;
 }
@@ -558,8 +669,32 @@ inline constexpr const bool operator>=(const T& lhs, const ospf::ValOrRef<U, cat
     return lhs >= *rhs;
 }
 
-template<typename T, typename U, typename R, ospf::reference::ReferenceCategory cat>
-inline constexpr decltype(auto) operator<=>(const ospf::reference::RefImpl<T, R>& lhs, const ospf::ValOrRef<U, cat>& rhs) noexcept
+template<typename T, typename U, ospf::reference::ReferenceCategory cat>
+inline constexpr const bool operator<(const std::optional<T>& lhs, const ospf::ValOrRef<U, cat>& rhs) noexcept
+{
+    return static_cast<bool>(lhs) && *lhs < *rhs;
+}
+
+template<typename T, typename U, ospf::reference::ReferenceCategory cat>
+inline constexpr const bool operator<=(const std::optional<T>& lhs, const ospf::ValOrRef<U, cat>& rhs) noexcept
+{
+    return static_cast<bool>(lhs) && *lhs <= *rhs;
+}
+
+template<typename T, typename U, ospf::reference::ReferenceCategory cat>
+inline constexpr const bool operator>(const std::optional<T>& lhs, const ospf::ValOrRef<U, cat>& rhs) noexcept
+{
+    return static_cast<bool>(lhs) && *lhs > *rhs;
+}
+
+template<typename T, typename U, ospf::reference::ReferenceCategory cat>
+inline constexpr const bool operator>=(const std::optional<T>& lhs, const ospf::ValOrRef<U, cat>& rhs) noexcept
+{
+    return static_cast<bool>(lhs) && *lhs >= *rhs;
+}
+
+template<typename T, typename U, ospf::reference::ReferenceCategory cat1, ospf::reference::ReferenceCategory cat2>
+inline constexpr decltype(auto) operator<=>(const ospf::reference::Ref<T, cat1>& lhs, const ospf::ValOrRef<U, cat2>& rhs) noexcept
 {
     return *lhs <=> *rhs;
 }
@@ -568,6 +703,45 @@ template<typename T, typename U, ospf::reference::ReferenceCategory cat>
 inline constexpr decltype(auto) operator<=>(const T& lhs, const ospf::ValOrRef<U, cat>& rhs) noexcept
 {
     return lhs <=> *rhs;
+}
+
+template<typename T, typename U, ospf::reference::ReferenceCategory cat>
+inline constexpr decltype(auto) operator<=>(const std::optional<T>& lhs, const ospf::ValOrRef<U, cat>& rhs) noexcept
+{
+    if (static_cast<bool>(lhs))
+    {
+        return *lhs <=> *rhs;
+    }
+    else
+    {
+        return static_cast<bool>(lhs) <=> true;
+    }
+}
+
+template<typename T, typename U, ospf::reference::ReferenceCategory cat1, ospf::reference::ReferenceCategory cat2>
+inline ospf::RetType<std::compare_three_way_result_t<T, U>> operator<=>(const std::optional<ospf::ValOrRef<T, cat1>>& lhs, const std::optional<ospf::ValOrRef<U, cat2>>& rhs) noexcept
+{
+    if (static_cast<bool>(lhs) && static_cast<bool>(rhs))
+    {
+        return **lhs <=> **rhs;
+    }
+    else
+    {
+        return static_cast<bool>(lhs) <=> static_cast<bool>(rhs);
+    }
+}
+
+template<typename T, typename U, ospf::reference::ReferenceCategory cat1, ospf::reference::ReferenceCategory cat2>
+inline ospf::RetType<std::compare_three_way_result_t<T, U>> operator<=>(const std::optional<const ospf::ValOrRef<T, cat1>>& lhs, const std::optional<const ospf::ValOrRef<U, cat2>>& rhs) noexcept
+{
+    if (static_cast<bool>(lhs) && static_cast<bool>(rhs))
+    {
+        return **lhs <=> **rhs;
+    }
+    else
+    {
+        return static_cast<bool>(lhs) <=> static_cast<bool>(rhs);
+    }
 }
 
 namespace std

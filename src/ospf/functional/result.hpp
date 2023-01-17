@@ -21,7 +21,7 @@ namespace ospf
             }
 
         public:
-            inline constexpr const std::strong_ordering operator<=>(const Succeed _) const noexcept
+            inline constexpr std::strong_ordering operator<=>(const Succeed _) const noexcept
             {
                 return std::strong_ordering::equal;
             }
@@ -38,22 +38,26 @@ namespace ospf
             using VariantType = typename EitherType::VariantType;
 
         public:
-            inline static constexpr ospf::RetType<Result> succeeded(ArgCLRefType<RetType> ret_value)
+            inline static constexpr Result succeeded(ArgCLRefType<RetType> ret_value)
             {
                 return Result{ ret_value };
             }
             
-            inline static constexpr ospf::RetType<Result> succeeded(ArgRRefType<RetType> ret_value)
+            template<typename = void>
+                requires ReferenceFaster<RetType> && std::movable<RetType>
+            inline static constexpr Result succeeded(ArgRRefType<RetType> ret_value)
             {
                 return Result{ move<RetType>(ret_value) };
             }
 
-            inline static constexpr ospf::RetType<ErrType> failed(ArgCLRefType<ErrType> err_value)
+            inline static constexpr Result failed(ArgCLRefType<ErrType> err_value)
             {
                 return Result{ err_value };
             }
 
-            inline static constexpr ospf::RetType<ErrType> failed(ArgRRefType<ErrType> err_value)
+            template<typename = void>
+                requires ReferenceFaster<ErrType> && std::movable<ErrType>
+            inline static constexpr Result failed(ArgRRefType<ErrType> err_value)
             {
                 return Result{ move<ErrType>(err_value) };
             }
@@ -84,7 +88,7 @@ namespace ospf
 
             constexpr Result& operator=(ArgCLRefType<RetType> ret_value) noexcept
             {
-                _either.reset(ret_value);
+                _either.assign(ret_value);
                 return *this;
             }
 
@@ -92,13 +96,13 @@ namespace ospf
                 requires ReferenceFaster<RetType> && std::movable<RetType>
             Result& operator=(ArgRRefType<RetType> ret_value) noexcept
             {
-                _either.reset(move<RetType>(ret_value));
+                _either.assign(move<RetType>(ret_value));
                 return *this;
             }
 
             constexpr Result& operator=(ArgCLRefType<ErrType> err_value) noexcept
             {
-                _either.reset(err_value);
+                _either.assign(err_value);
                 return *this;
             }
 
@@ -106,7 +110,7 @@ namespace ospf
                 requires ReferenceFaster<ErrType> && std::movable<ErrType>
             Result& operator=(ArgRRefType<ErrType> err_value) noexcept
             {
-                _either.reset(move<ErrType>(err_value));
+                _either.assign(move<ErrType>(err_value));
                 return *this;
             }
 
@@ -161,12 +165,12 @@ namespace ospf
                 return static_cast<RRefType<EitherType>>(_either).left();
             }
 
-            inline constexpr std::optional<Ref<RetType>> unwrap_if_succeeded(void) & noexcept
+            inline constexpr const std::optional<Ref<RetType>> unwrap_if_succeeded(void) & noexcept
             {
                 return _either.left_if_is();
             }
 
-            inline constexpr std::optional<const Ref<RetType>> unwrap_if_succeeded(void) const & noexcept
+            inline constexpr const std::optional<const Ref<RetType>> unwrap_if_succeeded(void) const & noexcept
             {
                 return _either.left_if_is();
             }
@@ -307,26 +311,26 @@ namespace ospf
         public:
             inline constexpr void reset(ArgCLRefType<RetType> ret_value) noexcept
             {
-                _either.reset(ret_value);
+                _either.assign(ret_value);
             }
 
             template<typename = void>
                 requires ReferenceFaster<RetType> && std::movable<RetType>
             inline void reset(ArgRRefType<RetType> ret_value) noexcept
             {
-                _either.reset(move<RetType>(ret_value));
+                _either.assign(move<RetType>(ret_value));
             }
 
             inline constexpr void reset(ArgCLRefType<ErrType> err_value) noexcept
             {
-                _either.reset(err_value);
+                _either.assign(err_value);
             }
 
             template<typename = void>
                 requires ReferenceFaster<ErrType> && std::movable<ErrType>
             inline void reset(ArgRRefType<ErrType> err_value) noexcept
             {
-                _either.reset(move<ErrType>(err_value));
+                _either.assign(move<ErrType>(err_value));
                 return *this;
             }
 
@@ -376,7 +380,7 @@ namespace ospf
         public:
             inline constexpr decltype(auto) operator<=>(const Result& rhs) const noexcept
             {
-                return const_cast<Result&>(*this).unwrap_if_succeeded() <=> const_cast<Result&>(rhs).unwrap_if_succeeded();
+                return this->unwrap_if_succeeded() <=> rhs.unwrap_if_succeeded();
             }
 
         private:

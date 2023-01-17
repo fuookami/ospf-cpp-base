@@ -67,12 +67,12 @@ namespace ospf
                 ~TaggedMapConstIterator(void) noexcept = default;
 
             OSPF_CRTP_PERMISSION:
-                inline static const ValueType& OSPF_CRTP_FUNCTION(get)(const IterType iter) noexcept
+                inline static CLRefType<ValueType> OSPF_CRTP_FUNCTION(get)(const IterType iter) noexcept
                 {
                     return iter->second;
                 }
 
-                inline static RetType<TaggedMapConstIterator> OSPF_CRTP_FUNCTION(construct)(const IterType iter) noexcept
+                inline static const TaggedMapConstIterator OSPF_CRTP_FUNCTION(construct)(const IterType iter) noexcept
                 {
                     return TaggedMapConstIterator{ iter };
                 }
@@ -108,7 +108,7 @@ namespace ospf
                 ~TaggedMapIterator(void) noexcept = default;
 
             public:
-                inline ValueType& operator*(void) const noexcept
+                inline LRefType<ValueType> operator*(void) const noexcept
                 {
                     return const_cast<ValueType&>(Base::operator*());
                 }

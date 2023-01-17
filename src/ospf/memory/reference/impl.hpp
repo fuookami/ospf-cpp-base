@@ -87,6 +87,18 @@ namespace ospf
                     return cref() != rhs;
                 }
 
+                template<typename U>
+                inline constexpr const bool operator==(const std::optional<U>& rhs) const noexcept
+                {
+                    return static_cast<bool>(rhs) && cref() == *rhs;
+                }
+
+                template<typename U>
+                inline constexpr const bool operator!=(const std::optional<U>& rhs) const noexcept
+                {
+                    return !static_cast<bool>(rhs) || cref() != *rhs;
+                }
+
             public:
                 template<typename U, typename R>
                 inline constexpr const bool operator<(const RefImpl<U, R>& rhs) const noexcept
@@ -136,6 +148,30 @@ namespace ospf
                     return cref() >= rhs;
                 }
 
+                template<typename U>
+                inline constexpr const bool operator<(const std::optional<U>& rhs) const noexcept
+                {
+                    return static_cast<bool>(rhs) && cref() < *rhs;
+                }
+
+                template<typename U>
+                inline constexpr const bool operator<=(const std::optional<U>& rhs) const noexcept
+                {
+                    return static_cast<bool>(rhs) && cref() <= *rhs;
+                }
+
+                template<typename U>
+                inline constexpr const bool operator>(const std::optional<U>& rhs) const noexcept
+                {
+                    return static_cast<bool>(rhs) && cref() > *rhs;
+                }
+
+                template<typename U>
+                inline constexpr const bool operator>=(const std::optional<U>& rhs) const noexcept
+                {
+                    return static_cast<bool>(rhs) && cref() >= *rhs;
+                }
+
             public:
                 template<typename U, typename R>
                 inline constexpr decltype(auto) operator<=>(const RefImpl<U, R>& rhs) const noexcept
@@ -147,6 +183,19 @@ namespace ospf
                 inline constexpr decltype(auto) operator<=>(const U& rhs) const noexcept
                 {
                     return cref() <=> rhs;
+                }
+
+                template<typename U>
+                inline constexpr decltype(auto) operator<=>(const std::optional<U>& rhs) const noexcept
+                {
+                    if (static_cast<bool>(rhs))
+                    {
+                        return cref() <=> *rhs;
+                    }
+                    else
+                    {
+                        return true <=> static_cast<bool>(rhs);
+                    }
                 }
 
             protected:
@@ -193,6 +242,18 @@ inline constexpr const bool operator!=(const T& lhs, const ospf::reference::RefI
 }
 
 template<typename T, typename U, typename R>
+inline constexpr const bool operator==(const std::optional<T>& lhs, const ospf::reference::RefImpl<U, R>& rhs) noexcept
+{
+    return static_cast<bool>(lhs) && *lhs == *rhs;
+}
+
+template<typename T, typename U, typename R>
+inline constexpr const bool operator!=(const std::optional<T>& lhs, const ospf::reference::RefImpl<U, R>& rhs) noexcept
+{
+    return !static_cast<bool>(lhs) || *lhs != *rhs;
+}
+
+template<typename T, typename U, typename R>
 inline constexpr const bool operator<(const T& lhs, const ospf::reference::RefImpl<U, R>& rhs) noexcept
 {
     return lhs < *rhs;
@@ -217,9 +278,46 @@ inline constexpr const bool operator>=(const T& lhs, const ospf::reference::RefI
 }
 
 template<typename T, typename U, typename R>
+inline constexpr const bool operator<(const std::optional<T>& lhs, const ospf::reference::RefImpl<U, R>& rhs) noexcept
+{
+    return static_cast<bool>(lhs) && *lhs < *rhs;
+}
+
+template<typename T, typename U, typename R>
+inline constexpr const bool operator<=(const std::optional<T>& lhs, const ospf::reference::RefImpl<U, R>& rhs) noexcept
+{
+    return static_cast<bool>(lhs) && *lhs <= *rhs;
+}
+
+template<typename T, typename U, typename R>
+inline constexpr const bool operator>(const std::optional<T>& lhs, const ospf::reference::RefImpl<U, R>& rhs) noexcept
+{
+    return static_cast<bool>(lhs) && *lhs > *rhs;
+}
+
+template<typename T, typename U, typename R>
+inline constexpr const bool operator>=(const std::optional<T>& lhs, const ospf::reference::RefImpl<U, R>& rhs) noexcept
+{
+    return static_cast<bool>(lhs) && *lhs >= *rhs;
+}
+
+template<typename T, typename U, typename R>
 inline constexpr decltype(auto) operator<=>(const T& lhs, const ospf::reference::RefImpl<U, R>& rhs) noexcept
 {
     return lhs <=> *rhs;
+}
+
+template<typename T, typename U, typename R>
+inline constexpr decltype(auto) operator<=>(const std::optional<T>& lhs, const ospf::reference::RefImpl<U, R>& rhs) noexcept
+{
+    if (static_cast<bool>(lhs))
+    {
+        return *lhs <=> *rhs;
+    }
+    else
+    {
+        return static_cast<bool>(lhs) <=> true;
+    }
 }
 
 namespace std

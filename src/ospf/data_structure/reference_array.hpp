@@ -70,7 +70,7 @@ namespace ospf
                     return **iter;
                 }
 
-                inline static constexpr RetType<ReferenceArrayConstIterator> OSPF_CRTP_FUNCTION(construct)(ArgCLRefType<IterType> iter) noexcept
+                inline static constexpr const ReferenceArrayConstIterator OSPF_CRTP_FUNCTION(construct)(ArgCLRefType<IterType> iter) noexcept
                 {
                     return ReferenceArrayConstIterator{ iter };
                 }
@@ -113,7 +113,7 @@ namespace ospf
                 constexpr ~ReferenceArrayIterator(void) noexcept = default;
 
             public:
-                inline constexpr operator RetType<ReferenceArrayConstIterator<T, cat, C>>(void) const noexcept
+                inline constexpr operator const ReferenceArrayConstIterator<T, cat, C>(void) const noexcept
                 {
                     return ReferenceArrayConstIterator<T, cat, C>{ this->_iter };
                 }
@@ -124,7 +124,7 @@ namespace ospf
                     return **iter;
                 }
 
-                inline static constexpr RetType<ReferenceArrayIterator> OSPF_CRTP_FUNCTION(construct)(ArgCLRefType<IterType> iter) noexcept
+                inline static constexpr const ReferenceArrayIterator OSPF_CRTP_FUNCTION(construct)(ArgCLRefType<IterType> iter) noexcept
                 {
                     return ReferenceArrayIterator{ iter };
                 }
@@ -171,7 +171,7 @@ namespace ospf
                     return **iter;
                 }
 
-                inline static constexpr RetType<ReferenceArrayConstReverseIterator> OSPF_CRTP_FUNCTION(construct)(ArgCLRefType<IterType> iter) noexcept
+                inline static constexpr const ReferenceArrayConstReverseIterator OSPF_CRTP_FUNCTION(construct)(ArgCLRefType<IterType> iter) noexcept
                 {
                     return ReferenceArrayConstReverseIterator{ iter };
                 }
@@ -218,7 +218,7 @@ namespace ospf
                     return **iter;
                 }
 
-                inline static constexpr RetType<ReferenceArrayReverseIterator> OSPF_CRTP_FUNCTION(construct)(ArgCLRefType<IterType> iter) noexcept
+                inline static constexpr const ReferenceArrayReverseIterator OSPF_CRTP_FUNCTION(construct)(ArgCLRefType<IterType> iter) noexcept
                 {
                     return ReferenceArrayReverseIterator{ iter };
                 }

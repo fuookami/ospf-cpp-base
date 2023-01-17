@@ -89,7 +89,7 @@ namespace ospf
             private:
                 struct Trait : public Self
                 {
-                    inline static constexpr decltype(auto) get(ArgCLRefType<IterType> iter) noexcept
+                    inline static constexpr RefType get(ArgCLRefType<IterType> iter) noexcept
                     {
                         static const auto impl = &Self::OSPF_CRTP_FUNCTION(get);
                         return (*impl)(iter);

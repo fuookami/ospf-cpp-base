@@ -8,23 +8,31 @@ namespace ospf
     namespace exception
     {
         template<ErrorType E, typename Self>
-        class Exception
+        class ExceptionImpl
             : public std::exception
         {
             OSPF_CRTP_IMPL
 
         public:
-            constexpr Exception(void) noexcept = default;
+            using ErrType = OriginType<E>;
 
         public:
-            inline const E& error(void) const & noexcept
+            constexpr ExceptionImpl(void) noexcept = default;
+            constexpr ExceptionImpl(const ExceptionImpl& ano) = default;
+            constexpr ExceptionImpl(ExceptionImpl&& ano) noexcept = default;
+            constexpr ExceptionImpl& operator=(const ExceptionImpl& rhs) = default;
+            constexpr ExceptionImpl& operator=(ExceptionImpl&& rhs) noexcept = default;
+            constexpr ~ExceptionImpl(void) noexcept = default;
+
+        public:
+            inline CLRefType<ErrType> error(void) const & noexcept
             {
                 return Trait::error(self());
             }
 
-            inline E error(void) && noexcept
+            inline RetType<ErrType> error(void) && noexcept
             {
-                return Trait::error(self());
+                return Trait::error(static_cast<Self&&>(self()));
             }
 
             inline decltype(auto) code(void) const & noexcept
@@ -37,7 +45,7 @@ namespace ospf
                 return error().message();
             }
 
-            OSPF_BASE_API char const* what() const override
+            inline CPtrType<char> what() const override
             {
                 return message().data();
             }
@@ -45,13 +53,13 @@ namespace ospf
         private:
             struct Trait : public Self
             {
-                inline static const E& error(const Self& self) noexcept
+                inline static CLRefType<ErrType> error(const Self& self) noexcept
                 {
                     static const auto impl = &Self::OSPF_CRTP_FUNCTION(get_error);
                     return (self.*impl)();
                 }
 
-                inline static E error(Self&& self) noexcept
+                inline static RetType<ErrType> error(Self&& self) noexcept
                 {
                     static const auto impl = &Self::OSPF_CRTP_FUNCTION(get_moved_error);
                     return (self.*impl)();
@@ -62,19 +70,24 @@ namespace ospf
 
     template<ErrorType E>
     class Exception
-        : public exception::Exception<E, Exception<E>>
+        : public exception::ExceptionImpl<OriginType<E>, Exception<E>>
     {
+        using Impl = exception::ExceptionImpl<OriginType<E>, Exception<E>>;
+
+    public:
+        using ErrType = typename Impl::ErrType;;
+
     public:
         template<typename = void>
-            requires WithDefault<E>
+            requires WithDefault<ErrType>
         constexpr Exception(void)
-            : Exception(DefaultValue<E>::value) {}
+            : Exception(DefaultValue<ErrType>::value) {}
 
-        constexpr Exception(E error)
-            : _error(move<E>(error)) {}
+        constexpr Exception(ArgRRefType<ErrType> error)
+            : _error(move<ErrType>(error)) {}
 
         template<typename... Args>
-            requires std::is_constructible_v<E, Args...>
+            requires std::is_constructible_v<ErrType, Args...>
         constexpr Exception(Args&&... args)
             : _error(std::forward<Args>(args)...) {}
 
@@ -86,32 +99,37 @@ namespace ospf
         constexpr ~Exception(void) noexcept = default;
 
     OSPF_CRTP_PERMISSION:
-        inline const E& OSPF_CRTP_FUNCTION(get_error)(void) const & noexcept
+        inline CLRefType<ErrType> OSPF_CRTP_FUNCTION(get_error)(void) const & noexcept
         {
             return _error;
         }
 
-        inline E OSPF_CRTP_FUNCTION(get_moved_error)(void) && noexcept
+        inline RetType<ErrType> OSPF_CRTP_FUNCTION(get_moved_error)(void) && noexcept
         {
             return std::move(_error);
         }
 
     private:
-        E _error;
+        ErrType _error;
     };
 
     template<ExErrorType E>
     class ExException
-        : public exception::Exception<E, ExException<E>>
+        : public exception::ExceptionImpl<OriginType<E>, ExException<E>>
     {
+        using Impl = exception::ExceptionImpl<OriginType<E>, ExException<E>>;
+
+    public:
+        using ErrType = typename Impl::ErrType;;
+
     public:
         template<typename = void>
-            requires WithDefault<E>
+            requires WithDefault<ErrType>
         constexpr ExException(void)
-            : ExException(DefaultValue<E>::value) {}
+            : ExException(DefaultValue<ErrType>::value) {}
 
-        constexpr ExException(E error)
-            : _error(move<E>(error)) {}
+        constexpr ExException(ArgRRefType<ErrType> error)
+            : _error(move<ErrType>(error)) {}
 
         template<typename... Args>
             requires std::is_constructible_v<E, Args...>
@@ -133,22 +151,22 @@ namespace ospf
 
         inline decltype(auto) arg(void) && noexcept
         {
-            return _error.arg();
+            return static_cast<ErrType&&>(_error).arg();
         }
 
     OSPF_CRTP_PERMISSION:
-        inline const E& OSPF_CRTP_FUNCTION(get_error)(void) const & noexcept
+        inline CLRefType<ErrType> OSPF_CRTP_FUNCTION(get_error)(void) const & noexcept
         {
             return _error;
         }
 
-        inline E OSPF_CRTP_FUNCTION(get_moved_error)(void) && noexcept
+        inline RetType<ErrType> OSPF_CRTP_FUNCTION(get_moved_error)(void) && noexcept
         {
             return std::move(_error);
         }
 
     private:
-        E _error;
+        ErrType _error;
     };
 
     extern template class Exception<OSPFError>;
