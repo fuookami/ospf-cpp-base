@@ -47,6 +47,7 @@
     <ClInclude Include="src\ospf\error\error.hpp" />
     <ClInclude Include="src\ospf\exception.hpp" />
     <ClInclude Include="src\ospf\functional.hpp" />
+    <ClInclude Include="src\ospf\functional\integer_iterator.hpp" />
     <ClInclude Include="src\ospf\functional\range_bound.hpp" />
     <ClInclude Include="src\ospf\functional\either.hpp" />
     <ClInclude Include="src\ospf\functional\value_or_reference.hpp" />
@@ -113,6 +114,7 @@
     <ClCompile Include="src\ospf\data_structure\multi_array\shape.cpp" />
     <ClCompile Include="src\ospf\error\error.cpp" />
     <ClCompile Include="src\ospf\exception.cpp" />
+    <ClCompile Include="src\ospf\functional\integer_iterator.cpp" />
     <ClCompile Include="src\ospf\functional\result.cpp" />
     <ClCompile Include="src\ospf\jni\jstring.cpp" />
     <ClCompile Include="src\ospf\memory\bits.cpp" />

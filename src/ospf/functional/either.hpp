@@ -13,39 +13,36 @@ namespace ospf
     inline namespace functional
     {
         template<typename T, typename U>
-            requires NotSameAs<OriginType<T>, void> || NotSameAs<OriginType<U>, void>
+            requires (NotSameAs<OriginType<T>, void> || NotSameAs<OriginType<U>, void>)
+                && NotSameAs<OriginType<T>, OriginType<U>>
         class Either
         {
         public:
             using LeftType = OriginType<T>;
             using RightType = OriginType<U>;
-
-            static_assert(NotSameAs<LeftType, RightType>, "Either<T, U> requires T is not same as U.");
-
-        private:
             using VariantType = std::variant<LeftType, RightType>;
 
         public:
-            inline static RetType<Either> left(ArgCLRefType<LeftType> left_value)
+            inline static Either left(ArgCLRefType<LeftType> left_value)
             {
                 return Either{ left_value };
             }
 
             template<typename = void>
                 requires ReferenceFaster<LeftType> && std::movable<LeftType>
-            inline static RetType<Either> left(ArgRRefType<LeftType> left_value)
+            inline static Either left(ArgRRefType<LeftType> left_value)
             {
                 return Either{ move<LeftType>(left_value) };
             }
 
-            inline static RetType<Either> right(ArgCLRefType<RightType> right_value)
+            inline static Either right(ArgCLRefType<RightType> right_value)
             {
                 return Either{ right_value };
             }
 
             template<typename = void>
                 requires ReferenceFaster<LeftType> && std::movable<LeftType>
-            inline static RetType<Either> right(ArgRRefType<RightType> right_value)
+            inline static Either right(ArgRRefType<RightType> right_value)
             {
                 return Either{ move<RightType>(right_value) };
             }

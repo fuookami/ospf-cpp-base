@@ -87,6 +87,8 @@ namespace ospf
                     return cref() != rhs;
                 }
 
+                // todo: optional<Ref>, optional<V>
+
             public:
                 template<typename U, typename R>
                 inline constexpr const bool operator<(const RefImpl<U, R>& rhs) const noexcept
@@ -136,6 +138,8 @@ namespace ospf
                     return cref() >= rhs;
                 }
 
+                // todo: optional<Ref>, optional<V>
+
             public:
                 template<typename U, typename R>
                 inline constexpr decltype(auto) operator<=>(const RefImpl<U, R>& rhs) const noexcept
@@ -148,6 +152,8 @@ namespace ospf
                 {
                     return cref() <=> rhs;
                 }
+
+                // todo: optional<Ref>, optional<V>
 
             protected:
                 inline constexpr RefType ref(void) noexcept
@@ -192,6 +198,8 @@ inline constexpr const bool operator!=(const T& lhs, const ospf::reference::RefI
     return lhs != *rhs;
 }
 
+// todo: optional<Ref>, optional<V>
+
 template<typename T, typename U, typename R>
 inline constexpr const bool operator<(const T& lhs, const ospf::reference::RefImpl<U, R>& rhs) noexcept
 {
@@ -216,11 +224,15 @@ inline constexpr const bool operator>=(const T& lhs, const ospf::reference::RefI
     return lhs >= *rhs;
 }
 
+// todo: optional<Ref>, optional<V>
+
 template<typename T, typename U, typename R>
 inline constexpr decltype(auto) operator<=>(const T& lhs, const ospf::reference::RefImpl<U, R>& rhs) noexcept
 {
     return lhs <=> *rhs;
 }
+
+// todo: optional<Ref>, optional<V>
 
 namespace std
 {

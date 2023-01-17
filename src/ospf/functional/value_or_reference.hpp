@@ -388,6 +388,8 @@ namespace ospf
                 return _value != rhs;
             }
 
+            // todo: optional<ValOrRef>, optional<Ref>, optional<V>
+
         public:
             template<typename U, reference::ReferenceCategory c>
             inline constexpr const bool operator<(const ValOrRef<U, c>& rhs) const noexcept
@@ -461,6 +463,8 @@ namespace ospf
                 return _value >= rhs;
             }
 
+            // todo: optional<ValOrRef>, optional<Ref>, optional<V>
+
         public:
             template<typename U, reference::ReferenceCategory c>
             inline constexpr decltype(auto) operator<=>(const ValOrRef<U, c>& rhs) const noexcept
@@ -479,6 +483,8 @@ namespace ospf
             {
                 return _value <=> rhs;
             }
+
+            // todo: optional<ValOrRef>, optional<Ref>, optional<V>
 
         private:
             ValueType _value;
@@ -509,6 +515,8 @@ inline constexpr const bool operator!=(const T& lhs, const ospf::ValOrRef<U, cat
 {
     return lhs != *rhs;
 }
+
+// todo: optional<ValOrRef>, optional<Ref>, optional<V>
 
 template<typename T, typename U, typename R, ospf::reference::ReferenceCategory cat>
 inline constexpr const bool operator<(const ospf::reference::RefImpl<T, R>& lhs, const ospf::ValOrRef<U, cat>& rhs) noexcept
@@ -558,6 +566,8 @@ inline constexpr const bool operator>=(const T& lhs, const ospf::ValOrRef<U, cat
     return lhs >= *rhs;
 }
 
+// todo: optional<ValOrRef>, optional<Ref>, optional<V>
+
 template<typename T, typename U, typename R, ospf::reference::ReferenceCategory cat>
 inline constexpr decltype(auto) operator<=>(const ospf::reference::RefImpl<T, R>& lhs, const ospf::ValOrRef<U, cat>& rhs) noexcept
 {
@@ -569,6 +579,8 @@ inline constexpr decltype(auto) operator<=>(const T& lhs, const ospf::ValOrRef<U
 {
     return lhs <=> *rhs;
 }
+
+// todo: optional<ValOrRef>, optional<Ref>, optional<V>
 
 namespace std
 {

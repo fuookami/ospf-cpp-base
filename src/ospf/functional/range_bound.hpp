@@ -1,10 +1,7 @@
 #pragma once
 
-#include <ospf/concepts/base.hpp>
-#include <ospf/type_family.hpp>
-#include <ospf/meta_programming/iterator.hpp>
+#include <ospf/functional/integer_iterator.hpp>
 #include <ospf/memory/reference.hpp>
-#include <ospf/exception.hpp>
 #include <variant>
 
 namespace ospf
@@ -13,142 +10,6 @@ namespace ospf
     {
         struct Unbounded {};
         static constexpr const auto unbounded = Unbounded{};
-
-        template<typename T>
-            requires std::integral<T>
-                && requires
-                { 
-                    { static_cast<T>(0) } -> DecaySameAs<T>;
-                    { static_cast<T>(1) } -> DecaySameAs<T>;
-                    { -std::declval<T>() } -> DecaySameAs<T>;
-                }
-        class IntegerIterator
-        {
-        public:
-            using ValueType = OriginType<T>;
-
-        public:
-            constexpr IntegerIterator(void)
-                : _has_next(false), _curr(static_cast<ValueType>(0)), _last(static_cast<ValueType>(0)), _step(static_cast<ValueType>(0)) {}
-
-            constexpr IntegerIterator(ArgRRefType<ValueType> curr, ArgRRefType<ValueType> last, ArgRRefType<ValueType> step, const bool reverse = false)
-                : _has_next(true), _curr(static_cast<ValueType>(0)), _last(static_cast<ValueType>(0)), _step(reverse ? move<ValueType>(step) : -move<ValueType>(step))
-            {
-                // todo
-            }
-
-        public:
-            constexpr IntegerIterator(const IntegerIterator& ano) = default;
-            constexpr IntegerIterator(IntegerIterator&& ano) noexcept = default;
-            constexpr IntegerIterator& operator=(const IntegerIterator& rhs) = default;
-            constexpr IntegerIterator& operator=(IntegerIterator&& rhs) noexcept = default;
-            constexpr ~IntegerIterator(void) noexcept = default;
-
-        public:
-            inline constexpr ArgCLRefType<ValueType> operator*(void) const noexcept
-            {
-                return _curr;
-            }
-
-            inline constexpr const CPtrType<ValueType> operator->(void) const noexcept
-            {
-                return &_curr;
-            }
-
-        public:
-            inline constexpr LRefType<IntegerIterator> operator++(void) noexcept
-            {
-                next();
-                return *this;
-            }
-
-            inline constexpr RetType<IntegerIterator> operator++(int) noexcept
-            {
-                auto ret = *this;
-                next();
-                return ret;
-            }
-
-        public:
-            template<typename I>
-            inline constexpr const bool operator==(const IntegerIterator<I>& ano) const noexcept
-            {
-                if (!_has_next && !_has_next)
-                {
-                    return true;
-                }
-                else if (_has_next && _has_next)
-                {
-                    return _curr == ano._curr
-                        && _last == ano._last
-                        && _step == ano._step;
-                }
-                else
-                {
-                    return false;
-                }
-            }
-
-            template<typename I>
-            inline constexpr const bool operator!=(const IntegerIterator<I>& ano) const noexcept
-            {
-                if (!_has_next && !_has_next)
-                {
-                    return false;
-                }
-                else if (_has_next && _has_next)
-                {
-                    return _curr != ano._curr
-                        || _last != ano._last
-                        || _step != ano._step;
-                }
-                else
-                {
-                    return true;
-                }
-            }
-
-        private:
-            inline constexpr void next(void) noexcept
-            {
-                // todo
-            }
-
-        private:
-            bool _has_next;
-            ValueType _curr;
-            ValueType _last;
-            ValueType _step;
-        };
-
-        template<typename T>
-            requires std::unsigned_integral<T>
-                && requires
-                {
-                    { static_cast<T>(0) } -> DecaySameAs<T>;
-                    { static_cast<T>(1) } -> DecaySameAs<T>;
-                }
-        class IntegerIterator<T>
-        {
-        public:
-            using ValueType = OriginType<T>;
-
-        public:
-            constexpr IntegerIterator(const IntegerIterator& ano) = default;
-            constexpr IntegerIterator(IntegerIterator&& ano) noexcept = default;
-            constexpr IntegerIterator& operator=(const IntegerIterator& rhs) = default;
-            constexpr IntegerIterator& operator=(IntegerIterator&& rhs) noexcept = default;
-            constexpr ~IntegerIterator(void) noexcept = default;
-
-            // todo
-
-        private:
-            bool _has_next;
-            bool _reverse;
-            ValueType _curr;
-            ValueType _last;
-            ValueType _step;
-        };
 
         template<typename I>
         class Bound
@@ -284,14 +145,7 @@ namespace ospf
         public:
             inline constexpr RetType<IntegerIterator<IndexType>> begin(void) const noexcept
             {
-                if (_reverse)
-                {
-                    // todo
-                }
-                else
-                {
-                    return IntegerIterator<IndexType>{ *_start_bound, * _end_bound, _step };
-                }
+                return IntegerIterator<IndexType>{ *_start_bound, * _end_bound, _step, _reverse };
             }
 
             inline constexpr RetType<IntegerIterator<IndexType>> end(void) const noexcept
