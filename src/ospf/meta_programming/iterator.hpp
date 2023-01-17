@@ -9,21 +9,21 @@ namespace ospf
     {
         inline namespace iterator
         {
-            template<typename T, typename I, typename Self>
+            template<typename T, std::bidirectional_iterator I, typename Self>
             class BidirectionalIteratorImpl;
 
-            template<typename T, typename I, typename Self>
+            template<typename T, std::random_access_iterator I, typename Self>
             class RandomIteratorImpl;
 
-            template<typename T, typename I, typename Self>
+            template<typename T, std::forward_iterator I, typename Self>
             class ForwardIteratorImpl
             {
                 OSPF_CRTP_IMPL
 
-                template<typename T, typename I, typename Self>
+                template<typename T, std::bidirectional_iterator I, typename Self>
                 friend class BidirectionalIteratorImpl;
 
-                template<typename T, typename I, typename Self>
+                template<typename T, std::random_access_iterator I, typename Self>
                 friend class RandomIteratorImpl;
 
             public:
@@ -31,8 +31,6 @@ namespace ospf
                 using IterType = OriginType<I>;
                 using RefType = std::conditional_t<std::is_const_v<decltype(Trait::get(std::declval<IterType>()))>, CLRefType<ValueType>, LRefType<ValueType>>;
                 using PtrType = std::conditional_t<std::is_const_v<decltype(Trait::get(std::declval<IterType>()))>, CPtrType<ValueType>, PtrType<ValueType>>;
-
-                static_assert(std::forward_iterator<IterType>, "Iterator must at least be forward.");
 
             protected:
                 constexpr ForwardIteratorImpl(ArgCLRefType<IterType> iter)
@@ -108,14 +106,14 @@ namespace ospf
                 IterType _iter;
             };
 
-            template<typename T, typename I, typename Self>
+            template<typename T, std::bidirectional_iterator I, typename Self>
             class BidirectionalIteratorImpl
                 : public ForwardIteratorImpl<T, I, Self>
             {
                 using Base = ForwardIteratorImpl<T, I, Self>;
                 using typename Base::Trait;
 
-                template<typename T, typename I, typename Self>
+                template<typename T, std::random_access_iterator I, typename Self>
                 friend class RandomIteratorImpl;
 
             public:
@@ -123,8 +121,6 @@ namespace ospf
                 using IterType = typename Base::IterType;
                 using RefType = typename Base::RefType;
                 using PtrType = typename Base::PtrType;
-
-                static_assert(std::bidirectional_iterator<IterType>, "Iterator must at least be forward.");
 
             protected:
                 constexpr BidirectionalIteratorImpl(ArgCLRefType<IterType> iter)
@@ -151,7 +147,7 @@ namespace ospf
                 }
             };
 
-            template<typename T, typename I, typename Self>
+            template<typename T, std::random_access_iterator I, typename Self>
             class RandomIteratorImpl
                 : public BidirectionalIteratorImpl<T, I, Self>
             {
@@ -163,8 +159,6 @@ namespace ospf
                 using IterType = typename Base::IterType;
                 using RefType = typename Base::RefType;
                 using PtrType = typename Base::PtrType;
-
-                static_assert(std::random_access_iterator<IterType>, "Iterator must at least be random.");
 
             protected:
                 constexpr RandomIteratorImpl(ArgCLRefType<IterType> iter)
