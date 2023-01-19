@@ -31,6 +31,9 @@ namespace ospf
 
         template<typename T, typename U>
         concept DecaySameAs = is_decay_same_as<T, U>;
+
+        template<typename T, typename U>
+        concept DecayNotSameAs = !is_decay_same_as<T, U>;
     };
 };
 

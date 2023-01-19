@@ -339,6 +339,9 @@
     <ClInclude Include="src\ospf\functional\integer_iterator.hpp">
       <Filter>src\ospf\functional</Filter>
     </ClInclude>
+    <ClInclude Include="src\ospf\data_structure\multi_array\dummy_vector.hpp">
+      <Filter>src\ospf\data-structure\multi_array</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\ospf\system_info.cpp">

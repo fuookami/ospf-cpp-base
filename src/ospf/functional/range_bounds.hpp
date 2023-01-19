@@ -179,6 +179,11 @@ namespace ospf
                 return IntegerIterator<IndexType>{};
             }
 
+            inline constexpr IntegerRangeBoundsWithStepWrapper reverse(void) const noexcept
+            {
+                return IntegerRangeBoundsWithStepWrapper{ *_bounds, _step, !_reverse };
+            }
+
         private:
             bool _reverse;
             IndexType _step;
@@ -437,7 +442,130 @@ namespace ospf
         extern template class Bound<isize>;
         extern template class RangeBounds<usize>;
         extern template class RangeBounds<isize>;
+
+        // DSL:
+        // 1.full:         _ To _    -> (-¡Þ, ¡Þ)
+        // 2.from:         a To _    -> [a,   ¡Þ)
+        // 3.to:           _ To b    -> (-¡Þ, b)
+        // 4.range:        a To b    -> [a,   b)
+        // 5.inclusive:    a Until b -> [a,   b]
+        // 6.to_inclusive: _ Until b -> (-¡Þ, b]
+        namespace range_bounds
+        {
+            struct RangeTo
+            {
+                template<typename T>
+                inline constexpr decltype(auto) operator()(const Unbounded lhs, T&& rhs) const noexcept
+                {
+                    if constexpr (DecaySameAs<T, Unbounded>)
+                    {
+                        return RangeBounds<usize>::full();
+                    }
+                    else
+                    {
+                        return RangeBounds<OriginType<T>>::to(std::forward<T>(rhs));
+                    }
+                }
+            };
+
+            struct RangeFrom
+            {
+                template<typename T>
+                    requires DecayNotSameAs<T, Unbounded>
+                inline constexpr RetType<RangeBounds<OriginType<T>>> operator()(T&& lhs, const Unbounded rhs) const noexcept
+                {
+                    return RangeBounds<OriginType<T>>::from(std::forward<T>(lhs));
+                }
+
+                template<typename T>
+                    requires DecayNotSameAs<T, Unbounded>
+                inline constexpr RetType<RangeBounds<OriginType<T>>> operator()(T&& lhs, T&& rhs) const noexcept
+                {
+                    return RangeBounds<OriginType<T>>::range(std::forward<T>(lhs), std::forward<T>(rhs));
+                }
+            };
+            static constexpr const auto from = ospf::range_bounds::RangeFrom{};
+
+            struct RangeUntil
+            {
+                template<typename T>
+                    requires DecayNotSameAs<T, Unbounded>
+                inline constexpr RetType<RangeBounds<OriginType<T>>> operator()(const Unbounded lhs, T&& rhs) const noexcept
+                {
+                    return RangeBounds<OriginType<T>>::to_inclusive(std::forward<T>(rhs));
+                }
+            };
+
+            struct RangeIn
+            {
+                template<typename T>
+                    requires DecayNotSameAs<T, Unbounded>
+                inline constexpr RetType<RangeBounds<OriginType<T>>> operator()(T&& lhs, T&& rhs) const noexcept
+                {
+                    return RangeBounds<OriginType<T>>::inclusive(std::forward<T>(lhs), std::forward<T>(rhs));
+                }
+            };
+            static constexpr const auto in = ospf::range_bounds::RangeIn{};
+        };
     };
 };
 
-// todo: DSL to make range bounds
+static constexpr const auto _ = ospf::Unbounded{};
+static constexpr const auto to = ospf::range_bounds::RangeTo{};
+static constexpr const auto until = ospf::range_bounds::RangeUntil{};
+
+inline static constexpr decltype(auto) operator<(const ospf::Unbounded lhs, const ospf::range_bounds::RangeTo rhs)
+{
+    return [](auto&& rhs)
+    {
+        return to(_, rhs);
+    };
+}
+
+template<typename T>
+inline static constexpr decltype(auto) operator<(T&& lhs, const ospf::range_bounds::RangeTo rhs)
+{
+    return [&lhs](auto&& rhs)
+    {
+        return ospf::range_bounds::from(lhs, rhs);
+    };
+}
+
+inline static constexpr decltype(auto) operator<(const ospf::Unbounded lhs, const ospf::range_bounds::RangeUntil rhs)
+{
+    return [](auto&& rhs)
+    {
+        return until(_, rhs);
+    };
+}
+
+template<typename T>
+inline static constexpr decltype(auto) operator<(T&& lhs, const ospf::range_bounds::RangeUntil rhs)
+{
+    return [&lhs](auto&& rhs)
+    {
+        return ospf::range_bounds::in(lhs, rhs);
+    };
+}
+
+template<typename F>
+    requires std::invocable<F, ospf::Unbounded>
+inline static constexpr decltype(auto) operator>(F&& lhs, const ospf::Unbounded rhs)
+{
+    return lhs(_);
+}
+
+template<typename F, typename T>
+    requires std::invocable<F, T>
+inline static constexpr decltype(auto) operator>(F&& lhs, T&& rhs)
+{
+    return lhs(rhs);
+}
+
+#ifndef To
+#define To <to>
+#endif
+
+#ifndef Until
+#define Until <until>
+#endif

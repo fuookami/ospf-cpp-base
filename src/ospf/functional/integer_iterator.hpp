@@ -182,7 +182,7 @@ namespace ospf
 
         public:
             constexpr IntegerIterator(void)
-                : _has_next(false), _curr(static_cast<ValueType>(0)), _last(static_cast<ValueType>(0)), _step(static_cast<ValueType>(0)) {}
+                : _has_next(false), _curr(static_cast<ValueType>(0)), _last(static_cast<ValueType>(0)), _step(static_cast<ValueType>(0)), _reverse(false) {}
 
             constexpr IntegerIterator(ArgRRefType<ValueType> curr, ArgRRefType<ValueType> last, ArgRRefType<ValueType> step, const bool reverse = false)
                 : _has_next(true), _curr(static_cast<ValueType>(0)), _last(static_cast<ValueType>(0)), _step(static_cast<ValueType>(0)), _reverse(reverse)
