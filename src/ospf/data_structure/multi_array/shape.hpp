@@ -15,7 +15,7 @@ namespace ospf
         static constexpr const auto dynamic_dimension = std::dynamic_extent;
 
         template<typename S>
-        concept ShapeType = requires (const S& shape)
+        concept ShapeType = requires (const S& shape, LRefType<typename S::VectorType> vector)
         {
             { shape.zero() } -> DecaySameAs<typename S::VectorType>;
             { shape.size() } -> DecaySameAs<usize>;
@@ -27,7 +27,7 @@ namespace ospf
             { shape.offset_of_dimension(std::declval<usize>()) } -> DecaySameAs<Result<usize>>;
             { shape.index(std::declval<typename S::VectorViewType>()) } -> DecaySameAs<Result<usize>>;
             { shape.vector(std::declval<usize>()) } -> DecaySameAs<typename S::VectorType>;
-            { shape.next_vector(std::declval<typename S::VectorViewType>()) } -> DecaySameAs<bool>;
+            { shape.next_vector(vector) } -> DecaySameAs<bool>;
             { shape.actual_index(std::declval<usize>(), std::declval<isize>()) } -> DecaySameAs<std::optional<usize>>;
         };
 
@@ -247,6 +247,9 @@ namespace ospf
             constexpr Shape& operator=(Shape&& rhs) noexcept = default;
             constexpr ~Shape(void) noexcept = default;
 
+        public:
+            using Impl::offset;
+
         private:
             inline static constexpr std::pair<VectorType, usize> offset(ArgCLRefType<VectorType> shape) noexcept
             {
@@ -412,6 +415,9 @@ namespace ospf
             constexpr Shape& operator=(Shape&& rhs) noexcept = default;
             constexpr ~Shape(void) = default;
 
+        public:
+            using Impl::offset;
+
         private:
             inline static constexpr std::pair<VectorType, usize> offset(ArgCLRefType<VectorType> shape) noexcept
             {
@@ -468,12 +474,44 @@ namespace ospf
         using Shape2 = Shape<2_uz>;
         using Shape3 = Shape<3_uz>;
         using Shape4 = Shape<4_uz>;
+        using Shape5 = Shape<5_uz>;
+        using Shape6 = Shape<6_uz>;
+        using Shape7 = Shape<7_uz>;
+        using Shape8 = Shape<8_uz>;
+        using Shape9 = Shape<9_uz>;
+        using Shape10 = Shape<10_uz>;
+        using Shape11 = Shape<11_uz>;
+        using Shape12 = Shape<12_uz>;
+        using Shape13 = Shape<13_uz>;
+        using Shape14 = Shape<14_uz>;
+        using Shape15 = Shape<15_uz>;
+        using Shape16 = Shape<16_uz>;
+        using Shape17 = Shape<17_uz>;
+        using Shape18 = Shape<18_uz>;
+        using Shape19 = Shape<19_uz>;
+        using Shape20 = Shape<20_uz>;
         using DynShape = Shape<dynamic_dimension>;
 
         extern template class Shape<1_uz>;
         extern template class Shape<2_uz>;
         extern template class Shape<3_uz>;
         extern template class Shape<4_uz>;
+        extern template class Shape<5_uz>;
+        extern template class Shape<6_uz>;
+        extern template class Shape<7_uz>;
+        extern template class Shape<8_uz>;
+        extern template class Shape<9_uz>;
+        extern template class Shape<10_uz>;
+        extern template class Shape<11_uz>;
+        extern template class Shape<12_uz>;
+        extern template class Shape<13_uz>;
+        extern template class Shape<14_uz>;
+        extern template class Shape<15_uz>;
+        extern template class Shape<16_uz>;
+        extern template class Shape<17_uz>;
+        extern template class Shape<18_uz>;
+        extern template class Shape<19_uz>;
+        extern template class Shape<20_uz>;
         extern template class Shape<dynamic_dimension>;
     };
 };

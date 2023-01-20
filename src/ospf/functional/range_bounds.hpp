@@ -438,8 +438,12 @@ namespace ospf
             BoundType _end_bound;
         };
 
+        extern template class Bound<i32>;
+        extern template class Bound<u32>;
         extern template class Bound<usize>;
         extern template class Bound<isize>;
+        extern template class RangeBounds<i32>;
+        extern template class RangeBounds<u32>;
         extern template class RangeBounds<usize>;
         extern template class RangeBounds<isize>;
 
@@ -450,8 +454,11 @@ namespace ospf
         // 4.range:        a To b    -> [a,   b)
         // 5.inclusive:    a Until b -> [a,   b]
         // 6.to_inclusive: _ Until b -> (-¡Þ, b]
+
         namespace range_bounds
         {
+            struct RangeFull {};
+
             struct RangeTo
             {
                 template<typename T>
@@ -511,6 +518,7 @@ namespace ospf
 };
 
 static constexpr const auto _ = ospf::Unbounded{};
+static constexpr const auto __ = ospf::range_bounds::RangeFull{};
 static constexpr const auto to = ospf::range_bounds::RangeTo{};
 static constexpr const auto until = ospf::range_bounds::RangeUntil{};
 

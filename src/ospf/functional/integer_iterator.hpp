@@ -78,6 +78,12 @@ namespace ospf
             constexpr ~IntegerIterator(void) noexcept = default;
 
         public:
+            inline constexpr operator const bool(void) const noexcept
+            {
+                return _has_next;
+            }
+
+        public:
             inline constexpr ArgCLRefType<ValueType> operator*(void) const noexcept
             {
                 return _curr;
@@ -105,11 +111,11 @@ namespace ospf
         public:
             inline constexpr const bool operator==(const IntegerIterator& ano) const noexcept
             {
-                if (!_has_next && !_has_next)
+                if (!_has_next && !ano._has_next)
                 {
                     return true;
                 }
-                else if (_has_next && _has_next)
+                else if (_has_next && ano._has_next)
                 {
                     return _curr == ano._curr
                         && _last == ano._last
@@ -123,11 +129,11 @@ namespace ospf
 
             inline constexpr const bool operator!=(const IntegerIterator& ano) const noexcept
             {
-                if (!_has_next && !_has_next)
+                if (!_has_next && !ano._has_next)
                 {
                     return false;
                 }
-                else if (_has_next && _has_next)
+                else if (_has_next && ano._has_next)
                 {
                     return _curr != ano._curr
                         || _last != ano._last
@@ -237,6 +243,12 @@ namespace ospf
             constexpr ~IntegerIterator(void) noexcept = default;
 
         public:
+            inline constexpr operator const bool(void) const noexcept
+            {
+                return _has_next;
+            }
+
+        public:
             inline constexpr ArgCLRefType<ValueType> operator*(void) const noexcept
             {
                 return _curr;
@@ -264,11 +276,11 @@ namespace ospf
         public:
             inline constexpr const bool operator==(const IntegerIterator& ano) const noexcept
             {
-                if (!_has_next && !_has_next)
+                if (!_has_next && !ano._has_next)
                 {
                     return true;
                 }
-                else if (_has_next && _has_next)
+                else if (_has_next && ano._has_next)
                 {
                     return _reverse == ano._reverse
                         && _curr == ano._curr
@@ -284,11 +296,11 @@ namespace ospf
             template<typename I>
             inline constexpr const bool operator!=(const IntegerIterator& ano) const noexcept
             {
-                if (!_has_next && !_has_next)
+                if (!_has_next && !ano._has_next)
                 {
                     return false;
                 }
-                else if (_has_next && _has_next)
+                else if (_has_next && ano._has_next)
                 {
                     return _reverse != ano._reverse
                         || _curr != ano._curr
@@ -344,6 +356,8 @@ namespace ospf
             ValueType _step;
         };
 
+        extern template class IntegerIterator<i32>;
+        extern template class IntegerIterator<u32>;
         extern template class IntegerIterator<usize>;
         extern template class IntegerIterator<isize>;
     };

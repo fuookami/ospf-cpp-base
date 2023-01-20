@@ -267,9 +267,6 @@
     <ClInclude Include="src\ospf\iterator.hpp">
       <Filter>src\ospf</Filter>
     </ClInclude>
-    <ClInclude Include="src\ospf\meta_programming\iterator.hpp">
-      <Filter>src\ospf\meta-programming</Filter>
-    </ClInclude>
     <ClInclude Include="src\ospf\functional\value_or_reference.hpp">
       <Filter>src\ospf\functional</Filter>
     </ClInclude>
@@ -339,7 +336,16 @@
     <ClInclude Include="src\ospf\functional\integer_iterator.hpp">
       <Filter>src\ospf\functional</Filter>
     </ClInclude>
-    <ClInclude Include="src\ospf\data_structure\multi_array\dummy_vector.hpp">
+    <ClInclude Include="src\ospf\data_structure\multi_array\dummy_index.hpp">
+      <Filter>src\ospf\data-structure\multi_array</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ospf\functional\iterator.hpp">
+      <Filter>src\ospf\functional</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ospf\meta_programming\iterator.hpp">
+      <Filter>src\ospf\meta-programming</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ospf\data_structure\multi_array\map_index.hpp">
       <Filter>src\ospf\data-structure\multi_array</Filter>
     </ClInclude>
   </ItemGroup>
@@ -391,6 +397,12 @@
     </ClCompile>
     <ClCompile Include="src\ospf\functional\range_bounds.cpp">
       <Filter>src\ospf\functional</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ospf\data_structure\multi_array\dummy_index.cpp">
+      <Filter>src\ospf\data-structure\multi_array</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ospf\data_structure\multi_array\map_index.cpp">
+      <Filter>src\ospf\data-structure\multi_array</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

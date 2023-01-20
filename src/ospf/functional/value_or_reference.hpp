@@ -305,10 +305,10 @@ namespace ospf
                         {
                             return *arg;
                         }
-                        else
-                        {
-                            static_assert(false, "Non-exhaustive visitor!");
-                        }
+                        //else
+                        //{
+                        //    static_assert(false, "non-exhaustive visitor!");
+                        //}
                     }, _either);
             }
 
