@@ -36,8 +36,13 @@
     <ClInclude Include="src\ospf\data_structure\data_table\table.hpp" />
     <ClInclude Include="src\ospf\data_structure\multi_array.hpp" />
     <ClInclude Include="src\ospf\data_structure\multi_array\dummy_index.hpp" />
+    <ClInclude Include="src\ospf\data_structure\multi_array\dynamic_dimension.hpp" />
+    <ClInclude Include="src\ospf\data_structure\multi_array\dynamic_dimension_view.hpp" />
+    <ClInclude Include="src\ospf\data_structure\multi_array\impl.hpp" />
     <ClInclude Include="src\ospf\data_structure\multi_array\map_index.hpp" />
     <ClInclude Include="src\ospf\data_structure\multi_array\shape.hpp" />
+    <ClInclude Include="src\ospf\data_structure\multi_array\static_dimension.hpp" />
+    <ClInclude Include="src\ospf\data_structure\multi_array\static_dimension_view.hpp" />
     <ClInclude Include="src\ospf\data_structure\optional_array.hpp" />
     <ClInclude Include="src\ospf\data_structure\pointer_array.hpp" />
     <ClInclude Include="src\ospf\data_structure\reference_array.hpp" />
@@ -115,7 +120,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\ospf\data_structure\multi_array\dummy_index.cpp" />
-    <ClCompile Include="src\ospf\data_structure\multi_array\map_index.cpp" />
     <ClCompile Include="src\ospf\data_structure\multi_array\shape.cpp" />
     <ClCompile Include="src\ospf\error\error.cpp" />
     <ClCompile Include="src\ospf\exception.cpp" />

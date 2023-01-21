@@ -10,6 +10,9 @@ namespace ospf
         {
             namespace map_index
             {
+                using RangeFull = range_bounds::RangeFull;
+                using DummyIndex = dummy_index::DummyIndex;
+
                 struct MapPlaceHolder
                 {
                     usize to_dimension;
@@ -44,7 +47,72 @@ namespace ospf
 
                 class MapIndex
                 {
-                    using Either = ospf::Either<dummy_index::DummyIndex, MapPlaceHolder>;
+                    using Either = ospf::Either<DummyIndex, MapPlaceHolder>;
+
+                public:
+                    constexpr MapIndex(const usize index)
+                        : _either(DummyIndex{ index }) {}
+
+                    constexpr MapIndex(const isize index)
+                        : _either(DummyIndex{ index }) {}
+
+                    constexpr MapIndex(const RangeBounds<usize> range)
+                        : _either(DummyIndex{ range }) {}
+
+                    constexpr MapIndex(const RangeBounds<isize> range)
+                        : _either(DummyIndex{ range }) {}
+
+                    constexpr MapIndex(const std::vector<usize>& array)
+                        : _either(DummyIndex{ array }) {}
+
+                    constexpr MapIndex(std::vector<usize>&& array)
+                        : _either(DummyIndex{ std::move(array) }) {}
+
+                    constexpr MapIndex(const std::vector<isize>& array)
+                        : _either(DummyIndex{ array }) {}
+
+                    constexpr MapIndex(std::vector<isize>&& array)
+                        : _either(DummyIndex{ std::move(array) }) {}
+
+                    constexpr MapIndex(const RangeFull _)
+                        : _either(DummyIndex{ _ }) {}
+
+                    template<typename T>
+                        requires std::constructible_from<DummyIndex, T>
+                    constexpr MapIndex(T&& index)
+                        : _either(DummyIndex{ std::forward<T>(index) }) {}
+
+                    constexpr MapIndex(const MapPlaceHolder holder)
+                        : _either(holder) {}
+
+                public:
+                    constexpr MapIndex(const MapIndex& ano) = default;
+                    constexpr MapIndex(MapIndex&& ano) noexcept = default;
+                    constexpr MapIndex& operator=(const MapIndex& rhs) = default;
+                    constexpr MapIndex& operator=(MapIndex&& rhs) noexcept = default;
+                    constexpr ~MapIndex(void) noexcept = default;
+
+                public:
+                    inline constexpr const bool is_index(void) const noexcept
+                    {
+                        return _either.is_left();
+                    }
+
+                    inline constexpr const bool is_holder(void) const noexcept
+                    {
+                        return _either.is_right();
+                    }
+
+                public:
+                    inline constexpr const DummyIndex& index(void) const
+                    {
+                        return _either.left();
+                    }
+
+                    inline constexpr const MapPlaceHolder holder(void) const
+                    {
+                        return _either.right();
+                    }
 
                 private:
                     Either _either;

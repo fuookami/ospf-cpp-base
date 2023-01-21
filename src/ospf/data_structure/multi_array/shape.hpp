@@ -31,203 +31,207 @@ namespace ospf
             { shape.actual_index(std::declval<usize>(), std::declval<isize>()) } -> DecaySameAs<std::optional<usize>>;
         };
 
-        template<
-            usize dim,
-            typename V,
-            typename Self
-        >
-            requires requires (const V& vector) { { vector[std::declval<usize>()] } -> DecaySameAs<usize>; }
-        class ShapeImpl
+        namespace multi_array
         {
-            OSPF_CRTP_IMPL
-
-        public:
-            using VectorType = OriginType<V>;
-            using VectorViewType = std::span<const usize, dim>;
-
-        protected:
-            constexpr ShapeImpl(void) = default;
-        public:
-            constexpr ShapeImpl(const ShapeImpl& ano) = default;
-            constexpr ShapeImpl(ShapeImpl&& ano) noexcept = default;
-            constexpr ShapeImpl& operator=(const ShapeImpl& rhs) = default;
-            constexpr ShapeImpl& operator=(ShapeImpl&& rhs) noexcept = default;
-            constexpr ~ShapeImpl(void) = default;
-            
-        public:
-            inline constexpr RetType<VectorType> zero(void) const noexcept
+            template<
+                usize d,
+                typename V,
+                typename Self
+            >
+                requires requires (const V& vector) { { vector[std::declval<usize>()] } -> DecaySameAs<usize>; }
+            class ShapeImpl
             {
-                return Trait::zero(self());
-            }
+                OSPF_CRTP_IMPL
 
-            inline constexpr const usize size(void) const noexcept
-            {
-                return Trait::size(self());
-            }
+            public:
+                static constexpr const auto dim = d;
+                using VectorType = OriginType<V>;
+                using VectorViewType = std::span<const usize, dim>;
 
-            inline constexpr const usize dimension(void) const noexcept
-            {
-                return Trait::dimension(self());
-            }
+            protected:
+                constexpr ShapeImpl(void) = default;
+            public:
+                constexpr ShapeImpl(const ShapeImpl& ano) = default;
+                constexpr ShapeImpl(ShapeImpl&& ano) noexcept = default;
+                constexpr ShapeImpl& operator=(const ShapeImpl& rhs) = default;
+                constexpr ShapeImpl& operator=(ShapeImpl&& rhs) noexcept = default;
+                constexpr ~ShapeImpl(void) = default;
 
-            inline constexpr static const usize dimension_of(ArgCLRefType<VectorViewType> vector) noexcept
-            {
-                return Trait::dimension_of(vector);
-            }
-
-            inline constexpr RetType<VectorViewType> shape(void) const noexcept
-            {
-                return Trait::shape(self());
-            }
-
-            inline constexpr RetType<VectorViewType> offset(void) const noexcept
-            {
-                return Trait::offset(self());
-            }
-
-            inline constexpr Result<usize> size_of_dimension(const usize dimension) const noexcept
-            {
-                if (dimension > this->dimension())
+            public:
+                inline constexpr RetType<VectorType> zero(void) const noexcept
                 {
-                    return OSPFError{ OSPFErrCode::ApplicationFail, std::format("dimension should be {}, not {}", this->dimension(), dimension) };
+                    return Trait::zero(self());
                 }
-                else
-                {
-                    return this->shape()[dimension];
-                }
-            }
 
-            inline constexpr Result<usize> offset_of_dimension(const usize dimension) const noexcept
-            {
-                if (dimension > this->dimension())
+                inline constexpr const usize size(void) const noexcept
                 {
-                    return OSPFError{ OSPFErrCode::ApplicationFail, std::format("dimension should be {}, not {}", this->dimension(), dimension) };
+                    return Trait::size(self());
                 }
-                else
-                {
-                    return this->offset()[dimension];
-                }
-            }
 
-            inline constexpr Result<usize> index(ArgCLRefType<VectorViewType> vector) const noexcept
-            {
-                if (dimension_of(vector) > dimension())
+                inline constexpr const usize dimension(void) const noexcept
                 {
-                    return OSPFError{ OSPFErrCode::ApplicationFail, std::format("dimension should be {}, not {}", this->dimension(), dimension_of(vector)) };
+                    return Trait::dimension(self());
                 }
-                else
+
+                inline constexpr static const usize dimension_of(ArgCLRefType<VectorViewType> vector) noexcept
                 {
-                    usize index{ 0_uz };
+                    return Trait::dimension_of(vector);
+                }
+
+                inline constexpr RetType<VectorViewType> shape(void) const noexcept
+                {
+                    return Trait::shape(self());
+                }
+
+                inline constexpr RetType<VectorViewType> offset(void) const noexcept
+                {
+                    return Trait::offset(self());
+                }
+
+                inline constexpr Result<usize> size_of_dimension(const usize dimension) const noexcept
+                {
+                    if (dimension > this->dimension())
+                    {
+                        return OSPFError{ OSPFErrCode::ApplicationFail, std::format("dimension should be {}, not {}", this->dimension(), dimension) };
+                    }
+                    else
+                    {
+                        return this->shape()[dimension];
+                    }
+                }
+
+                inline constexpr Result<usize> offset_of_dimension(const usize dimension) const noexcept
+                {
+                    if (dimension > this->dimension())
+                    {
+                        return OSPFError{ OSPFErrCode::ApplicationFail, std::format("dimension should be {}, not {}", this->dimension(), dimension) };
+                    }
+                    else
+                    {
+                        return this->offset()[dimension];
+                    }
+                }
+
+                inline constexpr Result<usize> index(ArgCLRefType<VectorViewType> vector) const noexcept
+                {
+                    if (dimension_of(vector) > dimension())
+                    {
+                        return OSPFError{ OSPFErrCode::ApplicationFail, std::format("dimension should be {}, not {}", this->dimension(), dimension_of(vector)) };
+                    }
+                    else
+                    {
+                        usize index{ 0_uz };
+                        for (usize i{ 0_uz }, j{ this->dimension() }; i != j; ++i)
+                        {
+                            if (vector[i] > this->shape()[i])
+                            {
+                                return OSPFError{ OSPFErrCode::ApplicationFail, std::format("length of dimension {} is {}, but it get {}", i, this->shape()[i], vector[i]) };
+                            }
+                            index += vector[i] * this->offset()[i];
+                        }
+                        return index;
+                    }
+                }
+
+                inline constexpr RetType<VectorType> vector(usize index) const noexcept
+                {
+                    auto vector = this->zero();
                     for (usize i{ 0_uz }, j{ this->dimension() }; i != j; ++i)
                     {
-                        if (vector[i] > this->shape()[i])
+                        const auto offset = this->offset()[i];
+                        vector[i] = index / offset;
+                        index %= offset;
+                    }
+                    return vector;
+                }
+
+                inline constexpr const bool next_vector(LRefType<VectorType> vector) const noexcept
+                {
+                    bool carry{ false };
+                    vector[this->dimension() - 1_uz] += 1_uz;
+
+                    for (usize i{ this->dimension() - 1_uz }; i != npos; --i)
+                    {
+                        if (carry)
                         {
-                            return OSPFError{ OSPFErrCode::ApplicationFail, std::format("length of dimension {} is {}, but it get {}", i, this->shape()[i], vector[i]) };
+                            vector[i] += 1_uz;
+                            carry = false;
                         }
-                        index += vector[i] * this->offset()[i];
+                        if (vector[i] == this->shape()[i])
+                        {
+                            vector[i] = 0_uz;
+                            carry = true;
+                        }
                     }
-                    return index;
+                    return !carry;
                 }
-            }
 
-            inline constexpr RetType<VectorType> vector(usize index) const noexcept
-            {
-                auto vector = this->zero();
-                for (usize i{ 0_uz }, j{ this->dimension() }; i != j; ++i)
+                inline constexpr const std::optional<usize> actual_index(const usize dimension, const isize index) const noexcept
                 {
-                    const auto offset = this->offset()[i];
-                    vector[i] = index / offset;
-                    index %= offset;
-                }
-                return vector;
-            }
-
-            inline constexpr const bool next_vector(LRefType<VectorType> vector) const noexcept
-            {
-                bool carry{ false };
-                vector[this->dimension() - 1_uz] += 1_uz;
-
-                for (usize i{ this->dimension() - 1_uz }; i != npos; --i)
-                {
-                    if (carry)
+                    const auto size = static_cast<isize>(this->shape()[dimension]);
+                    if (index >= size || index < -size)
                     {
-                        vector[i] += 1_uz;
-                        carry = false;
+                        return std::nullopt;
                     }
-                    if (vector[i] == this->shape()[i])
+                    //tex:$index \in [0, size)$
+                    else if (index >= 0_iz)
                     {
-                        vector[i] = 0_uz;
-                        carry = true;
+                        return static_cast<usize>(index);
+                    }
+                    //tex:$index \in [-size, 0)$
+                    else
+                    {
+                        return static_cast<usize>(index + size);
                     }
                 }
-                return !carry;
-            }
 
-            inline constexpr const std::optional<usize> actual_index(const usize dimension, const isize index) const noexcept
-            {
-                const auto size = static_cast<isize>(this->shape()[dimension]);
-                if (index >= size || index < -size)
+            private:
+                struct Trait : public Self
                 {
-                    return std::nullopt;
-                }
-                //tex:$index \in [0, size)$
-                else if (index >= 0_iz)
-                {
-                    return static_cast<usize>(index);
-                }
-                //tex:$index \in [-size, 0)$
-                else
-                {
-                    return static_cast<usize>(index + size);
-                }
-            }
+                    inline static constexpr RetType<VectorType> zero(const Self& self) noexcept
+                    {
+                        static const auto zero_impl = &Self::OSPF_CRTP_FUNCTION(get_zero);
+                        return (self.*zero_impl)();
+                    }
 
-        private:
-            struct Trait : public Self
-            {
-                inline static constexpr RetType<VectorType> zero(const Self& self) noexcept
-                {
-                    static const auto zero_impl = &Self::OSPF_CRTP_FUNCTION(get_zero);
-                    return (self.*zero_impl)();
-                }
+                    inline static constexpr const usize size(const Self& self) noexcept
+                    {
+                        static const auto size_impl = &Self::OSPF_CRTP_FUNCTION(get_size);
+                        return (self.*size_impl)();
+                    }
 
-                inline static constexpr const usize size(const Self& self) noexcept
-                {
-                    static const auto size_impl = &Self::OSPF_CRTP_FUNCTION(get_size);
-                    return (self.*size_impl)();
-                }
+                    inline static constexpr const usize dimension(const Self& self) noexcept
+                    {
+                        static const auto dimension_impl = &Self::OSPF_CRTP_FUNCTION(get_dimension);
+                        return (self.*dimension_impl)();
+                    }
 
-                inline static constexpr const usize dimension(const Self& self) noexcept
-                {
-                    static const auto dimension_impl = &Self::OSPF_CRTP_FUNCTION(get_dimension);
-                    return (self.*dimension_impl)();
-                }
+                    inline static constexpr const usize dimension_of(ArgCLRefType<VectorViewType> vector) noexcept
+                    {
+                        static const auto dimension_impl = &Self::OSPF_CRTP_FUNCTION(get_dimension_of);
+                        return (*dimension_impl)(vector);
+                    }
 
-                inline static constexpr const usize dimension_of(ArgCLRefType<VectorViewType> vector) noexcept
-                {
-                    static const auto dimension_impl = &Self::OSPF_CRTP_FUNCTION(get_dimension_of);
-                    return (*dimension_impl)(vector);
-                }
+                    inline static constexpr RetType<VectorViewType> shape(const Self& self) noexcept
+                    {
+                        static const auto shape_impl = &Self::OSPF_CRTP_FUNCTION(get_shape);
+                        return (self.*shape_impl)();
+                    }
 
-                inline static constexpr RetType<VectorViewType> shape(const Self& self) noexcept
-                {
-                    static const auto shape_impl = &Self::OSPF_CRTP_FUNCTION(get_shape);
-                    return (self.*shape_impl)();
-                }
-
-                inline static constexpr RetType<VectorViewType> offset(const Self& self) noexcept
-                {
-                    static const auto offset_impl = &Self::OSPF_CRTP_FUNCTION(get_offset);
-                    return (self.*offset_impl)();
-                }
+                    inline static constexpr RetType<VectorViewType> offset(const Self& self) noexcept
+                    {
+                        static const auto offset_impl = &Self::OSPF_CRTP_FUNCTION(get_offset);
+                        return (self.*offset_impl)();
+                    }
+                };
             };
         };
-
+        
         template<usize dim>
         class Shape
-            : public ShapeImpl<dim, std::array<usize, dim>, Shape<dim>>
+            : public multi_array::ShapeImpl<dim, std::array<usize, dim>, Shape<dim>>
         {
-            using Impl = ShapeImpl<dim, std::array<usize, dim>, Shape<dim>>;
+            using Impl = multi_array::ShapeImpl<dim, std::array<usize, dim>, Shape<dim>>;
 
         public:
             using VectorType = typename Impl::VectorType;
@@ -307,9 +311,9 @@ namespace ospf
 
         template<>
         class Shape<1_uz>
-            : public ShapeImpl<1_uz, std::array<usize, 1_uz>, Shape<1_uz>>
+            : public multi_array::ShapeImpl<1_uz, std::array<usize, 1_uz>, Shape<1_uz>>
         {
-            using Impl = ShapeImpl<1_uz, std::array<usize, 1_uz>, Shape<1_uz>>;
+            using Impl = multi_array::ShapeImpl<1_uz, std::array<usize, 1_uz>, Shape<1_uz>>;
 
         public:
             using VectorType = typename Impl::VectorType;
@@ -385,9 +389,9 @@ namespace ospf
 
         template<>
         class Shape<dynamic_dimension>
-            : public ShapeImpl<dynamic_dimension, std::vector<usize>, Shape<dynamic_dimension>>
+            : public multi_array::ShapeImpl<dynamic_dimension, std::vector<usize>, Shape<dynamic_dimension>>
         {
-            using Impl = ShapeImpl<dynamic_dimension, std::vector<usize>, Shape<dynamic_dimension>>;
+            using Impl = multi_array::ShapeImpl<dynamic_dimension, std::vector<usize>, Shape<dynamic_dimension>>;
 
         public:
             using VectorType = typename Impl::VectorType;

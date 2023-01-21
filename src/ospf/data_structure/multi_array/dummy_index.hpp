@@ -12,10 +12,12 @@ namespace ospf
 {
     namespace data_structure
     {
-        inline namespace multi_array
+        namespace multi_array
         {
             namespace dummy_index
             {
+                using RangeFull = range_bounds::RangeFull;
+
                 class DummyIndexEnumerator
                 {
                     using Transformer = std::function<std::optional<usize>(const isize)>;
@@ -93,7 +95,7 @@ namespace ospf
                     using Variant = std::variant<Index1, Index2, Range1, Range2, Array1, Array2>;
 
                 public:
-                    using Types = VariableTypeList<Index1, Index2, Range1, Range2, Array1, Array2, range_bounds::RangeFull>;
+                    using Types = VariableTypeList<Index1, Index2, Range1, Range2, Array1, Array2, RangeFull>;
 
                 public:
                     constexpr DummyIndex(const Index1 index)
@@ -120,7 +122,7 @@ namespace ospf
                     constexpr DummyIndex(Array2&& array)
                         : _variant(std::move(array)) {}
 
-                    constexpr DummyIndex(const range_bounds::RangeFull _)
+                    constexpr DummyIndex(const RangeFull _)
                         : _variant(RangeBounds<usize>::full()) {}
 
                 public:
@@ -170,10 +172,11 @@ namespace ospf
                 public:
                     using ShapeType = OriginType<S>;
                     using VectorType = typename ShapeType::VectorType;
+                    static constexpr const auto dim = ShapeType::dim;
 
                 public:
-                    constexpr DummyAccessEnumerator(const ShapeType& shape, const std::span<DummyIndex> dummy_vector)
-                        : _has_next(true), _shape(shape), _dummy_vector(dummy_vector), _now(shape.zero())
+                    constexpr DummyAccessEnumerator(const ShapeType& shape, const std::span<DummyIndex, dim> dummy_vector)
+                        : _has_next(true), _shape(shape), _dummy_vector(dummy_vector), _next(shape.zero())
                     {
                         _enumerators.reserve(shape.dimension());
                         for (auto i{ 0_uz }; i != _shape.dimension(); ++i)
@@ -255,7 +258,7 @@ namespace ospf
                 private:
                     bool _has_next;
                     Ref<ShapeType> _shape;
-                    std::span<DummyIndex> _dummy_vector;
+                    std::span<DummyIndex, dim> _dummy_vector;
                     std::vector<DummyIndexEnumerator> _enumerators;
                     VectorType _next;
                 };

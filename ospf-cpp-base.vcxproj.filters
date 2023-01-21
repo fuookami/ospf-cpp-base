@@ -348,6 +348,21 @@
     <ClInclude Include="src\ospf\data_structure\multi_array\map_index.hpp">
       <Filter>src\ospf\data-structure\multi_array</Filter>
     </ClInclude>
+    <ClInclude Include="src\ospf\data_structure\multi_array\impl.hpp">
+      <Filter>src\ospf\data-structure\multi_array</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ospf\data_structure\multi_array\static_dimension.hpp">
+      <Filter>src\ospf\data-structure\multi_array</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ospf\data_structure\multi_array\dynamic_dimension.hpp">
+      <Filter>src\ospf\data-structure\multi_array</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ospf\data_structure\multi_array\static_dimension_view.hpp">
+      <Filter>src\ospf\data-structure\multi_array</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ospf\data_structure\multi_array\dynamic_dimension_view.hpp">
+      <Filter>src\ospf\data-structure\multi_array</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\ospf\system_info.cpp">
@@ -399,9 +414,6 @@
       <Filter>src\ospf\functional</Filter>
     </ClCompile>
     <ClCompile Include="src\ospf\data_structure\multi_array\dummy_index.cpp">
-      <Filter>src\ospf\data-structure\multi_array</Filter>
-    </ClCompile>
-    <ClCompile Include="src\ospf\data_structure\multi_array\map_index.cpp">
       <Filter>src\ospf\data-structure\multi_array</Filter>
     </ClCompile>
   </ItemGroup>

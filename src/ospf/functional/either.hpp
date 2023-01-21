@@ -23,26 +23,26 @@ namespace ospf
             using VariantType = std::variant<LeftType, RightType>;
 
         public:
-            inline static Either left(ArgCLRefType<LeftType> left_value)
+            inline static constexpr Either left(ArgCLRefType<LeftType> left_value)
             {
                 return Either{ left_value };
             }
 
             template<typename = void>
                 requires ReferenceFaster<LeftType> && std::movable<LeftType>
-            inline static Either left(ArgRRefType<LeftType> left_value)
+            inline static constexpr Either left(ArgRRefType<LeftType> left_value)
             {
                 return Either{ move<LeftType>(left_value) };
             }
 
-            inline static Either right(ArgCLRefType<RightType> right_value)
+            inline static constexpr Either right(ArgCLRefType<RightType> right_value)
             {
                 return Either{ right_value };
             }
 
             template<typename = void>
                 requires ReferenceFaster<LeftType> && std::movable<LeftType>
-            inline static Either right(ArgRRefType<RightType> right_value)
+            inline static constexpr Either right(ArgRRefType<RightType> right_value)
             {
                 return Either{ move<RightType>(right_value) };
             }
@@ -53,7 +53,7 @@ namespace ospf
 
             template<typename = void>
                 requires ReferenceFaster<LeftType> && std::movable<LeftType>
-            Either(ArgRRefType<LeftType> left_value)
+            constexpr Either(ArgRRefType<LeftType> left_value)
                 : _variant(move<LeftType>(left_value)) {}
 
             constexpr Either(ArgCLRefType<RightType> right_value)
@@ -61,7 +61,7 @@ namespace ospf
 
             template<typename = void>
                 requires ReferenceFaster<LeftType> && std::movable<LeftType>
-            Either(ArgRRefType<RightType> right_value)
+            constexpr Either(ArgRRefType<RightType> right_value)
                 : _variant(move<RightType>(right_value)) {}
 
             constexpr Either(const Either& ano) = default;
