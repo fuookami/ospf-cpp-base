@@ -38,7 +38,7 @@ namespace ospf
             template<typename T>
             struct IsNormalVector<T>
             {
-                static constexpr const bool value = DecaySameAs<T, usize> || std::convertible_to<T, usize>;
+                static constexpr const bool value = DecaySameAs<T, usize> || std::integral<T>;
             };
 
             template<typename T, typename... Args>
@@ -59,7 +59,7 @@ namespace ospf
             template<typename T>
             struct IsDummyVector<T>
             {
-                static constexpr const bool value = DummyIndex::Types::template contains<T>;
+                static constexpr const bool value = dummy_index::DummyIndex::Types::template contains<T>;
             };
 
             template<typename T, typename... Args>
@@ -70,27 +70,6 @@ namespace ospf
 
             template<typename... Args>
             static constexpr const bool is_dummy_vector = IsDummyVector<Args...>::value;
-
-            template<typename... Args>
-            struct IsMapVector
-            {
-                static constexpr const bool value = false;
-            };
-
-            template<typename T>
-            struct IsMapVector<T>
-            {
-                static constexpr const bool value = DummyIndex::Types::template contains<T> || DecaySameAs<T, MapPlaceHolder>;
-            };
-
-            template<typename T, typename... Args>
-            struct IsMapVector<T, Args...>
-            {
-                static constexpr const bool value = IsMapVector<T>::value && IsMapVector<Args...>::value;
-            };
-
-            template<typename... Args>
-            static constexpr const bool is_map_vector = IsMapVector<Args...>::value;
 
             template<typename T, typename C, ShapeType S, typename Self>
             class MultiArrayImpl
@@ -108,6 +87,9 @@ namespace ospf
                 using DummyVectorType = std::conditional_t<dim == dynamic_dimension, std::vector<DummyIndex>, std::array<DummyIndex, dim>>;
                 using DummyVectorViewType = std::span<DummyIndex, dim>;
 
+                template<usize to_dim>
+                using MapVectorType = map_index::MapVector<dim, to_dim>;
+
             protected:
                 constexpr MultiArrayImpl(void) = default;
             public:
@@ -118,12 +100,12 @@ namespace ospf
                 constexpr ~MultiArrayImpl(void) noexcept = default;
 
             public:
-                inline LRefType<ContainerType> raw(void) noexcept
+                inline constexpr LRefType<ContainerType> raw(void) noexcept
                 {
                     return Trait::get_container(self());
                 }
 
-                inline CLRefType<ContainerType> raw(void) const noexcept
+                inline constexpr CLRefType<ContainerType> raw(void) const noexcept
                 {
                     return Trait::get_const_container(self());
                 }
@@ -143,27 +125,27 @@ namespace ospf
                 }
 
             public:
-                inline LRefType<ValueType> get(const usize index)
+                inline constexpr LRefType<ValueType> get(const usize index)
                 {
                     return Trait::get_value(raw(), index);
                 }
 
-                inline CLRefType<ValueType> get(const usize index) const
+                inline constexpr CLRefType<ValueType> get(const usize index) const
                 {
                     return Trait::get_const_value(raw(), index);
                 }
 
-                inline LRefType<ValueType> get(const VectorViewType vector)
+                inline constexpr LRefType<ValueType> get(const VectorViewType vector)
                 {
                     return get(shape().index(vector));
                 }
 
-                inline CLRefType<ValueType> get(const VectorViewType vector) const
+                inline constexpr CLRefType<ValueType> get(const VectorViewType vector) const
                 {
                     return get(shape().index(vector));
                 }
 
-                inline DynRefArray<ValueType> get(const RangeFull _) const
+                inline constexpr DynRefArray<ValueType> get(const RangeFull _) const
                 {
                     DynRefArray<ValueType> ret;
                     ret.reserve(raw().size());
@@ -174,7 +156,7 @@ namespace ospf
                     return ret;
                 }
 
-                inline DynRefArray<ValueType> get(const DummyVectorViewType dummy_vector) const
+                inline constexpr DynRefArray<ValueType> get(const DummyVectorViewType dummy_vector) const
                 {
                     dummy_index::DummyAccessEnumerator<ShapeType> iter{ shape(), dummy_vector};
                     DynRefArray<ValueType> ret;
@@ -191,45 +173,55 @@ namespace ospf
             public:
                 template<typename... Args>
                     requires is_normal_vector<Args...> && !is_dummy_vector<Args...> && !is_map_vector<Args...>
-                inline LRefType<ValueType> operator()(Args&&... args) noexcept
+                        && (dim == dynamic_dimension || dim == VariableTypeList<Args...>::length)
+                inline constexpr LRefType<ValueType> operator()(Args&&... args)
                 {
-                    return get(VectorType{ static_cast<usize>(std::forward<Args>(args))... });
+                    return get(normal_vector(shape(), std::forward<Args>(args)...));
+                }
+
+                template<typename... Args>
+                    requires is_normal_vector<Args...> && !is_dummy_vector<Args...> && !is_map_vector<Args...>
+                        && (dim == dynamic_dimension || dim == VariableTypeList<Args...>::length)
+                inline constexpr CLRefType<ValueType> operator()(Args&&... args) const
+                {
+                    return get(normal_vector(shape(), std::forward<Args>(args)...));
                 }
 
                 template<typename... Args>
                     requires is_dummy_vector<Args...> && !is_map_vector<Args...>
-                inline DynRefArray<ValueType> operator()(Args&&... args) noexcept
+                        && (dim == dynamic_dimension || dim == VariableTypeList<Args...>::length)
+                inline constexpr DynRefArray<ValueType> operator()(Args&&... args) const
                 {
                     return get(DummyVectorType{ DummyIndex{ std::forward<Args>(args) }... });
                 }
 
             public:
-                inline LRefType<ValueType> operator[](const VectorViewType vector)
+                inline constexpr LRefType<ValueType> operator[](const VectorViewType vector)
                 {
                     return get(vector);
                 }
 
-                inline CLRefType<ValueType> operator[](const VectorViewType vector) const
+                inline constexpr CLRefType<ValueType> operator[](const VectorViewType vector) const
                 {
                     return get(vector);
                 }
 
-                inline LRefType<ValueType> operator[](std::initializer_list<usize> vector)
+                inline constexpr LRefType<ValueType> operator[](std::initializer_list<usize> vector)
                 {
                     return get(VectorType{ std::move(vector) });
                 }
 
-                inline CLRefType<ValueType> operator[](std::initializer_list<usize> vector) const
+                inline constexpr CLRefType<ValueType> operator[](std::initializer_list<usize> vector) const
                 {
                     return get(VectorType{ std::move(vector) });
                 }
 
-                inline DynRefArray<ValueType> operator[](const DummyVectorViewType vector) const
+                inline constexpr DynRefArray<ValueType> operator[](const DummyVectorViewType vector) const
                 {
                     return get(vector);
                 }
 
-                inline DynRefArray<ValueType> operator[](std::initializer_list<DummyIndex> vector) const
+                inline constexpr DynRefArray<ValueType> operator[](std::initializer_list<DummyIndex> vector) const
                 {
                     return get(DummyVectorType{ vector });
                 }
@@ -335,6 +327,43 @@ namespace ospf
                 inline void shrink_to_fit(void)
                 {
                     raw().shrink_to_fit();
+                }
+
+            private:
+                template<typename... Args>
+                    requires is_normal_vector<Args...> && !is_dummy_vector<Args...> && !is_map_vector<Args...>
+                        && (dim == dynamic_dimension || dim == VariableTypeList<Args...>::length)
+                inline constexpr RetType<VectorType> normal_vector(const ShapeType& shape, Args&&... args)
+                {
+                    if constexpr (dim == dynamic_dimension)
+                    {
+                        if (VariableTypeList<Args...>::length != shape.dimension())
+                        {
+                            throw OSPFException{ OSPFError{ OSPFErrCode::ApplicationFail, std::format("dimension should be {}, not {}", shape.dimension(), VariableTypeList<Args...>::length) }};
+                        }
+                    }
+                    VectorType ret = shape.zero();
+                    normal_vector_impl<0_uz>(ret, shape, std::forward<Args>(args)...);
+                    return ret;
+                }
+
+                template<usize i, typename T, typename... Args>
+                inline constexpr void normal_vector_impl(VectorType& vector, const ShapeType& shape, T&& arg, Args&&... args) noexcept
+                {
+                    if constexpr (std::signed_integral<T>)
+                    {
+                        vector[i] = shape.actual_index(i, static_cast<isize>(std::forward<T>(arg)));
+                        normal_vector_impl<i + 1_uz>(vector, shape, std::forward<Args>(args)...);
+                    }
+                    else if constexpr (std::unsigned_integral<T>)
+                    {
+                        vector[i] = static_cast<usize>(std::forward<T>(arg));
+                        normal_vector_impl<i + 1_uz>(vector, shape, std::forward<Args>(args)...);
+                    }
+                    else
+                    {
+                        static_assert(false, "Vector dimension mismatched shape.");
+                    }
                 }
 
             private:

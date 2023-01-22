@@ -360,10 +360,7 @@
     <ClInclude Include="src\ospf\data_structure\multi_array\dynamic_dimension.hpp">
       <Filter>src\ospf\data-structure\multi_array</Filter>
     </ClInclude>
-    <ClInclude Include="src\ospf\data_structure\multi_array\static_dimension_view.hpp">
-      <Filter>src\ospf\data-structure\multi_array</Filter>
-    </ClInclude>
-    <ClInclude Include="src\ospf\data_structure\multi_array\dynamic_dimension_view.hpp">
+    <ClInclude Include="src\ospf\data_structure\multi_array\view.hpp">
       <Filter>src\ospf\data-structure\multi_array</Filter>
     </ClInclude>
     <ClInclude Include="src\ospf\concepts\container.hpp">

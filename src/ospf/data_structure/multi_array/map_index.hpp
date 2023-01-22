@@ -117,7 +117,67 @@ namespace ospf
                 private:
                     Either _either;
                 };
+
+                template<usize dim, usize to_dim>
+                class MapVector
+                {
+                    using Index = map_index::MapIndex;
+
+                public:
+                    constexpr MapVector(std::initializer_list<Index> vector)
+                        : _vector(std::move(vector)) {}
+                    constexpr MapVector(const MapVector& ano) = default;
+                    constexpr MapVector(MapVector&& ano) noexcept = default;
+                    constexpr MapVector& operator=(const MapVector& rhs) = default;
+                    constexpr MapVector& operator=(MapVector&& rhs) noexcept = default;
+                    constexpr ~MapVector(void) noexcept = default;
+
+                public:
+                    inline constexpr ArgCLRefType<Index> operator[](const usize i) const
+                    {
+                        return _vector[i];
+                    }
+
+                public:
+                    inline constexpr const usize size(void) const noexcept
+                    {
+                        return _vector.size();
+                    }
+
+                private:
+                    std::array<Index, dim> _vector;
+                };
             };
+
+            template<typename... Args>
+            struct IsMapVector
+            {
+                static constexpr const bool value = false;
+            };
+
+            template<typename T>
+            struct IsMapVector<T>
+            {
+                static constexpr const bool value = DummyIndex::Types::template contains<T> || DecaySameAs<T, MapPlaceHolder>;
+            };
+
+            template<typename T, typename... Args>
+            struct IsMapVector<T, Args...>
+            {
+                static constexpr const bool value = IsMapVector<T>::value && IsMapVector<Args...>::value;
+            };
+
+            template<typename... Args>
+            static constexpr const bool is_map_vector = IsMapVector<Args...>::value;
+
+            template<typename... Args>
+                requires is_map_vector<Args...>
+            inline constexpr decltype(auto) map_vector(Args&&... args) noexcept
+            {
+                static constexpr const auto dim = VariableTypeList<Args...>::length;
+                static constexpr const auto to_dim = VariableTypeList<Args...>::template count<map_index::MapPlaceHolder>;
+                return map_index::MapVector<dim, to_dim>{ std::forward<MapIndex>(args)... };
+            }
         };
     };
 };

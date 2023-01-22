@@ -21,12 +21,18 @@ namespace ospf
                 return 0_uz;
             }
 
+            template<typename T>
+            inline static constexpr const usize type_amount(void) noexcept
+            {
+                return 0_uz;
+            }
+
             template<typename T, typename U, typename... Types>
             inline static constexpr const usize type_index(void) noexcept
             {
                 using T1 = std::decay_t<T>;
                 using T2 = std::decay_t<U>;
-                return std::is_same_v<T1, T2> || std::is_base_of_v<T2, T1> || std::is_convertible_v<T2, T1>
+                return (std::is_same_v<T1, T2> || std::is_base_of_v<T2, T1> || std::is_convertible_v<T2, T1>)
                     ? 0_uz
                     : type_index<T, Types...>() + 1_uz;
             }
@@ -36,9 +42,19 @@ namespace ospf
             {
                 using T1 = std::decay_t<T>;
                 using T2 = std::decay_t<U>;
-                return std::is_same_v<T1, T2> || std::is_base_of_v<T2, T1>
+                return (std::is_same_v<T1, T2> || std::is_base_of_v<T2, T1>)
                     ? 0_uz
                     : strict_type_index<T, Types...>() + 1_uz;
+            }
+
+            template<typename T, typename U, typename... Types>
+            inline static constexpr const usize type_amount(void) noexcept
+            {
+                using T1 = std::decay_t<T>;
+                using T2 = std::decay_t<U>;
+                return (std::is_same_v<T1, T2> || std::is_base_of_v<T2, T1>)
+                    ? type_amount<T, Types...>() + 1_uz
+                    : type_amount<T, Types...>() + 0_uz;
             }
 
             template<usize i, typename... Types>
@@ -89,13 +105,16 @@ namespace ospf
             >;
 
             template<typename T>
-            static constexpr const usize index = variable_type_list::index(length);
+            static constexpr const usize index = variable_type_list::index<T, Types...>(length);
 
             template<typename T>
-            static constexpr const usize strict_index = variable_type_list::strict_index(length);
+            static constexpr const usize strict_index = variable_type_list::strict_index<T, Types...>(length);
 
             template<typename T>
             static constexpr const bool contains = index<T> != npos;
+
+            template<typename T>
+            static constexpr const usize amount = variable_type_list::type_amount<T, Types...>();
         };
 
         template<usize index, typename... Types>
@@ -109,5 +128,8 @@ namespace ospf
 
         template<typename T, typename... Types>
         static constexpr const bool contains_type = VariableTypeList<Types...>::template contains<T>;
+
+        template<typename T, typename... Types>
+        static constexpr const usize type_amount = VariableTypeList<Types...>::template amount<T>;
     };
 };
