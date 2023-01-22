@@ -67,6 +67,9 @@
     <Filter Include="src\ospf\data-structure\multi_array">
       <UniqueIdentifier>{12d393c7-fc42-47c5-a6ff-3043158092b0}</UniqueIdentifier>
     </Filter>
+    <Filter Include="test">
+      <UniqueIdentifier>{291efce0-4047-4dd2-854e-c4e4570eedd1}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\ospf\basic_definition.hpp">

@@ -163,6 +163,40 @@ namespace ospf
             constexpr ~IntegerRangeBoundsWithStepWrapper(void) noexcept = default;
 
         public:
+            template<typename = void>
+                requires requires
+                    {
+                        { static_cast<IndexType>(0) } -> DecaySameAs<IndexType>;
+                        { static_cast<IndexType>(1) } -> DecaySameAs<IndexType>;
+                        { static_cast<usize>(std::declval<IndexType>()) } -> DecaySameAs<usize>;
+                        { std::declval<IndexType>() - std::declval<IndexType>() } -> DecaySameAs<IndexType>;
+                        { std::declval<IndexType>() + std::declval<IndexType>() } -> DecaySameAs<IndexType>;
+                    }
+            inline constexpr const usize size(void) const
+            {
+                return _bounds->size() / static_cast<usize>(_step);
+            }
+
+            template<typename = void>
+                requires requires
+                    {
+                        { static_cast<IndexType>(0) } -> DecaySameAs<IndexType>;
+                        { static_cast<IndexType>(1) } -> DecaySameAs<IndexType>;
+                        { static_cast<usize>(std::declval<IndexType>()) } -> DecaySameAs<usize>;
+                        { std::declval<IndexType>() - std::declval<IndexType>() } -> DecaySameAs<IndexType>;
+                        { std::declval<IndexType>() + std::declval<IndexType>() } -> DecaySameAs<IndexType>;
+                    }
+            inline constexpr const usize size(ArgCLRefType<IndexType> lb, ArgCLRefType<IndexType> ub) const noexcept
+            {
+                return _bounds->size(lb, ub) / static_cast<usize>(_step);
+            }
+
+        public:
+            template<typename = void>
+                requires requires
+                    {
+                        { std::declval<IndexType>() + std::declval<IndexType>() } -> DecaySameAs<IndexType>;
+                    }
             inline constexpr RetType<IntegerIterator<IndexType>> begin(void) const noexcept
             {
                 return IntegerIterator<IndexType>
@@ -172,6 +206,51 @@ namespace ospf
                     _step, 
                     _reverse
                 };
+            }
+
+            template<typename = void>
+                requires requires
+                    {
+                        { std::declval<IndexType>() + std::declval<IndexType>() } -> DecaySameAs<IndexType>;
+                    }
+            inline constexpr RetType<IntegerIterator<IndexType>> begin(ArgRRefType<IndexType> lb, ArgRRefType<IndexType> ub) const noexcept
+            {
+                if (_bounds->start_bound().unbounded() && _bounds->end_bound().unbounded())
+                {
+                    return IntegerIterator<IndexType>{ move<IndexType>(lb), move<IndexType>(ub), _step, _reverse };
+                }
+                else if (_bounds->start_bound().unbounded())
+                {
+                    if (ub < *_bounds->end_bound())
+                    {
+                        return IntegerIterator<IndexType>{ move<IndexType>(lb), move<IndexType>(ub), _step, _reverse };
+                    }
+                    else
+                    {
+                        return IntegerIterator<IndexType>{ move<IndexType>(lb), _bounds->end_bound().inclusive() ? (*_bounds->end_bound() + _step) : *_bounds->end_bound(), _step, _reverse };
+                    }
+                }
+                else if (_bounds->end_bound().unbounded())
+                {
+                    if (lb > *_bounds->start_bound())
+                    {
+                        return IntegerIterator<IndexType>{ move<IndexType>(lb), move<IndexType>(ub), _step, _reverse };
+                    }
+                    else
+                    {
+                        return IntegerIterator<IndexType>{ _bounds->start_bound().exclusive() ? (*_bounds->start_bound() + _step) : *_bounds->start_bound(), move<IndexType>(ub), _step, _reverse };
+                    }
+                }
+                else
+                {
+                    return IntegerIterator<IndexType>
+                    {
+                        _bounds->start_bound().exclusive() ? (*_bounds->start_bound() + _step) : *_bounds->start_bound(),
+                        _bounds->end_bound().inclusive() ? (*_bounds->end_bound() + _step) : *_bounds->end_bound(),
+                        _step,
+                        _reverse
+                    };
+                }
             }
 
             inline constexpr RetType<IntegerIterator<IndexType>> end(void) const noexcept
@@ -241,6 +320,37 @@ namespace ospf
                 requires std::integral<IndexType>
                     && requires
                     {
+                        { static_cast<IndexType>(0) } -> DecaySameAs<IndexType>;
+                        { static_cast<IndexType>(1) } -> DecaySameAs<IndexType>;
+                        { static_cast<usize>(std::declval<IndexType>()) } -> DecaySameAs<usize>;
+                        { std::declval<IndexType>() - std::declval<IndexType>() } -> DecaySameAs<IndexType>;
+                        { std::declval<IndexType>() + std::declval<IndexType>() } -> DecaySameAs<IndexType>;
+                    }
+            inline constexpr const usize size(void) const
+            {
+                return _bounds->size();
+            }
+
+            template<typename = void>
+                requires std::integral<IndexType>
+                    && requires
+                    {
+                        { static_cast<IndexType>(0) } -> DecaySameAs<IndexType>;
+                        { static_cast<IndexType>(1) } -> DecaySameAs<IndexType>;
+                        { static_cast<usize>(std::declval<IndexType>()) } -> DecaySameAs<usize>;
+                        { std::declval<IndexType>() - std::declval<IndexType>() } -> DecaySameAs<IndexType>;
+                        { std::declval<IndexType>() + std::declval<IndexType>() } -> DecaySameAs<IndexType>;
+                    }
+            inline constexpr const usize size(ArgCLRefType<IndexType> lb, ArgCLRefType<IndexType> ub) const noexcept
+            {
+                return _bounds->size(lb, ub);
+            }
+
+        public:
+            template<typename = void>
+                requires std::integral<IndexType>
+                    && requires
+                    {
                         { static_cast<IndexType>(1) } -> DecaySameAs<IndexType>;
                     }
             inline constexpr RetType<IntegerIterator<IndexType>> begin(void) const noexcept
@@ -254,6 +364,54 @@ namespace ospf
                     one,
                     true
                 };
+            }
+
+            template<typename = void>
+                requires std::integral<IndexType>
+                    && requires
+                    {
+                        { static_cast<IndexType>(1) } -> DecaySameAs<IndexType>;
+                    }
+            inline constexpr RetType<IntegerIterator<IndexType>> begin(ArgRRefType<IndexType> lb, ArgRRefType<IndexType> ub) const noexcept
+            {
+                static const auto one = static_cast<IndexType>(1);
+
+                if (_bounds->start_bound().unbounded() && _bounds->end_bound().unbounded())
+                {
+                    return IntegerIterator<IndexType>{ move<IndexType>(lb), move<IndexType>(ub), one, true };
+                }
+                else if (_bounds->start_bound().unbounded())
+                {
+                    if (ub < *_bounds->end_bound())
+                    {
+                        return IntegerIterator<IndexType>{ move<IndexType>(lb), move<IndexType>(ub), one, true };
+                    }
+                    else
+                    {
+                        return IntegerIterator<IndexType>{ move<IndexType>(lb), _bounds->end_bound().inclusive() ? (*_bounds->end_bound() + one) : *_bounds->end_bound(), one, true };
+                    }
+                }
+                else if (_bounds->end_bound().unbounded())
+                {
+                    if (lb > *_bounds->start_bound())
+                    {
+                        return IntegerIterator<IndexType>{ move<IndexType>(lb), move<IndexType>(ub), one, true };
+                    }
+                    else
+                    {
+                        return IntegerIterator<IndexType>{ _bounds->start_bound().exclusive() ? (*_bounds->start_bound() + one) : *_bounds->start_bound(), move<IndexType>(ub), one, true };
+                    }
+                }
+                else
+                {
+                    return IntegerIterator<IndexType>
+                    {
+                        _bounds->start_bound().exclusive() ? (*_bounds->start_bound() + one) : *_bounds->start_bound(),
+                        _bounds->end_bound().inclusive() ? (*_bounds->end_bound() + one) : *_bounds->end_bound(),
+                        one,
+                        true
+                    };
+                }
             }
 
             template<typename = void>
@@ -363,6 +521,69 @@ namespace ospf
                 return in_start_bound(value) && in_end_bound(value);
             }
 
+            template<typename = void>
+                requires std::integral<IndexType>
+                    && requires
+                    {
+                        { static_cast<IndexType>(0) } -> DecaySameAs<IndexType>;
+                        { static_cast<IndexType>(1) } -> DecaySameAs<IndexType>;
+                        { static_cast<usize>(std::declval<IndexType>()) } -> DecaySameAs<usize>;
+                        { std::declval<IndexType>() - std::declval<IndexType>() } -> DecaySameAs<IndexType>;
+                        { std::declval<IndexType>() + std::declval<IndexType>() } -> DecaySameAs<IndexType>;
+                    }
+            inline constexpr const usize size(void) const
+            {
+                return static_cast<usize>(*_end_bound - *_start_bound - static_cast<IndexType>(static_cast<int>(_start_bound.exclusive())) + static_cast<IndexType>(static_cast<int>(_end_bound.inclusive())));
+            }
+
+            template<typename = void>
+                requires std::integral<IndexType>
+                    && requires
+                    {
+                        { static_cast<IndexType>(0) } -> DecaySameAs<IndexType>;
+                        { static_cast<IndexType>(1) } -> DecaySameAs<IndexType>;
+                        { static_cast<usize>(std::declval<IndexType>()) } -> DecaySameAs<usize>;
+                        { std::declval<IndexType>() - std::declval<IndexType>() } -> DecaySameAs<IndexType>;
+                        { std::declval<IndexType>() + std::declval<IndexType>() } -> DecaySameAs<IndexType>;
+                    }
+            inline constexpr const usize size(ArgCLRefType<IndexType> lb, ArgCLRefType<IndexType> ub) const noexcept
+            {
+                if (_start_bound.unbounded() && _end_bound.unbounded())
+                {
+                    return ub - lb;
+                }
+                else if (_start_bound.unbounded())
+                {
+                    if (ub < *_end_bound)
+                    {
+                        return ub - lb;
+                    }
+                    else
+                    {
+                        return *_end_bound - lb 
+                            + static_cast<IndexType>(static_cast<int>(_end_bound.inclusive()));
+                    }
+                }
+                else if (_end_bound.unbounded())
+                {
+                    if (lb > *_start_bound)
+                    {
+                        return ub - lb;
+                    }
+                    else
+                    {
+                        return ub - *_start_bound 
+                            - static_cast<IndexType>(static_cast<int>(_start_bound.exclusive()));
+                    }
+                }
+                else
+                {
+                    return *_end_bound - *_start_bound
+                        - static_cast<IndexType>(static_cast<int>(_start_bound.exclusive())) 
+                        + static_cast<IndexType>(static_cast<int>(_end_bound.inclusive()));
+                }
+            }
+
         public:
             inline constexpr RangeBoundsReverseWrapper<IndexType> reverse(void) const noexcept
             {
@@ -380,6 +601,7 @@ namespace ospf
                     && requires
                     {
                         { static_cast<IndexType>(1) } -> DecaySameAs<IndexType>;
+                        { std::declval<IndexType>() + std::declval<IndexType>() } -> DecaySameAs<IndexType>;
                     }
             inline constexpr RetType<IntegerIterator<IndexType>> begin(void) const noexcept
             {
@@ -391,6 +613,54 @@ namespace ospf
                     _end_bound.inclusive() ? (*_end_bound + one) : *_end_bound,
                     one
                 };
+            }
+
+            template<typename = void>
+                requires std::integral<IndexType>
+                    && requires
+                    {
+                        { static_cast<IndexType>(1) } -> DecaySameAs<IndexType>;
+                        { std::declval<IndexType>() + std::declval<IndexType>() } -> DecaySameAs<IndexType>;
+                    }
+            inline constexpr RetType<IntegerIterator<IndexType>> begin(ArgRRefType<IndexType> lb, ArgRRefType<IndexType> ub) const noexcept
+            {
+                static const auto one = static_cast<IndexType>(1);
+
+                if (_start_bound.unbounded() && _end_bound.unbounded())
+                {
+                    return IntegerIterator<IndexType>{ move<IndexType>(lb), move<IndexType>(ub), one };
+                }
+                else if (_start_bound.unbounded())
+                {
+                    if (ub < *_end_bound)
+                    {
+                        return IntegerIterator<IndexType>{ move<IndexType>(lb), move<IndexType>(ub), one };
+                    }
+                    else
+                    {
+                        return IntegerIterator<IndexType>{ move<IndexType>(lb), _end_bound.inclusive() ? (*_end_bound + one) : *_end_bound, one };
+                    }
+                }
+                else if (_end_bound.unbounded())
+                {
+                    if (lb > *_start_bound)
+                    {
+                        return IntegerIterator<IndexType>{ move<IndexType>(lb), move<IndexType>(ub), one };
+                    }
+                    else
+                    {
+                        return IntegerIterator<IndexType>{ _start_bound.exclusive() ? (*_start_bound + one) : *_start_bound, move<IndexType>(ub), one };
+                    }
+                }
+                else
+                {
+                    return IntegerIterator<IndexType>
+                    {
+                        _start_bound.exclusive() ? (*_start_bound + one) : *_start_bound,
+                        _end_bound.inclusive() ? (*_end_bound + one) : *_end_bound,
+                        one
+                    };
+                }
             }
 
             template<typename = void>

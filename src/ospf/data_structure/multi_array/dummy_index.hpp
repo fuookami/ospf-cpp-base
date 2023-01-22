@@ -134,6 +134,32 @@ namespace ospf
 
                 public:
                     template<ShapeType S>
+                    inline constexpr const usize size(const S& shape, const usize dimension) const noexcept
+                    {
+                        return std::visit([](const auto& index)
+                            {
+                                using IndexType = OriginType<decltype(index)>;
+                                if constexpr (DecaySameAs<IndexType, Index1, Index2>)
+                                {
+                                    return 1_uz;
+                                }
+                                else if constexpr (DecaySameAs<IndexType, Range1, Range2>)
+                                {
+                                    // todo: after debugged range.size, use range.size
+                                    return shape.size_of_dimension(dimension);
+                                }
+                                else if constexpr (DecaySameAs<IndexType, Array1, Array2>)
+                                {
+                                    return index.size();
+                                }
+                                //else
+                                //{
+                                //    static_assert(false, "non-exhaustive visitor!");
+                                //}
+                            }, _variant);
+                    }
+
+                    template<ShapeType S>
                     inline constexpr DummyIndexEnumerator iter(const S& shape, const usize dimension) const noexcept
                     {
                         return std::visit([](const auto& index)
@@ -147,11 +173,19 @@ namespace ospf
                                 {
                                     return DummyIndexEnumerator{ IntegerIterator<isize>{ index, index + 1_iz, 1_iz }, IntegerIterator<isize>{}, [&shape, dimension](const isize index) { return shape.actual_index(dimension, index); } };
                                 }
-                                else if constexpr (DecaySameAs<IndexType, Range1, Array1>)
+                                else if constexpr (DecaySameAs<IndexType, Range1>)
+                                {
+                                    return DummyIndexEnumerator{ index.begin(0_uz, shape.size_of_dimension(dimension)), index.end() };
+                                }
+                                else if constexpr (DecaySameAs<IndexType, Range2>)
+                                {
+                                    return DummyIndexEnumerator{ index.begin(0_uz, shape.size_of_dimension(dimension)), index.end(), [&shape, dimension](const isize index) { return shape.actual_index(dimension, index); } };
+                                }
+                                else if constexpr (DecaySameAs<IndexType, Array1>)
                                 {
                                     return DummyIndexEnumerator{ index.begin(), index.end() };
                                 }
-                                else if constexpr (DecaySameAs<IndexType, Range2, Array2>)
+                                else if constexpr (DecaySameAs<IndexType, Array2>)
                                 {
                                     return DummyIndexEnumerator{ index.begin(), index.end(), [&shape, dimension](const isize index) { return shape.actual_index(dimension, index); } };
                                 }
@@ -172,6 +206,7 @@ namespace ospf
                 public:
                     using ShapeType = OriginType<S>;
                     using VectorType = typename ShapeType::VectorType;
+                    using VectorViewType = typename ShapeType::VectorViewType;
                     static constexpr const auto dim = ShapeType::dim;
 
                 public:
@@ -204,8 +239,18 @@ namespace ospf
                         return _has_next;
                     }
 
+                    inline constexpr const usize size(void) const noexcept
+                    {
+                        usize ret{ 1_uz };
+                        for (usize i{ 0_uz }; i != _dummy_vector.size(); ++i)
+                        {
+                            ret *= _dummy_vector[i].size(this->_shape, i);
+                        }
+                        return ret;
+                    }
+
                 public:
-                    inline constexpr std::optional<Ref<VectorType>> operator*(void) const noexcept
+                    inline constexpr std::optional<VectorViewType> operator*(void) const noexcept
                     {
                         if (_curr == _end)
                         {
@@ -213,7 +258,7 @@ namespace ospf
                         }
                         else
                         {
-                            return Ref<VectorType>{ _next };
+                            return VectorViewType{ _next };
                         }
                     }
 
@@ -236,7 +281,7 @@ namespace ospf
                     {
                         assert(_has_next);
 
-                        for (auto i{ _shape.dimension() - 1 }; i != npos; --i)
+                        for (usize i{ _shape.dimension() - 1 }; i != npos; --i)
                         {
                             auto index = *_enumerators[i];
                             if (index.has_value())

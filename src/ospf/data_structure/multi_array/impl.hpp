@@ -12,6 +12,7 @@ namespace ospf
         namespace multi_array
         {
             using DummyIndex = dummy_index::DummyIndex;
+            using MapIndex = map_index::MapIndex;
 
             template<typename T, typename C, ShapeType S, typename Self>
             class MultiArrayImpl
@@ -24,6 +25,7 @@ namespace ospf
                 using ShapeType = OriginType<S>;
                 using VectorType = typename ShapeType::VectorType;
                 using VectorViewType = typename ShapeType::VectorViewType;
+                static constexpr const auto dim = ShapeType::dim;
 
             protected:
                 constexpr MultiArrayImpl(void) = default;
@@ -65,10 +67,22 @@ namespace ospf
                     return Trait::get_const_value(Trait::get_const_container(self()), Trait::get_shape(self()).index(vector));
                 }
 
+                template<typename = void>
+                    requires requires (ContainerType& array) { array.reserve(std::declval<usize>()); }
                 inline DynRefArray<ValueType> get(const std::span<DummyIndex, dim> dummy_vector)
                 {
-
+                    dummy_index::DummyAccessEnumerator<ShapeType> iter{ Trait::get_shape(self()), dummy_vector };
+                    DynRefArray<ValueType> ret;
+                    ret.reserve(iter.size());
+                    while (iter)
+                    {
+                        const auto vector = *iter;
+                        ret.push_back(get(vector));
+                        ++iter;
+                    }
                 }
+
+                // todo
 
             private:
                 struct Trait : public Self
