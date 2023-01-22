@@ -63,19 +63,17 @@ namespace ospf
                 using Type = T;
             };
 
-            static constexpr const usize npos = (std::numeric_limits<usize>::max)();
-
             template<typename T, typename... Types>
             inline static constexpr const usize index(const usize length) noexcept
             {
-                constexpr auto i = variable_type_list::type_index<T, Types...>();
+                constexpr auto i = type_index<T, Types...>();
                 return i < length ? i : npos;
             }
 
             template<typename T, typename... Types>
             inline static constexpr const usize strict_index(const usize length) noexcept
             {
-                constexpr auto i = variable_type_list::strict_type_index<T, Types_...>();
+                constexpr auto i = strict_type_index<T, Types...>();
                 return i < length ? i : npos;
             }
         };
@@ -83,7 +81,6 @@ namespace ospf
         template<typename... Types>
         struct VariableTypeList
         {
-            static constexpr const usize npos = variable_type_list::npos;
             static constexpr const usize length = sizeof...(Types);
 
             template<usize index>
@@ -96,6 +93,9 @@ namespace ospf
 
             template<typename T>
             static constexpr const usize strict_index = variable_type_list::strict_index(length);
+
+            template<typename T>
+            static constexpr const bool contains = index<T> != npos;
         };
 
         template<usize index, typename... Types>
@@ -106,5 +106,8 @@ namespace ospf
 
         template<typename T, typename... Types>
         static constexpr const usize strict_type_index = VariableTypeList<Types...>::template strict_index<T>;
+
+        template<typename T, typename... Types>
+        static constexpr const bool contains_type = VariableTypeList<Types...>::template contains<T>;
     };
 };

@@ -22,6 +22,7 @@
     <ClInclude Include="src\ospf\auto_link.hpp" />
     <ClInclude Include="src\ospf\basic_definition.hpp" />
     <ClInclude Include="src\ospf\concepts.hpp" />
+    <ClInclude Include="src\ospf\concepts\container.hpp" />
     <ClInclude Include="src\ospf\concepts\copy_faster.hpp" />
     <ClInclude Include="src\ospf\concepts\base.hpp" />
     <ClInclude Include="src\ospf\concepts\with_default.hpp" />
@@ -29,7 +30,7 @@
     <ClInclude Include="src\ospf\config.hpp" />
     <ClInclude Include="src\ospf\data_structure.hpp" />
     <ClInclude Include="src\ospf\data_structure\data_table.hpp" />
-    <ClInclude Include="src\ospf\data_structure\data_table\concept.hpp" />
+    <ClInclude Include="src\ospf\data_structure\data_table\concepts.hpp" />
     <ClInclude Include="src\ospf\data_structure\data_table\cell.hpp" />
     <ClInclude Include="src\ospf\data_structure\data_table\header.hpp" />
     <ClInclude Include="src\ospf\data_structure\data_table\line.hpp" />

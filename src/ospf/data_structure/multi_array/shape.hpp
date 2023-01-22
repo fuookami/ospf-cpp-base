@@ -14,25 +14,25 @@ namespace ospf
     {
         static constexpr const auto dynamic_dimension = std::dynamic_extent;
 
-        template<typename S>
-        concept ShapeType = requires (const S& shape, LRefType<typename S::VectorType> vector)
-        {
-            { shape.zero() } -> DecaySameAs<typename S::VectorType>;
-            { shape.size() } -> DecaySameAs<usize>;
-            { shape.dimension() } -> DecaySameAs<usize>;
-            { S::dimension_of(std::declval<typename S::VectorViewType>()) } -> DecaySameAs<usize>;
-            { shape.shape() } -> DecaySameAs<typename S::VectorViewType>;
-            { shape.offset() } -> DecaySameAs<typename S::VectorViewType>;
-            { shape.size_of_dimension(std::declval<usize>()) } -> DecaySameAs<Result<usize>>;
-            { shape.offset_of_dimension(std::declval<usize>()) } -> DecaySameAs<Result<usize>>;
-            { shape.index(std::declval<typename S::VectorViewType>()) } -> DecaySameAs<Result<usize>>;
-            { shape.vector(std::declval<usize>()) } -> DecaySameAs<typename S::VectorType>;
-            { shape.next_vector(vector) } -> DecaySameAs<bool>;
-            { shape.actual_index(std::declval<usize>(), std::declval<isize>()) } -> DecaySameAs<std::optional<usize>>;
-        };
-
         namespace multi_array
         {
+            template<typename S>
+            concept ShapeType = requires (const S & shape, LRefType<typename S::VectorType> vector)
+            {
+                { shape.zero() } -> DecaySameAs<typename S::VectorType>;
+                { shape.size() } -> DecaySameAs<usize>;
+                { shape.dimension() } -> DecaySameAs<usize>;
+                { S::dimension_of(std::declval<typename S::VectorViewType>()) } -> DecaySameAs<usize>;
+                { shape.shape() } -> DecaySameAs<typename S::VectorViewType>;
+                { shape.offset() } -> DecaySameAs<typename S::VectorViewType>;
+                { shape.size_of_dimension(std::declval<usize>()) } -> DecaySameAs<Result<usize>>;
+                { shape.offset_of_dimension(std::declval<usize>()) } -> DecaySameAs<Result<usize>>;
+                { shape.index(std::declval<typename S::VectorViewType>()) } -> DecaySameAs<Result<usize>>;
+                { shape.vector(std::declval<usize>()) } -> DecaySameAs<typename S::VectorType>;
+                { shape.next_vector(vector) } -> DecaySameAs<bool>;
+                { shape.actual_index(std::declval<usize>(), std::declval<isize>()) } -> DecaySameAs<std::optional<usize>>;
+            };
+
             template<
                 usize d,
                 typename V,
