@@ -553,14 +553,14 @@ namespace ospf
             }
 
             template<typename... Args>
-                requires std::is_constructible_v<LeftType, Args...> && !std::is_constructible_v<RightType, Args...>
+                requires (std::constructible_from<LeftType, Args...> && !std::constructible_from<RightType, Args...>)
             inline constexpr LRefType<LeftType> emplace(Args&&... args) noexcept
             {
                 return _variant.template emplace<0_uz>(LeftType{ std::forward<Args>(args)... });
             }
 
             template<typename... Args>
-                requires std::is_constructible_v<RightType, Args...> && !std::is_constructible_v<LeftType, Args...>
+                requires (std::constructible_from<RightType, Args...> && !std::constructible_from<LeftType, Args...>)
             inline constexpr LRefType<RightType> emplace(Args&&... args) noexcept
             {
                 return _variant.template emplace<1_uz>(RightType{ std::forward<Args>(args)... });

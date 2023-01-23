@@ -38,7 +38,7 @@ namespace ospf
             }
             else
             {
-                static_assert("Unsupported size.");
+                static_assert(false, "unsupported bits size.");
             }
         }
     };

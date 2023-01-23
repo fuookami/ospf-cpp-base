@@ -267,9 +267,6 @@
     <ClInclude Include="src\ospf\log\level.hpp">
       <Filter>src\ospf\log</Filter>
     </ClInclude>
-    <ClInclude Include="src\ospf\iterator.hpp">
-      <Filter>src\ospf</Filter>
-    </ClInclude>
     <ClInclude Include="src\ospf\functional\value_or_reference.hpp">
       <Filter>src\ospf\functional</Filter>
     </ClInclude>
@@ -342,9 +339,6 @@
     <ClInclude Include="src\ospf\data_structure\multi_array\dummy_index.hpp">
       <Filter>src\ospf\data-structure\multi_array</Filter>
     </ClInclude>
-    <ClInclude Include="src\ospf\functional\iterator.hpp">
-      <Filter>src\ospf\functional</Filter>
-    </ClInclude>
     <ClInclude Include="src\ospf\meta_programming\iterator.hpp">
       <Filter>src\ospf\meta-programming</Filter>
     </ClInclude>
@@ -360,11 +354,23 @@
     <ClInclude Include="src\ospf\data_structure\multi_array\dynamic_dimension.hpp">
       <Filter>src\ospf\data-structure\multi_array</Filter>
     </ClInclude>
-    <ClInclude Include="src\ospf\data_structure\multi_array\view.hpp">
+    <ClInclude Include="src\ospf\data_structure\multi_array\map_view.hpp">
       <Filter>src\ospf\data-structure\multi_array</Filter>
     </ClInclude>
     <ClInclude Include="src\ospf\concepts\container.hpp">
       <Filter>src\ospf\concepts</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ospf\data_structure\multi_array\view.hpp">
+      <Filter>src\ospf\data-structure\multi_array</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ospf\memory.hpp">
+      <Filter>src\ospf</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ospf\parallelism.hpp">
+      <Filter>src\ospf</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ospf\serialization.hpp">
+      <Filter>src\ospf</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

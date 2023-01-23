@@ -158,7 +158,7 @@ namespace ospf
 
                 inline constexpr DynRefArray<ValueType> get(const DummyVectorViewType dummy_vector) const
                 {
-                    dummy_index::DummyAccessEnumerator<ShapeType> iter{ shape(), dummy_vector};
+                    dummy_index::DummyAccessEnumerator<ShapeType> iter{ shape(), dummy_vector };
                     DynRefArray<ValueType> ret;
                     ret.reserve(iter.size());
                     while (iter)
@@ -171,8 +171,10 @@ namespace ospf
                 }
 
             public:
+                // todo: use operator[...] to replace operator(...) in C++23
+
                 template<typename... Args>
-                    requires is_normal_vector<Args...> && !is_dummy_vector<Args...> && !is_map_vector<Args...>
+                    requires is_normal_vector<Args...>
                         && (dim == dynamic_dimension || dim == VariableTypeList<Args...>::length)
                 inline constexpr LRefType<ValueType> operator()(Args&&... args)
                 {
@@ -180,7 +182,7 @@ namespace ospf
                 }
 
                 template<typename... Args>
-                    requires is_normal_vector<Args...> && !is_dummy_vector<Args...> && !is_map_vector<Args...>
+                    requires is_normal_vector<Args...>
                         && (dim == dynamic_dimension || dim == VariableTypeList<Args...>::length)
                 inline constexpr CLRefType<ValueType> operator()(Args&&... args) const
                 {
@@ -188,7 +190,7 @@ namespace ospf
                 }
 
                 template<typename... Args>
-                    requires is_dummy_vector<Args...> && !is_map_vector<Args...>
+                    requires is_dummy_vector<Args...> && !is_normal_vector<Args...>
                         && (dim == dynamic_dimension || dim == VariableTypeList<Args...>::length)
                 inline constexpr DynRefArray<ValueType> operator()(Args&&... args) const
                 {
@@ -362,38 +364,142 @@ namespace ospf
                     }
                     else
                     {
-                        static_assert(false, "Vector dimension mismatched shape.");
+                        static_assert(false, "vector dimension mismatched shape.");
                     }
                 }
+
+            protected:
+                template<typename Ret, usize to_dim>
+                    requires (to_dim < dim) && (to_dim != 0_uz)
+                inline constexpr decltype(auto) map(const MapVectorType<to_dim>& vector) const
+                {
+                    const auto map_dimension = map_to_dimension(vector);
+                    const auto to_shape = map_to_shape(map_dimension);
+                    auto base_vector = base_map_to_vector(vector);
+
+                    Ret ret;
+                    ret.reserve(to_shape.size());
+                    auto map_vector = to_shape.zero();
+                    do
+                    {
+                        for (usize i{ 0_uz }; i != to_dim; ++i)
+                        {
+                            base_vector[map_dimension[i]] = DummyIndex{ map_vector[i] };
+                        }
+                        ret.push_back(get(base_vector));
+                    } while (to_shape.next_vector(map_vector));
+
+
+                    return std::make_pair(std::move(to_shape), std::move(ret));
+                }
+
+                // todo: map moved map vector type
+
+            private:
+                template<usize to_dim>
+                inline constexpr std::array<usize, to_dim> map_to_dimension(const MapVectorType<to_dim>& vector) const
+                {
+                    std::array<std::pair<usize, usize>, to_dim> map{ { 0_uz, 0_uz } };
+                    for (usize i{ 0_uz }, j{ 0_uz }; i != vector.size(); ++i)
+                    {
+                        if (vector[i].is_holder())
+                        {
+                            map[j] = std::make_pair(i, vector[i].holder().to_dimension);
+                            ++j;
+                        }
+                    }
+                    std::sort(map.begin(), map.end(), 
+                        [](const std::pair<usize, usize> lhs, const std::pair<usize, usize> rhs) 
+                        { 
+                            return lhs.second < rhs.second 
+                        });
+                    for (auto i{ 0_uz }, j{ to_dim - 1_uz }; i != j; ++i)
+                    {
+                        if (map[i].second == map[i + 1_uz].second)
+                        {
+                            throw OSPFException{ OSPFError{ OSPFErrCode::ApplicationFail, std::format("same mapping to dimension between dimension {} and {}", map[i].first, map[i + 1_uz].first) } };
+                        }
+                    }
+                    std::array<usize, to_dim> ret{ 0_uz };
+                    for (usize i{ 0_uz }; i != to_dim; ++i)
+                    {
+                        ret[i] = map[i].first;
+                    }
+                    return ret;
+                }
+
+                template<usize to_dim>
+                inline constexpr decltype(auto) map_to_shape(const std::array<usize, to_dim>& map_dimension) const
+                {
+                    using ToShapeType = Shape<to_dim>;
+                    using ToVectorType = typename ToShapeType::VectorType;
+                    ToVectorType ret{ 0_uz };
+                    for (usize i{ 0_uz }; i != to_dim; ++i)
+                    {
+                        ret[i] = shape().size_of_dimension(map_dimension[i]);
+                    }
+                    return ToShapeType{ move<ToVectorType>(ret) };
+                }
+
+                template<usize to_dim>
+                inline constexpr DummyVectorType base_map_to_vector(const MapVectorType<to_dim>& vector) const
+                {
+                    if constexpr (dim == dynamic_dimension)
+                    {
+                        DummyVectorType ret{ dimension(), DummyIndex{} };
+                        for (usize i{ 0_uz }; i != dimension(); ++i)
+                        {
+                            if (vector[i].is_index())
+                            {
+                                ret[i] = vector[i].index();
+                            }
+                        }
+                        return ret;
+                    }
+                    else
+                    {
+                        DummyVectorType ret{ DummyIndex{} };
+                        for (usize i{ 0_uz }; i != dimension(); ++i)
+                        {
+                            if (vector[i].is_index())
+                            {
+                                ret[i] = vector[i].index();
+                            }
+                        }
+                        return ret;
+                    }
+                }
+
+                // todo: get base map vector for moved map vector type
 
             private:
                 struct Trait : public Self
                 {
-                    inline static constexpr const ShapeType& get_shape(const Self& self) noexcept
+                    inline static constexpr CLRefType<ShapeType> get_shape(const Self& self) noexcept
                     {
                         static const auto get_impl = &Self::OSPF_CRTP_FUNCTION(get_shape);
                         return (self.*get_impl)();
                     }
 
-                    inline static constexpr ContainerType& get_container(Self& self) noexcept
+                    inline static constexpr LRefType<ContainerType> get_container(Self& self) noexcept
                     {
                         static const auto get_impl = &Self::OSPF_CRTP_FUNCTION(get_container);
                         return (self.*get_impl)();
                     }
 
-                    inline static constexpr const ContainerType& get_const_container(const Self& self) noexcept
+                    inline static constexpr CLRefType<ContainerType> get_const_container(const Self& self) noexcept
                     {
                         static const auto get_impl = &Self::OSPF_CRTP_FUNCTION(get_const_container);
                         return (self.*get_impl)();
                     }
 
-                    inline static constexpr ValueType& get_value(ContainerType& array, const usize i)
+                    inline static constexpr LRefType<ValueType> get_value(ContainerType& array, const usize i)
                     {
                         static const auto get_impl = &Self::OSPF_CRTP_FUNCTION(get_value);
                         return (*get_impl)(array, i);
                     }
 
-                    inline static constexpr const ValueType& get_const_value(const ContainerType& array, const usize i)
+                    inline static constexpr CLRefType<ValueType> get_const_value(const ContainerType& array, const usize i)
                     {
                         static const auto get_impl = &Self::OSPF_CRTP_FUNCTION(get_const_value);
                         return (*get_impl)(array, i);

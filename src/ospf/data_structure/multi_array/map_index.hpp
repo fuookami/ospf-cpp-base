@@ -6,7 +6,7 @@ namespace ospf
 {
     inline namespace data_structure
     {
-        inline namespace multi_array
+        namespace multi_array
         {
             namespace map_index
             {
@@ -114,11 +114,14 @@ namespace ospf
                         return _either.right();
                     }
 
+                    // todo: moved getter
+
                 private:
                     Either _either;
                 };
 
                 template<usize dim, usize to_dim>
+                    requires (dim > to_dim) && (to_dim != 0_uz)
                 class MapVector
                 {
                     using Index = map_index::MapIndex;
@@ -141,7 +144,7 @@ namespace ospf
                 public:
                     inline constexpr const usize size(void) const noexcept
                     {
-                        return _vector.size();
+                        return dim;
                     }
 
                 private:
@@ -176,6 +179,7 @@ namespace ospf
             {
                 static constexpr const auto dim = VariableTypeList<Args...>::length;
                 static constexpr const auto to_dim = VariableTypeList<Args...>::template count<map_index::MapPlaceHolder>;
+                static_assert(to_dim != 0_uz, "there should be at least 1 place holders in map vector!");
                 return map_index::MapVector<dim, to_dim>{ std::forward<MapIndex>(args)... };
             }
         };

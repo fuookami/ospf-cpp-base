@@ -122,7 +122,7 @@ namespace ospf
                     constexpr DummyIndex(Array2&& array)
                         : _variant(std::move(array)) {}
 
-                    constexpr DummyIndex(const RangeFull _)
+                    constexpr DummyIndex(const RangeFull _ = __)
                         : _variant(RangeBounds<usize>::full()) {}
 
                 public:
