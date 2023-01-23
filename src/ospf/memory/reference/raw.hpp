@@ -30,7 +30,7 @@ namespace ospf
                     : _ptr(cref) {}
 
                 template<typename U>
-                    requires std::is_convertible_v<ospf::PtrType<U>, PtrType>
+                    requires std::convertible_to<ospf::PtrType<U>, PtrType>
                 Ref(CLRefType<U> cref) noexcept
                     : _ptr(cref) {}
 

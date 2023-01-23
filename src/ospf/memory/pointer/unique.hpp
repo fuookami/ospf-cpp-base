@@ -215,49 +215,49 @@ namespace ospf
 
             public:
                 template<typename U>
-                    requires std::is_convertible_v<ospf::PtrType<U>, PtrType>
+                    requires std::convertible_to<ospf::PtrType<U>, PtrType>
                 explicit Ptr(std::unique_ptr<U> ptr) noexcept
                     : _ptr(move<std::unique_ptr<U>>(ptr)) {}
 
                 template<typename U, typename D>
-                    requires std::is_convertible_v<ospf::PtrType<U>, PtrType>
+                    requires std::convertible_to<ospf::PtrType<U>, PtrType>
                 explicit Ptr(std::unique_ptr<U, D> ptr) noexcept
                     : _ptr(move<std::unique_ptr<U, D>>(ptr)) {}
 
                 template<typename U, typename D>
-                    requires std::is_convertible_v<ospf::PtrType<U>, PtrType>
+                    requires std::convertible_to<ospf::PtrType<U>, PtrType>
                 explicit Ptr(std::unique_ptr<const U, D> ptr) noexcept
                     : _ptr(move<std::unique_ptr<const U, D>>(ptr)) {}
 
 #ifdef OSPF_UNIQUE_PTR_CHECK_NEEDED
                 template<typename U>
-                    requires std::is_convertible_v<ospf::PtrType<U>, PtrType>
+                    requires std::convertible_to<ospf::PtrType<U>, PtrType>
                 explicit Ptr(Ptr<U, PointerCategory::Unique> ptr)
                     : _lock(std::move(ptr._lock)), _ptr(std::move(ptr._ptr)) {}
 #else
                 template<typename U>
-                    requires std::is_convertible_v<ospf::PtrType<U>, PtrType>
+                    requires std::convertible_to<ospf::PtrType<U>, PtrType>
                 explicit Ptr(Ptr<U, PointerCategory::Unique> ptr) noexcept
                     : _ptr(std::move(ptr._ptr)) {}
 #endif
 
                 template<typename U>
-                    requires std::is_convertible_v<ospf::PtrType<U>, PtrType>
+                    requires std::convertible_to<ospf::PtrType<U>, PtrType>
                 explicit Ptr(const ospf::PtrType<U> ptr) noexcept
                     : _ptr(UniquePtrType{ static_cast<PtrType>(ptr), DefaultDeleterType{} }) {}
 
                 template<typename U>
-                    requires std::is_convertible_v<ospf::CPtrType<U>, CPtrType>
+                    requires std::convertible_to<ospf::CPtrType<U>, CPtrType>
                 explicit Ptr(const ospf::CPtrType<U> cptr) noexcept
                     : _ptr(UniquePtrType{ const_cast<PtrType>(static_cast<CPtrType>(cptr)), DefaultDeleterType{} }) {}
 
                 template<typename U, typename D>
-                    requires std::is_convertible_v<ospf::PtrType<U>, PtrType>
+                    requires std::convertible_to<ospf::PtrType<U>, PtrType>
                 explicit Ptr(const ospf::PtrType<U> ptr, D&& deletor) noexcept
                     : _ptr(UniquePtrType{ static_cast<PtrType>(ptr), std::forward<D>(deletor) }) {}
 
                 template<typename U, typename D>
-                    requires std::is_convertible_v<ospf::CPtrType<U>, CPtrType>
+                    requires std::convertible_to<ospf::CPtrType<U>, CPtrType>
                 explicit Ptr(const ospf::CPtrType<U> cptr, D&& deletor) noexcept
                     : _ptr(UniquePtrType{ const_cast<PtrType>(static_cast<CPtrType>(cptr)), std::forward<D>(deletor) }) {}
 
@@ -303,7 +303,7 @@ namespace ospf
                 }
 
                 template<typename U>
-                    requires std::is_convertible_v<ospf::PtrType<U>, PtrType>
+                    requires std::convertible_to<ospf::PtrType<U>, PtrType>
                 inline void reset(const ospf::PtrType<U> ptr) OSPF_UNIQUE_PTR_NOEXCEPT
                 {
 #ifdef OSPF_UNIQUE_PTR_CHECK_NEEDED
@@ -313,7 +313,7 @@ namespace ospf
                 }
 
                 template<typename U>
-                    requires std::is_convertible_v<ospf::PtrType<U>, PtrType>
+                    requires std::convertible_to<ospf::PtrType<U>, PtrType>
                 inline void reset(const ospf::CPtrType<U> cptr) OSPF_UNIQUE_PTR_NOEXCEPT
                 {
 #ifdef OSPF_UNIQUE_PTR_CHECK_NEEDED
@@ -374,7 +374,7 @@ namespace ospf
         }
 
         template<typename T, typename U, typename... Args>
-            requires std::is_convertible_v<PtrType<U>, PtrType<T>> && std::is_constructible_v<U, Args...>
+            requires std::convertible_to<PtrType<U>, PtrType<T>> && std::is_constructible_v<U, Args...>
         inline decltype(auto) make_base_unique(Args&&... args)
         {
             return pointer::Ptr<T, pointer::PointerCategory::Unique>{ static_cast<T*>(new U{ std::forward<Args>(args)... }) };

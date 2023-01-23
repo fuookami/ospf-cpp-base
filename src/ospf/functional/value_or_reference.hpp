@@ -57,6 +57,21 @@ namespace ospf
             constexpr ValOrRef(void)
                 : _either(EitherType::left(DefaultValue<ValueType>::value)) {}
 
+            template<typename U>
+                requires std::convertible_to<U, ValueType> && std::convertible_to<ospf::PtrType<U>, PtrType>
+            constexpr ValOrRef(const ValOrRef<U, cat>& ano)
+                : _either(std::visit([](const auto& value)
+                    {
+                        if constexpr (DecaySameAs<decltype(value), U>)
+                        {
+                            return EitherType::left(ValueType{ value });
+                        }
+                        else if constexpr (DecaySameAs<decltype(value), Ref<U, cat>>)
+                        {
+                            return EitherType::right(ReferenceType{ value });
+                        }
+                    }, ano._either)) {}
+
         private:
             constexpr ValOrRef(ArgCLRefType<ValueType> value)
                 : _either(EitherType::left(value)) {}

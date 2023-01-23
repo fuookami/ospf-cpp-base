@@ -35,7 +35,7 @@ namespace ospf
                 };
 
                 template<typename U>
-                    requires std::is_convertible_v<PtrType<T>, PtrType<U>>
+                    requires std::convertible_to<PtrType<T>, PtrType<U>>
                 struct BaseDeleter
                 {
                     BaseDeleter(const std::mutex& m, const Pool& p)
@@ -75,7 +75,7 @@ namespace ospf
                 }
 
                 template<typename U, typename... Args>
-                    requires std::is_convertible_v<PtrType<T>, PtrType<U>> && std::is_constructible_v<T, Args...>
+                    requires std::convertible_to<PtrType<T>, PtrType<U>> && std::is_constructible_v<T, Args...>
                 inline Ptr<U> make_base_ptr(Args&&... args) noexcept
                 {
                     return make_base_ptr_from_pool<U, pointer::PointerCategory::Raw>(std::forward<Args>(args)...);
@@ -89,7 +89,7 @@ namespace ospf
                 }
 
                 template<typename U, typename... Args>
-                    requires std::is_convertible_v<PtrType<T>, PtrType<U>> && std::is_constructible_v<T, Args...>
+                    requires std::convertible_to<PtrType<T>, PtrType<U>> && std::is_constructible_v<T, Args...>
                 inline Unique<U> make_base_unique(Args&&... args) noexcept
                 {
                     return make_base_ptr_from_pool<U, pointer::PointerCategory::Unique>(std::forward<Args>(args)...);
@@ -103,7 +103,7 @@ namespace ospf
                 }
 
                 template<typename U, typename... Args>
-                    requires std::is_convertible_v<PtrType<T>, PtrType<U>> && std::is_constructible_v<T, Args...>
+                    requires std::convertible_to<PtrType<T>, PtrType<U>> && std::is_constructible_v<T, Args...>
                 inline Shared<U> make_base_shared(Args&&... args) noexcept
                 {
                     return make_base_ptr_from_pool<U, pointer::PointerCategory::Shared>(std::forward<Args>(args)...);
@@ -116,7 +116,7 @@ namespace ospf
                 }
 
                 template<typename U>
-                    requires std::is_convertible_v<PtrType<U>, PtrType<T>>
+                    requires std::convertible_to<PtrType<U>, PtrType<T>>
                 inline decltype(auto) base_deleter(void) const noexcept
                 {
                     return BaseDeleter<U>{ _mutex, _pool };
@@ -146,7 +146,7 @@ namespace ospf
                 }
 
                 template<typename U, pointer::PointerCategory cat, typename... Args>
-                    requires std::is_convertible_v<PtrType<T>, PtrType<U>>
+                    requires std::convertible_to<PtrType<T>, PtrType<U>>
                 inline decltype(auto) make_base_ptr_from_pool(Args&&... args) noexcept
                 {
                     std::lock_guard<std::mutex> guard{ _mutex };

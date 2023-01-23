@@ -784,6 +784,60 @@ namespace ospf
                     _container.assign(refs);
                 }
 
+                template<
+                    usize len,
+                    template<typename T, usize l> class C1
+                >
+                    requires std::copy_constructible<ReferenceType>
+                inline constexpr void assign(const StaticReferenceArray<T, len, cat, C1>& refs)
+                {
+                    assign(refs.cbegin(), refs.cend());
+                }
+
+                template<
+                    typename U,
+                    usize len,
+                    template<typename T, usize l> class C1
+                >
+                    requires std::copy_constructible<ReferenceType> && std::convertible_to<PtrType<U>, PtrType<ValueType>>
+                inline constexpr void assign(const StaticReferenceArray<U, len, cat, C1>& refs)
+                {
+                    assign(
+                        boost::make_transform_iterator(refs.cbegin(), [](const Ref<U, cat>& ref) { return ReferenceType{ ref }; }),
+                        boost::make_transform_iterator(refs.cend(), [](const Ref<U, cat>& ref) { return ReferenceType{ ref }; }),
+                    );
+                }
+
+                template<
+                    template<typename T> class C1
+                >
+                    requires std::copy_constructible<ReferenceType>
+                inline constexpr void assign(const DynamicReferenceArray<T, cat, C1>& refs)
+                {
+                    assign(refs.cbegin(), refs.cend());
+                }
+
+                template<
+                    typename U,
+                    template<typename T> class C1
+                >
+                    requires std::copy_constructible<ReferenceType> && std::convertible_to<PtrType<U>, PtrType<ValueType>>
+                inline constexpr void assign(const DynamicReferenceArray<U, cat, C1>& refs)
+                {
+                    assign(
+                        boost::make_transform_iterator(refs.cbegin(), [](const Ref<U, cat>& ref) { return ReferenceType{ ref }; }),
+                        boost::make_transform_iterator(refs.cend(), [](const Ref<U, cat>& ref) { return ReferenceType{ ref }; })
+                    );
+                }
+
+                // todo: assign moved dynamic reference array
+
+                template<std::ranges::range R>
+                inline constexpr void assign(const R& range)
+                {
+                    assign(std::ranges::begin(range), std::ranges::end(range));
+                }
+
             public:
                 template<typename = void>
                     requires requires (ContainerType& container) { { container.data() } -> DecaySameAs<PtrType<ReferenceType>>; }
@@ -853,7 +907,7 @@ namespace ospf
                 }
 
                 template<std::input_iterator It>
-                    requires requires (const It it) { { *it } -> std::same_as<const ValueType&>; }
+                    requires requires (const It it) { { *it } -> std::same_as<CLRefType<ValueType>>; }
                 inline constexpr RetType<IterType> insert(ArgCLRefType<ConstIterType> pos, It&& first, It&& last)
                 {
                     return IterType{ _container.insert(pos._iter,
@@ -872,6 +926,60 @@ namespace ospf
                 inline constexpr RetType<IterType> insert(ArgCLRefType<ConstIterType> pos, std::initializer_list<ReferenceType> refs)
                 {
                     return IterType{ _container.insert(pos._iter, std::move(refs)) };
+                }
+
+                template<
+                    usize len,
+                    template<typename T, usize l> class C1
+                >
+                    requires std::copy_constructible<ReferenceType>
+                inline constexpr RetType<IterType> insert(ArgCLRefType<ConstIterType> pos, const StaticReferenceArray<T, len, cat, C1>& refs)
+                {
+                    return insert(refs.cbegin(), refs.cend());
+                }
+
+                template<
+                    typename U,
+                    usize len,
+                    template<typename T, usize l> class C1
+                >
+                    requires std::copy_constructible<ReferenceType> && std::convertible_to<PtrType<U>, PtrType<ValueType>>
+                inline constexpr RetType<IterType> insert(ArgCLRefType<ConstIterType> pos, const StaticReferenceArray<U, len, cat, C1>& refs)
+                {
+                    return insert(
+                        boost::make_transform_iterator(refs.cbegin(), [](const Ref<U, cat>& ref) { return ReferenceType{ ref }; }),
+                        boost::make_transform_iterator(refs.cend(), [](const Ref<U, cat>& ref) { return ReferenceType{ ref }; }),
+                    );
+                }
+
+                template<
+                    template<typename T> class C1
+                >
+                    requires std::copy_constructible<ReferenceType>
+                inline constexpr RetType<IterType> insert(ArgCLRefType<ConstIterType> pos, const DynamicReferenceArray<T, cat, C1>& refs)
+                {
+                    return insert(refs.cbegin(), refs.cend());
+                }
+
+                template<
+                    typename U,
+                    template<typename T> class C1
+                >
+                    requires std::copy_constructible<ReferenceType> && std::convertible_to<PtrType<U>, PtrType<ValueType>>
+                inline constexpr RetType<IterType> insert(ArgCLRefType<ConstIterType> pos, const DynamicReferenceArray<U, cat, C1>& refs)
+                {
+                    return insert(
+                        boost::make_transform_iterator(refs.cbegin(), [](const Ref<U, cat>& ref) { return ReferenceType{ ref }; }),
+                        boost::make_transform_iterator(refs.cend(), [](const Ref<U, cat>& ref) { return ReferenceType{ ref }; }),
+                    );
+                }
+
+                // todo: insert moved dynamic reference array
+
+                template<std::ranges::range R>
+                inline constexpr RetType<IterType> insert(ArgCLRefType<ConstIterType> pos, const R& range)
+                {
+                    return insert(std::ranges::begin(range), std::ranges::end(range));
                 }
 
                 inline constexpr RetType<IterType> emplace(ArgCLRefType<ConstIterType> pos, CLRefType<ValueType> ref)
@@ -905,6 +1013,48 @@ namespace ospf
                 {
                     _container.push_back(move<ReferenceType>(ref));
                 }
+
+                template<
+                    usize len,
+                    template<typename T, usize l> class C1
+                >
+                    requires std::copy_constructible<ReferenceType>
+                inline constexpr void push_back(const StaticReferenceArray<T, len, cat, C1>& refs)
+                {
+                    insert(end(), refs);
+                }
+
+                template<
+                    typename U,
+                    usize len,
+                    template<typename T, usize l> class C1
+                >
+                    requires std::copy_constructible<ReferenceType> && std::convertible_to<PtrType<U>, PtrType<ValueType>>
+                inline constexpr void push_back(const StaticReferenceArray<U, len, cat, C1>& refs)
+                {
+                    insert(end(), refs);
+                }
+
+                template<
+                    template<typename T> class C1
+                >
+                    requires std::copy_constructible<ReferenceType>
+                inline constexpr void push_back(const DynamicReferenceArray<T, cat, C1>& refs)
+                {
+                    insert(end(), refs);
+                }
+
+                template<
+                    typename U,
+                    template<typename T> class C1
+                >
+                    requires std::copy_constructible<ReferenceType> && std::convertible_to<PtrType<U>, PtrType<ValueType>>
+                inline constexpr void push_back(const DynamicReferenceArray<U, cat, C1>& refs)
+                {
+                    insert(end(), refs);
+                }
+
+                // todo: push back moved dynamic reference array
 
                 inline constexpr void emplace_back(CLRefType<ValueType> ref)
                 {
@@ -947,6 +1097,48 @@ namespace ospf
                 inline constexpr void push_front(ArgRRefType<ReferenceType> ref)
                 {
                     _container.push_front(move<ReferenceType>(ref));
+                }
+
+                template<
+                    usize len,
+                    template<typename T, usize l> class C1
+                >
+                    requires std::copy_constructible<ReferenceType>
+                inline constexpr void push_front(const StaticReferenceArray<T, len, cat, C1>& refs)
+                {
+                    insert(begin(), refs);
+                }
+
+                template<
+                    typename U,
+                    usize len,
+                    template<typename T, usize l> class C1
+                >
+                    requires std::copy_constructible<ReferenceType> && std::convertible_to<PtrType<U>, PtrType<ValueType>>
+                inline constexpr void push_front(const StaticReferenceArray<U, len, cat, C1>& refs)
+                {
+                    insert(begin(), refs);
+                }
+
+                template<
+                    template<typename T> class C1
+                >
+                    requires std::copy_constructible<ReferenceType>
+                inline constexpr void push_front(const DynamicReferenceArray<T, cat, C1>& refs)
+                {
+                    insert(begin(), refs);
+                }
+
+                // todo: push front moved dynamic reference array
+
+                template<
+                    typename U,
+                    template<typename T> class C1
+                >
+                    requires std::copy_constructible<ReferenceType> && std::convertible_to<PtrType<U>, PtrType<ValueType>>
+                inline constexpr void push_front(const DynamicReferenceArray<U, cat, C1>& refs)
+                {
+                    insert(begin(), refs);
                 }
 
                 inline constexpr void emplace_front(CLRefType<ValueType> ref)

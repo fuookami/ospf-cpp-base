@@ -32,7 +32,7 @@ namespace ospf
             {
                 using T1 = std::decay_t<T>;
                 using T2 = std::decay_t<U>;
-                return (std::is_same_v<T1, T2> || std::is_base_of_v<T2, T1> || std::is_convertible_v<T2, T1>)
+                return (std::is_same_v<T1, T2> || std::is_base_of_v<T2, T1> || std::convertible_to<T2, T1>)
                     ? 0_uz
                     : type_index<T, Types...>() + 1_uz;
             }

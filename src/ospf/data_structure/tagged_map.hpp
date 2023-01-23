@@ -200,7 +200,7 @@ namespace ospf
                 }
 
                 template<typename U>
-                    requires std::is_convertible_v<U, ValueType>
+                    requires std::convertible_to<U, ValueType>
                 inline TaggedMapEntry<T, E, C>& or_insert(CLRefType<U> value)
                 {
                     const auto [iter, succeeded] = _map->insert(ValueType{ value });
@@ -212,7 +212,7 @@ namespace ospf
                 }
 
                 template<typename U>
-                    requires ReferenceFaster<U> && std::is_convertible_v<U, ValueType> && std::movable<U>
+                    requires ReferenceFaster<U> && std::convertible_to<U, ValueType> && std::movable<U>
                 inline TaggedMapEntry<T, E, C>& or_insert(RRefType<U> value)
                 {
                     const auto [iter, succeeded] = _map->insert(ValueType{ move<U>(value) });
@@ -263,7 +263,7 @@ namespace ospf
                 }
 
                 template<typename U>
-                    requires std::is_convertible_v<U, ValueType>
+                    requires std::convertible_to<U, ValueType>
                 TaggedMap(std::initializer_list<U> eles, KeyExtratorType key_extractor = KeyExtratorType{})
                     : TaggedMap(move<KeyExtratorType>(key_extractor))
                 {
@@ -345,14 +345,14 @@ namespace ospf
                 }
 
                 template<typename U>
-                    requires std::is_convertible_v<U, ValueType>
+                    requires std::convertible_to<U, ValueType>
                 inline decltype(auto) insert(CLRefType<U> value)
                 {
                     return insert(ValueType{ value });
                 }
 
                 template<typename U>
-                    requires ReferenceFaster<U> && std::is_convertible_v<U, ValueType> && std::movable<U>
+                    requires ReferenceFaster<U> && std::convertible_to<U, ValueType> && std::movable<U>
                 inline decltype(auto) insert(RRefType<U> value)
                 {
                     return insert(ValueType{ move<U>(value) });
@@ -377,7 +377,7 @@ namespace ospf
                 }
 
                 template<typename U>
-                    requires std::is_convertible_v<U, ValueType>
+                    requires std::convertible_to<U, ValueType>
                 inline void insert(std::initializer_list<U> eles)
                 {
                     for (auto& ele : eles)
@@ -401,14 +401,14 @@ namespace ospf
                 }
 
                 template<typename U>
-                    requires std::is_convertible_v<U, ValueType>
+                    requires std::convertible_to<U, ValueType>
                 inline decltype(auto) insert_or_assign(CLRefType<U> value)
                 {
                     return insert_or_assign(ValueType{ value });
                 }
 
                 template<typename U>
-                    requires ReferenceFaster<U> && std::is_convertible_v<U, ValueType> && std::movable<U>
+                    requires ReferenceFaster<U> && std::convertible_to<U, ValueType> && std::movable<U>
                 inline decltype(auto) insert_or_assign(RRefType<U> value)
                 {
                     return insert_or_assign(ValueType{ move<U>(value) });
