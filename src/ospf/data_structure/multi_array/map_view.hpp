@@ -1,5 +1,6 @@
 #pragma once
 
+#include <ospf/data_structure/multi_array/concepts.hpp>
 #include <ospf/data_structure/multi_array/impl.hpp>
 
 namespace ospf
@@ -60,8 +61,8 @@ namespace ospf
                     requires (to_dim < dim) && (to_dim != 0_uz)
                 inline constexpr decltype(auto) get(const MapVectorType<to_dim>& vector) const
                 {
-                    auto [shape, container] = this->map<DynRefArray<DynRefArray<OriginType<T>>>>(vector);
-                    return MultiArrayMapView<T, to_dim>{ std::move(shape), std::move(container) };
+                    auto [shape, container] = this->template map<DynRefArray<DynRefArray<OriginType<T>>>>(this->shape(), vector);
+                    return MultiArrayMapView<OriginType<T>, to_dim>{ std::move(shape), std::move(container) };
                 }
 
             public:
@@ -70,7 +71,7 @@ namespace ospf
                 // todo: use operator[...] to replace operator(...) in C++23
 
                 template<typename... Args>
-                    requires is_map_vector<Args...> && !is_dummy_vector<Args...> && !is_normal_vector<Args...>\
+                    requires is_map_vector<Args...> && !is_dummy_vector<Args...> && !is_normal_vector<Args...>
                 inline constexpr decltype(auto) operator()(Args&&... args) const
                 {
                     return get(map_vector(std::forward<Args>(args)...));

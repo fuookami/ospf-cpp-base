@@ -36,13 +36,15 @@
     <ClInclude Include="src\ospf\data_structure\data_table\line.hpp" />
     <ClInclude Include="src\ospf\data_structure\data_table\table.hpp" />
     <ClInclude Include="src\ospf\data_structure\multi_array.hpp" />
+    <ClInclude Include="src\ospf\data_structure\multi_array\concepts.hpp" />
     <ClInclude Include="src\ospf\data_structure\multi_array\dummy_index.hpp" />
-    <ClInclude Include="src\ospf\data_structure\multi_array\dynamic_dimension.hpp" />
     <ClInclude Include="src\ospf\data_structure\multi_array\impl.hpp" />
     <ClInclude Include="src\ospf\data_structure\multi_array\map_index.hpp" />
+    <ClInclude Include="src\ospf\data_structure\multi_array\one_dimension.hpp" />
     <ClInclude Include="src\ospf\data_structure\multi_array\shape.hpp" />
-    <ClInclude Include="src\ospf\data_structure\multi_array\static_dimension.hpp" />
+    <ClInclude Include="src\ospf\data_structure\multi_array\dynamic_dimension.hpp" />
     <ClInclude Include="src\ospf\data_structure\multi_array\map_view.hpp" />
+    <ClInclude Include="src\ospf\data_structure\multi_array\static_dimension.hpp" />
     <ClInclude Include="src\ospf\data_structure\multi_array\view.hpp" />
     <ClInclude Include="src\ospf\data_structure\optional_array.hpp" />
     <ClInclude Include="src\ospf\data_structure\pointer_array.hpp" />

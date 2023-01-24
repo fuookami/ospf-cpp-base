@@ -12,8 +12,6 @@ namespace ospf
 {
     inline namespace data_structure
     {
-        static constexpr const auto dynamic_dimension = std::dynamic_extent;
-
         namespace multi_array
         {
             template<typename S>

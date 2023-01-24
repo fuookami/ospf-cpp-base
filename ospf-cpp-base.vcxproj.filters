@@ -348,9 +348,6 @@
     <ClInclude Include="src\ospf\data_structure\multi_array\impl.hpp">
       <Filter>src\ospf\data-structure\multi_array</Filter>
     </ClInclude>
-    <ClInclude Include="src\ospf\data_structure\multi_array\static_dimension.hpp">
-      <Filter>src\ospf\data-structure\multi_array</Filter>
-    </ClInclude>
     <ClInclude Include="src\ospf\data_structure\multi_array\dynamic_dimension.hpp">
       <Filter>src\ospf\data-structure\multi_array</Filter>
     </ClInclude>
@@ -371,6 +368,15 @@
     </ClInclude>
     <ClInclude Include="src\ospf\serialization.hpp">
       <Filter>src\ospf</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ospf\data_structure\multi_array\static_dimension.hpp">
+      <Filter>src\ospf\data-structure\multi_array</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ospf\data_structure\multi_array\one_dimension.hpp">
+      <Filter>src\ospf\data-structure\multi_array</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ospf\data_structure\multi_array\concepts.hpp">
+      <Filter>src\ospf\data-structure\multi_array</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

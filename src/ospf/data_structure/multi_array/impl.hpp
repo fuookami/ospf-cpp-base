@@ -82,13 +82,10 @@ namespace ospf
                 using ShapeType = OriginType<S>;
                 using VectorType = typename ShapeType::VectorType;
                 using VectorViewType = typename ShapeType::VectorViewType;
-                static constexpr const auto dim = ShapeType::dim;
 
+                static constexpr const auto dim = ShapeType::dim;
                 using DummyVectorType = std::conditional_t<dim == dynamic_dimension, std::vector<DummyIndex>, std::array<DummyIndex, dim>>;
                 using DummyVectorViewType = std::span<DummyIndex, dim>;
-
-                template<usize to_dim>
-                using MapVectorType = map_index::MapVector<dim, to_dim>;
 
             protected:
                 constexpr MultiArrayImpl(void) = default;
@@ -335,7 +332,7 @@ namespace ospf
                 template<typename... Args>
                     requires is_normal_vector<Args...> && !is_dummy_vector<Args...> && !is_map_vector<Args...>
                         && (dim == dynamic_dimension || dim == VariableTypeList<Args...>::length)
-                inline constexpr RetType<VectorType> normal_vector(const ShapeType& shape, Args&&... args)
+                inline static constexpr RetType<VectorType> normal_vector(const ShapeType& shape, Args&&... args)
                 {
                     if constexpr (dim == dynamic_dimension)
                     {
@@ -350,7 +347,7 @@ namespace ospf
                 }
 
                 template<usize i, typename T, typename... Args>
-                inline constexpr void normal_vector_impl(VectorType& vector, const ShapeType& shape, T&& arg, Args&&... args) noexcept
+                inline static constexpr void normal_vector_impl(VectorType& vector, const ShapeType& shape, T&& arg, Args&&... args) noexcept
                 {
                     if constexpr (std::signed_integral<T>)
                     {
@@ -369,13 +366,21 @@ namespace ospf
                 }
 
             protected:
-                template<typename Ret, usize to_dim>
-                    requires (to_dim < dim) && (to_dim != 0_uz)
-                inline constexpr decltype(auto) map(const MapVectorType<to_dim>& vector) const
+                template<typename Ret, usize vec_dim, usize to_dim>
+                    requires (vec_dim < dim) && (to_dim != 0_uz)
+                inline static constexpr decltype(auto) map(const ShapeType& shape, const map_index::MapVector<vec_dim, to_dim>& vector) const
                 {
+                    if constexpr (dim == dynamic_dimension)
+                    {
+                        if (vec_dim != dimension())
+                        {
+                            throw OSPFException{ OSPFError{ OSPFErrCode::ApplicationFail, std::format("dimension should be {}, not {}", shape.dimension(), vec_dim) } };
+                        }
+                    }
+
                     const auto map_dimension = map_to_dimension(vector);
-                    const auto to_shape = map_to_shape(map_dimension);
-                    auto base_vector = base_map_to_vector(vector);
+                    const auto to_shape = map_to_shape(shape, map_dimension);
+                    auto base_vector = base_map_to_vector(shape, vector);
 
                     Ret ret;
                     ret.reserve(to_shape.size());
@@ -396,11 +401,11 @@ namespace ospf
                 // todo: map moved map vector type
 
             private:
-                template<usize to_dim>
-                inline constexpr std::array<usize, to_dim> map_to_dimension(const MapVectorType<to_dim>& vector) const
+                template<usize vec_dim, usize to_dim>
+                inline static constexpr std::array<usize, to_dim> map_to_dimension(const map_index::MapVector<vec_dim, to_dim>& vector) const
                 {
                     std::array<std::pair<usize, usize>, to_dim> map{ { 0_uz, 0_uz } };
-                    for (usize i{ 0_uz }, j{ 0_uz }; i != vector.size(); ++i)
+                    for (usize i{ 0_uz }, j{ 0_uz }; i != vec_dim; ++i)
                     {
                         if (vector[i].is_holder())
                         {
@@ -429,25 +434,25 @@ namespace ospf
                 }
 
                 template<usize to_dim>
-                inline constexpr decltype(auto) map_to_shape(const std::array<usize, to_dim>& map_dimension) const
+                inline constexpr decltype(auto) map_to_shape(const ShapeType& shape, const std::array<usize, to_dim>& map_dimension) const
                 {
                     using ToShapeType = Shape<to_dim>;
                     using ToVectorType = typename ToShapeType::VectorType;
                     ToVectorType ret{ 0_uz };
                     for (usize i{ 0_uz }; i != to_dim; ++i)
                     {
-                        ret[i] = shape().size_of_dimension(map_dimension[i]);
+                        ret[i] = shape.size_of_dimension(map_dimension[i]);
                     }
                     return ToShapeType{ move<ToVectorType>(ret) };
                 }
 
-                template<usize to_dim>
-                inline constexpr DummyVectorType base_map_to_vector(const MapVectorType<to_dim>& vector) const
+                template<usize vec_dim, usize to_dim>
+                inline static constexpr DummyVectorType base_map_to_vector(const ShapeType& shape, const map_index::MapVector<vec_dim, to_dim>& vector) const
                 {
                     if constexpr (dim == dynamic_dimension)
                     {
-                        DummyVectorType ret{ dimension(), DummyIndex{} };
-                        for (usize i{ 0_uz }; i != dimension(); ++i)
+                        DummyVectorType ret{ shape.dimension(), DummyIndex{} };
+                        for (usize i{ 0_uz }; i != shape.dimension(); ++i)
                         {
                             if (vector[i].is_index())
                             {
@@ -459,7 +464,7 @@ namespace ospf
                     else
                     {
                         DummyVectorType ret{ DummyIndex{} };
-                        for (usize i{ 0_uz }; i != dimension(); ++i)
+                        for (usize i{ 0_uz }; i != shape.dimension(); ++i)
                         {
                             if (vector[i].is_index())
                             {

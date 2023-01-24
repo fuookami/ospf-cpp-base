@@ -18,12 +18,14 @@ namespace ospf
                 usize len,
                 template<typename T, usize l> class C
             >
+                requires NotSameAs<T, void>
             class StaticOptionalArray;
 
             template<
                 typename T,
                 template<typename T> class C
             >
+                requires NotSameAs<T, void>
             class DynamicOptionalArray;
 
             template<typename T, typename C>
@@ -1161,6 +1163,7 @@ namespace ospf
                 usize len,
                 template<typename T, usize l> class C
             >
+                requires NotSameAs<T, void>
             class StaticOptionalArray
                 : public OptionalArrayImpl<T, C<std::optional<OriginType<T>>, len>, StaticOptionalArray<T, len, C>>
             {
@@ -1329,6 +1332,7 @@ namespace ospf
                 typename T,
                 template<typename T> class C
             >
+                requires NotSameAs<T, void>
             class DynamicOptionalArray
                 : public OptionalArrayImpl<T, C<std::optional<OriginType<T>>>, DynamicOptionalArray<T, C>>
             {

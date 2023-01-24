@@ -20,6 +20,7 @@ namespace ospf
                 reference::ReferenceCategory cat,
                 template<typename T, usize l> class C
             >
+                requires NotSameAs<T, void>
             class StaticValueOrReferenceArray;
 
             template<
@@ -27,6 +28,7 @@ namespace ospf
                 reference::ReferenceCategory cat,
                 template<typename T> class C
             >
+                requires NotSameAs<T, void>
             class DynamicValueOrReferenceArray;
 
             template<typename T, reference::ReferenceCategory cat, typename C>
@@ -570,6 +572,7 @@ namespace ospf
                 reference::ReferenceCategory cat,
                 template<typename T, usize l> class C
             >
+                requires NotSameAs<T, void>
             class StaticValueOrReferenceArray
                 : public ValueOrReferenceArrayImpl<T, C<ValOrRef<OriginType<T>, cat>, len>, StaticValueOrReferenceArray<T, len, cat, C>>
             {
@@ -715,6 +718,7 @@ namespace ospf
                 reference::ReferenceCategory cat,
                 template<typename T> class C
             >
+                requires NotSameAs<T, void>
             class DynamicValueOrReferenceArray
                 : public ValueOrReferenceArrayImpl<T, C<ValOrRef<OriginType<T>, cat>>, DynamicValueOrReferenceArray<T, cat, C>>
             {
