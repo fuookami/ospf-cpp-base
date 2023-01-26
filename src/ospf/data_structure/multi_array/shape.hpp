@@ -27,6 +27,7 @@ namespace ospf
                 { shape.offset_of_dimension(std::declval<usize>()) } -> DecaySameAs<Result<usize>>;
                 { shape.index(std::declval<typename S::VectorViewType>()) } -> DecaySameAs<Result<usize>>;
                 { shape.vector(std::declval<usize>()) } -> DecaySameAs<typename S::VectorType>;
+                { shape.last_vector(vector) } -> DecaySameAs<bool>;
                 { shape.next_vector(vector) } -> DecaySameAs<bool>;
                 { shape.actual_index(std::declval<usize>(), std::declval<isize>()) } -> DecaySameAs<std::optional<usize>>;
             };
@@ -143,6 +144,27 @@ namespace ospf
                     return vector;
                 }
 
+                inline constexpr const bool last_vector(LRefType<VectorType> vector) const noexcept
+                {
+                    bool carry{ false };
+                    vector[this->dimension() - 1_uz] -= 1_uz;
+
+                    for (usize i{ this->dimension() - 1_uz }; i != npos; --i)
+                    {
+                        if (carry)
+                        {
+                            vector[i] -= 1_uz;
+                            carry = false;
+                        }
+                        if (vector[i] == npos)
+                        {
+                            vector[i] = this->shape()[i] - 1_uz;
+                            carry = true;
+                        }
+                    }
+                    return !carry;
+                }
+
                 inline constexpr const bool next_vector(LRefType<VectorType> vector) const noexcept
                 {
                     bool carry{ false };
@@ -181,6 +203,17 @@ namespace ospf
                     {
                         return static_cast<usize>(index + size);
                     }
+                }
+
+            public:
+                inline constexpr const bool operator==(const ShapeImpl& rhs) const noexcept
+                {
+                    return shape() == rhs.shape() && offset() == rhs.offset();
+                }
+
+                inline constexpr const bool operator!=(const ShapeImpl& rhs) const noexcept
+                {
+                    return shape() != rhs.shape() || offset() != rhs.offset();
                 }
 
             private:

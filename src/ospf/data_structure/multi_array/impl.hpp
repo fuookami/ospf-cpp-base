@@ -16,10 +16,14 @@ namespace ospf
             { std::declval<typename A::ShapeType>() } -> multi_array::ShapeType;
             { A::dim } -> DecaySameAs<usize>;
             { array.shape() } -> multi_array::ShapeType;
-            { array.get(std::declval<typename A::VectorType>()) } -> DecaySameAs<typename A::ValueType>;
             { array.get(std::declval<typename A::VectorViewType>()) } -> DecaySameAs<typename A::ValueType>;
-            { array.get(std::declval<std::span<multi_array::dummy_index::DummyIndex>>()) } -> DecaySameAs<typename A::ValueType>;
-            // todo
+            { array.get(std::declval<std::span<multi_array::dummy_index::DummyIndex, A::dim>>()) } -> DecaySameAs<typename A::ValueType>;
+            { array[std::declval<typename A::VectorViewType>()] } -> DecaySameAs<typename A::ValueType>;
+            { array[std::declval<std::span<multi_array::dummy_index::DummyIndex, A::dim>>()] } -> DecaySameAs<typename A::ValueType>;
+            { array.begin() } -> std::forward_iterator;
+            { array.end() } -> std::forward_iterator;
+            { array.rbegin() } -> std::forward_iterator;
+            { array.rend() } -> std::forward_iterator;
         };
 
         namespace multi_array

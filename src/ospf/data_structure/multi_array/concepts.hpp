@@ -2,6 +2,7 @@
 
 #include <ospf/basic_definition.hpp>
 #include <ospf/concepts/base.hpp>
+#include <ospf/data_structure/multi_array/shape.hpp>
 
 namespace ospf
 {
@@ -18,11 +19,12 @@ namespace ospf
                 requires NotSameAs<T, void>
             class MultiArray;
 
+            // for Einstein Notation
             template<
-                typename T,
-                usize dim
+                typename A,
+                ShapeType S = DynShape
             >
-                requires NotSameAs<T, void>
+                requires NotSameAs<typename A::ValueType, void> && (S::dim == dynamic_dimension)
             class MultiArrayView;
 
             template<

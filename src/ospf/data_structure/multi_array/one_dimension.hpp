@@ -58,7 +58,7 @@ namespace ospf
                     do
                     {
                         _container.push_back(constructor(vector));
-                    } while (_shape.next_vector(zero));
+                    } while (_shape.next_vector(vector));
                 }
 
             public:

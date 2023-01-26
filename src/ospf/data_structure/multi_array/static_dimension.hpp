@@ -66,7 +66,7 @@ namespace ospf
                     do
                     {
                         _container.push_back(constructor(vector));
-                    } while (_shape.next_vector(zero));
+                    } while (_shape.next_vector(vector));
                 }
 
             public:
@@ -110,6 +110,9 @@ namespace ospf
                 }
 
             public:
+                // todo: view
+
+            public:
                 // todo: reshape or resize
 
             OSPF_CRTP_PERMISSION:
@@ -140,7 +143,7 @@ namespace ospf
 
             private:
                 ShapeType _shape;
-                std::vector<T> _container;
+                std::vector<ValueType> _container;
             };
         };
     };

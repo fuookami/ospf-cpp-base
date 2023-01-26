@@ -13,7 +13,7 @@ namespace ospf
                 typename T,
                 usize dim
             >
-                requires (dim != dynamic_dimension)
+                requires NotSameAs<T, void> && (dim != dynamic_dimension)
             class MultiArrayMapView
                 : public MultiArrayImpl<DynRefArray<OriginType<T>>, std::vector<DynRefArray<OriginType<T>>>, Shape<dim>, MultiArrayMapView<dim, T>>
             {

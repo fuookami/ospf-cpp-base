@@ -128,14 +128,14 @@ namespace ospf
             class TaggedMapEntry
             {
             public:
-                using SelfType = TaggedMap<T, E, C>;
-                using ValueType = typename SelfType::ValueType;
-                using IterType = typename SelfType::IterType;
+                using MapType = TaggedMap<T, E, C>;
+                using ValueType = typename MapType::ValueType;
+                using IterType = typename MapType::IterType;
 
             public:
-                TaggedMapEntry(const SelfType& map)
+                TaggedMapEntry(const MapType& map)
                     : _iter(std::nullopt), _map(map) {}
-                TaggedMapEntry(const IterType iter, const SelfType& map)
+                TaggedMapEntry(const IterType iter, const MapType& map)
                     : _iter(iter), _map(map) {}
 
             public:
@@ -225,7 +225,7 @@ namespace ospf
 
             private:
                 std::optional<IterType> _iter;
-                Ref<SelfType> _map;
+                Ref<MapType> _map;
             };
 
             template<

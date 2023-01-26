@@ -274,18 +274,18 @@ namespace ospf
             }
 
         public:
-            inline constexpr const bool operator==(const IntegerIterator& ano) const noexcept
+            inline constexpr const bool operator==(const IntegerIterator& rhs) const noexcept
             {
-                if (!_has_next && !ano._has_next)
+                if (!_has_next && !rhs._has_next)
                 {
                     return true;
                 }
-                else if (_has_next && ano._has_next)
+                else if (_has_next && rhs._has_next)
                 {
-                    return _reverse == ano._reverse
-                        && _curr == ano._curr
-                        && _last == ano._last
-                        && _step == ano._step;
+                    return _reverse == rhs._reverse
+                        && _curr == rhs._curr
+                        && _last == rhs._last
+                        && _step == rhs._step;
                 }
                 else
                 {
@@ -294,18 +294,18 @@ namespace ospf
             }
 
             template<typename I>
-            inline constexpr const bool operator!=(const IntegerIterator& ano) const noexcept
+            inline constexpr const bool operator!=(const IntegerIterator& rhs) const noexcept
             {
-                if (!_has_next && !ano._has_next)
+                if (!_has_next && !rhs._has_next)
                 {
                     return false;
                 }
-                else if (_has_next && ano._has_next)
+                else if (_has_next && rhs._has_next)
                 {
-                    return _reverse != ano._reverse
-                        || _curr != ano._curr
-                        || _last != ano._last
-                        || _step != ano._step;
+                    return _reverse != rhs._reverse
+                        || _curr != rhs._curr
+                        || _last != rhs._last
+                        || _step != rhs._step;
                 }
                 else
                 {

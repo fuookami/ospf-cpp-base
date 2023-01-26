@@ -213,6 +213,14 @@ namespace ospf
                     constexpr DummyAccessEnumerator(const ShapeType& shape, const std::span<DummyIndex, dim> dummy_vector)
                         : _has_next(true), _shape(shape), _dummy_vector(dummy_vector), _next(shape.zero())
                     {
+                        if constexpr (ShapeType::dim == dynamic_dimension)
+                        {
+                            if (dummy_vector.size() != shape.dimension())
+                            {
+                                throw OSPFException{ OSPFError{ OSPFErrCode::ApplicationFail, std::format("dimension should be {}, not {}", shape.dimension(), dummy_vector.size()) }; };
+                            }
+                        }
+
                         _enumerators.reserve(shape.dimension());
                         for (auto i{ 0_uz }; i != _shape.dimension(); ++i)
                         {
