@@ -136,14 +136,24 @@ namespace ospf
                     return Trait::get_const_value(raw(), index);
                 }
 
-                inline constexpr LRefType<ValueType> get(const VectorViewType vector)
+                inline constexpr LRefType<ValueType> get(ArgCLRefType<VectorViewType> vector)
                 {
-                    return get(shape().index(vector));
+                    const auto index = _shape.index(vector);
+                    if (index.failed())
+                    {
+                        throw OSPFException{ std::move(index).err() };
+                    }
+                    return get(*index);
                 }
 
-                inline constexpr CLRefType<ValueType> get(const VectorViewType vector) const
+                inline constexpr CLRefType<ValueType> get(ArgCLRefType<VectorViewType> vector) const
                 {
-                    return get(shape().index(vector));
+                    const auto index = _shape.index(vector);
+                    if (index.failed())
+                    {
+                        throw OSPFException{ std::move(index).err() };
+                    }
+                    return get(*index);
                 }
 
                 inline constexpr DynRefArray<ValueType> get(const RangeFull _) const
@@ -372,7 +382,7 @@ namespace ospf
             protected:
                 template<typename Ret, usize vec_dim, usize to_dim>
                     requires (vec_dim < dim) && (to_dim != 0_uz)
-                inline static constexpr decltype(auto) map(const ShapeType& shape, const map_index::MapVector<vec_dim, to_dim>& vector) const
+                inline constexpr decltype(auto) map(const ShapeType& shape, const map_index::MapVector<vec_dim, to_dim>& vector)
                 {
                     if constexpr (dim == dynamic_dimension)
                     {
@@ -398,88 +408,10 @@ namespace ospf
                         ret.push_back(get(base_vector));
                     } while (to_shape.next_vector(map_vector));
 
-
                     return std::make_pair(std::move(to_shape), std::move(ret));
                 }
 
                 // todo: map moved map vector type
-
-            private:
-                template<usize vec_dim, usize to_dim>
-                inline static constexpr std::array<usize, to_dim> map_to_dimension(const map_index::MapVector<vec_dim, to_dim>& vector) const
-                {
-                    std::array<std::pair<usize, usize>, to_dim> map{ { 0_uz, 0_uz } };
-                    for (usize i{ 0_uz }, j{ 0_uz }; i != vec_dim; ++i)
-                    {
-                        if (vector[i].is_holder())
-                        {
-                            map[j] = std::make_pair(i, vector[i].holder().to_dimension);
-                            ++j;
-                        }
-                    }
-                    std::sort(map.begin(), map.end(), 
-                        [](const std::pair<usize, usize> lhs, const std::pair<usize, usize> rhs) 
-                        { 
-                            return lhs.second < rhs.second 
-                        });
-                    for (auto i{ 0_uz }, j{ to_dim - 1_uz }; i != j; ++i)
-                    {
-                        if (map[i].second == map[i + 1_uz].second)
-                        {
-                            throw OSPFException{ OSPFError{ OSPFErrCode::ApplicationFail, std::format("same mapping to dimension between dimension {} and {}", map[i].first, map[i + 1_uz].first) } };
-                        }
-                    }
-                    std::array<usize, to_dim> ret{ 0_uz };
-                    for (usize i{ 0_uz }; i != to_dim; ++i)
-                    {
-                        ret[i] = map[i].first;
-                    }
-                    return ret;
-                }
-
-                template<usize to_dim>
-                inline constexpr decltype(auto) map_to_shape(const ShapeType& shape, const std::array<usize, to_dim>& map_dimension) const
-                {
-                    using ToShapeType = Shape<to_dim>;
-                    using ToVectorType = typename ToShapeType::VectorType;
-                    ToVectorType ret{ 0_uz };
-                    for (usize i{ 0_uz }; i != to_dim; ++i)
-                    {
-                        ret[i] = shape.size_of_dimension(map_dimension[i]);
-                    }
-                    return ToShapeType{ move<ToVectorType>(ret) };
-                }
-
-                template<usize vec_dim, usize to_dim>
-                inline static constexpr DummyVectorType base_map_to_vector(const ShapeType& shape, const map_index::MapVector<vec_dim, to_dim>& vector) const
-                {
-                    if constexpr (dim == dynamic_dimension)
-                    {
-                        DummyVectorType ret{ shape.dimension(), DummyIndex{} };
-                        for (usize i{ 0_uz }; i != shape.dimension(); ++i)
-                        {
-                            if (vector[i].is_index())
-                            {
-                                ret[i] = vector[i].index();
-                            }
-                        }
-                        return ret;
-                    }
-                    else
-                    {
-                        DummyVectorType ret{ DummyIndex{} };
-                        for (usize i{ 0_uz }; i != shape.dimension(); ++i)
-                        {
-                            if (vector[i].is_index())
-                            {
-                                ret[i] = vector[i].index();
-                            }
-                        }
-                        return ret;
-                    }
-                }
-
-                // todo: get base map vector for moved map vector type
 
             private:
                 struct Trait : public Self

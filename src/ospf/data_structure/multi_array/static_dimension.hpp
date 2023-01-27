@@ -110,7 +110,15 @@ namespace ospf
                 }
 
             public:
-                // todo: view
+                template<typename... Args>
+                    requires (VariableTypeList<Args>::length != 0_uz) && (VariableTypeList<Args>::length <= dim) && is_view_vector<Args...>
+                inline constexpr MultiArrayView<MultiArray> view(Args&&... args) const
+                {
+                    static constexpr const usize to_dim = VariableTypeList<Args>::length;
+                    DummyVectorType vector{ dim, DummyIndex{} };
+                    MultiArrayView<MultiArray>::view_vector<0_uz, to_dim>(vector, std::forward<Args>(args)...);
+                    return MultiArrayView<MultiArray>{ *this, std::move(vector) };
+                }
 
             public:
                 // todo: reshape or resize

@@ -100,11 +100,28 @@ namespace ospf
                     requires (to_dim != 0_uz)
                 inline constexpr decltype(auto) operator[](const map_index::MapVector<vec_dim, to_dim>& vector) const
                 {
-                    return get(voctor);
+                    return get(vector);
                 }
 
             public:
-                // todo: view
+                inline constexpr MultiArrayView<MultiArray> view(void) const
+                {
+                    return MultiArrayView<MultiArray>{ *this, DummyVectorType{ this->dimension(), DummyIndex{} } };
+                }
+
+                template<typename... Args>
+                    requires (VariableTypeList<Args>::length != 0_uz) && is_view_vector<Args...>
+                inline constexpr MultiArrayView<MultiArray> view(Args&&... args) const
+                {
+                    static constexpr const usize to_dim = VariableTypeList<Args>::length;
+                    if (to_dim > this->dimension())
+                    {
+                        throw OSPFException{ OSPFError{ OSPFErrCode::ApplicationFail, std::format("dimension should be {}, not {}", this->dimension(), to_dim) } };
+                    }
+                    DummyVectorType vector{ this->dimension(), DummyIndex{} };
+                    MultiArrayView<MultiArray>::view_vector<0_uz, to_dim>(vector, std::forward<Args>(args)...);
+                    return MultiArrayView<MultiArray>{ *this, std::move(vector) };
+                }
 
             public:
                 // todo: reshape or resize

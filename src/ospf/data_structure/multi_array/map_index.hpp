@@ -182,6 +182,84 @@ namespace ospf
                 static_assert(to_dim != 0_uz, "there should be at least 1 place holders in map vector!");
                 return map_index::MapVector<dim, to_dim>{ std::forward<MapIndex>(args)... };
             }
+
+            template<usize vec_dim, usize to_dim>
+            inline constexpr std::array<usize, to_dim> map_to_dimension(const map_index::MapVector<vec_dim, to_dim>& vector)
+            {
+                std::array<std::pair<usize, usize>, to_dim> map{ { 0_uz, 0_uz } };
+                for (usize i{ 0_uz }, j{ 0_uz }; i != vec_dim; ++i)
+                {
+                    if (vector[i].is_holder())
+                    {
+                        map[j] = std::make_pair(i, vector[i].holder().to_dimension);
+                        ++j;
+                    }
+                }
+                std::sort(map.begin(), map.end(),
+                    [](const std::pair<usize, usize> lhs, const std::pair<usize, usize> rhs)
+                    {
+                        return lhs.second < rhs.second
+                    });
+                for (auto i{ 0_uz }, j{ to_dim - 1_uz }; i != j; ++i)
+                {
+                    if (map[i].second == map[i + 1_uz].second)
+                    {
+                        throw OSPFException{ OSPFError{ OSPFErrCode::ApplicationFail, std::format("same mapping to dimension between dimension {} and {}", map[i].first, map[i + 1_uz].first) } };
+                    }
+                }
+                std::array<usize, to_dim> ret{ 0_uz };
+                for (usize i{ 0_uz }; i != to_dim; ++i)
+                {
+                    ret[i] = map[i].first;
+                }
+                return ret;
+            }
+
+            template<ShapeType S, usize to_dim>
+            inline constexpr decltype(auto) map_to_shape(const S& shape, const std::array<usize, to_dim>& map_dimension)
+            {
+                using ToShapeType = Shape<to_dim>;
+                using ToVectorType = typename ToShapeType::VectorType;
+                ToVectorType ret{ 0_uz };
+                for (usize i{ 0_uz }; i != to_dim; ++i)
+                {
+                    ret[i] = shape.size_of_dimension(map_dimension[i]);
+                }
+                return ToShapeType{ move<ToVectorType>(ret) };
+            }
+
+            template<ShapeType S, usize vec_dim, usize to_dim>
+            inline static constexpr decltype(auto) base_map_to_vector(const S& shape, const map_index::MapVector<vec_dim, to_dim>& vector)
+            {
+                using DummyVectorType = typename S::DummyVectorType;
+
+                if constexpr (S::dim == dynamic_dimension)
+                {
+                    DummyVectorType ret{ shape.dimension(), DummyIndex{} };
+                    for (usize i{ 0_uz }; i != shape.dimension(); ++i)
+                    {
+                        if (vector[i].is_index())
+                        {
+                            ret[i] = vector[i].index();
+                        }
+                    }
+                    return ret;
+                }
+                else
+                {
+                    DummyVectorType ret{ DummyIndex{} };
+                    for (usize i{ 0_uz }; i != shape.dimension(); ++i)
+                    {
+                        if (vector[i].is_index())
+                        {
+                            ret[i] = vector[i].index();
+                        }
+                    }
+                    return ret;
+                }
+            }
+
+            // todo: get base map vector for moved map vector type
         };
     };
 };

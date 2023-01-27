@@ -138,6 +138,21 @@ namespace ospf
                 return static_cast<CLRefType<VariantType>>(_either);
             }
 
+            inline constexpr LRefType<RetType> operator*(void) &
+            {
+                return _either.left();
+            }
+
+            inline constexpr CLRefType<RetType> operator*(void) const &
+            {
+                return _either.left();
+            }
+
+            inline ospf::RetType<RetType> operator*(void) &&
+            {
+                return static_cast<RRefType<EitherType>>(_either).left();
+            }
+
         public:
             inline constexpr const bool is_succeeded(void) const noexcept
             {

@@ -133,6 +133,57 @@ namespace ospf
                     constexpr ~DummyIndex(void) noexcept = default;
 
                 public:
+                    inline constexpr const bool is_single_index(void) const noexcept
+                    {
+                        return std::visit([](const auto& index) 
+                            {
+                                if constexpr (DecaySameAs<decltype(index), usize, isize>)
+                                {
+                                    return true;
+                                }
+                                else
+                                {
+                                    return false;
+                                }
+                            }, _variant);
+                    }
+
+                    inline constexpr std::optional<Either<usize, isize>> single_index(void) const noexcept
+                    {
+                        return std::visit([](const auto& index) 
+                            {
+                                using IndexType = OriginType<decltype(index)>;
+                                if constexpr (DecaySameAs<IndexType, usize>)
+                                {
+                                    return Either<usize, isize>::left(index);
+                                }
+                                else if constexpr (DecaySameAs<IndexType, isize>)
+                                {
+                                    return Either<usize, isize>::right(index);
+                                }
+                                else
+                                {
+                                    return std::nullopt;
+                                }
+                            }, _variant);
+                    }
+
+                    inline constexpr const bool is_range_full(void) const noexcept
+                    {
+                        return std::visit([](const auto& index) 
+                            {
+                                if constexpr (DecaySameAs<decltype(index), Range1>)
+                                {
+                                    return index.start_bound().unbounded() && index.end_bound().unbounded();
+                                }
+                                else
+                                {
+                                    return false;
+                                }
+                            }, _variant);
+                    }
+
+                public:
                     template<ShapeType S>
                     inline constexpr const usize size(const S& shape, const usize dimension) const noexcept
                     {

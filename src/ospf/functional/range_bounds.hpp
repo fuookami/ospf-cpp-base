@@ -488,9 +488,14 @@ namespace ospf
             constexpr ~RangeBounds(void) noexcept = default;
 
         public:
+            inline constexpr const bool unbounded(void) const noexcept
+            {
+                return _start_bound.unbounded() || _end_bound.unbounded();
+            }
+
             inline constexpr const bool empty(void) const noexcept
             {
-                if (_start_bound.unbounded() || _end_bound.unbounded())
+                if (unbounded())
                 {
                     return false;
                 }

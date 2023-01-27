@@ -10,6 +10,27 @@ namespace ospf
     {
         namespace multi_array
         {
+            template<typename... Args>
+            struct IsViewVector
+            {
+                static constexpr const bool value = false;
+            };
+
+            template<typename T>
+            struct IsViewVector<T>
+            {
+                static constexpr const bool value = DecaySameAs<T, usize, isize, RangeFull> || std::integral<T>;
+            };
+
+            template<typename T, typename... Args>
+            struct IsViewVector<T, Args...>
+            {
+                static constexpr const bool value = IsViewVector<T>::value && IsViewVector<Args...>::value;
+            };
+
+            template<typename... Args>
+            static constexpr const bool is_view_vector = IsViewVector<Args...>::value;
+
             template<typename V>
             class MultiArrayViewConstIterator
             {
@@ -99,7 +120,7 @@ namespace ospf
                     }
                 }
 
-            private:
+            protected:
                 inline constexpr void next(void) noexcept
                 {
                     if (!_view->shape().next_vector(_vector))
@@ -127,7 +148,43 @@ namespace ospf
                 using VectorType = typename Base::VectorType;
 
             public:
-                // todo
+                constexpr MultiArrayViewIterator(const ViewType& view)
+                    : Base(view) {}
+
+                constexpr MultiArrayViewIterator(ArgRRefType<VectorType> vector, const ViewType& view)
+                    : Base(move<VectorType>(vector), view) {}
+
+                public;
+                constexpr MultiArrayViewIterator(const MultiArrayViewIterator& ano) = default;
+                constexpr MultiArrayViewIterator(MultiArrayViewIterator&& rhs) noexcept = default;
+                constexpr MultiArrayViewIterator& operator=(const MultiArrayViewIterator& rhs) = default;
+                constexpr MultiArrayViewIterator& operator=(MultiArrayViewIterator&& rhs) noexcept = default;
+                constexpr ~MultiArrayViewIterator(void) noexcept = default;
+
+            public:
+                inline constexpr LRefType<ValueType> operator*(void) const noexcept
+                {
+                    return const_cast<LRefType<ValueType>>(Base::operator*());
+                }
+
+                inline constexpr PtrType<ValueType> operator->(void) const noexcept
+                {
+                    return const_cast<PtrType<ValueType>>(Base::operator->());
+                }
+
+            public:
+                inline constexpr MultiArrayViewIterator& operator++(void) noexcept
+                {
+                    Base::next();
+                    return *this;
+                }
+
+                inline constexpr const MultiArrayViewIterator operator++(int) noexcept
+                {
+                    auto ret = *this;
+                    Base::next();
+                    return ret;
+                }
             };
 
             template<typename V>
@@ -140,10 +197,96 @@ namespace ospf
                 using VectorType = typename ViewType::VectorType;
 
             public:
-                // todo
+                constexpr MultiArrayViewConstReverseIterator(const ViewType& view)
+                    : _has_next(false), _view(view) {}
+
+                constexpr MultiArrayViewConstReverseIterator(ArgRRefType<VectorType> vector, const ViewType& view)
+                    : _has_next(true), _vector(move<ValueType>(vector)), _view(view) {}
+
+            public;
+                constexpr MultiArrayViewConstReverseIterator(const MultiArrayViewConstReverseIterator& ano) = default;
+                constexpr MultiArrayViewConstReverseIterator(MultiArrayViewConstReverseIterator&& rhs) noexcept = default;
+                constexpr MultiArrayViewConstReverseIterator& operator=(const MultiArrayViewConstReverseIterator& rhs) = default;
+                constexpr MultiArrayViewConstReverseIterator& operator=(MultiArrayViewConstReverseIterator&& rhs) noexcept = default;
+                constexpr ~MultiArrayViewConstReverseIterator(void) noexcept = default;
+
+            public:
+                inline constexpr CLRefType<ValueType> operator*(void) const noexcept
+                {
+                    return _view->get(_vector);
+                }
+
+                inline constexpr CPtrType<ValueType> operator->(void) const noexcept
+                {
+                    return &_view->get(_vector);
+                }
+
+            public:
+                inline constexpr MultiArrayViewConstReverseIterator& operator++(void) noexcept
+                {
+                    next();
+                    return *this;
+                }
+
+                inline constexpr const MultiArrayViewConstReverseIterator operator++(int) noexcept
+                {
+                    auto ret = *this;
+                    next();
+                    return ret;
+                }
+
+            public:
+                inline constexpr const bool operator==(const MultiArrayViewConstReverseIterator& rhs) const noexcept
+                {
+                    if (_view != rhs._view)
+                    {
+                        return false;
+                    }
+                    if (!_has_next && !rhs._has_next)
+                    {
+                        return true;
+                    }
+                    else if (_has_next && rhs._has_next)
+                    {
+                        return _vector == rhs._vector;
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
+
+                inline constexpr const bool operator!=(const MultiArrayViewConstReverseIterator& rhs) const noexcept
+                {
+                    if (_view == rhs._view)
+                    {
+                        return false;
+                    }
+                    if (!_has_next && !rhs._has_next)
+                    {
+                        return false;
+                    }
+                    else if (_has_next && rhs._has_next)
+                    {
+                        return _vector = !rhs._vector;
+                    }
+                    else
+                    {
+                        return true;
+                    }
+                }
+
+            protected:
+                inline constexpr void next(void) noexcept
+                {
+                    if (!_view->shape().last_vector(_vector))
+                    {
+                        _has_next = false;
+                    }
+                }
 
             private:
-                bool _has_next;
+                bool _has_next; 
                 VectorType _vector;
                 Ref<ViewType> _view;
             };
@@ -161,7 +304,18 @@ namespace ospf
                 using VectorType = typename Base::VectorType;
 
             public:
-                // todo
+                constexpr MultiArrayViewReverseIterator(const ViewType& view)
+                    : Base(view) {}
+
+                constexpr MultiArrayViewReverseIterator(ArgRRefType<VectorType> vector, const ViewType& view)
+                    : Base(move<VectorType>(vector), view) {}
+
+                public;
+                constexpr MultiArrayViewReverseIterator(const MultiArrayViewReverseIterator& ano) = default;
+                constexpr MultiArrayViewReverseIterator(MultiArrayViewReverseIterator&& rhs) noexcept = default;
+                constexpr MultiArrayViewReverseIterator& operator=(const MultiArrayViewReverseIterator& rhs) = default;
+                constexpr MultiArrayViewReverseIterator& operator=(MultiArrayViewReverseIterator&& rhs) noexcept = default;
+                constexpr ~MultiArrayViewReverseIterator(void) noexcept = default;
             };
 
             template<
@@ -176,6 +330,7 @@ namespace ospf
 
             public:
                 using ValueType = typename Array::ValueType;
+                using ContainerType = typename Array::ContainerType;
                 using ShapeType = OriginType<S>;
                 using VectorType = typename ShapeType::VectorType;
                 using VectorViewType = typename ShapeType::VectorViewType;
@@ -188,27 +343,27 @@ namespace ospf
                 using ConstReverseIterType = MultiArrayViewConstReverseIterator<MultiArrayView>;
 
             public:
-                constexpr MultiArrayView(const Array& array)
-                    : _array(array) 
+                constexpr MultiArrayView(const Array& array, ArgRRefType<ArrayDummyVectorType> vector)
+                    : _vector(move<ArrayDummyVectorType>(vector)), _array(array)
                 {
-                    if constexpr (dim == dynamic_dimension)
+                    if constexpr (Array::dim == dynamic_dimension)
                     {
-                        _vector.assign(this->dimension(), DummyIndex{});
-                    }
-                    // todo: calculate _shape and _map_diemension
-                }
-
-                constexpr MultiArrayView(const Array& array, ArgRRefType<DummyVectorType> vector)
-                    : _vector(move<DummyVectorType>(vector)), _array(array)
-                {
-                    if constexpr (dim == dynamic_dimension)
-                    {
-                        if (_vector.size() != this->dimension())
+                        if (_vector.size() != _array->dimension())
                         {
                             throw OSPFException{ OSPFError{ OSPFErrCode::ApplicationFail, std::format("dimension should be {}, not {}", this->dimension(), _vector.size()) } };
                         }
                     }
-                    // todo: calculate _shape and _map_diemension
+                    std::vector<usize> shape;
+                    for (usize i{ 0_uz }; i != _array->dimension(); ++i)
+                    {
+                        assert(_vector[i].is_single_index() || _vector[i].is_range_full());
+                        if (_vector[i].is_range_full())
+                        {
+                            shape.push_back(_array->shape()[i]);
+                            _map_dimension.push_back(i);
+                        }
+                    }
+                    _shape = DynShape{ std::move(shape) };
                 }
 
             public:
@@ -219,7 +374,193 @@ namespace ospf
                 constexpr ~MultiArrayView(void) noexcept = default;
 
             public:
-                // todo
+                inline constexpr LRefType<ContainerType> raw(void) noexcept
+                {
+                    return _array->raw();
+                }
+
+                inline constexpr CLRefType<ContainerType> raw(void) const noexcept
+                {
+                    return _array->raw();
+                }
+
+                template<typename = void>
+                    requires requires (ContainerType& container) { { container.data() } -> DecaySameAs<PtrType<ValueType>>; }
+                inline constexpr const PtrType<ValueType> data(void) noexcept
+                {
+                    return raw().data();
+                }
+
+                template<typename = void>
+                    requires requires (const ContainerType& container) { { container.data() } -> DecaySameAs<CPtrType<ValueType>>; }
+                inline constexpr const CPtrType<ValueType> data(void) const noexcept
+                {
+                    return raw().data();
+                }
+
+            public:
+                inline constexpr LRefType<ValueType> get(const usize index)
+                {
+                    return _array->get(actual_index(index));
+                }
+
+                inline constexpr CLRefType<ValueType> get(const usize index) const
+                {
+                    return _array->get(actual_index(index));
+                }
+
+                inline constexpr LRefType<ValueType> get(ArgCLRefType<VectorViewType> vector)
+                {
+                    return _array->get(actual_index(vector));
+                }
+
+                inline constexpr CLRefType<ValueType> get(ArgCLRefType<VectorViewType> vector) const
+                {
+                    return _array->get(actual_index(vector));
+                }
+
+                inline constexpr DynRefArray<ValueType> get(const RangeFull _) const
+                {
+                    DynRefArray<ValueType> ret;
+                    ret.reserve(_shape.size());
+                    auto vector = _shape.zero();
+                    do
+                    {
+                        ret.push_back(get(vector));
+                    } while (_shape.next_vector(vector));
+                    return ret;
+                }
+
+                inline constexpr DynRefArray<ValueType> get(const DummyVectorViewType dummy_vector) const
+                {
+                    dummy_index::DummyAccessEnumerator<ShapeType> iter{ shape(), dummy_vector };
+                    DynRefArray<ValueType> ret;
+                    ret.reserve(iter.size());
+                    while (iter)
+                    {
+                        const auto vector = *iter;
+                        ret.push_back(get(vector));
+                        ++iter;
+                    }
+                    return ret;
+                }
+                
+                template<usize vec_dim, usize to_dim>
+                    requires (to_dim != 0_uz)
+                inline constexpr decltype(auto) get(const map_index::MapVector<vec_dim, to_dim>& vector) const
+                {
+                    if (vec_dim != dimension())
+                    {
+                        throw OSPFException{ OSPFError{ OSPFErrCode::ApplicationFail, std::format("dimension should be {}, not {}", shape.dimension(), vec_dim) } };
+                    }
+
+                    const auto map_dimension = map_to_dimension(vector);
+                    const auto to_shape = map_to_shape(shape, map_dimension);
+                    auto base_vector = base_map_to_vector(shape, vector);
+
+                    Ret ret;
+                    ret.reserve(to_shape.size());
+                    auto map_vector = to_shape.zero();
+                    do
+                    {
+                        for (usize i{ 0_uz }; i != to_dim; ++i)
+                        {
+                            base_vector[map_dimension[i]] = DummyIndex{ map_vector[i] };
+                        }
+                        ret.push_back(get(base_vector));
+                    } while (to_shape.next_vector(map_vector));
+
+                    return std::make_pair(std::move(to_shape), std::move(ret));
+                }
+
+                // todo: map moved map vector type
+
+            public:
+                // todo: use operator[...] to replace operator(...) in C++23
+
+                template<typename... Args>
+                    requires is_normal_vector<Args...>
+                        && (dim == dynamic_dimension || dim == VariableTypeList<Args...>::length)
+                inline constexpr LRefType<ValueType> operator()(Args&&... args)
+                {
+                    return get(normal_vector(shape(), std::forward<Args>(args)...));
+                }
+
+                template<typename... Args>
+                    requires is_normal_vector<Args...>
+                        && (dim == dynamic_dimension || dim == VariableTypeList<Args...>::length)
+                inline constexpr CLRefType<ValueType> operator()(Args&&... args) const
+                {
+                    return get(normal_vector(shape(), std::forward<Args>(args)...));
+                }
+
+                template<typename... Args>
+                    requires is_dummy_vector<Args...> && !is_normal_vector<Args...>
+                        && (dim == dynamic_dimension || dim == VariableTypeList<Args...>::length)
+                inline constexpr DynRefArray<ValueType> operator()(Args&&... args) const
+                {
+                    return get(DummyVectorType{ DummyIndex{ std::forward<Args>(args) }... });
+                }
+
+                template<typename... Args>
+                    requires is_map_vector<Args...> && !is_dummy_vector<Args...> && !is_normal_vector<Args...>
+                inline constexpr decltype(auto) operator()(Args&&... args) const
+                {
+                    return get(map_vector(std::forward<Args>(args)...));
+                }
+
+            public:
+                inline constexpr LRefType<ValueType> operator[](const VectorViewType vector)
+                {
+                    return get(vector);
+                }
+
+                inline constexpr CLRefType<ValueType> operator[](const VectorViewType vector) const
+                {
+                    return get(vector);
+                }
+
+                inline constexpr LRefType<ValueType> operator[](std::initializer_list<usize> vector)
+                {
+                    return get(VectorType{ std::move(vector) });
+                }
+
+                inline constexpr CLRefType<ValueType> operator[](std::initializer_list<usize> vector) const
+                {
+                    return get(VectorType{ std::move(vector) });
+                }
+
+                inline constexpr DynRefArray<ValueType> operator[](const DummyVectorViewType vector) const
+                {
+                    return get(vector);
+                }
+
+                inline constexpr DynRefArray<ValueType> operator[](std::initializer_list<DummyIndex> vector) const
+                {
+                    return get(DummyVectorType{ vector });
+                }
+
+                template<usize vec_dim, usize to_dim>
+                    requires (to_dim != 0_uz)
+                inline constexpr decltype(auto) operator[](const map_index::MapVector<vec_dim, to_dim>& vector) const
+                {
+                    return get(vector);
+                }
+
+            public:
+                template<typename... Args>
+                    requires (VariableTypeList<Args>::length != 0_uz) && is_view_vector<Args...>
+                inline constexpr MultiArrayView view(Args&&... args) const
+                {
+                    static constexpr const usize dim = VariableTypeList<Args>::length;
+                    if (dim > _shape.dimension())
+                    {
+                        throw OSPFException{ OSPFError{ OSPFErrCode::ApplicationFail, std::format("dimension should be {}, not {}", _shape.dimension(), dim) } };
+                    }
+                    auto vector = _vector;
+                    view_vector<0_uz, dim>(vector, std::forward<Args>(args)...);
+                    return MultiArrayView(*_array, std::move(vector));
+                }
 
             public:
                 inline constexpr IterType begin(void) noexcept
@@ -289,6 +630,27 @@ namespace ospf
                 }
 
             public:
+                inline constexpr CLRefType<ShapeType> shape(void) const noexcept
+                {
+                    return _shape;
+                }
+
+                inline constexpr const usize dimension(void) const noexcept
+                {
+                    return shape().dimension();
+                }
+
+                inline constexpr const usize size(void) const noexcept
+                {
+                    return shape().size();
+                }
+
+                inline constexpr const usize max_size(void) const noexcept
+                {
+                    return raw().max_size();
+                }
+
+            public:
                 inline constexpr const bool operator==(const MultiArrayView& rhs) const noexcept
                 {
                     return _shape == rhs._shape
@@ -303,6 +665,73 @@ namespace ospf
                         || _map_dimension != rhs._map_dimension
                         || _vector != rhs._vector
                         || _array != rhs._array;
+                }
+
+            private:
+                inline constexpr const usize actual_index(ArgCLRefType<VectorViewType> this_vector) const
+                {
+                    // todo: if origin array is static dimension, this_vector could be optimized to std::array<DummyIndex, array.dim>
+                    // todo: merge two for loop
+                    auto vector = _vector;
+
+                    assert(this_vector.size() == _map_dimension);
+                    for (usize i{ 0_uz }; i != _map_dimension.size(); ++i)
+                    {
+                        const auto j = _map_dimension[i];
+                        assert(vector[j].is_range_full());
+                        vector[j] = this_vector[i];
+                    }
+
+                    auto ret = _array.shape().zero();
+                    for (usize i{ 0_uz }; i != _array.dimension(); ++i)
+                    {
+                        auto index = vector[i].single_index();
+                        assert(index.has_value());
+                        std::visit([this, &ret, i](const auto index)
+                            {
+                                using IndexType = OriginType<decltype(index)>;
+                                if constexpr (DecaySameAs<decltype(index), IndexType>)
+                                {
+                                    ret[i] = index;
+                                }
+                                else if constexpr (DecaySameAs<decltype(index), IndexType>)
+                                {
+                                    ret[i] = this->_array.shape().actual_index(i, index);
+                                }
+                            });
+                    }
+                    return _array.shape().index(ret);
+                }
+
+                inline constexpr const usize actual_index(const usize index) const
+                {
+                    return actual_index(index);
+                }
+
+            public:
+                template<usize i, usize dim, typename T, typename... Args>
+                inline static constexpr void view_vector(ArrayDummyVectorType& vector, T&& arg, Args&&... args) const
+                {
+                    if constexpr (i == dim)
+                    {
+                        return;
+                    }
+                    else
+                    {
+                        if constexpr (DecaySameAs<T, usize> || std::unsigned_integral<OriginType<T>>)
+                        {
+                            vector[_map_dimension[i]] = DummyIndex{ static_cast<usize>(arg) };
+                        }
+                        else if constexpr (DecaySameAs<T, isize> || std::signed_integral<OriginType<T>>)
+                        {
+                            vector[_map_dimension[i]] = DummyIndex{ static_cast<isize>(arg) };
+                        }
+                        else if constexpr (DecaySameAs<T, RangeFull>)
+                        {
+                            vector[_map_dimension[i]] = DummyIndex{ __ };
+                        }
+                        view_vector<i + 1_uz, dim>(vector, std::forward<Args>(args)...);
+                    }
                 }
 
             private:
