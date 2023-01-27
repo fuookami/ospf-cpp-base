@@ -47,7 +47,7 @@ namespace ospf
                 constexpr MultiArrayViewConstIterator(ArgRRefType<VectorType> vector, const ViewType& view)
                     : _has_next(true), _vector(move<ValueType>(vector)), _view(view) {}
 
-            public;
+            public:
                 constexpr MultiArrayViewConstIterator(const MultiArrayViewConstIterator& ano) = default;
                 constexpr MultiArrayViewConstIterator(MultiArrayViewConstIterator&& rhs) noexcept = default;
                 constexpr MultiArrayViewConstIterator& operator=(const MultiArrayViewConstIterator& rhs) = default;
@@ -154,7 +154,7 @@ namespace ospf
                 constexpr MultiArrayViewIterator(ArgRRefType<VectorType> vector, const ViewType& view)
                     : Base(move<VectorType>(vector), view) {}
 
-                public;
+            public:
                 constexpr MultiArrayViewIterator(const MultiArrayViewIterator& ano) = default;
                 constexpr MultiArrayViewIterator(MultiArrayViewIterator&& rhs) noexcept = default;
                 constexpr MultiArrayViewIterator& operator=(const MultiArrayViewIterator& rhs) = default;
@@ -203,7 +203,7 @@ namespace ospf
                 constexpr MultiArrayViewConstReverseIterator(ArgRRefType<VectorType> vector, const ViewType& view)
                     : _has_next(true), _vector(move<ValueType>(vector)), _view(view) {}
 
-            public;
+            public:
                 constexpr MultiArrayViewConstReverseIterator(const MultiArrayViewConstReverseIterator& ano) = default;
                 constexpr MultiArrayViewConstReverseIterator(MultiArrayViewConstReverseIterator&& rhs) noexcept = default;
                 constexpr MultiArrayViewConstReverseIterator& operator=(const MultiArrayViewConstReverseIterator& rhs) = default;
@@ -310,7 +310,7 @@ namespace ospf
                 constexpr MultiArrayViewReverseIterator(ArgRRefType<VectorType> vector, const ViewType& view)
                     : Base(move<VectorType>(vector), view) {}
 
-                public;
+            public:
                 constexpr MultiArrayViewReverseIterator(const MultiArrayViewReverseIterator& ano) = default;
                 constexpr MultiArrayViewReverseIterator(MultiArrayViewReverseIterator&& rhs) noexcept = default;
                 constexpr MultiArrayViewReverseIterator& operator=(const MultiArrayViewReverseIterator& rhs) = default;
@@ -320,11 +320,18 @@ namespace ospf
 
             template<
                 typename A,
-                ShapeType S
+                typename S
             >
-                requires NotSameAs<typename A::ValueType, void> && (S::dim == dynamic_dimension)
+                requires NotSameAs<typename A::ValueType, void>
             class MultiArrayView
             {
+                template<
+                    typename T,
+                    usize dim
+                >
+                    requires NotSameAs<T, void>
+                friend class MultiArray;
+
                 using Array = OriginType<A>;
                 using ArrayDummyVectorType = typename Array::DummyVectorType;
 
@@ -334,15 +341,17 @@ namespace ospf
                 using ShapeType = OriginType<S>;
                 using VectorType = typename ShapeType::VectorType;
                 using VectorViewType = typename ShapeType::VectorViewType;
-                using DummyVectorType = typename ShapeType::DummyVectorType;
-                using DummyVectorViewType = typename ShapeType::DummyVectorViewType;
+                using DummyVectorType = std::vector<DummyIndex>;
+                using DummyVectorViewType = std::span<DummyIndex>;
 
                 using IterType = MultiArrayViewIterator<MultiArrayView>;
                 using ConstIterType = MultiArrayViewConstIterator<MultiArrayView>;
                 using ReverseIterType = MultiArrayViewReverseIterator<MultiArrayView>;
                 using ConstReverseIterType = MultiArrayViewConstReverseIterator<MultiArrayView>;
 
-            public:
+                static_assert(multi_array::ShapeType<ShapeType> && ShapeType::dim == dynamic_dimension);
+
+            private:
                 constexpr MultiArrayView(const Array& array, ArgRRefType<ArrayDummyVectorType> vector)
                     : _vector(move<ArrayDummyVectorType>(vector)), _array(array)
                 {
@@ -359,7 +368,7 @@ namespace ospf
                         assert(_vector[i].is_single_index() || _vector[i].is_range_full());
                         if (_vector[i].is_range_full())
                         {
-                            shape.push_back(_array->shape()[i]);
+                            shape.push_back(_array->shape().shape()[i]);
                             _map_dimension.push_back(i);
                         }
                     }
@@ -458,7 +467,7 @@ namespace ospf
                     const auto to_shape = map_to_shape(shape, map_dimension);
                     auto base_vector = base_map_to_vector(shape, vector);
 
-                    Ret ret;
+                    DynRefArray<DynRefArray<ValueType>> ret;
                     ret.reserve(to_shape.size());
                     auto map_vector = to_shape.zero();
                     do
@@ -480,15 +489,13 @@ namespace ospf
 
                 template<typename... Args>
                     requires is_normal_vector<Args...>
-                        && (dim == dynamic_dimension || dim == VariableTypeList<Args...>::length)
                 inline constexpr LRefType<ValueType> operator()(Args&&... args)
                 {
                     return get(normal_vector(shape(), std::forward<Args>(args)...));
                 }
-
+                
                 template<typename... Args>
                     requires is_normal_vector<Args...>
-                        && (dim == dynamic_dimension || dim == VariableTypeList<Args...>::length)
                 inline constexpr CLRefType<ValueType> operator()(Args&&... args) const
                 {
                     return get(normal_vector(shape(), std::forward<Args>(args)...));
@@ -496,7 +503,6 @@ namespace ospf
 
                 template<typename... Args>
                     requires is_dummy_vector<Args...> && !is_normal_vector<Args...>
-                        && (dim == dynamic_dimension || dim == VariableTypeList<Args...>::length)
                 inline constexpr DynRefArray<ValueType> operator()(Args&&... args) const
                 {
                     return get(DummyVectorType{ DummyIndex{ std::forward<Args>(args) }... });
@@ -659,7 +665,7 @@ namespace ospf
                         && _array == rhs._array;
                 }
 
-                inline constexpr const bool operator==(const MultiArrayView& rhs) const noexcept
+                inline constexpr const bool operator!=(const MultiArrayView& rhs) const noexcept
                 {
                     return _shape != rhs._shape
                         || _map_dimension != rhs._map_dimension
@@ -710,7 +716,7 @@ namespace ospf
 
             public:
                 template<usize i, usize dim, typename T, typename... Args>
-                inline static constexpr void view_vector(ArrayDummyVectorType& vector, T&& arg, Args&&... args) const
+                inline static constexpr void view_vector(ArrayDummyVectorType& vector, T&& arg, Args&&... args)
                 {
                     if constexpr (i == dim)
                     {

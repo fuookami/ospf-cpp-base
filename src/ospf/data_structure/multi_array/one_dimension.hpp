@@ -14,7 +14,7 @@ namespace ospf
             class MultiArray<T, 1_uz>
                 : public MultiArrayImpl<OriginType<T>, std::vector<OriginType<T>>, Shape1, MultiArray<T, 1_uz>>
             {
-                using Impl = MultiArrayImpl<OriginType<T>, std::array<OriginType<T>, 1_uz>, Shape<0_uz>, MultiArray<T, 0_uz>>;
+                using Impl = MultiArrayImpl<OriginType<T>, std::vector<OriginType<T>>, Shape1, MultiArray<T, 1_uz>>;
 
             public:
                 using ValueType = typename Impl::ValueType;
@@ -28,13 +28,13 @@ namespace ospf
             public:
                 template<typename = void>
                     requires WithDefault<ValueType>
-                constexpr MultiArray(ArgRRefType<Shape1> shape1)
+                constexpr MultiArray(ArgRRefType<Shape1> shape)
                     : _shape(move<Shape1>(shape))
                 {
                     _container.assign(_shape.size(), DefaultValue<ValueType>::value);
                 }
 
-                constexpr MultiArray(ArgRRefType<Shape1> shape1, ArgCLRefType<ValueType> value)
+                constexpr MultiArray(ArgRRefType<Shape1> shape, ArgCLRefType<ValueType> value)
                     : _shape(move<Shape1>(shape))
                 {
                     _container.assign(_shape.size(), value);

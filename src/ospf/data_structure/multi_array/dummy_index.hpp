@@ -150,7 +150,7 @@ namespace ospf
 
                     inline constexpr std::optional<Either<usize, isize>> single_index(void) const noexcept
                     {
-                        return std::visit([](const auto& index) 
+                        return std::visit([](const auto& index) -> std::optional<Either<usize, isize>>
                             {
                                 using IndexType = OriginType<decltype(index)>;
                                 if constexpr (DecaySameAs<IndexType, usize>)
@@ -268,16 +268,16 @@ namespace ospf
                         {
                             if (dummy_vector.size() != shape.dimension())
                             {
-                                throw OSPFException{ OSPFError{ OSPFErrCode::ApplicationFail, std::format("dimension should be {}, not {}", shape.dimension(), dummy_vector.size()) }; };
+                                throw OSPFException{ OSPFError{ OSPFErrCode::ApplicationFail, std::format("dimension should be {}, not {}", shape.dimension(), dummy_vector.size()) } };
                             }
                         }
 
                         _enumerators.reserve(shape.dimension());
-                        for (auto i{ 0_uz }; i != _shape.dimension(); ++i)
+                        for (usize i{ 0_uz }; i != _shape.dimension(); ++i)
                         {
                             _enumerators.push_back(dummy_vector[i].iter(shape, i));
                         }
-                        for (auto i{ 0_uz }; i != _shape.dimension(). ++i)
+                        for (usize i{ 0_uz }; i != _shape.dimension(); ++i)
                         {
                             assert((*_enumerators[i]).has_value());
                             _next[i] = **_enumerators[i];
@@ -311,7 +311,7 @@ namespace ospf
                 public:
                     inline constexpr std::optional<VectorViewType> operator*(void) const noexcept
                     {
-                        if (_curr == _end)
+                        if (!_has_next)
                         {
                             return std::nullopt;
                         }

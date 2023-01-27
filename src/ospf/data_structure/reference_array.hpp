@@ -260,7 +260,7 @@ namespace ospf
                     return *array.at(i);
                 }
 
-                inline static constexpr LRefType<ValueType> get_unchecked(LRefType<ContainerType>, const usize i)
+                inline static constexpr LRefType<ValueType> get_unchecked(LRefType<ContainerType> array, const usize i)
                 {
                     return *array[i];
                 }
@@ -711,7 +711,7 @@ namespace ospf
                 constexpr DynamicReferenceArray(It&& first, It&& last)
                     : _container(
                         boost::make_transform_iterator(std::forward<It>(first), [](LRefType<ValueType> ref) { return ReferenceType{ref}; }),
-                        boost::make_transform_iterator(std::forward<It>(last), [](LRefType<ValueType> ref) { return ReferenceType{ref}; }),
+                        boost::make_transform_iterator(std::forward<It>(last), [](LRefType<ValueType> ref) { return ReferenceType{ref}; })
                     ) {}
 
                 template<std::input_iterator It>
@@ -719,7 +719,7 @@ namespace ospf
                 constexpr DynamicReferenceArray(It&& first, It&& last)
                     : _container(
                         boost::make_transform_iterator(std::forward<It>(first), [](CLRefType<ValueType> ref) { return ReferenceType{ref}; }),
-                        boost::make_transform_iterator(std::forward<It>(last), [](CLRefType<ValueType> ref) { return ReferenceType{ref}; }),
+                        boost::make_transform_iterator(std::forward<It>(last), [](CLRefType<ValueType> ref) { return ReferenceType{ref}; })
                     ) {}
 
                 template<std::input_iterator It>
@@ -758,7 +758,7 @@ namespace ospf
                 {
                     _container.assign(
                         boost::make_transform_iterator(std::forward<It>(first), [](LRefType<ValueType> ref) { return ReferenceType{ ref }; }),
-                        boost::make_transform_iterator(std::forward<It>(last), [](LRefType<ValueType> ref) { return ReferenceType{ ref }; }),
+                        boost::make_transform_iterator(std::forward<It>(last), [](LRefType<ValueType> ref) { return ReferenceType{ ref }; })
                     );
                 }
 
@@ -768,7 +768,7 @@ namespace ospf
                 {
                     _container.assign(
                         boost::make_transform_iterator(std::forward<It>(first), [](CLRefType<ValueType> ref) { return ReferenceType{ ref }; }),
-                        boost::make_transform_iterator(std::forward<It>(last), [](CLRefType<ValueType> ref) { return ReferenceType{ ref }; }),
+                        boost::make_transform_iterator(std::forward<It>(last), [](CLRefType<ValueType> ref) { return ReferenceType{ ref }; })
                     );
                 }
 
@@ -804,7 +804,7 @@ namespace ospf
                 {
                     assign(
                         boost::make_transform_iterator(refs.cbegin(), [](const Ref<U, cat>& ref) { return ReferenceType{ ref }; }),
-                        boost::make_transform_iterator(refs.cend(), [](const Ref<U, cat>& ref) { return ReferenceType{ ref }; }),
+                        boost::make_transform_iterator(refs.cend(), [](const Ref<U, cat>& ref) { return ReferenceType{ ref }; })
                     );
                 }
 
@@ -902,7 +902,7 @@ namespace ospf
                 {
                     return IterType{ _container.insert(pos._iter, 
                         boost::make_transform_iterator(std::forward<It>(first), [](LRefType<ValueType> ref) { return ReferenceType{ ref }; }),
-                        boost::make_transform_iterator(std::forward<It>(last), [](LRefType<ValueType> ref) { return ReferenceType{ref}; }),
+                        boost::make_transform_iterator(std::forward<It>(last), [](LRefType<ValueType> ref) { return ReferenceType{ref}; })
                     ) };
                 }
 
@@ -912,7 +912,7 @@ namespace ospf
                 {
                     return IterType{ _container.insert(pos._iter,
                         boost::make_transform_iterator(std::forward<It>(first), [](CLRefType<ValueType> ref) { return ReferenceType{ ref }; }),
-                        boost::make_transform_iterator(std::forward<It>(last), [](CLRefType<ValueType> ref) { return ReferenceType{ ref }; }),
+                        boost::make_transform_iterator(std::forward<It>(last), [](CLRefType<ValueType> ref) { return ReferenceType{ ref }; })
                     ) };
                 }
 
@@ -948,7 +948,7 @@ namespace ospf
                 {
                     return insert(
                         boost::make_transform_iterator(refs.cbegin(), [](const Ref<U, cat>& ref) { return ReferenceType{ ref }; }),
-                        boost::make_transform_iterator(refs.cend(), [](const Ref<U, cat>& ref) { return ReferenceType{ ref }; }),
+                        boost::make_transform_iterator(refs.cend(), [](const Ref<U, cat>& ref) { return ReferenceType{ ref }; })
                     );
                 }
 
@@ -970,7 +970,7 @@ namespace ospf
                 {
                     return insert(
                         boost::make_transform_iterator(refs.cbegin(), [](const Ref<U, cat>& ref) { return ReferenceType{ ref }; }),
-                        boost::make_transform_iterator(refs.cend(), [](const Ref<U, cat>& ref) { return ReferenceType{ ref }; }),
+                        boost::make_transform_iterator(refs.cend(), [](const Ref<U, cat>& ref) { return ReferenceType{ ref }; })
                     );
                 }
 
@@ -1021,7 +1021,7 @@ namespace ospf
                     requires std::copy_constructible<ReferenceType>
                 inline constexpr void push_back(const StaticReferenceArray<T, len, cat, C1>& refs)
                 {
-                    insert(end(), refs);
+                    insert(this->end(), refs);
                 }
 
                 template<
@@ -1032,7 +1032,7 @@ namespace ospf
                     requires std::copy_constructible<ReferenceType> && std::convertible_to<PtrType<U>, PtrType<ValueType>>
                 inline constexpr void push_back(const StaticReferenceArray<U, len, cat, C1>& refs)
                 {
-                    insert(end(), refs);
+                    insert(this->end(), refs);
                 }
 
                 template<
@@ -1041,7 +1041,7 @@ namespace ospf
                     requires std::copy_constructible<ReferenceType>
                 inline constexpr void push_back(const DynamicReferenceArray<T, cat, C1>& refs)
                 {
-                    insert(end(), refs);
+                    insert(this->end(), refs);
                 }
 
                 template<
@@ -1051,7 +1051,7 @@ namespace ospf
                     requires std::copy_constructible<ReferenceType> && std::convertible_to<PtrType<U>, PtrType<ValueType>>
                 inline constexpr void push_back(const DynamicReferenceArray<U, cat, C1>& refs)
                 {
-                    insert(end(), refs);
+                    insert(this->end(), refs);
                 }
 
                 // todo: push back moved dynamic reference array
@@ -1106,7 +1106,7 @@ namespace ospf
                     requires std::copy_constructible<ReferenceType>
                 inline constexpr void push_front(const StaticReferenceArray<T, len, cat, C1>& refs)
                 {
-                    insert(begin(), refs);
+                    insert(this->begin(), refs);
                 }
 
                 template<
@@ -1117,7 +1117,7 @@ namespace ospf
                     requires std::copy_constructible<ReferenceType> && std::convertible_to<PtrType<U>, PtrType<ValueType>>
                 inline constexpr void push_front(const StaticReferenceArray<U, len, cat, C1>& refs)
                 {
-                    insert(begin(), refs);
+                    insert(this->begin(), refs);
                 }
 
                 template<
@@ -1126,7 +1126,7 @@ namespace ospf
                     requires std::copy_constructible<ReferenceType>
                 inline constexpr void push_front(const DynamicReferenceArray<T, cat, C1>& refs)
                 {
-                    insert(begin(), refs);
+                    insert(this->begin(), refs);
                 }
 
                 // todo: push front moved dynamic reference array
@@ -1138,7 +1138,7 @@ namespace ospf
                     requires std::copy_constructible<ReferenceType> && std::convertible_to<PtrType<U>, PtrType<ValueType>>
                 inline constexpr void push_front(const DynamicReferenceArray<U, cat, C1>& refs)
                 {
-                    insert(begin(), refs);
+                    insert(this->begin(), refs);
                 }
 
                 inline constexpr void emplace_front(CLRefType<ValueType> ref)

@@ -443,19 +443,19 @@ namespace ospf
             //tex:$(- \infty , \infty)$
             inline static constexpr RangeBounds full(void) noexcept
             {
-                return RangeBounds{ BoundType{ unbounded }, BoundType{ unbounded } };
+                return RangeBounds{ BoundType{ functional::unbounded }, BoundType{ functional::unbounded } };
             }
 
             //tex:$[L, \infty )$
             inline static constexpr RangeBounds from(ArgRRefType<IndexType> start_bound) noexcept
             {
-                return RangeBounds{ BoundType{ IncludedType{ move<IndexType>(start_bound) } }, BoundType{ unbounded } };
+                return RangeBounds{ BoundType{ IncludedType{ move<IndexType>(start_bound) } }, BoundType{ functional::unbounded } };
             }
 
             //tex:$(- \infty , R)$
             inline static constexpr RangeBounds to(ArgRRefType<IndexType> end_bound) noexcept
             {
-                return RangeBounds{ BoundType{ unbounded }, BoundType{ ExcludedType{ move<IndexType>(end_bound) } } };
+                return RangeBounds{ BoundType{ functional::unbounded }, BoundType{ ExcludedType{ move<IndexType>(end_bound) } } };
             }
 
             //tex:$[L, R)$
@@ -473,7 +473,7 @@ namespace ospf
             //tex:$(- \infty, R]$
             inline static constexpr RangeBounds to_inclusive(ArgRRefType<IndexType> end_bound) noexcept
             {
-                return RangeBounds{ BoundType{ unbounded }, BoundType{ IncludedType{ move<IndexType>(end_bound) } } };
+                return RangeBounds{ BoundType{ functional::unbounded }, BoundType{ IncludedType{ move<IndexType>(end_bound) } } };
             }
 
         private:

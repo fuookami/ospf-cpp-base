@@ -8,7 +8,7 @@ namespace ospf
 {
     inline namespace data_structure
     {
-        static constexpr const auto dynamic_dimension = std::dynamic_extent;
+        static constexpr const auto dynamic_dimension = npos;
 
         namespace multi_array
         {
@@ -22,9 +22,9 @@ namespace ospf
             // for Einstein Notation
             template<
                 typename A,
-                ShapeType S = DynShape
+                typename S
             >
-                requires NotSameAs<typename A::ValueType, void> && (S::dim == dynamic_dimension)
+                requires NotSameAs<typename A::ValueType, void>
             class MultiArrayView;
 
             template<

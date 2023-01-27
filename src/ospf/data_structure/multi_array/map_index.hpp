@@ -161,7 +161,7 @@ namespace ospf
             template<typename T>
             struct IsMapVector<T>
             {
-                static constexpr const bool value = DummyIndex::Types::template contains<T> || DecaySameAs<T, MapPlaceHolder>;
+                static constexpr const bool value = dummy_index::DummyIndex::Types::template contains<T> || DecaySameAs<T, map_index::MapPlaceHolder>;
             };
 
             template<typename T, typename... Args>
@@ -180,7 +180,7 @@ namespace ospf
                 static constexpr const auto dim = VariableTypeList<Args...>::length;
                 static constexpr const auto to_dim = VariableTypeList<Args...>::template count<map_index::MapPlaceHolder>;
                 static_assert(to_dim != 0_uz, "there should be at least 1 place holders in map vector!");
-                return map_index::MapVector<dim, to_dim>{ std::forward<MapIndex>(args)... };
+                return map_index::MapVector<dim, to_dim>{ std::forward<map_index::MapIndex>(args)... };
             }
 
             template<usize vec_dim, usize to_dim>
@@ -198,9 +198,9 @@ namespace ospf
                 std::sort(map.begin(), map.end(),
                     [](const std::pair<usize, usize> lhs, const std::pair<usize, usize> rhs)
                     {
-                        return lhs.second < rhs.second
+                        return lhs.second < rhs.second;
                     });
-                for (auto i{ 0_uz }, j{ to_dim - 1_uz }; i != j; ++i)
+                for (usize i{ 0_uz }, j{ to_dim - 1_uz }; i != j; ++i)
                 {
                     if (map[i].second == map[i + 1_uz].second)
                     {
@@ -235,7 +235,7 @@ namespace ospf
 
                 if constexpr (S::dim == dynamic_dimension)
                 {
-                    DummyVectorType ret{ shape.dimension(), DummyIndex{} };
+                    DummyVectorType ret{ shape.dimension(), dummy_index::DummyIndex{} };
                     for (usize i{ 0_uz }; i != shape.dimension(); ++i)
                     {
                         if (vector[i].is_index())
@@ -247,7 +247,7 @@ namespace ospf
                 }
                 else
                 {
-                    DummyVectorType ret{ DummyIndex{} };
+                    DummyVectorType ret{ dummy_index::DummyIndex{} };
                     for (usize i{ 0_uz }; i != shape.dimension(); ++i)
                     {
                         if (vector[i].is_index())

@@ -36,13 +36,13 @@ namespace ospf
             public:
                 template<typename = void>
                     requires WithDefault<ValueType>
-                constexpr MultiArray(ArgRRefType<ShapeType> shape1)
+                constexpr MultiArray(ArgRRefType<ShapeType> shape)
                     : _shape(move<ShapeType>(shape))
                 {
                     _container.assign(_shape.size(), DefaultValue<ValueType>::value);
                 }
 
-                constexpr MultiArray(ArgRRefType<ShapeType> shape1, ArgCLRefType<ValueType> value)
+                constexpr MultiArray(ArgRRefType<ShapeType> shape, ArgCLRefType<ValueType> value)
                     : _shape(move<ShapeType>(shape))
                 {
                     _container.assign(_shape.size(), value);
@@ -110,14 +110,22 @@ namespace ospf
                 }
 
             public:
-                template<typename... Args>
-                    requires (VariableTypeList<Args>::length != 0_uz) && (VariableTypeList<Args>::length <= dim) && is_view_vector<Args...>
-                inline constexpr MultiArrayView<MultiArray> view(Args&&... args) const
+                inline constexpr MultiArrayView<MultiArray, DynShape> view(void) const
                 {
-                    static constexpr const usize to_dim = VariableTypeList<Args>::length;
-                    DummyVectorType vector{ dim, DummyIndex{} };
-                    MultiArrayView<MultiArray>::view_vector<0_uz, to_dim>(vector, std::forward<Args>(args)...);
-                    return MultiArrayView<MultiArray>{ *this, std::move(vector) };
+                    auto vector = DummyVectorType{ DummyIndex{} };
+                    vector.fill(DummyIndex{});
+                    return MultiArrayView<MultiArray, DynShape>{ *this, move<DummyVectorType>(vector) };
+                }
+
+                template<typename... Args>
+                    requires (VariableTypeList<Args...>::length != 0_uz) && (VariableTypeList<Args...>::length <= dim) && is_view_vector<Args...>
+                inline constexpr MultiArrayView<MultiArray, DynShape> view(Args&&... args) const
+                {
+                    static constexpr const usize to_dim = VariableTypeList<Args...>::length;
+                    DummyVectorType vector{ DummyIndex{} };
+                    vector.fill(DummyIndex{});
+                    MultiArrayView<MultiArray, DynShape>::template view_vector<0_uz, to_dim>(vector, std::forward<Args>(args)...);
+                    return MultiArrayView<MultiArray, DynShape>{ *this, std::move(vector) };
                 }
 
             public:

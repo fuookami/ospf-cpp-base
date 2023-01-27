@@ -15,20 +15,22 @@ namespace ospf
             >
                 requires NotSameAs<T, void> && (dim != dynamic_dimension)
             class MultiArrayMapView
-                : public MultiArrayImpl<DynRefArray<OriginType<T>>, std::vector<DynRefArray<OriginType<T>>>, Shape<dim>, MultiArrayMapView<dim, T>>
+                : public MultiArrayImpl<DynRefArray<OriginType<T>>, std::vector<DynRefArray<OriginType<T>>>, Shape<dim>, MultiArrayMapView<T, dim>>
             {
-                using Impl = MultiArrayImpl<DynRefArray<OriginType<T>>, std::vector<DynRefArray<OriginType<T>>>, Shape<dim>, MultiArrayMapView<dim, T>>;
+                using Impl = MultiArrayImpl<DynRefArray<OriginType<T>>, std::vector<DynRefArray<OriginType<T>>>, Shape<dim>, MultiArrayMapView<T, dim>>;
 
                 template<
                     typename T,
                     usize dim
                 >
+                    requires NotSameAs<T, void>
                 friend class MultiArray;
 
                 template<
-                    typename T,
-                    usize dim
+                    typename A,
+                    typename S
                 >
+                    requires NotSameAs<typename A::ValueType, void>
                 friend class MultiArrayView;
 
             public:

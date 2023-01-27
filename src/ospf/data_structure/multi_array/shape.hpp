@@ -2,6 +2,7 @@
 
 #include <ospf/basic_definition.hpp>
 #include <ospf/concepts/base.hpp>
+#include <ospf/data_structure/multi_array/concepts.hpp>
 #include <ospf/functional/result.hpp>
 #include <ospf/literal_constant.hpp>
 #include <ospf/meta_programming/crtp.hpp>
@@ -429,6 +430,9 @@ namespace ospf
             using VectorViewType = typename Impl::VectorViewType;
 
         public:
+            constexpr Shape(void)
+                : Shape(VectorType{ 1_uz, 1_uz }) {}
+
             constexpr Shape(ArgRRefType<VectorType> vector)
                 : _shape(move<VectorType>(vector)), _offset(0_uz, 0_uz), _size(0_uz)
             {

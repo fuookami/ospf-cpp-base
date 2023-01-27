@@ -138,7 +138,7 @@ namespace ospf
 
                 inline constexpr LRefType<ValueType> get(ArgCLRefType<VectorViewType> vector)
                 {
-                    const auto index = _shape.index(vector);
+                    const auto index = shape().index(vector);
                     if (index.failed())
                     {
                         throw OSPFException{ std::move(index).err() };
@@ -148,7 +148,7 @@ namespace ospf
 
                 inline constexpr CLRefType<ValueType> get(ArgCLRefType<VectorViewType> vector) const
                 {
-                    const auto index = _shape.index(vector);
+                    const auto index = shape().index(vector);
                     if (index.failed())
                     {
                         throw OSPFException{ std::move(index).err() };
@@ -373,10 +373,10 @@ namespace ospf
                         vector[i] = static_cast<usize>(std::forward<T>(arg));
                         normal_vector_impl<i + 1_uz>(vector, shape, std::forward<Args>(args)...);
                     }
-                    else
-                    {
-                        static_assert(false, "vector dimension mismatched shape.");
-                    }
+                    //else
+                    //{
+                    //    static_assert(false, "vector dimension mismatched shape.");
+                    //}
                 }
 
             protected:

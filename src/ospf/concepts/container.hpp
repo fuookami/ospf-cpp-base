@@ -14,7 +14,7 @@ namespace ospf
 
         template<typename C>
             requires requires (C& c) { c.reserve(std::declval<usize>()); }
-        struct IsReservable
+        struct IsReservable<C>
         {
             static constexpr const bool value = true;
         };
