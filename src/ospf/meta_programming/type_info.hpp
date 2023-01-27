@@ -8,7 +8,7 @@ namespace ospf
 {
     inline namespace meta_programming
     {
-        template<typename T_>
+        template<typename T>
         struct TypeInfo
         {
         public:

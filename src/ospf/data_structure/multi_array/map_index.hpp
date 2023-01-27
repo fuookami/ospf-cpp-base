@@ -47,7 +47,7 @@ namespace ospf
 
                 class MapIndex
                 {
-                    using Either = ospf::Either<DummyIndex, MapPlaceHolder>;
+                    using Either = functional::Either<DummyIndex, MapPlaceHolder>;
 
                 public:
                     constexpr MapIndex(const usize index)
@@ -104,17 +104,20 @@ namespace ospf
                     }
 
                 public:
-                    inline constexpr const DummyIndex& index(void) const
+                    inline constexpr const DummyIndex& index(void) const &
                     {
                         return _either.left();
+                    }
+
+                    inline constexpr RetType<DummyIndex> index(void) &&
+                    {
+                        return static_cast<Either&&>(_either).left();
                     }
 
                     inline constexpr const MapPlaceHolder holder(void) const
                     {
                         return _either.right();
                     }
-
-                    // todo: moved getter
 
                 private:
                     Either _either;
@@ -259,7 +262,36 @@ namespace ospf
                 }
             }
 
-            // todo: get base map vector for moved map vector type
+            template<ShapeType S, usize vec_dim, usize to_dim>
+            inline static constexpr decltype(auto) base_map_to_vector(const S& shape, map_index::MapVector<vec_dim, to_dim>&& vector)
+            {
+                using DummyVectorType = typename S::DummyVectorType;
+
+                if constexpr (S::dim == dynamic_dimension)
+                {
+                    DummyVectorType ret{ shape.dimension(), dummy_index::DummyIndex{} };
+                    for (usize i{ 0_uz }; i != shape.dimension(); ++i)
+                    {
+                        if (vector[i].is_index())
+                        {
+                            ret[i] = std::move(vector[i]).index();
+                        }
+                    }
+                    return ret;
+                }
+                else
+                {
+                    DummyVectorType ret{ dummy_index::DummyIndex{} };
+                    for (usize i{ 0_uz }; i != shape.dimension(); ++i)
+                    {
+                        if (vector[i].is_index())
+                        {
+                            ret[i] = std::move(vector[i]).index();
+                        }
+                    }
+                    return ret;
+                }
+            }
         };
     };
 };

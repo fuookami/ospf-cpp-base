@@ -87,6 +87,14 @@ namespace ospf
                     return MultiArrayMapView<ValueType, to_dim>{ std::move(shape), std::move(container) };
                 }
 
+                template<usize to_dim>
+                    requires (to_dim < dim) && (to_dim != 0_uz)
+                inline constexpr decltype(auto) get(MapVectorType<to_dim>&& vector) const
+                {
+                    auto [shape, container] = this->template map<DynRefArray<DynRefArray<ValueType>>>(this->shape(), std::move(vector));
+                    return MultiArrayMapView<ValueType, to_dim>{ std::move(shape), std::move(container) };
+                }
+
             public:
                 using Impl::operator();
 
@@ -107,6 +115,13 @@ namespace ospf
                 inline constexpr decltype(auto) operator[](const MapVectorType<to_dim>& vector) const
                 {
                     return get(vector);
+                }
+
+                template<usize to_dim>
+                    requires (to_dim < dim) && (to_dim != 0_uz)
+                inline constexpr decltype(auto) operator[](MapVectorType<to_dim>&& vector) const
+                {
+                    return get(std::move(vector));
                 }
 
             public:

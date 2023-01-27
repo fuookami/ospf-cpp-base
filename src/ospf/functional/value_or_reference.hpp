@@ -19,7 +19,7 @@ namespace ospf
             using CRefType = CLRefType<ValueType>;
 
         private:
-            using EitherType = Either<ValueType, ReferenceType>;
+            using Either = functional::Either<ValueType, ReferenceType>;
 
         public:
             inline static constexpr ValOrRef value(ArgCLRefType<ValueType> val) noexcept

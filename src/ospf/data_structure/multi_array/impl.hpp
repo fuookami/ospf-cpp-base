@@ -411,7 +411,36 @@ namespace ospf
                     return std::make_pair(std::move(to_shape), std::move(ret));
                 }
 
-                // todo: map moved map vector type
+                template<typename Ret, usize vec_dim, usize to_dim>
+                    requires (vec_dim < dim) && (to_dim != 0_uz)
+                inline constexpr decltype(auto) map(const ShapeType& shape, map_index::MapVector<vec_dim, to_dim>&& vector)
+                {
+                    if constexpr (dim == dynamic_dimension)
+                    {
+                        if (vec_dim != dimension())
+                        {
+                            throw OSPFException{ OSPFError{ OSPFErrCode::ApplicationFail, std::format("dimension should be {}, not {}", shape.dimension(), vec_dim) } };
+                        }
+                    }
+
+                    const auto map_dimension = map_to_dimension(vector);
+                    const auto to_shape = map_to_shape(shape, map_dimension);
+                    auto base_vector = base_map_to_vector(shape, std::move(vector));
+
+                    Ret ret;
+                    ret.reserve(to_shape.size());
+                    auto map_vector = to_shape.zero();
+                    do
+                    {
+                        for (usize i{ 0_uz }; i != to_dim; ++i)
+                        {
+                            base_vector[map_dimension[i]] = DummyIndex{ map_vector[i] };
+                        }
+                        ret.push_back(get(base_vector));
+                    } while (to_shape.next_vector(map_vector));
+
+                    return std::make_pair(std::move(to_shape), std::move(ret));
+                }
 
             private:
                 struct Trait : public Self
