@@ -30,11 +30,10 @@
     <ClInclude Include="src\ospf\config.hpp" />
     <ClInclude Include="src\ospf\data_structure.hpp" />
     <ClInclude Include="src\ospf\data_structure\data_table.hpp" />
-    <ClInclude Include="src\ospf\data_structure\data_table\concepts.hpp" />
-    <ClInclude Include="src\ospf\data_structure\data_table\cell.hpp" />
+    <ClInclude Include="src\ospf\data_structure\data_table\dynamic_column.hpp" />
     <ClInclude Include="src\ospf\data_structure\data_table\header.hpp" />
-    <ClInclude Include="src\ospf\data_structure\data_table\line.hpp" />
-    <ClInclude Include="src\ospf\data_structure\data_table\table.hpp" />
+    <ClInclude Include="src\ospf\data_structure\data_table\impl.hpp" />
+    <ClInclude Include="src\ospf\data_structure\data_table\static_column.hpp" />
     <ClInclude Include="src\ospf\data_structure\multi_array.hpp" />
     <ClInclude Include="src\ospf\data_structure\multi_array\concepts.hpp" />
     <ClInclude Include="src\ospf\data_structure\multi_array\dummy_index.hpp" />

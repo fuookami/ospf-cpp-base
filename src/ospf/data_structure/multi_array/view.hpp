@@ -359,7 +359,7 @@ namespace ospf
                     {
                         if (_vector.size() != _array->dimension())
                         {
-                            throw OSPFException{ OSPFError{ OSPFErrCode::ApplicationFail, std::format("dimension should be {}, not {}", this->dimension(), _vector.size()) } };
+                            throw OSPFException{ OSPFErrCode::ApplicationFail, std::format("dimension should be {}, not {}", this->dimension(), _vector.size()) };
                         }
                     }
                     std::vector<usize> shape;
@@ -460,7 +460,7 @@ namespace ospf
                 {
                     if (vec_dim != dimension())
                     {
-                        throw OSPFException{ OSPFError{ OSPFErrCode::ApplicationFail, std::format("dimension should be {}, not {}", shape.dimension(), vec_dim) } };
+                        throw OSPFException{ OSPFErrCode::ApplicationFail, std::format("dimension should be {}, not {}", shape.dimension(), vec_dim) };
                     }
 
                     const auto map_dimension = map_to_dimension(vector);
@@ -488,7 +488,7 @@ namespace ospf
                 {
                     if (vec_dim != dimension())
                     {
-                        throw OSPFException{ OSPFError{ OSPFErrCode::ApplicationFail, std::format("dimension should be {}, not {}", shape.dimension(), vec_dim) } };
+                        throw OSPFException{ OSPFErrCode::ApplicationFail, std::format("dimension should be {}, not {}", shape.dimension(), vec_dim) };
                     }
 
                     const auto map_dimension = map_to_dimension(vector);
@@ -587,7 +587,7 @@ namespace ospf
                     static constexpr const usize dim = VariableTypeList<Args>::length;
                     if (dim > _shape.dimension())
                     {
-                        throw OSPFException{ OSPFError{ OSPFErrCode::ApplicationFail, std::format("dimension should be {}, not {}", _shape.dimension(), dim) } };
+                        throw OSPFException{ OSPFErrCode::ApplicationFail, std::format("dimension should be {}, not {}", _shape.dimension(), dim) };
                     }
                     auto vector = _vector;
                     view_vector<0_uz, dim>(vector, std::forward<Args>(args)...);

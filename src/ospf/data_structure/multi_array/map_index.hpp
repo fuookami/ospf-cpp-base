@@ -207,7 +207,7 @@ namespace ospf
                 {
                     if (map[i].second == map[i + 1_uz].second)
                     {
-                        throw OSPFException{ OSPFError{ OSPFErrCode::ApplicationFail, std::format("same mapping to dimension between dimension {} and {}", map[i].first, map[i + 1_uz].first) } };
+                        throw OSPFException{ OSPFErrCode::ApplicationFail, std::format("same mapping to dimension between dimension {} and {}", map[i].first, map[i + 1_uz].first) };
                     }
                 }
                 std::array<usize, to_dim> ret{ 0_uz };

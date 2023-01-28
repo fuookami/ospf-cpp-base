@@ -291,20 +291,8 @@
     <ClInclude Include="src\ospf\data_structure\data_table.hpp">
       <Filter>src\ospf\data-structure</Filter>
     </ClInclude>
-    <ClInclude Include="src\ospf\data_structure\data_table\cell.hpp">
-      <Filter>src\ospf\data-structure\data_table</Filter>
-    </ClInclude>
-    <ClInclude Include="src\ospf\data_structure\data_table\line.hpp">
-      <Filter>src\ospf\data-structure\data_table</Filter>
-    </ClInclude>
-    <ClInclude Include="src\ospf\data_structure\data_table\concepts.hpp">
-      <Filter>src\ospf\data-structure\data_table</Filter>
-    </ClInclude>
     <ClInclude Include="src\ospf\serialization\csv\table.hpp">
       <Filter>src\ospf\serialization\csv</Filter>
-    </ClInclude>
-    <ClInclude Include="src\ospf\data_structure\data_table\table.hpp">
-      <Filter>src\ospf\data-structure\data_table</Filter>
     </ClInclude>
     <ClInclude Include="src\ospf\meta_programming\type_info.hpp">
       <Filter>src\ospf\meta-programming</Filter>
@@ -377,6 +365,15 @@
     </ClInclude>
     <ClInclude Include="src\ospf\data_structure\multi_array\concepts.hpp">
       <Filter>src\ospf\data-structure\multi_array</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ospf\data_structure\data_table\impl.hpp">
+      <Filter>src\ospf\data-structure\data_table</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ospf\data_structure\data_table\static_column.hpp">
+      <Filter>src\ospf\data-structure\data_table</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ospf\data_structure\data_table\dynamic_column.hpp">
+      <Filter>src\ospf\data-structure\data_table</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

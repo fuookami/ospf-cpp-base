@@ -131,7 +131,7 @@ namespace ospf
                     static constexpr const usize to_dim = VariableTypeList<Args...>::length;
                     if (to_dim > this->dimension())
                     {
-                        throw OSPFException{ OSPFError{ OSPFErrCode::ApplicationFail, std::format("dimension should be {}, not {}", this->dimension(), to_dim) } };
+                        throw OSPFException{ OSPFErrCode::ApplicationFail, std::format("dimension should be {}, not {}", this->dimension(), to_dim) };
                     }
                     DummyVectorType vector{ this->dimension(), DummyIndex{} };
                     MultiArrayView<MultiArray, DynShape>::template view_vector<0_uz, to_dim>(vector, std::forward<Args...>(args)...);
