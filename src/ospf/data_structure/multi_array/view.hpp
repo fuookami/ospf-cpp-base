@@ -72,7 +72,7 @@ namespace ospf
                     return *this;
                 }
 
-                inline constexpr const MultiArrayViewConstIterator operator++(int) noexcept
+                inline constexpr MultiArrayViewConstIterator operator++(int) noexcept
                 {
                     auto ret = *this;
                     next();
@@ -118,6 +118,14 @@ namespace ospf
                     {
                         return true;
                     }
+                }
+
+            public:
+                inline void swap(MultiArrayViewConstIterator& rhs) noexcept
+                {
+                    std::swap(_has_next, rhs._has_next);
+                    std::swap(_vector, rhs._vector);
+                    std::swap(_view, rhs._view);
                 }
 
             protected:
@@ -274,6 +282,14 @@ namespace ospf
                     {
                         return true;
                     }
+                }
+
+            public:
+                inline void swap(MultiArrayViewConstReverseIterator& rhs) noexcept
+                {
+                    std::swap(_has_next, rhs._has_next);
+                    std::swap(_vector, rhs._vector);
+                    std::swap(_view, rhs._view);
                 }
 
             protected:

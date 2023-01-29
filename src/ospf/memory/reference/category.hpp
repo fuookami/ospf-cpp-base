@@ -15,8 +15,19 @@ namespace ospf
                 UniqueBorrow
             };
 
-            template<typename T, ReferenceCategory category = ReferenceCategory::Reference>
+            template<typename T, ReferenceCategory cat = ReferenceCategory::Reference>
             class Ref;
         };
     };
 };
+
+namespace std
+{
+    template<typename T, ospf::reference::ReferenceCategory cat>
+        requires requires(ospf::reference::Ref<T, cat>& lhs, ospf::reference::Ref<T, cat>& rhs) { lhs.swap(rhs); }
+    inline void swap(ospf::reference::Ref<T, cat>& lhs, ospf::reference::Ref<T, cat>& rhs) noexcept
+    {
+        lhs.swap(rhs);
+    }
+};
+

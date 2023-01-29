@@ -15,6 +15,9 @@ namespace ospf
                 using Either = functional::Either<std::type_index, std::set<std::type_index>>;
 
             public:
+                DataTableHeader(void)
+                    : _name(""), _type(std::nullopt) {}
+
                 DataTableHeader(std::string name, const std::type_index type)
                     : _name(std::move(name)), _type(Either::left(type)) {}
 
@@ -43,18 +46,23 @@ namespace ospf
                     return _name;
                 }
 
-                inline const bool signle_type(void) const noexcept
+                inline const bool empty(void) const noexcept
                 {
-                    return _type.is_left();
+                    return !_type.has_value();
                 }
 
-                inline const bool multi_type(void) const noexcept
+                inline const bool signle_type(void) const
                 {
-                    return _type.is_right();
+                    return (*_type).is_left();
+                }
+
+                inline const bool multi_type(void) const
+                {
+                    return (*_type).is_right();
                 }
 
                 template<typename T>
-                inline const bool is(void) const noexcept
+                inline const bool is(void) const
                 {
                     return std::visit([](const auto& type)
                         {
@@ -66,11 +74,11 @@ namespace ospf
                             {
                                 return false;
                             }
-                        }, _type);
+                        }, *_type);
                 }
 
                 template<typename T>
-                inline const bool contains(void) const noexcept
+                inline const bool contains(void) const
                 {
                     return std::visit([](const auto& types)
                         {
@@ -82,12 +90,19 @@ namespace ospf
                             {
                                 return false;
                             }
-                        }, _type);
+                        }, *_type);
+                }
+
+            public:
+                inline void clear(void) noexcept
+                {
+                    _name.assign("");
+                    _type.emplace(std::nullopt);
                 }
 
             private:
                 std::string _name;
-                Either _type;
+                std::optional<Either> _type;
             };
         };
     };

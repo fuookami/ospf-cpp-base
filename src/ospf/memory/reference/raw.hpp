@@ -41,6 +41,12 @@ namespace ospf
                 Ref& operator=(Ref&& rhs) noexcept = default;
                 ~Ref(void) noexcept = default;
 
+            public:
+                inline void swap(Ref& rhs) noexcept
+                {
+                    std::swap(_ptr, rhs._ptr);
+                }
+
             OSPF_CRTP_PERMISSION:
                 inline RefType OSPF_CRTP_FUNCTION(get_ref)(void) noexcept
                 {

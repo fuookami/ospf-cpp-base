@@ -36,7 +36,14 @@ namespace ospf
 
             private:
                 DataTableRowIterator(const usize i, const TableType& table)
-                    : _i(i), _table(table) {}
+                    : _i(i), _table(table) 
+                {
+                    if (_i > _table->row())
+                    {
+                        throw OSPFException{ OSPFErrCode::ApplicationFail, "out of row range" };
+                    }
+                }
+
             public:
                 DataTableRowIterator(const DataTableRowIterator& ano) = default;
                 DataTableRowIterator(DataTableRowIterator&& ano) noexcept = default;
@@ -45,7 +52,7 @@ namespace ospf
                 ~DataTableRowIterator(void) = default;
 
             public:
-                inline RowViewType operator*(void) const
+                inline RetType<RowViewType> operator*(void) const
                 {
                     return _table->row(_i);
                 }
@@ -64,6 +71,52 @@ namespace ospf
                     return ret;
                 }
 
+                inline DataTableRowIterator& operator--(void)
+                {
+                    last();
+                    return *this;
+                }
+
+                inline DataTableRowIterator operator--(int)
+                {
+                    auto ret = *this;
+                    last();
+                    return ret;
+                }
+
+            public:
+                inline DataTableRowIterator operator+(const ptrdiff diff) const noexcept
+                {
+                    return DataTableRowIterator{ static_cast<usize>(_i + diff), *_table };
+                }
+
+                inline DataTableRowIterator& operator+=(const ptrdiff diff) noexcept
+                {
+                    const auto temp = static_cast<usize>(_i + diff);
+                    if (temp > _table->row())
+                    {
+                        throw OSPFException{ OSPFErrCode::ApplicationFail, "out of row range" };
+                    }
+                    _i = temp;
+                    return *this;
+                }
+
+                inline DataTableRowIterator operator-(const ptrdiff diff) const noexcept
+                {
+                    return DataTableRowIterator{ static_cast<usize>(_i - diff), *_table };
+                }
+
+                inline DataTableRowIterator& operator-=(const ptrdiff diff) noexcept
+                {
+                    const auto temp = static_cast<usize>(_i - diff);
+                    if (temp > _table->row())
+                    {
+                        throw OSPFException{ OSPFErrCode::ApplicationFail, "out of row range" };
+                    }
+                    _i = temp;
+                    return *this;
+                }
+
             public:
                 inline const bool operator==(const DataTableRowIterator& rhs) const noexcept
                 {
@@ -75,6 +128,40 @@ namespace ospf
                     return _i != rhs._i || _table != rhs._table;
                 }
 
+            public:
+                inline const bool operator<(const DataTableRowIterator& rhs) const noexcept
+                {
+                    return _table == rhs._table && _i < rhs._i;
+                }
+
+                inline const bool operator<=(const DataTableRowIterator& rhs) const noexcept
+                {
+                    return _table == rhs._table && _i <= rhs._i;
+                }
+
+                inline const bool operator>(const DataTableRowIterator& rhs) const noexcept
+                {
+                    return _table == rhs._table && _i > rhs._i;
+                }
+
+                inline const bool operator>=(const DataTableRowIterator& rhs) const noexcept
+                {
+                    return _table == rhs._table && _i >= rhs._i;
+                }
+
+            public:
+                inline std::partial_ordering operator<=>(const DataTableRowIterator& rhs) const noexcept
+                {
+                    if (_table != rhs._table)
+                    {
+                        return std::partial_ordering::unordered;
+                    }
+                    else
+                    {
+                        return _i <=> rhs._i;
+                    }
+                }
+
             private:
                 inline void next(void)
                 {
@@ -83,6 +170,15 @@ namespace ospf
                         throw OSPFException{ OSPFErrCode::ApplicationFail, "out of row range" };
                     }
                     ++_i;
+                }
+
+                inline void last(void)
+                {
+                    if (_i == 0_uz)
+                    {
+                        throw OSPFException{ OSPFErrCode::ApplicationFail, "out of row range" };
+                    }
+                    --_i;
                 }
 
             private:
@@ -109,8 +205,15 @@ namespace ospf
                 }
 
             private:
-                DataTableRowReverseIterator(const usize i, const TabelType& table)
-                    : _i(i), _table(table) {}
+                DataTableRowReverseIterator(const usize i, const TableType& table)
+                    : _i(i), _table(table) 
+                {
+                    if (_i != npos && _i >= _table->row())
+                    {
+                        throw OSPFException{ OSPFErrCode::ApplicationFail, "out of row range" };
+                    }
+                }
+
             public:
                 DataTableRowReverseIterator(const DataTableRowReverseIterator& ano) = default;
                 DataTableRowReverseIterator(DataTableRowReverseIterator&& ano) noexcept = default;
@@ -119,7 +222,7 @@ namespace ospf
                 ~DataTableRowReverseIterator(void) = default;
 
             public:
-                inline RowViewType operator*(void) const
+                inline RetType<RowViewType> operator*(void) const
                 {
                     return _table->row(_i);
                 }
@@ -138,6 +241,52 @@ namespace ospf
                     return ret;
                 }
 
+                inline DataTableRowReverseIterator& operator--(void)
+                {
+                    last();
+                    return *this;
+                }
+
+                inline DataTableRowReverseIterator operator--(int)
+                {
+                    auto ret = *this;
+                    last();
+                    return ret;
+                }
+
+            public:
+                inline DataTableRowReverseIterator operator+(const ptrdiff diff) const noexcept
+                {
+                    return DataTableRowReverseIterator{ static_cast<usize>(_i - diff), *_table };
+                }
+
+                inline DataTableRowReverseIterator& operator+=(const ptrdiff diff) noexcept
+                {
+                    const auto temp = static_cast<usize>(_i - diff);
+                    if (temp > _table->row())
+                    {
+                        throw OSPFException{ OSPFErrCode::ApplicationFail, "out of row range" };
+                    }
+                    _i = temp;
+                    return *this;
+                }
+
+                inline DataTableRowReverseIterator operator-(const ptrdiff diff) const noexcept
+                {
+                    return DataTableRowReverseIterator{ static_cast<usize>(_i + diff), *_table };
+                }
+
+                inline DataTableRowReverseIterator& operator-=(const ptrdiff diff) noexcept
+                {
+                    const auto temp = static_cast<usize>(_i + diff);
+                    if (temp > _table->row())
+                    {
+                        throw OSPFException{ OSPFErrCode::ApplicationFail, "out of row range" };
+                    }
+                    _i = temp;
+                    return *this;
+                }
+
             public:
                 inline const bool operator==(const DataTableRowReverseIterator& rhs) const noexcept
                 {
@@ -147,6 +296,40 @@ namespace ospf
                 inline const bool operator!=(const DataTableRowReverseIterator& rhs) const noexcept
                 {
                     return _i != rhs._i || _table != rhs._table;
+                }
+
+             public:
+                inline const bool operator<(const DataTableRowReverseIterator& rhs) const noexcept
+                {
+                    return _table == rhs._table && _i > rhs._i;
+                }
+
+                inline const bool operator<=(const DataTableRowReverseIterator& rhs) const noexcept
+                {
+                    return _table == rhs._table && _i >= rhs._i;
+                }
+
+                inline const bool operator>(const DataTableRowReverseIterator& rhs) const noexcept
+                {
+                    return _table == rhs._table && _i < rhs._i;
+                }
+
+                inline const bool operator>=(const DataTableRowReverseIterator& rhs) const noexcept
+                {
+                    return _table == rhs._table && _i <= rhs._i;
+                }
+
+            public:
+                inline std::partial_ordering operator<=>(const DataTableRowReverseIterator& rhs) const noexcept
+                {
+                    if (_table != rhs._table)
+                    {
+                        return std::partial_ordering::unordered;
+                    }
+                    else
+                    {
+                        return rhs._i <=> _i;
+                    }
                 }
 
             private:
@@ -159,6 +342,15 @@ namespace ospf
                     --_i;
                 }
 
+                inline void last(void)
+                {
+                    if (_i == (_table->row() - 1_uz))
+                    {
+                        throw OSPFException{ OSPFErrCode::ApplicationFail, "out of row range" };
+                    }
+                    ++_i;
+                }
+
             private:
                 usize _i;
                 Ref<TableType> _table;
@@ -169,7 +361,7 @@ namespace ospf
             {
             public:
                 using TableType = OriginType<T>;
-                using RowViewType = typename TableType::RowViewType;
+                using ColumnViewType = typename TableType::ColumnViewType;
 
             public:
                 inline static DataTableColumnIterator begin(const TableType& table) noexcept
@@ -184,7 +376,14 @@ namespace ospf
 
             private:
                 DataTableColumnIterator(const usize i, const TableType& table)
-                    : _i(i), _table(table) {}
+                    : _i(i), _table(table) 
+                {
+                    if (_i > _table->column())
+                    {
+                        throw OSPFException{ OSPFErrCode::ApplicationFail, "out of column range" };
+                    }
+                }
+
             public:
                 DataTableColumnIterator(const DataTableColumnIterator& ano) = default;
                 DataTableColumnIterator(DataTableColumnIterator&& ano) noexcept = default;
@@ -193,7 +392,7 @@ namespace ospf
                 ~DataTableColumnIterator(void) = default;
 
             public:
-                inline RowViewType operator*(void) const
+                inline RetType<ColumnViewType> operator*(void) const
                 {
                     return _table->column(_i);
                 }
@@ -212,6 +411,52 @@ namespace ospf
                     return ret;
                 }
 
+                inline DataTableColumnIterator& operator--(void)
+                {
+                    last();
+                    return *this;
+                }
+
+                inline DataTableColumnIterator operator--(int)
+                {
+                    auto ret = *this;
+                    last();
+                    return ret;
+                }
+
+            public:
+                inline DataTableColumnIterator operator+(const ptrdiff diff) const noexcept
+                {
+                    return DataTableColumnIterator{ static_cast<usize>(_i + diff), *_table };
+                }
+
+                inline DataTableColumnIterator& operator+=(const ptrdiff diff) noexcept
+                {
+                    const auto temp = static_cast<usize>(_i + diff);
+                    if (temp > _table->column())
+                    {
+                        throw OSPFException{ OSPFErrCode::ApplicationFail, "out of column range" };
+                    }
+                    _i = temp;
+                    return *this;
+                }
+
+                inline DataTableColumnIterator operator-(const ptrdiff diff) const noexcept
+                {
+                    return DataTableColumnIterator{ static_cast<usize>(_i - diff), *_table };
+                }
+
+                inline DataTableColumnIterator& operator-=(const ptrdiff diff) noexcept
+                {
+                    const auto temp = static_cast<usize>(_i - diff);
+                    if (temp > _table->column())
+                    {
+                        throw OSPFException{ OSPFErrCode::ApplicationFail, "out of column range" };
+                    }
+                    _i = temp;
+                    return *this;
+                }
+
             public:
                 inline const bool operator==(const DataTableColumnIterator& rhs) const noexcept
                 {
@@ -221,6 +466,40 @@ namespace ospf
                 inline const bool operator!=(const DataTableColumnIterator& rhs) const noexcept
                 {
                     return _i != rhs._i || _table != rhs._table;
+                }
+
+            public:
+                inline const bool operator<(const DataTableColumnIterator& rhs) const noexcept
+                {
+                    return _table == rhs._table && _i < rhs._i;
+                }
+
+                inline const bool operator<=(const DataTableColumnIterator& rhs) const noexcept
+                {
+                    return _table == rhs._table && _i <= rhs._i;
+                }
+
+                inline const bool operator>(const DataTableColumnIterator& rhs) const noexcept
+                {
+                    return _table == rhs._table && _i > rhs._i;
+                }
+
+                inline const bool operator>=(const DataTableColumnIterator& rhs) const noexcept
+                {
+                    return _table == rhs._table && _i >= rhs._i;
+                }
+
+            public:
+                inline std::partial_ordering operator<=>(const DataTableColumnIterator& rhs) const noexcept
+                {
+                    if (_table != rhs._table)
+                    {
+                        return std::partial_ordering::unordered;
+                    }
+                    else
+                    {
+                        return _i <=> rhs._i;
+                    }
                 }
 
             private:
@@ -233,6 +512,15 @@ namespace ospf
                     ++_i;
                 }
 
+                inline void last(void)
+                {
+                    if (_i == 0_uz)
+                    {
+                        throw OSPFException{ OSPFErrCode::ApplicationFail, "out of column range" };
+                    }
+                    --_i;
+                }
+
             private:
                 usize _i;
                 Ref<TableType> _table;
@@ -243,7 +531,7 @@ namespace ospf
             {
             public:
                 using TableType = OriginType<T>;
-                using RowViewType = typename TableType::RowViewType;
+                using ColumnViewType = typename TableType::ColumnViewType;
 
             public:
                 inline static DataTableColumnReverseIterator begin(const TableType& table) noexcept
@@ -258,7 +546,14 @@ namespace ospf
 
             private:
                 DataTableColumnReverseIterator(const usize i, const TableType& table)
-                    : _i(i), _table(table) {}
+                    : _i(i), _table(table) 
+                {
+                    if (i != npos && i >= _table->column())
+                    {
+                        throw OSPFException{ OSPFErrCode::ApplicationFail, "out of column range" };
+                    }
+                }
+
             public:
                 DataTableColumnReverseIterator(const DataTableColumnReverseIterator& ano) = default;
                 DataTableColumnReverseIterator(DataTableColumnReverseIterator&& ano) noexcept = default;
@@ -267,34 +562,114 @@ namespace ospf
                 ~DataTableColumnReverseIterator(void) = default;
 
             public:
-                inline RowViewType operator*(void) const
+                inline RetType<ColumnViewType> operator*(void) const
                 {
                     return _table->column(_i);
                 }
 
             public:
-                inline DataTableColumnIterator& operator++(void)
+                inline DataTableColumnReverseIterator& operator++(void)
                 {
                     next();
                     return *this;
                 }
 
-                inline DataTableColumnIterator operator++(int)
+                inline DataTableColumnReverseIterator operator++(int)
                 {
                     auto ret = *this;
                     next();
                     return ret;
                 }
 
+                inline DataTableColumnReverseIterator& operator--(void)
+                {
+                    last();
+                    return *this;
+                }
+
+                inline DataTableColumnReverseIterator operator--(int)
+                {
+                    auto ret = *this;
+                    last();
+                    return ret;
+                }
+
             public:
-                inline const bool operator==(const DataTableColumnIterator& rhs) const noexcept
+                inline DataTableColumnReverseIterator operator+(const ptrdiff diff) const noexcept
+                {
+                    return DataTableColumnReverseIterator{ static_cast<usize>(_i - diff), *_table };
+                }
+
+                inline DataTableColumnReverseIterator& operator+=(const ptrdiff diff) noexcept
+                {
+                    const auto temp = static_cast<usize>(_i - diff);
+                    if (temp > _table->column())
+                    {
+                        throw OSPFException{ OSPFErrCode::ApplicationFail, "out of column range" };
+                    }
+                    _i = temp;
+                    return *this;
+                }
+
+                inline DataTableColumnReverseIterator operator-(const ptrdiff diff) const noexcept
+                {
+                    return DataTableColumnReverseIterator{ static_cast<usize>(_i + diff), *_table };
+                }
+
+                inline DataTableColumnReverseIterator& operator-=(const ptrdiff diff) noexcept
+                {
+                    const auto temp = static_cast<usize>(_i + diff);
+                    if (temp > _table->column())
+                    {
+                        throw OSPFException{ OSPFErrCode::ApplicationFail, "out of column range" };
+                    }
+                    _i = temp;
+                    return *this;
+                }
+
+            public:
+                inline const bool operator==(const DataTableColumnReverseIterator& rhs) const noexcept
                 {
                     return _i == rhs._i && _table == rhs._table;
                 }
 
-                inline const bool operator!=(const DataTableColumnIterator& rhs) const noexcept
+                inline const bool operator!=(const DataTableColumnReverseIterator& rhs) const noexcept
                 {
                     return _i != rhs._i || _table != rhs._table;
+                }
+
+            public:
+                inline const bool operator<(const DataTableColumnReverseIterator& rhs) const noexcept
+                {
+                    return _table == rhs._table && _i > rhs._i;
+                }
+
+                inline const bool operator<=(const DataTableColumnReverseIterator& rhs) const noexcept
+                {
+                    return _table == rhs._table && _i >= rhs._i;
+                }
+
+                inline const bool operator>(const DataTableColumnReverseIterator& rhs) const noexcept
+                {
+                    return _table == rhs._table && _i < rhs._i;
+                }
+
+                inline const bool operator>=(const DataTableColumnReverseIterator& rhs) const noexcept
+                {
+                    return _table == rhs._table && _i <= rhs._i;
+                }
+
+            public:
+                inline std::partial_ordering operator<=>(const DataTableColumnReverseIterator& rhs) const noexcept
+                {
+                    if (_table != rhs._table)
+                    {
+                        return std::partial_ordering::unordered;
+                    }
+                    else
+                    {
+                        return rhs._i <=> _i;
+                    }
                 }
 
             private:
@@ -305,6 +680,15 @@ namespace ospf
                         throw OSPFException{ OSPFErrCode::ApplicationFail, "out of column range" };
                     }
                     --_i;
+                }
+
+                inline void last(void)
+                {
+                    if (_i == (_table->column() - 1_uz))
+                    {
+                        throw OSPFException{ OSPFErrCode::ApplicationFail, "out of column range" };
+                    }
+                    ++_i;
                 }
 
             private:
@@ -318,10 +702,72 @@ namespace ospf
             public:
                 using TableType = OriginType<T>;
                 using RowViewType = typename TableType::RowViewType;
+                using IterType = DataTableRowIterator<TableType>;
+                using ReverseIterType = DataTableRowReverseIterator<TableType>;
 
-                // todo: operator[]
-                // todo: begin, end
-                // todo: rbegin, rend
+            public:
+                DataTableRows(const TableType& table)
+                    : _table(table) {}
+                DataTableRows(const DataTableRows& ano) = default;
+                DataTableRows(DataTableRows&& ano) noexcept = default;
+                DataTableRows& operator=(const DataTableRows& rhs) = default;
+                DataTableRows& operator=(DataTableRows&& rhs) noexcept = default;
+                ~DataTableRows(void) noexcept = default;
+
+            public:
+                inline RetType<RowViewType> operator[](const usize i) const
+                {
+                    return _table->row(i);
+                }
+
+            public:
+                inline RetType<IterType> begin(void) const noexcept
+                {
+                    return IterType::begin(*_table);
+                }
+
+                inline RetType<IterType> cbegin(void) const noexcept
+                {
+                    return IterType::end(*_table);
+                }
+
+                inline RetType<IterType> end(void) const noexcept
+                {
+                    return IterType::end(*_table);
+                }
+
+                inline RetType<IterType> cend(void) const noexcept
+                {
+                    return IterType::end(*_table);
+                }
+
+            public:
+                inline RetType<ReverseIterType> rbegin(void) const noexcept
+                {
+                    return ReverseIterType::begin(*_table);
+                }
+
+                inline RetType<ReverseIterType> crbegin(void) const noexcept
+                {
+                    return ReverseIterType::begin(*_table);
+                }
+
+                inline RetType<ReverseIterType> rend(void) const noexcept
+                {
+                    return ReverseIterType::end(*_table);
+                }
+
+                inline RetType<ReverseIterType> crend(void) const noexcept
+                {
+                    return ReverseIterType::end(*_table);
+                }
+
+            public:
+                // todo: insert
+                // todo: erase
+
+            private:
+                Ref<TableType> _table;
             };
 
             template<typename T>
@@ -330,10 +776,72 @@ namespace ospf
             public:
                 using TableType = OriginType<T>;
                 using ColumnViewType = typename TableType::ColumnViewType;
+                using IterType = DataTableColumnIterator<TableType>;
+                using ReverseIterType = DataTableColumnReverseIterator<TableType>;
 
-                // todo: operator[]
-                // todo: begin, end
-                // todo: rbegin, rend
+            public:
+                DataTableColumns(const TableType& table)
+                    : _table(table) {}
+                DataTableColumns(const DataTableColumns& ano) = default;
+                DataTableColumns(DataTabDataTableColumnsleRows&& ano) noexcept = default;
+                DataTableColumns& operator=(const DataTableColumns& rhs) = default;
+                DataTableColumns& operator=(DataTableColumns&& rhs) noexcept = default;
+                ~DataTableColumns(void) noexcept = default;
+
+            public:
+                inline RetType<ColumnViewType> operator[](const usize i) const
+                {
+                    return _table->column(i);
+                }
+
+            public:
+                inline RetType<IterType> begin(void) const noexcept
+                {
+                    return IterType::begin(*_table);
+                }
+
+                inline RetType<IterType> cbegin(void) const noexcept
+                {
+                    return IterType::end(*_table);
+                }
+
+                inline RetType<IterType> end(void) const noexcept
+                {
+                    return IterType::end(*_table);
+                }
+
+                inline RetType<IterType> cend(void) const noexcept
+                {
+                    return IterType::end(*_table);
+                }
+
+            public:
+                inline RetType<ReverseIterType> rbegin(void) const noexcept
+                {
+                    return ReverseIterType::begin(*_table);
+                }
+
+                inline RetType<ReverseIterType> crbegin(void) const noexcept
+                {
+                    return ReverseIterType::begin(*_table);
+                }
+
+                inline RetType<ReverseIterType> rend(void) const noexcept
+                {
+                    return ReverseIterType::end(*_table);
+                }
+
+                inline RetType<ReverseIterType> crend(void) const noexcept
+                {
+                    return ReverseIterType::end(*_table);
+                }
+
+            public:
+                // todo: insert
+                // todo: erase
+
+            private:
+                Ref<TableType> _table;
             };
 
             template<
@@ -354,7 +862,7 @@ namespace ospf
                 static constexpr const StoreType store_type = st;
                 using CellType = OriginType<C>;
                 using HeaderType = OriginType<H>;
-                using HeaderViewType = std::span<DataTableHeader, col>;
+                using HeaderViewType = std::span<const DataTableHeader, col>;
                 using RowViewType = OriginType<R>;
                 using ColumnViewType = OriginType<C>;
                 using TableType = OriginType<T>;
@@ -461,17 +969,17 @@ namespace ospf
                     }
                 }
 
-                inline RowViewType operator[](const std::pair<usize, RangeFull> vector) const
+                inline RetType<RowViewType> operator[](const std::pair<usize, RangeFull> vector) const
                 {
                     return row(vector.first);
                 }
 
-                inline ColumnViewType operator[](const std::pair<RangeFull, usize> vector) const
+                inline RetType<ColumnViewType> operator[](const std::pair<RangeFull, usize> vector) const
                 {
                     return column(vector.second);
                 }
 
-                inline ColumnViewType operator[](const std::pair<RangeFull, std::string_view> vector) const
+                inline RetType<ColumnViewType> operator[](const std::pair<RangeFull, std::string_view> vector) const
                 {
                     return column(vector.second);
                 }
@@ -487,29 +995,37 @@ namespace ospf
                     return DataTableRows<Self>{ self() };
                 }
 
-                inline RowViewType row(const usize i) const
+                inline RetType<RowViewType> row(const usize i) const
                 {
                     return Trait::get_row(self(), i);
                 }
 
-                inline ColumnViewType column(const usize i) const
+                inline RetType<ColumnViewType> column(const usize i) const
                 {
                     return Trait::get_column(self(), i);
                 }
 
-                inline ColumnViewType column(const std::string_view header) const
+                inline RetType<ColumnViewType> column(const std::string_view header) const
                 {
                     return Trait::get_column(self(), header_index(header));
                 }
 
             public:
                 // todo: insert row
-                // todo: insert column
 
             public:
-                // todo: clear
+                inline void clear_body(void)
+                {
+                    Trait::clear_table(self());
+                }
+
+                inline void clear(void)
+                {
+                    Trait::clear_header(self());
+                    Trait::clear_table(self());
+                }
+
                 // todo: erase row
-                // todo: erase column
 
             private:
                 struct Trait : public Self
@@ -544,16 +1060,28 @@ namespace ospf
                         return (self.*get_impl)();
                     }
 
-                    inline static RowViewType get_row(const Self& self, const usize i) noexcept
+                    inline static RowViewType get_row(const Self& self, const usize i)
                     {
                         static const auto get_impl = &Self::OSPF_CRTP_FUNCTION(get_row);
                         return (self.*get_impl)(i);
                     }
 
-                    inline static ColumnViewType get_column(const Self& self, const usize i) noexcept
+                    inline static ColumnViewType get_column(const Self& self, const usize i)
                     {
                         static const auto get_impl = &Self::OSPF_CRTP_FUNCTION(get_column);
                         return (self.*get_impl)(i);
+                    }
+
+                    inline static void clear_header(Self& self)
+                    {
+                        static const auto impl = &Self::OSPF_CRTP_FUNCTION(clear_header);
+                        return (self.*impl)();
+                    }
+
+                    inline static void clear_table(Self& self)
+                    {
+                        static const auto impl = &Self::OSPF_CRTP_FUNCTION(clear_table);
+                        return (self.*impl)();
                     }
                 };
             };

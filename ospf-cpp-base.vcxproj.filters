@@ -366,13 +366,13 @@
     <ClInclude Include="src\ospf\data_structure\multi_array\concepts.hpp">
       <Filter>src\ospf\data-structure\multi_array</Filter>
     </ClInclude>
-    <ClInclude Include="src\ospf\data_structure\data_table\impl.hpp">
-      <Filter>src\ospf\data-structure\data_table</Filter>
-    </ClInclude>
     <ClInclude Include="src\ospf\data_structure\data_table\static_column.hpp">
       <Filter>src\ospf\data-structure\data_table</Filter>
     </ClInclude>
     <ClInclude Include="src\ospf\data_structure\data_table\dynamic_column.hpp">
+      <Filter>src\ospf\data-structure\data_table</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ospf\data_structure\data_table\impl.hpp">
       <Filter>src\ospf\data-structure\data_table</Filter>
     </ClInclude>
   </ItemGroup>
