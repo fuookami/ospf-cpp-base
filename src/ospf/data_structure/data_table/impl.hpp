@@ -1,6 +1,6 @@
 #pragma once
 
-#include <ospf/data_structure/store_type.hpp>
+#include <ospf/data_structure/data_table/concepts.hpp>
 #include <ospf/data_structure/data_table/header.hpp>
 #include <ospf/functional/range_bounds.hpp>
 #include <ospf/meta_programming/crtp.hpp>
@@ -845,12 +845,62 @@ namespace ospf
             };
 
             template<
+                typename C, 
+                typename T,
+                StoreType st
+            >
+            class DataTableCellWrapper
+            {
+            public:
+                using CellType = OriginType<C>;
+                using TableType = OriginType<T>;
+
+            public:
+                DataTableCellWrapper(const TableType& table, const usize row, const usize col)
+                    : _row(row), _col(col), _table(table) 
+                {
+                    if constexpr (st == StoreType::Column)
+                    {
+                        std::swap(_row, _col);
+                    }
+                }
+            public:
+                DataTableCellWrapper(const DataTableCellWrapper& ano) = delete;
+                DataTableCellWrapper(DataTableCellWrapper&& ano) noexcept = default;
+                DataTableCellWrapper& operator=(const DataTableCellWrapper& rhs) = delete;
+                DataTableCellWrapper& operator=(DataTableCellWrapper&& rhs) noexcept = default;
+                ~DataTableCellWrapper(void) = default;
+
+            public:
+                template<typename U>
+                DataTableCellWrapper& operator=(U&& value)
+                {
+                    const auto& header = _table->header()[_col];
+                    if (!header.is<OriginType<U>>() && !header.contains<OriginType<U>>())
+                    {
+                        // todo
+                    }
+                    else
+                    {
+                        auto& cell = const_cast<CellType&>(_table->body()[_row][_col]);
+                        // todo
+                    }
+                    return *this;
+                }
+
+            private:
+                usize _row;
+                usize _col;
+                Ref<TableType> _table;
+            };
+
+            template<
                 usize col,
                 StoreType st,
                 typename C,
                 typename H,
-                typename R,
-                typename C,
+                typename RV,
+                typename CV,
                 typename T, 
                 typename Self
             >
@@ -863,8 +913,8 @@ namespace ospf
                 using CellType = OriginType<C>;
                 using HeaderType = OriginType<H>;
                 using HeaderViewType = std::span<const DataTableHeader, col>;
-                using RowViewType = OriginType<R>;
-                using ColumnViewType = OriginType<C>;
+                using RowViewType = OriginType<RV>;
+                using ColumnViewType = OriginType<CV>;
                 using TableType = OriginType<T>;
 
             protected:
@@ -921,6 +971,7 @@ namespace ospf
                 }
 
             public:
+                // todo: replace with wrapper, to check if the type matched
                 inline LRefType<CellType> operator[](const std::array<usize, 2_uz> vector)
                 {
                     if constexpr (st == StoreType::Row)
@@ -945,6 +996,7 @@ namespace ospf
                     }
                 }
 
+                // todo: replace with wrapper, to check if the type matched
                 inline LRefType<CellType> operator[](const std::pair<usize, std::string_view> vector)
                 {
                     if constexpr (st == StoreType::Row)
@@ -1050,7 +1102,7 @@ namespace ospf
 
                     inline static LRefType<TableType> get_table(Self& self) noexcept
                     {
-                        static const auto get_impl = &Self::OSPF_CRTP_FUNCTION(get_const_table);
+                        static const auto get_impl = &Self::OSPF_CRTP_FUNCTION(get_table);
                         return (self.*get_impl)();
                     }
 

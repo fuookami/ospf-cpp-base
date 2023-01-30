@@ -375,6 +375,9 @@
     <ClInclude Include="src\ospf\data_structure\data_table\impl.hpp">
       <Filter>src\ospf\data-structure\data_table</Filter>
     </ClInclude>
+    <ClInclude Include="src\ospf\data_structure\data_table\concepts.hpp">
+      <Filter>src\ospf\data-structure\data_table</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\ospf\system_info.cpp">
