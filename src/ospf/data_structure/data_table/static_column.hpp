@@ -3,6 +3,7 @@
 #include <ospf/data_structure/data_table/impl.hpp>
 #include <ospf/data_structure/data_table/dynamic_column.hpp>
 #include <ospf/data_structure/reference_array.hpp>
+#include <ospf/functional/array.hpp>
 #include <ospf/string/hasher.hpp>
 
 namespace ospf
@@ -41,6 +42,7 @@ namespace ospf
                 using RowViewType = typename Impl::RowViewType;
                 using ColumnViewType = typename Impl::ColumnViewType;
                 using TableType = typename Impl::TableType;
+                using RowConstructor = typename Impl::RowConstructor;
 
             public:
                 DataTable(void) = default;
@@ -108,7 +110,25 @@ namespace ospf
                     }
                     return ret;
                 }
+
+                inline void OSPF_CRTP_FUNCTION(insert_row_by_value)(const usize pos, ArgCLRefType<CellType> value)
+                {
+                    _table.insert(_table.cbegin() + pos, make_array<CellType, col>(value));
+                }
                 
+                inline void OSPF_CRTP_FUNCTION(insert_row_by_constructor)(const usize pos, const RowConstructor& constructor)
+                {
+                    _table.insert(_table.cbegin() + pos, make_array<CellType, col>([this, &constructor](const usize col)
+                        {
+                            return constructor(col, _header[col]);
+                        });
+                }
+
+                inline void OSPF_CRTP_FUNCTION(erase_row)(const usize pos)
+                {
+                    _table.erase(_table.begin() + pos);
+                }
+
                 inline void OSPF_CRTP_FUNCTION(clear_header)(void)
                 {
                     for (auto& header : _header)
@@ -158,13 +178,15 @@ namespace ospf
                 using RowViewType = typename Impl::RowViewType;
                 using ColumnViewType = typename Impl::ColumnViewType;
                 using TableType = typename Impl::TableType;
+                using RowConstructor = typename Impl::RowConstructor;
 
             public:
-                DataTable(const DataTable& ano) = default;
+                DataTable(void) = default;
 
                 // todo
 
             public:
+                DataTable(const DataTable& ano) = default;
                 DataTable(DataTable&& ano) noexcept = default;
                 DataTable& operator=(const DataTable& rhs) = default;
                 DataTable& operator=(DataTable&& rhs) noexcept = default;
@@ -223,6 +245,31 @@ namespace ospf
                 inline ColumnViewType OSPF_CRTP_FUNCTION(get_column)(const usize i) const
                 {
                     return ColumnViewType{ _table[i] };
+                }
+
+                inline void OSPF_CRTP_FUNCTION(insert_row_by_value)(const usize pos, ArgCLRefType<CellType> value)
+                {
+                    for (auto& column : _table)
+                    {
+                        column.insert(column.cbegin(), value);
+                    }
+                }
+
+                inline void OSPF_CRTP_FUNCTION(insert_row_by_constructor)(const usize pos, const RowConstructor& constructor)
+                {
+                    for (usize i{ 0_uz }; i != col; ++i)
+                    {
+                        auto& column = _table[i];
+                        column.insert(column.cbegin(), constructor(i, _header[i]));
+                    }
+                }
+
+                inline void OSPF_CRTP_FUNCTION(erase_row)(const usize pos)
+                {
+                    for (auto& column : _table)
+                    {
+                        column.erase(column.begin() + pos);
+                    }
                 }
 
                 inline void OSPF_CRTP_FUNCTION(clear_header)(void)

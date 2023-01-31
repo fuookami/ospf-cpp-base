@@ -40,6 +40,7 @@ namespace ospf
                 using RowViewType = typename Impl::RowViewType;
                 using ColumnViewType = typename Impl::ColumnViewType;
                 using TableType = typename Impl::TableType;
+                using RowConstructor = typename Impl::RowConstructor;
 
             public:
                 DataTable(void) = default;
@@ -110,6 +111,27 @@ namespace ospf
                     _header.clear();
                 }
 
+                inline void OSPF_CRTP_FUNCTION(insert_row_by_value)(const usize pos, ArgCLRefType<CellType> value)
+                {
+                    _table.insert(_table.cbegin() + pos, std::vector<CellType>{ this->column(), value });
+                }
+
+                inline void OSPF_CRTP_FUNCTION(insert_row_by_constructor)(const usize pos, const RowConstructor& constructor)
+                {
+                    std::vector<CellType> new_row;
+                    new_row.reserve(this->column());
+                    for (usize i{ 0_uz }; i != this->column(); ++i)
+                    {
+                        new_row.push_back(constructor(i, _header[i]));
+                    }
+                    _table.insert(_table.cbegin() + pos, std::move(new_row));
+                }
+
+                inline void OSPF_CRTP_FUNCTION(erase_row)(const usize pos)
+                {
+                    _table.erase(_table.begin() + pos);
+                }
+
                 inline void OSPF_CRTP_FUNCTION(clear_table)(void)
                 {
                     _table.clear();
@@ -151,6 +173,7 @@ namespace ospf
                 using RowViewType = typename Impl::RowViewType;
                 using ColumnViewType = typename Impl::ColumnViewType;
                 using TableType = typename Impl::TableType;
+                using RowConstructor = typename Impl::RowConstructor;
 
             public:
                 DataTable(void) = default;
@@ -203,17 +226,42 @@ namespace ospf
 
                 inline RowViewType OSPF_CRTP_FUNCTION(get_row)(const usize i) const
                 {
-                    return RowViewType{ _table[i] };
+                    RowViewType ret;
+                    for (const auto& column : _table)
+                    {
+                        ret.push_back(column[i]);
+                    }
+                    return ret;
                 }
 
                 inline ColumnViewType OSPF_CRTP_FUNCTION(get_column)(const usize i) const
                 {
-                    ColumnViewType ret;
-                    for (const auto& row : _table)
+                    return ColumnViewType{ _table[i] };
+                }
+
+                inline void OSPF_CRTP_FUNCTION(insert_row_by_value)(const usize pos, ArgCLRefType<CellType> value)
+                {
+                    for (auto& column : _table)
                     {
-                        ret.push_back(row[i]);
+                        column.insert(column.cbegin() + pos, value);
                     }
-                    return ret;
+                }
+
+                inline void OSPF_CRTP_FUNCTION(insert_row_by_constructor)(const usize pos, const RowConstructor& constructor)
+                {
+                    for (usize i{ 0_uz }; i != this->column(); ++i)
+                    {
+                        auto& column = _table[i];
+                        column.insert(column.cbegin() + pos, constructor(i, _header[i]));
+                    }
+                }
+
+                inline void OSPF_CRTP_FUNCTION(erase_row)(const usize pos)
+                {
+                    for (auto& column : _table)
+                    {
+                        column.erase(column.begin() + pos);
+                    }
                 }
 
                 inline void OSPF_CRTP_FUNCTION(clear_header)(void)

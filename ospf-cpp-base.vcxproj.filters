@@ -108,9 +108,6 @@
     <ClInclude Include="src\ospf\meta_programming\variable_type_list.hpp">
       <Filter>src\ospf\meta-programming</Filter>
     </ClInclude>
-    <ClInclude Include="src\ospf\meta_programming\sequence_tuple.hpp">
-      <Filter>src\ospf\meta-programming</Filter>
-    </ClInclude>
     <ClInclude Include="src\ospf\meta_programming\function_trait.hpp">
       <Filter>src\ospf\meta-programming</Filter>
     </ClInclude>
@@ -327,9 +324,6 @@
     <ClInclude Include="src\ospf\data_structure\multi_array\dummy_index.hpp">
       <Filter>src\ospf\data-structure\multi_array</Filter>
     </ClInclude>
-    <ClInclude Include="src\ospf\meta_programming\iterator.hpp">
-      <Filter>src\ospf\meta-programming</Filter>
-    </ClInclude>
     <ClInclude Include="src\ospf\data_structure\multi_array\map_index.hpp">
       <Filter>src\ospf\data-structure\multi_array</Filter>
     </ClInclude>
@@ -380,6 +374,15 @@
     </ClInclude>
     <ClInclude Include="src\ospf\data_structure\data_table\single_type.hpp">
       <Filter>src\ospf\data-structure\data_table</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ospf\functional\sequence_tuple.hpp">
+      <Filter>src\ospf\functional</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ospf\functional\iterator.hpp">
+      <Filter>src\ospf\functional</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ospf\functional\array.hpp">
+      <Filter>src\ospf\functional</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -3,6 +3,7 @@
 #include <ospf/basic_definition.hpp>
 #include <ospf/concepts/base.hpp>
 #include <ospf/data_structure/multi_array/concepts.hpp>
+#include <ospf/functional/array.hpp>
 #include <ospf/functional/result.hpp>
 #include <ospf/literal_constant.hpp>
 #include <ospf/meta_programming/crtp.hpp>
@@ -289,8 +290,7 @@ namespace ospf
         private:
             inline static constexpr std::pair<VectorType, usize> offset(ArgCLRefType<VectorType> shape) noexcept
             {
-                VectorType offset{ 0_uz };
-                offset.fill(0_uz);
+                auto offset = make_array<usize, dim>(0_uz);
                 offset.back() = 1_uz;
                 usize size{ 1_uz };
                 for (auto i{ shape.size() - 2_uz }; i != npos; --i)
@@ -305,9 +305,7 @@ namespace ospf
         OSPF_CRTP_PERMISSION:
             inline constexpr RetType<VectorType> OSPF_CRTP_FUNCTION(get_zero)(void) const noexcept
             {
-                VectorType ret{ 0_uz };
-                ret.fill(0_uz);
-                return ret;
+                return make_array<usize, dim>(0_uz);
             }
 
             inline constexpr const usize OSPF_CRTP_FUNCTION(get_size)(void) const noexcept

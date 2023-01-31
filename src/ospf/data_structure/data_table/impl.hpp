@@ -52,6 +52,11 @@ namespace ospf
                 ~DataTableRowIterator(void) = default;
 
             public:
+                inline operator const usize(void) const noexcept
+                {
+                    return _i;
+                }
+
                 inline RetType<RowViewType> operator*(void) const
                 {
                     return _table->row(_i);
@@ -64,7 +69,7 @@ namespace ospf
                     return *this;
                 }
 
-                inline DataTableRowIterator operator++(int)
+                inline const DataTableRowIterator operator++(int)
                 {
                     auto ret = *this;
                     next();
@@ -77,7 +82,7 @@ namespace ospf
                     return *this;
                 }
 
-                inline DataTableRowIterator operator--(int)
+                inline const DataTableRowIterator operator--(int)
                 {
                     auto ret = *this;
                     last();
@@ -85,7 +90,7 @@ namespace ospf
                 }
 
             public:
-                inline DataTableRowIterator operator+(const ptrdiff diff) const noexcept
+                inline const DataTableRowIterator operator+(const ptrdiff diff) const noexcept
                 {
                     return DataTableRowIterator{ static_cast<usize>(_i + diff), *_table };
                 }
@@ -101,7 +106,7 @@ namespace ospf
                     return *this;
                 }
 
-                inline DataTableRowIterator operator-(const ptrdiff diff) const noexcept
+                inline const DataTableRowIterator operator-(const ptrdiff diff) const noexcept
                 {
                     return DataTableRowIterator{ static_cast<usize>(_i - diff), *_table };
                 }
@@ -115,6 +120,11 @@ namespace ospf
                     }
                     _i = temp;
                     return *this;
+                }
+
+                inline const ptrdiff operator-(const DataTableRowIterator& rhs) const noexcept
+                {
+                    return _i - iter._it;
                 }
 
             public:
@@ -222,6 +232,11 @@ namespace ospf
                 ~DataTableRowReverseIterator(void) = default;
 
             public:
+                inline operator const usize(void) const noexcept
+                {
+                    return _i;
+                }
+
                 inline RetType<RowViewType> operator*(void) const
                 {
                     return _table->row(_i);
@@ -234,7 +249,7 @@ namespace ospf
                     return *this;
                 }
 
-                inline DataTableRowReverseIterator operator++(int)
+                inline const DataTableRowReverseIterator operator++(int)
                 {
                     auto ret = *this;
                     next();
@@ -247,7 +262,7 @@ namespace ospf
                     return *this;
                 }
 
-                inline DataTableRowReverseIterator operator--(int)
+                inline const DataTableRowReverseIterator operator--(int)
                 {
                     auto ret = *this;
                     last();
@@ -255,7 +270,7 @@ namespace ospf
                 }
 
             public:
-                inline DataTableRowReverseIterator operator+(const ptrdiff diff) const noexcept
+                inline const DataTableRowReverseIterator operator+(const ptrdiff diff) const noexcept
                 {
                     return DataTableRowReverseIterator{ static_cast<usize>(_i - diff), *_table };
                 }
@@ -271,7 +286,7 @@ namespace ospf
                     return *this;
                 }
 
-                inline DataTableRowReverseIterator operator-(const ptrdiff diff) const noexcept
+                inline const DataTableRowReverseIterator operator-(const ptrdiff diff) const noexcept
                 {
                     return DataTableRowReverseIterator{ static_cast<usize>(_i + diff), *_table };
                 }
@@ -285,6 +300,11 @@ namespace ospf
                     }
                     _i = temp;
                     return *this;
+                }
+
+                inline const ptrdiff operator-(const DataTableRowReverseIterator& rhs) const noexcept
+                {
+                    return rhs._i - _i;
                 }
 
             public:
@@ -392,6 +412,11 @@ namespace ospf
                 ~DataTableColumnIterator(void) = default;
 
             public:
+                inline operator const usize(void) const noexcept
+                {
+                    return _i;
+                }
+
                 inline RetType<ColumnViewType> operator*(void) const
                 {
                     return _table->column(_i);
@@ -404,7 +429,7 @@ namespace ospf
                     return *this;
                 }
 
-                inline DataTableColumnIterator operator++(int)
+                inline const DataTableColumnIterator operator++(int)
                 {
                     auto ret = *this;
                     next();
@@ -417,7 +442,7 @@ namespace ospf
                     return *this;
                 }
 
-                inline DataTableColumnIterator operator--(int)
+                inline const DataTableColumnIterator operator--(int)
                 {
                     auto ret = *this;
                     last();
@@ -425,7 +450,7 @@ namespace ospf
                 }
 
             public:
-                inline DataTableColumnIterator operator+(const ptrdiff diff) const noexcept
+                inline const DataTableColumnIterator operator+(const ptrdiff diff) const noexcept
                 {
                     return DataTableColumnIterator{ static_cast<usize>(_i + diff), *_table };
                 }
@@ -441,7 +466,7 @@ namespace ospf
                     return *this;
                 }
 
-                inline DataTableColumnIterator operator-(const ptrdiff diff) const noexcept
+                inline const DataTableColumnIterator operator-(const ptrdiff diff) const noexcept
                 {
                     return DataTableColumnIterator{ static_cast<usize>(_i - diff), *_table };
                 }
@@ -455,6 +480,11 @@ namespace ospf
                     }
                     _i = temp;
                     return *this;
+                }
+
+                inline const ptrdiff operator-(const DataTableColumnIterator& rhs) const noexcept
+                {
+                    return _i - rhs._i;
                 }
 
             public:
@@ -562,6 +592,11 @@ namespace ospf
                 ~DataTableColumnReverseIterator(void) = default;
 
             public:
+                inline operator const usize(void) const noexcept
+                {
+                    return _i;
+                }
+
                 inline RetType<ColumnViewType> operator*(void) const
                 {
                     return _table->column(_i);
@@ -574,7 +609,7 @@ namespace ospf
                     return *this;
                 }
 
-                inline DataTableColumnReverseIterator operator++(int)
+                inline const DataTableColumnReverseIterator operator++(int)
                 {
                     auto ret = *this;
                     next();
@@ -587,7 +622,7 @@ namespace ospf
                     return *this;
                 }
 
-                inline DataTableColumnReverseIterator operator--(int)
+                inline const DataTableColumnReverseIterator operator--(int)
                 {
                     auto ret = *this;
                     last();
@@ -595,7 +630,7 @@ namespace ospf
                 }
 
             public:
-                inline DataTableColumnReverseIterator operator+(const ptrdiff diff) const noexcept
+                inline const DataTableColumnReverseIterator operator+(const ptrdiff diff) const noexcept
                 {
                     return DataTableColumnReverseIterator{ static_cast<usize>(_i - diff), *_table };
                 }
@@ -611,7 +646,7 @@ namespace ospf
                     return *this;
                 }
 
-                inline DataTableColumnReverseIterator operator-(const ptrdiff diff) const noexcept
+                inline const DataTableColumnReverseIterator operator-(const ptrdiff diff) const noexcept
                 {
                     return DataTableColumnReverseIterator{ static_cast<usize>(_i + diff), *_table };
                 }
@@ -625,6 +660,11 @@ namespace ospf
                     }
                     _i = temp;
                     return *this;
+                }
+
+                inline const ptrdiff operator-(const DataTableColumnIterator& rhs) const noexcept
+                {
+                    return rhs._i - _i;
                 }
 
             public:
@@ -845,9 +885,9 @@ namespace ospf
             };
 
             template<
+                StoreType st,
                 typename C, 
-                typename T,
-                StoreType st
+                typename T
             >
             class DataTableCellWrapper
             {
@@ -857,13 +897,7 @@ namespace ospf
 
             public:
                 DataTableCellWrapper(const TableType& table, const usize row, const usize col)
-                    : _row(row), _col(col), _table(table) 
-                {
-                    if constexpr (st == StoreType::Column)
-                    {
-                        std::swap(_row, _col);
-                    }
-                }
+                    : _row(row), _col(col), _table(table) {}
             public:
                 DataTableCellWrapper(const DataTableCellWrapper& ano) = delete;
                 DataTableCellWrapper(DataTableCellWrapper&& ano) noexcept = default;
@@ -876,16 +910,33 @@ namespace ospf
                 DataTableCellWrapper& operator=(U&& value)
                 {
                     const auto& header = _table->header()[_col];
-                    if (!header.is<OriginType<U>>() && !header.contains<OriginType<U>>())
+                    if (header.empty())
                     {
-                        // todo
+                        throw OSPFException{ OSPFErrCode::ApplicationError, std::format("header of column {} is uninitialized", _col) };
+                    }
+                    else if (!header.is<OriginType<U>>() && !header.contains<OriginType<U>>())
+                    {
+                        throw OSPFException{ OSPFErrCode::ApplicationError, std::format("type {} is not matched header of column {}", TypeInfo<OriginType<U>>::name(),  _col) };
                     }
                     else
                     {
-                        auto& cell = const_cast<CellType&>(_table->body()[_row][_col]);
-                        // todo
+                        auto& cell = static_cast<CellType&>(*this);
+                        cell = CellType{ std::forward<U>(value) };
                     }
                     return *this;
+                }
+
+            public:
+                inline constexpr operator LRefType<CellType>(void) const
+                {
+                    if constexpr (st == StoreType::Row)
+                    {
+                        return const_cast<CellType&>(_table->body()[_row][_col]);
+                    }
+                    else
+                    {
+                        return const_cast<CellType&>(_table->body()[_col][_row]);
+                    }
                 }
 
             private:
@@ -916,6 +967,10 @@ namespace ospf
                 using RowViewType = OriginType<RV>;
                 using ColumnViewType = OriginType<CV>;
                 using TableType = OriginType<T>;
+                using CellWrapperType = DataTableCellWrapper<st, CellType, TableType>;
+                using RowIterType = DataTableRowIterator<Self>;
+                using RowReverseIterType = DataTableRowReverseIterator<Self>;
+                using RowConstructor = std::function<RetType<CellType>(const usize, const DataTableHeader&)>;
 
             protected:
                 DataTableImpl(void) = default;
@@ -965,23 +1020,17 @@ namespace ospf
                     return Trait::get_column_index(header);
                 }
 
+                // todo:set header
+
                 inline CLRefType<TableType> body(void) const noexcept
                 {
                     return Trait::get_const_table(self());
                 }
 
             public:
-                // todo: replace with wrapper, to check if the type matched
-                inline LRefType<CellType> operator[](const std::array<usize, 2_uz> vector)
+                inline CellWrapperType operator[](const std::array<usize, 2_uz> vector)
                 {
-                    if constexpr (st == StoreType::Row)
-                    {
-                        return Trait::get_table(self())[vector[0_uz]][vector[1_uz]];
-                    }
-                    else
-                    {
-                        return Trait::get_table(self())[vector[1_uz]][vector[0_uz]];
-                    }
+                    return CellWrapperType{ Trait::get_table(self()), vector[0_uz], vector[1_uz] };
                 }
 
                 inline CLRefType<CellType> operator[](const std::array<usize, 2_uz> vector) const
@@ -996,28 +1045,20 @@ namespace ospf
                     }
                 }
 
-                // todo: replace with wrapper, to check if the type matched
-                inline LRefType<CellType> operator[](const std::pair<usize, std::string_view> vector)
+                inline CellWrapperType operator[](const std::pair<usize, std::string_view> vector)
                 {
-                    if constexpr (st == StoreType::Row)
-                    {
-                        return Trait::get_table(self())[vector.first][Trait::get_column_index(self(), vector.second)];
-                    }
-                    else
-                    {
-                        return Trait::get_table(self())[Trait::get_column_index(self(), vector.second)][vector.first];
-                    }
+                    return CellWrapperType{ Trait::get_table(self()), vector.first, header_index(vector.second) };
                 }
 
                 inline CLRefType<CellType> operator[](const std::pair<usize, std::string_view> vector) const
                 {
                     if constexpr (st == StoreType::Row)
                     {
-                        return Trait::get_const_table(self())[vector.first][Trait::get_column_index(self(), vector.second)];
+                        return Trait::get_const_table(self())[vector.first][header_index(vector.second)];
                     }
                     else
                     {
-                        return Trait::get_const_table(self())[Trait::get_column_index(self(), vector.second)][vector.first];
+                        return Trait::get_const_table(self())[header_index(vector.second)][vector.first];
                     }
                 }
 
@@ -1063,9 +1104,6 @@ namespace ospf
                 }
 
             public:
-                // todo: insert row
-
-            public:
                 inline void clear_body(void)
                 {
                     Trait::clear_table(self());
@@ -1077,7 +1115,74 @@ namespace ospf
                     Trait::clear_table(self());
                 }
 
-                // todo: erase row
+                template<typename = void>
+                    requires WithDefault<CellType>
+                inline const usize insert_row(const usize pos)
+                {
+                    return insert_row(pos, DefaultValue<CellType>::value);
+                }
+
+                // todo: insert template U
+
+                inline const usize insert_row(const usize pos, ArgCLRefType<CellType> value)
+                {
+                    Trait::insert_row(self(), pos, value);
+                    return row + 1_uz;
+                }
+                
+                inline const usize insert_row(const usize pos, const std::function<RetType<CellType>(const usize)>& constructor)
+                {
+                    return insert_row(pos, [&constructor](const usize col, const DataTableHeader& _)
+                        {
+                            return constructor(col);
+                        });
+                }
+
+                inline const usize insert_row(const usize pos, const RowConstructor& constructor)
+                {
+                    Trait::insert_row(self(), pos, constructor);
+                    return row + 1_uz;
+                }
+
+                template<typename = void>
+                    requires WithDefault<CellType>
+                inline const RowIterType insert_row(const RowIterType pos)
+                {
+                    insert_row(static_cast<const usize>(pos));
+                    return pos + 1_iz;
+                }
+
+                // todo: insert template U
+
+                inline const RowIterType insert_row(const RowIterType pos, ArgCLRefType<CellType> value)
+                {
+                    insert_row(static_cast<const usize>(pos), value);
+                    return pos + 1_iz;
+                }
+
+                inline const RowIterType insert_row(const RowIterType pos, const std::function<RetType<CellType>(const usize)>& constructor)
+                {
+                    insert_row(static_cast<const usize>(pos), constructor);
+                    return pos + 1_iz;
+                }
+
+                inline const RowIterType insert_row(const RowIterType pos, const RowConstructor& constructor)
+                {
+                    insert_row(static_cast<const usize>(pos), constructor);
+                    return pos + 1_iz;
+                }
+
+                inline const usize erase_row(const usize pos)
+                {
+                    Trait::erase_row(self(), pos);
+                    return pos;
+                }
+
+                inline const RowIterType erase_row(const RowIterType pos)
+                {
+                    erase_row(static_cast<const usize>(pos));
+                    return pos;
+                }
 
             private:
                 struct Trait : public Self
@@ -1122,6 +1227,24 @@ namespace ospf
                     {
                         static const auto get_impl = &Self::OSPF_CRTP_FUNCTION(get_column);
                         return (self.*get_impl)(i);
+                    }
+
+                    inline static void insert_row(Self& self, const usize pos, ArgCLRefType<CellType> value)
+                    {
+                        static const auto impl = &Self::OSPF_CRTP_FUNCTION(insert_row_by_value);
+                        return (self.*impl)(pos, value);
+                    }
+
+                    inline static void insert_row(Self& self, const usize pos, const RowConstructor& constructor)
+                    {
+                        static const auto impl = &Self::OSPF_CRTP_FUNCTION(insert_row_by_constructor);
+                        return (self.*impl)(pos, constructor);
+                    }
+
+                    inline static void erase_row(Self& self, const usize pos)
+                    {
+                        static const auto impl = &Self::OSPF_CRTP_FUNCTION(erase_row);
+                        return (self.*impl)(pos);
                     }
 
                     inline static void clear_header(Self& self)

@@ -2,7 +2,7 @@
 
 #include <ospf/concepts/with_tag.hpp>
 #include <ospf/memory/reference.hpp>
-#include <ospf/meta_programming/iterator.hpp>
+#include <ospf/functional/iterator.hpp>
 
 namespace ospf
 {

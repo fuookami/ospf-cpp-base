@@ -5,7 +5,7 @@
 #include <ospf/literal_constant.hpp>
 #include <ospf/memory/pointer.hpp>
 #include <ospf/memory/reference.hpp>
-#include <ospf/meta_programming/iterator.hpp>
+#include <ospf/functional/iterator.hpp>
 #include <boost/iterator/transform_iterator.hpp>
 
 namespace ospf

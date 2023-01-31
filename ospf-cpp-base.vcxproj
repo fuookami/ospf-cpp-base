@@ -58,9 +58,12 @@
     <ClInclude Include="src\ospf\error\error.hpp" />
     <ClInclude Include="src\ospf\exception.hpp" />
     <ClInclude Include="src\ospf\functional.hpp" />
+    <ClInclude Include="src\ospf\functional\array.hpp" />
     <ClInclude Include="src\ospf\functional\integer_iterator.hpp" />
+    <ClInclude Include="src\ospf\functional\iterator.hpp" />
     <ClInclude Include="src\ospf\functional\range_bounds.hpp" />
     <ClInclude Include="src\ospf\functional\either.hpp" />
+    <ClInclude Include="src\ospf\functional\sequence_tuple.hpp" />
     <ClInclude Include="src\ospf\functional\value_or_reference.hpp" />
     <ClInclude Include="src\ospf\functional\result.hpp" />
     <ClInclude Include="src\ospf\jni.hpp" />
@@ -93,13 +96,11 @@
     <ClInclude Include="src\ospf\meta_programming\crtp.hpp" />
     <ClInclude Include="src\ospf\meta_programming\function_trait.hpp" />
     <ClInclude Include="src\ospf\meta_programming\infix_function.hpp" />
-    <ClInclude Include="src\ospf\meta_programming\iterator.hpp" />
     <ClInclude Include="src\ospf\meta_programming\named_flag.hpp" />
     <ClInclude Include="src\ospf\meta_programming\name_transfer.hpp" />
     <ClInclude Include="src\ospf\meta_programming\name_transfer\backend.hpp" />
     <ClInclude Include="src\ospf\meta_programming\name_transfer\frontend.hpp" />
     <ClInclude Include="src\ospf\meta_programming\naming_system.hpp" />
-    <ClInclude Include="src\ospf\meta_programming\sequence_tuple.hpp" />
     <ClInclude Include="src\ospf\meta_programming\type_info.hpp" />
     <ClInclude Include="src\ospf\meta_programming\variable_type_list.hpp" />
     <ClInclude Include="src\ospf\meta_programming\variadic_macro.hpp" />

@@ -127,9 +127,7 @@ namespace ospf
             public:
                 inline constexpr MultiArrayView<MultiArray, DynShape> view(void) const
                 {
-                    auto vector = DummyVectorType{ DummyIndex{} };
-                    vector.fill(DummyIndex{});
-                    return MultiArrayView<MultiArray, DynShape>{ *this, move<DummyVectorType>(vector) };
+                    return MultiArrayView<MultiArray, DynShape>{ *this, make_array<DummyIndex, dim>(DummyIndex{}) };
                 }
 
                 template<typename... Args>
@@ -137,8 +135,7 @@ namespace ospf
                 inline constexpr MultiArrayView<MultiArray, DynShape> view(Args&&... args) const
                 {
                     static constexpr const usize to_dim = VariableTypeList<Args...>::length;
-                    DummyVectorType vector{ DummyIndex{} };
-                    vector.fill(DummyIndex{});
+                    auto vector = make_array<DummyIndex, dim>(DummyIndex{});
                     MultiArrayView<MultiArray, DynShape>::template view_vector<0_uz, to_dim>(vector, std::forward<Args>(args)...);
                     return MultiArrayView<MultiArray, DynShape>{ *this, std::move(vector) };
                 }
