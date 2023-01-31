@@ -64,7 +64,7 @@ namespace ospf
     };
 };
 
-namespace ospf
+namespace ospf::concepts
 {
     template<>
     struct DefaultValue<LogLevel>

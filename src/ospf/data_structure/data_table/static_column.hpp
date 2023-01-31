@@ -1,6 +1,7 @@
 #pragma once
 
 #include <ospf/data_structure/data_table/impl.hpp>
+#include <ospf/data_structure/data_table/dynamic_column.hpp>
 #include <ospf/data_structure/reference_array.hpp>
 #include <ospf/string/hasher.hpp>
 
@@ -52,6 +53,12 @@ namespace ospf
                 DataTable& operator=(const DataTable& rhs) = default;
                 DataTable& operator=(DataTable&& rhs) noexcept = default;
                 ~DataTable(void) = default;
+
+            public:
+                // todo: to dynamic_column
+
+            public:
+                // todo
 
             OSPF_CRTP_PERMISSION:
                 inline LRefType<HeaderType> OSPF_CRTP_FUNCTION(get_header)(void) noexcept
@@ -131,7 +138,7 @@ namespace ospf
                     RefArray<OriginType<C>, col>,
                     std::span<const OriginType<C>>,
                     std::array<std::vector<OriginType<C>>, col>,
-                    StaticColumn<C, col, StoreType::Column>
+                    DataTable<C, col, StoreType::Column>
                 >
             {
                 using Impl = DataTableImpl<
@@ -162,6 +169,9 @@ namespace ospf
                 DataTable& operator=(const DataTable& rhs) = default;
                 DataTable& operator=(DataTable&& rhs) noexcept = default;
                 ~DataTable(void) = default;
+
+            public:
+                // todo: to dynamic_column
 
             public:
                 // todo

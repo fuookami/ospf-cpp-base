@@ -121,7 +121,7 @@ namespace ospf
     };
 };
 
-namespace ospf
+namespace ospf::concepts
 {
     template<typename C>
         requires std::is_enum_v<C> && WithDefault<C>

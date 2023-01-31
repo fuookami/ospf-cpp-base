@@ -34,6 +34,7 @@
     <ClInclude Include="src\ospf\data_structure\data_table\dynamic_column.hpp" />
     <ClInclude Include="src\ospf\data_structure\data_table\header.hpp" />
     <ClInclude Include="src\ospf\data_structure\data_table\impl.hpp" />
+    <ClInclude Include="src\ospf\data_structure\data_table\single_type.hpp" />
     <ClInclude Include="src\ospf\data_structure\data_table\static_column.hpp" />
     <ClInclude Include="src\ospf\data_structure\multi_array.hpp" />
     <ClInclude Include="src\ospf\data_structure\multi_array\concepts.hpp" />
@@ -137,6 +138,7 @@
     <ClCompile Include="src\ospf\meta_programming\name_transfer\frontend.cpp" />
     <ClCompile Include="src\ospf\parallelism\guard_thread.cpp" />
     <ClCompile Include="src\ospf\parallelism\thread_pool.cpp" />
+    <ClCompile Include="src\ospf\serialization\csv\table.cpp" />
     <ClCompile Include="src\ospf\string\hasher.cpp" />
     <ClCompile Include="src\ospf\system_info.cpp" />
     <ClCompile Include="src\ospf\uuid.cpp" />

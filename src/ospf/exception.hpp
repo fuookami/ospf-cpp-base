@@ -177,7 +177,7 @@ namespace ospf
     using ExOSPFException = ExException<ExOSPFError<T>>;
 };
 
-namespace ospf
+namespace ospf::concepts
 {
     template<ErrorType E>
         requires WithDefault<E>

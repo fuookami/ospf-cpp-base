@@ -378,6 +378,9 @@
     <ClInclude Include="src\ospf\data_structure\data_table\concepts.hpp">
       <Filter>src\ospf\data-structure\data_table</Filter>
     </ClInclude>
+    <ClInclude Include="src\ospf\data_structure\data_table\single_type.hpp">
+      <Filter>src\ospf\data-structure\data_table</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\ospf\system_info.cpp">
@@ -430,6 +433,9 @@
     </ClCompile>
     <ClCompile Include="src\ospf\data_structure\multi_array\dummy_index.cpp">
       <Filter>src\ospf\data-structure\multi_array</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ospf\serialization\csv\table.cpp">
+      <Filter>src\ospf\serialization\csv</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

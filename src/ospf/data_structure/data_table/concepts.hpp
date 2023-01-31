@@ -6,7 +6,7 @@ namespace ospf
 {
     inline namespace data_structure
     {
-        inline namespace data_table
+        namespace data_table
         {
             template<
                 typename C,
@@ -14,6 +14,12 @@ namespace ospf
                 StoreType st
             >
             class DataTable;
+
+            template<
+                StoreType st,
+                typename... Ts
+            >
+            class STDataTable;
         };
     };
 };
