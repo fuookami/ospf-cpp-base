@@ -42,9 +42,17 @@ namespace ospf
             C::multi_type == on,
             data_table::STDataTable<C::store_type, Ts...>,
             std::conditional_t<
-                C::nullable == on,
-                data_table::DataTable<std::optional<std::variant<Ts...>>, col, C::store_type>,
-                data_table::DataTable<std::variant<Ts...>, col, C::store_type>
+                VariableTypeList<Ts...>::length == 1_uz,
+                std::conditional_t<
+                    C::nullable == on,
+                    data_table::DataTable<std::optional<Ts>, col, C::store_type>,
+                    data_table::DataTable<Ts, col, C::store_type>
+                >,
+                std::conditional_t<
+                    C::nullable == on,
+                    data_table::DataTable<std::optional<std::variant<Ts...>>, col, C::store_type>,
+                    data_table::DataTable<std::variant<Ts...>, col, C::store_type>
+                >
             >
         >;
 
@@ -56,9 +64,17 @@ namespace ospf
         >
             requires (C::multi_type == on)
         using DynDataTable = std::conditional_t<
-            C::nullable == on,
-            data_table::DataTable<std::optional<std::variant<Ts...>>, dynamic_column, C::store_type>,
-            data_table::DataTable<std::variant<Ts...>, dynamic_column, C::store_type>
+            VariableTypeList<Ts...>::length == 1_uz,
+            std::conditional_t<
+                C::nullable == on,
+                data_table::DataTable<std::optional<Ts>, dynamic_column, C::store_type>,
+                data_table::DataTable<Ts, dynamic_column, C::store_type>
+            >,
+            std::conditional_t<
+                C::nullable == on,
+                data_table::DataTable<std::optional<std::variant<Ts...>>, dynamic_column, C::store_type>,
+                data_table::DataTable<std::variant<Ts...>, dynamic_column, C::store_type>
+            >
         >;
     };
 };

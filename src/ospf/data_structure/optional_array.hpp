@@ -1012,15 +1012,15 @@ namespace ospf
             public:
                 using ValueType = typename Impl::ValueType;
                 using ContainerType = typename Impl::ContainerType;
-                using typename Impl::OptType;
-                using typename Impl::IterType;
-                using typename Impl::ConstIterType;
-                using typename Impl::ReverseIterType;
-                using typename Impl::ConstReverseIterType;
-                using typename Impl::UncheckedIterType;
-                using typename Impl::ConstUncheckedIterType;
-                using typename Impl::UncheckedReverseIterType;
-                using typename Impl::ConstUncheckedReverseIterType;
+                using OptType = typename Impl::OptType;
+                using IterType = typename Impl::IterType;
+                using ConstIterType = typename Impl::ConstIterType;
+                using ReverseIterType = typename Impl::ReverseIterType;
+                using ConstReverseIterType = typename Impl::ConstReverseIterType;
+                using UncheckedIterType = typename Impl::UncheckedIterType;
+                using ConstUncheckedIterType = typename Impl::ConstUncheckedIterType;
+                using UncheckedReverseIterType = typename Impl::UncheckedReverseIterType;
+                using ConstUncheckedReverseIterType = typename Impl::ConstUncheckedReverseIterType;
 
             public:
                 constexpr OptionalArrayUncheckedAccessorImpl(const Impl& impl)

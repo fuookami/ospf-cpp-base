@@ -75,7 +75,7 @@ namespace ospf
         using Impl = exception::ExceptionImpl<OriginType<E>, Exception<E>>;
 
     public:
-        using ErrType = typename Impl::ErrType;
+        using typename Impl::ErrType;
 
     public:
         template<typename = void>
@@ -120,7 +120,7 @@ namespace ospf
         using Impl = exception::ExceptionImpl<OriginType<E>, ExException<E>>;
 
     public:
-        using ErrType = typename Impl::ErrType;;
+        using typename Impl::ErrType;
 
     public:
         template<typename = void>

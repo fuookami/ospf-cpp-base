@@ -19,13 +19,13 @@ namespace ospf
                 using Impl = MultiArrayImpl<OriginType<T>, std::vector<OriginType<T>>, DynShape, MultiArray<T, dynamic_dimension>>;
 
             public:
-                using ValueType = typename Impl::ValueType;
-                using ContainerType = typename Impl::ContainerType;
-                using ShapeType = typename Impl::ShapeType;
-                using VectorType = typename Impl::VectorType;
-                using VectorViewType = typename Impl::VectorViewType;
-                using DummyVectorType = typename Impl::DummyVectorType;
-                using DummyVectorViewType = typename Impl::DummyVectorViewType;
+                using typename Impl::ValueType;
+                using typename Impl::ContainerType;
+                using typename Impl::ShapeType;
+                using typename Impl::VectorType;
+                using typename Impl::VectorViewType;
+                using typename Impl::DummyVectorType;
+                using typename Impl::DummyVectorViewType;
 
             public:
                 template<typename = void>

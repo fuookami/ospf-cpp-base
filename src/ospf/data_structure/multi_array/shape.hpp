@@ -267,8 +267,8 @@ namespace ospf
             using Impl = multi_array::ShapeImpl<dim, std::array<usize, dim>, Shape<dim>>;
 
         public:
-            using VectorType = typename Impl::VectorType;
-            using VectorViewType = typename Impl::VectorViewType;
+            using typename Impl::VectorType;
+            using typename Impl::VectorViewType;
 
         public:
             constexpr Shape(ArgCLRefType<VectorType> shape)
@@ -346,8 +346,8 @@ namespace ospf
             using Impl = multi_array::ShapeImpl<1_uz, std::array<usize, 1_uz>, Shape<1_uz>>;
 
         public:
-            using VectorType = typename Impl::VectorType;
-            using VectorViewType = typename Impl::VectorViewType;
+            using typename Impl::VectorType;
+            using typename Impl::VectorViewType;
 
         private:
             static constexpr const VectorType _zero{ 0_uz };
@@ -424,8 +424,8 @@ namespace ospf
             using Impl = multi_array::ShapeImpl<dynamic_dimension, std::vector<usize>, Shape<dynamic_dimension>>;
 
         public:
-            using VectorType = typename Impl::VectorType;
-            using VectorViewType = typename Impl::VectorViewType;
+            using typename Impl::VectorType;
+            using typename Impl::VectorViewType;
 
         public:
             constexpr Shape(void)

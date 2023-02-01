@@ -970,6 +970,8 @@ namespace ospf
                 using CellWrapperType = DataTableCellWrapper<st, CellType, TableType>;
                 using RowIterType = DataTableRowIterator<Self>;
                 using RowReverseIterType = DataTableRowReverseIterator<Self>;
+                using ColumnIterType = DataTableColumnIterator<Self>;
+                using ColumnReverseIterType = DataTableColumnReverseIterator<Self>;
                 using RowConstructor = std::function<RetType<CellType>(const usize, const DataTableHeader&)>;
 
             protected:
@@ -1020,7 +1022,27 @@ namespace ospf
                     return Trait::get_column_index(header);
                 }
 
-                // todo:set header
+                inline void set_header(const usize col, std::string header, const std::type_index type) noexcept
+                {
+                    Trait::set_header(self(), col, DataTableHeader{ header, type });
+                }
+
+                inline void set_header(const usize col, std::string header, std::initializer_list<std::type_index> types) noexcept
+                {
+                    Trait::set_header(self(), col, DataTableHeader{ header, std::set<std::type_index>{ std::move(types) } });
+                }
+
+                template<typename T>
+                inline void set_header(const usize col, std::string header) noexcept
+                {
+                    set_header(col, header, ospf::TypeInfo<T>::index());
+                }
+
+                template<typename... Args>
+                inline void set_header(const usize col, std::string header) noexcept
+                {
+                    set_header(col, header, { ospf::TypeInfo<Args>::index()... });
+                }
 
                 inline CLRefType<TableType> body(void) const noexcept
                 {
@@ -1122,12 +1144,16 @@ namespace ospf
                     return insert_row(pos, DefaultValue<CellType>::value);
                 }
 
-                // todo: insert template U
-
                 inline const usize insert_row(const usize pos, ArgCLRefType<CellType> value)
                 {
                     Trait::insert_row(self(), pos, value);
                     return row + 1_uz;
+                }
+
+                template<typename U>
+                inline const usize insert_row(const usize pos, U&& value)
+                {
+                    return insert_row(pos, CellType{ std::forward<U>(value) });
                 }
                 
                 inline const usize insert_row(const usize pos, const std::function<RetType<CellType>(const usize)>& constructor)
@@ -1152,12 +1178,16 @@ namespace ospf
                     return pos + 1_iz;
                 }
 
-                // todo: insert template U
-
                 inline const RowIterType insert_row(const RowIterType pos, ArgCLRefType<CellType> value)
                 {
                     insert_row(static_cast<const usize>(pos), value);
                     return pos + 1_iz;
+                }
+
+                template<typename U>
+                inline const RowIterType insert_row(const RowIterType pos, U&& value)
+                {
+                    return insert_row(pos, CellType{ std::forward<U>(value) });
                 }
 
                 inline const RowIterType insert_row(const RowIterType pos, const std::function<RetType<CellType>(const usize)>& constructor)
@@ -1191,6 +1221,12 @@ namespace ospf
                     {
                         static const auto get_impl = &Self::OSPF_CRTP_FUNCTION(get_header);
                         return (self.*get_impl)();
+                    }
+
+                    inline void set_header(Self& self, const usize col, DataTableHeader header) noexcept
+                    {
+                        static const auto set_impl = &Self::OSPF_CRTP_FUNCTION(set_header);
+                        return (self.*set_impl)(col, std::move(header));
                     }
 
                     inline static CLRefType<HeaderType> get_const_header(const Self& self) noexcept
