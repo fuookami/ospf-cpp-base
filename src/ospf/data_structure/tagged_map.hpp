@@ -25,7 +25,7 @@ namespace ospf
                 template<typename V> class E,
                 template<typename K, typename V> class C
             >
-                requires NotSameAs<std::invoke_result_t<E<T>, T>, void>
+                requires NotSameAs<T, void> && NotSameAs<std::invoke_result_t<E<T>, T>, void>
             class TaggedMap;
 
             template<

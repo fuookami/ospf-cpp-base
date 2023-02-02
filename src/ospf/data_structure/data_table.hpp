@@ -2,8 +2,8 @@
 
 #include <ospf/data_structure/data_table/dynamic_column.hpp>
 #include <ospf/data_structure/data_table/static_column.hpp>
+#include <ospf/data_structure/data_table/single_type.hpp>
 #include <ospf/meta_programming/named_flag.hpp>
-#include <ospf/meta_programming/variable_type_list.hpp>
 
 OSPF_NAMED_TERNARY_FLAG_TEMPLATE(DataTableNullable);
 OSPF_NAMED_TERNARY_FLAG_TEMPLATE(DataTableMultiType);

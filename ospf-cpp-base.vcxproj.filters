@@ -70,6 +70,9 @@
     <Filter Include="test">
       <UniqueIdentifier>{291efce0-4047-4dd2-854e-c4e4570eedd1}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\ospf\meta-programming\meta_info">
+      <UniqueIdentifier>{d961ff5a-f540-4b6a-82d2-e06a08a66ec1}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\ospf\basic_definition.hpp">
@@ -384,6 +387,84 @@
     <ClInclude Include="src\ospf\functional\array.hpp">
       <Filter>src\ospf\functional</Filter>
     </ClInclude>
+    <ClInclude Include="src\ospf\serialization\csv\to_value.hpp">
+      <Filter>src\ospf\serialization\csv</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ospf\serialization\csv\from_value.hpp">
+      <Filter>src\ospf\serialization\csv</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ospf\serialization\csv\io.hpp">
+      <Filter>src\ospf\serialization\csv</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ospf\serialization\json\to_value.hpp">
+      <Filter>src\ospf\serialization\json</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ospf\serialization\json\from_value.hpp">
+      <Filter>src\ospf\serialization\json</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ospf\serialization\json\io.hpp">
+      <Filter>src\ospf\serialization\json</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ospf\serialization\json\get_child.hpp">
+      <Filter>src\ospf\serialization\json</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ospf\serialization\json\has_child.hpp">
+      <Filter>src\ospf\serialization\json</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ospf\serialization\json.hpp">
+      <Filter>src\ospf\serialization</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ospf\serialization\csv.hpp">
+      <Filter>src\ospf\serialization</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ospf\serialization\bytes.hpp">
+      <Filter>src\ospf\serialization</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ospf\serialization\dto.hpp">
+      <Filter>src\ospf\serialization</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ospf\serialization\nullable.hpp">
+      <Filter>src\ospf\serialization</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ospf\serialization\bytes\io.hpp">
+      <Filter>src\ospf\serialization\bytes</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ospf\serialization\bytes\from_value.hpp">
+      <Filter>src\ospf\serialization\bytes</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ospf\serialization\bytes\to_value.hpp">
+      <Filter>src\ospf\serialization\bytes</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ospf\meta_programming\meta_info\meta_item.hpp">
+      <Filter>src\ospf\meta-programming\meta_info</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ospf\meta_programming\meta_info\meta_info.hpp">
+      <Filter>src\ospf\meta-programming\meta_info</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ospf\meta_programming\meta_info.hpp">
+      <Filter>src\ospf\meta-programming</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ospf\log.hpp">
+      <Filter>src\ospf</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ospf\serialization\bytes\header.hpp">
+      <Filter>src\ospf\serialization\bytes</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ospf\log\record.hpp">
+      <Filter>src\ospf\log</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ospf\log\impl.hpp">
+      <Filter>src\ospf\log</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ospf\log\console.hpp">
+      <Filter>src\ospf\log</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ospf\log\file.hpp">
+      <Filter>src\ospf\log</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ospf\log\string.hpp">
+      <Filter>src\ospf\log</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\ospf\system_info.cpp">
@@ -439,6 +520,39 @@
     </ClCompile>
     <ClCompile Include="src\ospf\serialization\csv\table.cpp">
       <Filter>src\ospf\serialization\csv</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ospf\serialization\csv\to_value_csv.cpp">
+      <Filter>src\ospf\serialization\csv</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ospf\serialization\csv\from_value_csv.cpp">
+      <Filter>src\ospf\serialization\csv</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ospf\serialization\csv\io_csv.cpp">
+      <Filter>src\ospf\serialization\csv</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ospf\serialization\json\from_value_json.cpp">
+      <Filter>src\ospf\serialization\json</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ospf\serialization\json\to_value_json.cpp">
+      <Filter>src\ospf\serialization\json</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ospf\serialization\json\io_json.cpp">
+      <Filter>src\ospf\serialization\json</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ospf\serialization\json\get_child_json.cpp">
+      <Filter>src\ospf\serialization\json</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ospf\serialization\bytes\io_bytes.cpp">
+      <Filter>src\ospf\serialization\bytes</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ospf\serialization\bytes\from_value_bytes.cpp">
+      <Filter>src\ospf\serialization\bytes</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ospf\serialization\bytes\to_value_bytes.cpp">
+      <Filter>src\ospf\serialization\bytes</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ospf\log\record.cpp">
+      <Filter>src\ospf\log</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

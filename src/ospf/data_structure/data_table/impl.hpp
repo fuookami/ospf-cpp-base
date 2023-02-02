@@ -741,7 +741,9 @@ namespace ospf
             {
             public:
                 using TableType = OriginType<T>;
+                using CellType = typename TableType::CellType;
                 using RowViewType = typename TableType::RowViewType;
+                using RowConstructor = typename TableType::RowConstructor;
                 using IterType = DataTableRowIterator<TableType>;
                 using ReverseIterType = DataTableRowReverseIterator<TableType>;
 
@@ -803,8 +805,71 @@ namespace ospf
                 }
 
             public:
-                // todo: insert
-                // todo: erase
+                template<typename = void>
+                    requires WithDefault<CellType>
+                inline const usize insert(const usize pos)
+                {
+                    return _table->insert_row(pos);
+                }
+
+                inline const usize insert(const usize pos, ArgCLRefType<CellType> value)
+                {
+                    return _table->insert_row(pos, value);
+                }
+
+                template<typename U>
+                inline const usize insert(const usize pos, U&& value)
+                {
+                    return _table->insert_row(pos, std::forward<U>(value));
+                }
+
+                inline const usize insert(const usize pos, const std::function<RetType<CellType>(const usize)>& constructor)
+                {
+                    return _table->insert_row(pos, constructor);
+                }
+
+                inline const usize insert(const usize pos, const RowConstructor& constructor)
+                {
+                    return _table->insert_row(pos, constructor);
+                }
+
+                template<typename = void>
+                    requires WithDefault<CellType>
+                inline RetType<IterType> insert(ArgCLRefType<IterType> pos)
+                {
+                    return _table->insert_row(pos);
+                }
+
+                inline RetType<IterType> insert(ArgCLRefType<IterType> pos, ArgCLRefType<CellType> value)
+                {
+                    return _table->insert_row(pos, value);
+                }
+
+                template<typename U>
+                inline RetType<IterType> insert(ArgCLRefType<IterType> pos, U&& value)
+                {
+                    return _table->insert_row(pos, std::forward<U>(value));
+                }
+
+                inline RetType<IterType> insert(ArgCLRefType<IterType> pos, const std::function<RetType<CellType>(const usize)>& constructor)
+                {
+                    return _table->insert(pos, constructor);
+                }
+
+                inline RetType<IterType> insert(ArgCLRefType<IterType> pos, const RowConstructor& constructor)
+                {
+                    return _table->insert(pos, constructor);
+                }
+
+                inline const usize erase(const usize pos) noexcept
+                {
+                    return _table->erase_row(pos);
+                }
+
+                inline RetType<IterType> erase(ArgCLRefType<IterType> pos) noexcept
+                {
+                    return _table->erase_row(pos);
+                }
 
             private:
                 Ref<TableType> _table;
@@ -815,7 +880,9 @@ namespace ospf
             {
             public:
                 using TableType = OriginType<T>;
+                using CellType = typename TableType::CellType;
                 using ColumnViewType = typename TableType::ColumnViewType;
+                using ColumnConstructor = typename TableType::ColumnConstructor;
                 using IterType = DataTableColumnIterator<TableType>;
                 using ReverseIterType = DataTableColumnReverseIterator<TableType>;
 
@@ -823,7 +890,7 @@ namespace ospf
                 DataTableColumns(const TableType& table)
                     : _table(table) {}
                 DataTableColumns(const DataTableColumns& ano) = default;
-                DataTableColumns(DataTabDataTableColumnsleRows&& ano) noexcept = default;
+                DataTableColumns(DataTableColumns&& ano) noexcept = default;
                 DataTableColumns& operator=(const DataTableColumns& rhs) = default;
                 DataTableColumns& operator=(DataTableColumns&& rhs) noexcept = default;
                 ~DataTableColumns(void) noexcept = default;
@@ -877,8 +944,75 @@ namespace ospf
                 }
 
             public:
-                // todo: insert
-                // todo: erase
+                template<typename = void>
+                    requires WithDefault<CellType> && requires (TableType& table) { table.insert_column(std::declval<usize>(), std::declval<DataTableHeader>()); }
+                inline const usize insert(const usize pos, ArgRRefType<DataTableHeader> header)
+                {
+                    return _table->insert_column(pos, move<DataTableHeader>(header));
+                }
+
+                template<typename = void>
+                    requires requires (TableType& table) { table.insert_column(std::declval<usize>(), std::declval<DataTableHeader>(), std::declval<CellType>()); }
+                inline const usize insert(const usize pos, ArgRRefType<DataTableHeader> header, ArgCLRefType<CellType> value)
+                {
+                    return _table->insert_column(pos, move<DataTableHeader>(header), value);
+                }
+
+                template<typename U>
+                    requires requires (TableType& table) { table.insert_column(std::declval<usize>(), std::declval<DataTableHeader>(), std::declval<U>()); }
+                inline const usize insert(const usize pos, ArgRRefType<DataTableHeader> header, U&& value)
+                {
+                    return _table->insert_column(pos, move<DataTableHeader>(header), std::forward<U>(value));
+                }
+
+                template<typename = void>
+                    requires requires (TableType& table) { table.insert_column(std::declval<usize>(), std::declval<DataTableHeader>(), std::declval<ColumnConstructor>()); }
+                inline const usize insert(const usize pos, ArgRRefType<DataTableHeader> header, const ColumnConstructor& constructor)
+                {
+                    return _table->insert_column(pos, move<DataTableHeader>(header), constructor);
+                }
+
+                template<typename = void>
+                    requires WithDefault<CellType> && requires (TableType& table) { table.insert_column(std::declval<IterType>(), std::declval<DataTableHeader>()); }
+                inline RetType<IterType> insert(ArgCLRefType<IterType> pos, ArgRRefType<DataTableHeader> header)
+                {
+                    return _table->insert_column(pos, move<DataTableHeader>(header));
+                }
+
+                template<typename = void>
+                    requires requires (TableType& table) { table.insert_column(std::declval<IterType>(), std::declval<DataTableHeader>(), std::declval<CellType>()); }
+                inline RetType<IterType> insert(ArgCLRefType<IterType> pos, ArgRRefType<DataTableHeader> header, ArgCLRefType<CellType> value)
+                {
+                    return _table->insert_column(pos, move<DataTableHeader>(header), value);
+                }
+
+                template<typename U>
+                    requires requires (TableType& table) { table.insert_column(std::declval<IterType>(), std::declval<DataTableHeader>(), std::declval<U>()); }
+                inline RetType<IterType> insert(ArgCLRefType<IterType> pos, ArgRRefType<DataTableHeader> header, U&& value)
+                {
+                    return _table->insert_column(pos, move<DataTableHeader>(header), std::forward<U>(value));
+                }
+
+                template<typename = void>
+                    requires requires (TableType& table) { table.insert_column(std::declval<IterType>(), std::declval<DataTableHeader>(), std::declval<ColumnConstructor>()); }
+                inline RetType<IterType> insert(ArgCLRefType<IterType> pos, ArgRRefType<DataTableHeader> header, const ColumnConstructor& constructor)
+                {
+                    return _table->insert_column(pos, move<DataTableHeader>(header), constructor);
+                }
+
+                template<typename = void>
+                    requires requires (TableType& table) { table.erase_column(std::declval<usize>()); }
+                inline const usize erase(const usize pos) noexcept
+                {
+                    return _table->erase_column(pos);
+                }
+
+                template<typename = void>
+                    requires requires (TableType& table) { table.erase_column(std::declval<IterType>()); }
+                inline RetType<IterType> erase(ArgCLRefType<IterType> pos) noexcept
+                {
+                    return _table->erase_column(pos);
+                }
 
             private:
                 Ref<TableType> _table;
@@ -986,7 +1120,14 @@ namespace ospf
             public:
                 inline const bool empty(void) const noexcept
                 {
-                    return body().empty();
+                    if constexpr (st == StoreType::Row)
+                    {
+                        return body().empty();
+                    }
+                    else
+                    {
+                        return body().empty() ? true : body().front().empty();
+                    }
                 }
 
                 inline const usize row(void) const noexcept
@@ -1172,31 +1313,31 @@ namespace ospf
 
                 template<typename = void>
                     requires WithDefault<CellType>
-                inline const RowIterType insert_row(const RowIterType pos)
+                inline RetType<RowIterType> insert_row(ArgCLRefType<RowIterType> pos)
                 {
                     insert_row(static_cast<const usize>(pos));
                     return pos + 1_iz;
                 }
 
-                inline const RowIterType insert_row(const RowIterType pos, ArgCLRefType<CellType> value)
+                inline RetType<RowIterType> insert_row(ArgCLRefType<RowIterType> pos, ArgCLRefType<CellType> value)
                 {
                     insert_row(static_cast<const usize>(pos), value);
                     return pos + 1_iz;
                 }
 
                 template<typename U>
-                inline const RowIterType insert_row(const RowIterType pos, U&& value)
+                inline RetType<RowIterType> insert_row(ArgCLRefType<RowIterType> pos, U&& value)
                 {
                     return insert_row(pos, CellType{ std::forward<U>(value) });
                 }
 
-                inline const RowIterType insert_row(const RowIterType pos, const std::function<RetType<CellType>(const usize)>& constructor)
+                inline RetType<RowIterType> insert_row(ArgCLRefType<RowIterType> pos, const std::function<RetType<CellType>(const usize)>& constructor)
                 {
                     insert_row(static_cast<const usize>(pos), constructor);
                     return pos + 1_iz;
                 }
 
-                inline const RowIterType insert_row(const RowIterType pos, const RowConstructor& constructor)
+                inline RetType<RowIterType> insert_row(ArgCLRefType<RowIterType> pos, const RowConstructor& constructor)
                 {
                     insert_row(static_cast<const usize>(pos), constructor);
                     return pos + 1_iz;
@@ -1208,7 +1349,7 @@ namespace ospf
                     return pos;
                 }
 
-                inline const RowIterType erase_row(const RowIterType pos)
+                inline RetType<RowIterType> erase_row(ArgCLRefType<RowIterType> pos)
                 {
                     erase_row(static_cast<const usize>(pos));
                     return pos;
@@ -1223,10 +1364,10 @@ namespace ospf
                         return (self.*get_impl)();
                     }
 
-                    inline void set_header(Self& self, const usize col, DataTableHeader header) noexcept
+                    inline void set_header(Self& self, const usize col, ArgRRefType<DataTableHeader> header) noexcept
                     {
                         static const auto set_impl = &Self::OSPF_CRTP_FUNCTION(set_header);
-                        return (self.*set_impl)(col, std::move(header));
+                        return (self.*set_impl)(col, move<DataTableHeader>(header));
                     }
 
                     inline static CLRefType<HeaderType> get_const_header(const Self& self) noexcept

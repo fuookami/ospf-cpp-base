@@ -1,6 +1,7 @@
 #pragma once
 
 #include <ospf/data_structure/store_type.hpp>
+#include <ospf/meta_programming/variable_type_list.hpp>
 
 namespace ospf
 {
@@ -19,6 +20,7 @@ namespace ospf
                 StoreType st,
                 typename... Ts
             >
+                requires (VariableTypeList<Ts...>::length > 1_uz)
             class STDataTable;
         };
     };

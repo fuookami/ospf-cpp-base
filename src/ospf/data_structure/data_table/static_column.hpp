@@ -99,13 +99,13 @@ namespace ospf
                     return _header;
                 }
 
-                inline void OSPF_CRTP_FUNCTION(set_header)(const usize col, DataTableHeader header) noexcept
+                inline void OSPF_CRTP_FUNCTION(set_header)(const usize col, ArgRRefType<DataTableHeader> header) noexcept
                 {
                     if (!_header[col].empty())
                     {
                         _header_index.erase(_header[col].name());
                     }
-                    _header[col] = std::move(header);
+                    _header[col] = move<DataTableHeader>(header);
                     _header_index.insert({ _header[col].name(), col });
                     // todo: check column data is fix header
                 }
@@ -271,13 +271,13 @@ namespace ospf
                     return _header;
                 }
 
-                inline void OSPF_CRTP_FUNCTION(set_header)(const usize col, DataTableHeader header) noexcept
+                inline void OSPF_CRTP_FUNCTION(set_header)(const usize col, ArgRRefType<DataTableHeader> header) noexcept
                 {
                     if (!_header[col].empty())
                     {
                         _header_index.erase(_header[col].name());
                     }
-                    _header[col] = std::move(header);
+                    _header[col] = move<DataTableHeader>(header);
                     _header_index.insert({ _header[col].name(), col });
                     // todo: check column data is fix header
                 }

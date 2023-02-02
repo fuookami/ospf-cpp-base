@@ -7,6 +7,8 @@ namespace ospf
 {
     inline namespace meta_programming
     {
+        // todo: complete it
+
         template<typename... Elems>
         class SequenceTuple
         {
