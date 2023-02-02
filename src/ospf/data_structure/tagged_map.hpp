@@ -36,7 +36,7 @@ namespace ospf
                 requires NotSameAs<std::invoke_result_t<E<T>, T>, void>
             class TaggedMapConstIterator
                 : public ForwardIteratorImpl<
-                    OriginType<T>, 
+                    ConstType<T>, 
                     typename C<OriginType<std::invoke_result_t<E<T>, T>>, OriginType<T>>::const_iterator, 
                     TaggedMapConstIterator<T, E, C>
                 >
@@ -51,15 +51,15 @@ namespace ospf
                 using IterType = typename MapType::const_iterator;
 
             private:
-                using Base = ForwardIteratorImpl<
-                    OriginType<T>,
+                using Impl = ForwardIteratorImpl<
+                    ConstType<T>,
                     typename C<OriginType<std::invoke_result_t<E<T>, T>>, OriginType<T>>::const_iterator,
                     TaggedMapConstIterator<T, E, C>
                 >;
                 
             public:
                 TaggedMapConstIterator(const IterType it)
-                    : Base(it) {}
+                    : Impl(it) {}
                 TaggedMapConstIterator(const TaggedMapConstIterator& ano) = default;
                 TaggedMapConstIterator(TaggedMapConstIterator&& ano) noexcept = default;
                 TaggedMapConstIterator& operator=(const TaggedMapConstIterator& rhs) = default;

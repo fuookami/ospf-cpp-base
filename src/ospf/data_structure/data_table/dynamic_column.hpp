@@ -1,6 +1,7 @@
 #pragma once
 
 #include <ospf/data_structure/data_table/impl.hpp>
+#include <ospf/data_structure/data_table/cell.hpp>
 #include <ospf/data_structure/reference_array.hpp>
 #include <ospf/string/hasher.hpp>
 
@@ -10,6 +11,18 @@ namespace ospf
     {
         namespace data_table
         {
+            template<typename C>
+            inline std::vector<DataTableHeader> make_header(std::initializer_list<std::string_view> header) noexcept
+            {
+                std::vector<DataTableHeader> ret;
+                ret.reserve(header.size());
+                for (usize i{ 0_uz }; i != header.size(); ++i)
+                {
+                    ret.push_back(CellValueTypeTrait<C>::base_header(header[i]));
+                }
+                return ret;
+            }
+
             template<typename C>
             class DataTable<C, dynamic_column, StoreType::Row>
                 : public DataTableImpl<
@@ -53,19 +66,22 @@ namespace ospf
                 using typename Impl::ColumnIterType;
                 using typename Impl::ColumnReverseIterType;
                 using typename Impl::RowConstructor;
-                using ColumnConstructor = std::function<RetType<CellType>(const usize)>;
+                using typename Impl::ColumnConstructor;
 
             public:
                 DataTable(void) = default;
 
                 DataTable(HeaderType header)
-                    : _header(std;:move(header)) 
+                    : _header(std::move(header)) 
                 {
                     for (usize i{ 0_uz }; i != _header.size(); ++i)
                     {
                         _header_index.insert({ _header[i].name(), i });
                     }
                 }
+
+                DataTable(std::initializer_list<std::string_view> header)
+                    : DataTable(make_header<CellType>(header)) {}
 
             public:
                 DataTable(const DataTable& ano) = default;
@@ -79,7 +95,7 @@ namespace ospf
                     requires WithDefault<CellType>
                 inline const usize insert_column(const usize pos, ArgRRefType<DataTableHeader> header)
                 {
-                    return insert_row(pos, move<DataTableHeader>(header), DefaultValue<CellType>::value);
+                    return insert_column(pos, move<DataTableHeader>(header), DefaultValue<CellType>::value);
                 }
 
                 inline const usize insert_column(const usize pos, ArgRRefType<DataTableHeader> header, ArgCLRefType<CellType> value)
@@ -92,7 +108,7 @@ namespace ospf
                         }
                     }
                     _header.insert(_header.cbegin() + pos, move<DataTableHeader>(header));
-                    _header_index.insert({ _header[i].name(), pos });
+                    _header_index.insert({ _header[pos].name(), pos });
                     for (auto& row : _table)
                     {
                         row.insert(row.cbegin() + pos, value);
@@ -117,7 +133,7 @@ namespace ospf
                         }
                     }
                     _header.insert(_header.cbegin() + pos, move<DataTableHeader>(header));
-                    _header_index.insert({ _header[i].name(), pos });
+                    _header_index.insert({ _header[pos].name(), pos });
                     for (usize i{ 0_uz }; i != this->row(); ++i)
                     {
                         auto& row = _table[i];
@@ -158,14 +174,14 @@ namespace ospf
                     return _header;
                 }
 
-                inline void OSPF_CRTP_FUNCTION(set_header)(const usize col, ArgRRefType<DataTableHeader> header) noexcept
+                inline void OSPF_CRTP_FUNCTION(set_header)(const usize i, ArgRRefType<DataTableHeader> header) noexcept
                 {
-                    if (!_header[col].empty())
+                    if (!_header[i].empty())
                     {
-                        _header_index.erase(_header[col].name());
+                        _header_index.erase(_header[i].name());
                     }
-                    _header[col] = move<DataTableHeader>(header);
-                    _header_index.insert({ _header[col].name(), col });
+                    _header[i] = move<DataTableHeader>(header);
+                    _header_index.insert({ _header[i].name(), i });
                     // todo: check column data is fix header
                 }
 
@@ -179,7 +195,7 @@ namespace ospf
                     const auto it = _header_index.find(header);
                     if (it != _header_index.cend())
                     {
-                        return *it;
+                        return it->second;
                     }
                     else
                     {
@@ -197,12 +213,12 @@ namespace ospf
                     return _table;
                 }
 
-                inline RowViewType OSPF_CRTP_FUNCTION(get_row)(const usize i) const
+                inline RetType<RowViewType> OSPF_CRTP_FUNCTION(get_row)(const usize i) const
                 {
                     return RowViewType{ _table[i] };
                 }
 
-                inline ColumnViewType OSPF_CRTP_FUNCTION(get_column)(const usize i) const
+                inline RetType<ColumnViewType> OSPF_CRTP_FUNCTION(get_column)(const usize i) const
                 {
                     ColumnViewType ret;
                     for (const auto& row : _table)
@@ -210,11 +226,6 @@ namespace ospf
                         ret.push_back(row[i]);
                     }
                     return ret;
-                }
-
-                inline void OSPF_CRTP_FUNCTION(clear_header)(void)
-                {
-                    _header.clear();
                 }
 
                 inline void OSPF_CRTP_FUNCTION(insert_row_by_value)(const usize pos, ArgCLRefType<CellType> value)
@@ -238,6 +249,11 @@ namespace ospf
                 inline void OSPF_CRTP_FUNCTION(erase_row)(const usize pos)
                 {
                     _table.erase(_table.begin() + pos);
+                }
+
+                inline void OSPF_CRTP_FUNCTION(clear_header)(void)
+                {
+                    _header.clear();
                 }
 
                 inline void OSPF_CRTP_FUNCTION(clear_table)(void)
@@ -294,19 +310,22 @@ namespace ospf
                 using typename Impl::ColumnIterType;
                 using typename Impl::ColumnReverseIterType;
                 using typename Impl::RowConstructor;
-                using ColumnConstructor = std::function<RetType<CellType>(const usize)>;
+                using typename Impl::ColumnConstructor;
 
             public:
                 DataTable(void) = default;
 
                 DataTable(HeaderType header)
-                    : _header(std;:move(header)) 
+                    : _header(std::move(header)) 
                 {
                     for (usize i{ 0_uz }; i != _header.size(); ++i)
                     {
                         _header_index.insert({ _header[i].name(), i });
                     }
                 }
+
+                DataTable(std::initializer_list<std::string_view> header)
+                    : DataTable(make_header<CellType>(header)) {}
 
             public:
                 DataTable(const DataTable& ano) = default;
@@ -333,7 +352,7 @@ namespace ospf
                         }
                     }
                     _header.insert(_header.cbegin() + pos, move<DataTableHeader>(header));
-                    _header_index.insert({ _header[i].name(), pos });
+                    _header_index.insert({ _header[pos].name(), pos });
                     _table.insert(_table.cbegin() + pos, std::vector<CellType>{ this->row(), value });
                     // todo: check column data is fix header
                     return pos + 1_uz;
@@ -355,7 +374,7 @@ namespace ospf
                         }
                     }
                     _header.insert(_header.cbegin() + pos, move<DataTableHeader>(header));
-                    _header_index.insert({ _header[i].name(), pos });
+                    _header_index.insert({ _header[pos].name(), pos });
                     std::vector<CellType> new_column;
                     new_column.reserve(this->row());
                     for (usize i{ 0_uz }; i != this->row(); ++i)
@@ -398,14 +417,14 @@ namespace ospf
                     return _header;
                 }
 
-                inline void OSPF_CRTP_FUNCTION(set_header)(const usize col, ArgRRefType<DataTableHeader> header) noexcept
+                inline void OSPF_CRTP_FUNCTION(set_header)(const usize i, ArgRRefType<DataTableHeader> header) noexcept
                 {
-                    if (!_header[col].empty())
+                    if (!_header[i].empty())
                     {
-                        _header_index.erase(_header[col].name());
+                        _header_index.erase(_header[i].name());
                     }
-                    _header[col] = move<DataTableHeader>(header);
-                    _header_index.insert({ _header[col].name(), col });
+                    _header[i] = move<DataTableHeader>(header);
+                    _header_index.insert({ _header[i].name(), i });
                     // todo: check column data is fix header
                 }
 
@@ -419,7 +438,7 @@ namespace ospf
                     const auto it = _header_index.find(header);
                     if (it != _header_index.cend())
                     {
-                        return *it;
+                        return it->second;
                     }
                     else
                     {
@@ -437,7 +456,7 @@ namespace ospf
                     return _table;
                 }
 
-                inline RowViewType OSPF_CRTP_FUNCTION(get_row)(const usize i) const
+                inline RetType<RowViewType> OSPF_CRTP_FUNCTION(get_row)(const usize i) const
                 {
                     RowViewType ret;
                     for (const auto& column : _table)
@@ -447,7 +466,7 @@ namespace ospf
                     return ret;
                 }
 
-                inline ColumnViewType OSPF_CRTP_FUNCTION(get_column)(const usize i) const
+                inline RetType<ColumnViewType> OSPF_CRTP_FUNCTION(get_column)(const usize i) const
                 {
                     return ColumnViewType{ _table[i] };
                 }

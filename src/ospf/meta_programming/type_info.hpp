@@ -16,7 +16,7 @@ namespace ospf
 
             inline static decltype(auto) info(void)
             {
-                static const auto& ret = typeid(T_);
+                static const auto& ret = typeid(T);
                 return ret;
             }
 
@@ -33,9 +33,15 @@ namespace ospf
 
             inline static const std::string_view name(void)
             {
-                static const std::string ret = boost::split(info().name(), " :").back();
+                static const std::string ret = name(index());
                 return ret;
             }
         };
+
+        inline const std::string name(const std::type_index type) noexcept
+        {
+            std::vector<std::string> split_result;
+            return boost::split(split_result, type.name(), " :").back();
+        }
     };
 };

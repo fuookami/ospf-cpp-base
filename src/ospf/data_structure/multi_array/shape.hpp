@@ -93,7 +93,7 @@ namespace ospf
                 {
                     if (dimension > this->dimension())
                     {
-                        return OSPFError{ OSPFErrCode::ApplicationFail, std::format("dimension should be {}, not {}", this->dimension(), dimension) };
+                        return OSPFError{ OSPFErrCode::ApplicationError, std::format("dimension should be {}, not {}", this->dimension(), dimension) };
                     }
                     else
                     {
@@ -105,7 +105,7 @@ namespace ospf
                 {
                     if (dimension > this->dimension())
                     {
-                        return OSPFError{ OSPFErrCode::ApplicationFail, std::format("dimension should be {}, not {}", this->dimension(), dimension) };
+                        return OSPFError{ OSPFErrCode::ApplicationError, std::format("dimension should be {}, not {}", this->dimension(), dimension) };
                     }
                     else
                     {
@@ -117,7 +117,7 @@ namespace ospf
                 {
                     if (dimension_of(vector) > dimension())
                     {
-                        return OSPFError{ OSPFErrCode::ApplicationFail, std::format("dimension should be {}, not {}", this->dimension(), dimension_of(vector)) };
+                        return OSPFError{ OSPFErrCode::ApplicationError, std::format("dimension should be {}, not {}", this->dimension(), dimension_of(vector)) };
                     }
                     else
                     {
@@ -126,7 +126,7 @@ namespace ospf
                         {
                             if (vector[i] > this->shape()[i])
                             {
-                                return OSPFError{ OSPFErrCode::ApplicationFail, std::format("length of dimension {} is {}, but it get {}", i, this->shape()[i], vector[i]) };
+                                return OSPFError{ OSPFErrCode::ApplicationError, std::format("length of dimension {} is {}, but it get {}", i, this->shape()[i], vector[i]) };
                             }
                             index += vector[i] * this->offset()[i];
                         }

@@ -31,7 +31,7 @@ namespace ospf
 
             template<typename T, pointer::PointerCategory cat, typename C>
             class PointerArrayConstIterator
-                : public RandomIteratorImpl<pointer::Ptr<OriginType<T>, cat>, typename OriginType<C>::const_iterator, PointerArrayConstIterator<T, cat, C>>
+                : public RandomIteratorImpl<const pointer::Ptr<OriginType<T>, cat>, typename OriginType<C>::const_iterator, PointerArrayConstIterator<T, cat, C>>
             {
                 template<
                     typename T,
@@ -54,11 +54,11 @@ namespace ospf
                 using IterType = typename ContainerType::const_iterator;
 
             private:
-                using Base = RandomIteratorImpl<ValueType, IterType, PointerArrayConstIterator<T, cat, C>>;
+                using Impl = RandomIteratorImpl<ConstType<ValueType>, IterType, PointerArrayConstIterator<T, cat, C>>;
 
             public:
                 constexpr PointerArrayConstIterator(ArgCLRefType<IterType> iter)
-                    : Base(iter) {}
+                    : Impl(iter) {}
                 constexpr PointerArrayConstIterator(const PointerArrayConstIterator& ano) = default;
                 constexpr PointerArrayConstIterator(PointerArrayConstIterator&& ano) noexcept = default;
                 constexpr PointerArrayConstIterator& operator=(const PointerArrayConstIterator& rhs) = default;
@@ -108,11 +108,11 @@ namespace ospf
                 using IterType = typename ContainerType::iterator;
 
             private:
-                using Base = RandomIteratorImpl<ValueType, IterType, PointerArrayIterator<T, cat, C>>;
+                using Impl = RandomIteratorImpl<ValueType, IterType, PointerArrayIterator<T, cat, C>>;
 
             public:
                 constexpr PointerArrayIterator(ArgCLRefType<IterType> iter)
-                    : Base(iter) {}
+                    : Impl(iter) {}
                 constexpr PointerArrayIterator(const PointerArrayIterator& ano) = default;
                 constexpr PointerArrayIterator(PointerArrayIterator&& ano) noexcept = default;
                 constexpr PointerArrayIterator& operator=(const PointerArrayIterator& rhs) = default;
@@ -145,7 +145,7 @@ namespace ospf
 
             template<typename T, pointer::PointerCategory cat, typename C>
             class PointerArrayConstReverseIterator
-                : public RandomIteratorImpl<pointer::Ptr<OriginType<T>, cat>, typename OriginType<C>::const_reverse_iterator, PointerArrayConstReverseIterator<T, cat, C>>
+                : public RandomIteratorImpl<const pointer::Ptr<OriginType<T>, cat>, typename OriginType<C>::const_reverse_iterator, PointerArrayConstReverseIterator<T, cat, C>>
             {
                 template<
                     typename T,
@@ -168,11 +168,11 @@ namespace ospf
                 using IterType = typename ContainerType::const_reverse_iterator;
 
             private:
-                using Base = RandomIteratorImpl<ValueType, IterType, PointerArrayConstReverseIterator<T, cat, C>>;
+                using Impl = RandomIteratorImpl<ConstType<ValueType>, IterType, PointerArrayConstReverseIterator<T, cat, C>>;
 
             public:
                 constexpr PointerArrayConstReverseIterator(ArgCLRefType<IterType> iter)
-                    : Base(iter) {}
+                    : Impl(iter) {}
                 constexpr PointerArrayConstReverseIterator(const PointerArrayConstReverseIterator& ano) = default;
                 constexpr PointerArrayConstReverseIterator(PointerArrayConstReverseIterator&& ano) noexcept = default;
                 constexpr PointerArrayConstReverseIterator& operator=(const PointerArrayConstReverseIterator& rhs) = default;
@@ -222,11 +222,11 @@ namespace ospf
                 using IterType = typename ContainerType::reverse_iterator;
 
             private:
-                using Base = RandomIteratorImpl<ValueType, IterType, PointerArrayReverseIterator<T, cat, C>>;
+                using Impl = RandomIteratorImpl<ValueType, IterType, PointerArrayReverseIterator<T, cat, C>>;
 
             public:
                 constexpr PointerArrayReverseIterator(ArgCLRefType<IterType> iter)
-                    : Base(iter) {}
+                    : Impl(iter) {}
                 constexpr PointerArrayReverseIterator(const PointerArrayReverseIterator& ano) = default;
                 constexpr PointerArrayReverseIterator(PointerArrayReverseIterator&& ano) noexcept = default;
                 constexpr PointerArrayReverseIterator& operator=(const PointerArrayReverseIterator& rhs) = default;
@@ -253,7 +253,7 @@ namespace ospf
 
             template<typename T, pointer::PointerCategory cat, typename C>
             class PointerArrayConstUncheckedIterator
-                : public RandomIteratorImpl<OriginType<T>, typename OriginType<C>::const_iterator, PointerArrayConstUncheckedIterator<T, cat, C>>
+                : public RandomIteratorImpl<ConstType<T>, typename OriginType<C>::const_iterator, PointerArrayConstUncheckedIterator<T, cat, C>>
             {
                 template<
                     typename T,
@@ -276,11 +276,11 @@ namespace ospf
                 using IterType = typename ContainerType::const_iterator;
 
             private:
-                using Base = RandomIteratorImpl<ValueType, IterType, PointerArrayConstUncheckedIterator<T, cat, C>>;
+                using Impl = RandomIteratorImpl<ConstType<ValueType>, IterType, PointerArrayConstUncheckedIterator<T, cat, C>>;
 
             public:
                 constexpr PointerArrayConstUncheckedIterator(ArgCLRefType<IterType> iter)
-                    : Base(iter) {}
+                    : Impl(iter) {}
                 constexpr PointerArrayConstUncheckedIterator(const PointerArrayConstUncheckedIterator& ano) = default;
                 constexpr PointerArrayConstUncheckedIterator(PointerArrayConstUncheckedIterator&& ano) noexcept = default;
                 constexpr PointerArrayConstUncheckedIterator& operator=(const PointerArrayConstUncheckedIterator& rhs) = default;
@@ -330,11 +330,11 @@ namespace ospf
                 using IterType = typename ContainerType::iterator;
 
             private:
-                using Base = RandomIteratorImpl<ValueType, IterType, PointerArrayUncheckedIterator<T, cat, C>>;
+                using Impl = RandomIteratorImpl<ValueType, IterType, PointerArrayUncheckedIterator<T, cat, C>>;
 
             public:
                 constexpr PointerArrayUncheckedIterator(ArgCLRefType<IterType> iter)
-                    : Base(iter) {}
+                    : Impl(iter) {}
                 constexpr PointerArrayUncheckedIterator(const PointerArrayUncheckedIterator& ano) = default;
                 constexpr PointerArrayUncheckedIterator(PointerArrayUncheckedIterator&& ano) noexcept = default;
                 constexpr PointerArrayUncheckedIterator& operator=(const PointerArrayUncheckedIterator& rhs) = default;
@@ -367,7 +367,7 @@ namespace ospf
 
             template<typename T, pointer::PointerCategory cat, typename C>
             class PointerArrayConstUncheckedReverseIterator
-                : public RandomIteratorImpl<OriginType<T>, typename OriginType<C>::const_reverse_iterator, PointerArrayConstUncheckedReverseIterator<T, cat, C>>
+                : public RandomIteratorImpl<ConstType<T>, typename OriginType<C>::const_reverse_iterator, PointerArrayConstUncheckedReverseIterator<T, cat, C>>
             {
                 template<
                     typename T,
@@ -390,11 +390,11 @@ namespace ospf
                 using IterType = typename ContainerType::const_reverse_iterator;
 
             private:
-                using Base = RandomIteratorImpl<ValueType, IterType, PointerArrayConstUncheckedReverseIterator<T, cat, C>>;
+                using Impl = RandomIteratorImpl<ConstType<ValueType>, IterType, PointerArrayConstUncheckedReverseIterator<T, cat, C>>;
 
             public:
                 constexpr PointerArrayConstUncheckedReverseIterator(ArgCLRefType<IterType> iter)
-                    : Base(iter) {}
+                    : Impl(iter) {}
                 constexpr PointerArrayConstUncheckedReverseIterator(const PointerArrayConstUncheckedReverseIterator& ano) = default;
                 constexpr PointerArrayConstUncheckedReverseIterator(PointerArrayConstUncheckedReverseIterator&& ano) noexcept = default;
                 constexpr PointerArrayConstUncheckedReverseIterator& operator=(const PointerArrayConstUncheckedReverseIterator& rhs) = default;
@@ -444,11 +444,11 @@ namespace ospf
                 using IterType = typename ContainerType::reverse_iterator;
 
             private:
-                using Base = RandomIteratorImpl<ValueType, IterType, PointerArrayUncheckedReverseIterator<T, cat, C>>;
+                using Impl = RandomIteratorImpl<ValueType, IterType, PointerArrayUncheckedReverseIterator<T, cat, C>>;
 
             public:
                 constexpr PointerArrayUncheckedReverseIterator(ArgCLRefType<IterType> iter)
-                    : Base(iter) {}
+                    : Impl(iter) {}
                 constexpr PointerArrayUncheckedReverseIterator(const PointerArrayUncheckedReverseIterator& ano) = default;
                 constexpr PointerArrayUncheckedReverseIterator(PointerArrayUncheckedReverseIterator&& ano) noexcept = default;
                 constexpr PointerArrayUncheckedReverseIterator& operator=(const PointerArrayUncheckedReverseIterator& rhs) = default;

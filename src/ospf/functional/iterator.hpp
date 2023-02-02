@@ -39,7 +39,7 @@ namespace ospf
                         return (*impl)(iter);
                     }
 
-                    inline static constexpr RetType<Self> construct(ArgCLRefType<IterType> iter) noexcept
+                    inline static constexpr Self construct(ArgCLRefType<IterType> iter) noexcept
                     {
                         static const auto impl = &Self::OSPF_CRTP_FUNCTION(construct);
                         return (*impl)(iter);
@@ -47,8 +47,8 @@ namespace ospf
                 };
 
             public:
-                using RefType = std::conditional_t<std::is_const_v<decltype(Trait::get(std::declval<IterType>()))>, CLRefType<ValueType>, LRefType<ValueType>>;
-                using PtrType = std::conditional_t<std::is_const_v<decltype(Trait::get(std::declval<IterType>()))>, CPtrType<ValueType>, PtrType<ValueType>>;
+                using RefType = std::conditional_t<std::is_const_v<T>, CLRefType<ValueType>, LRefType<ValueType>>;
+                using PtrType = std::conditional_t<std::is_const_v<T>, CPtrType<ValueType>, PtrType<ValueType>>;
 
             protected:
                 constexpr ForwardIteratorImpl(ArgCLRefType<IterType> iter)
@@ -72,13 +72,13 @@ namespace ospf
                 }
 
             public:
-                inline constexpr LRefType<Self> operator++(void) noexcept
+                inline constexpr Self& operator++(void) noexcept
                 {
                     ++_iter;
                     return self();
                 }
 
-                inline constexpr RetType<Self> operator++(int) noexcept
+                inline constexpr Self operator++(int) noexcept
                 {
                     auto ret = Trait::construct(_iter);
                     ++_iter;
@@ -135,13 +135,13 @@ namespace ospf
                 constexpr ~BidirectionalIteratorImpl(void) noexcept = default;
 
             public:
-                inline constexpr LRefType<Self> operator--(void) noexcept
+                inline constexpr Self& operator--(void) noexcept
                 {
                     --this->_iter;
                     return this->self();
                 }
 
-                inline constexpr RetType<Self> operator--(int) noexcept
+                inline constexpr Self operator--(int) noexcept
                 {
                     auto ret = Trait::construct(this->_iter);
                     --this->_iter;
@@ -173,23 +173,23 @@ namespace ospf
                 constexpr ~RandomIteratorImpl(void) noexcept = default;
 
             public:
-                inline constexpr RetType<Self> operator+(const ptrdiff diff) const noexcept
+                inline constexpr Self operator+(const ptrdiff diff) const noexcept
                 {
                     return Trait::construct(this->_iter + diff);
                 }
 
-                inline constexpr LRefType<Self> operator+=(const ptrdiff diff) noexcept
+                inline constexpr Self& operator+=(const ptrdiff diff) noexcept
                 {
                     this->_iter += diff;
                     return this->self();
                 }
 
-                inline constexpr RetType<Self> operator-(const ptrdiff diff) const noexcept
+                inline constexpr Self operator-(const ptrdiff diff) const noexcept
                 {
                     return Trait::construct(this->_iter - diff);
                 }
 
-                inline constexpr LRefType<Self> operator-=(const ptrdiff diff) noexcept
+                inline constexpr Self& operator-=(const ptrdiff diff) noexcept
                 {
                     this->_iter -= diff;
                     return this->self();

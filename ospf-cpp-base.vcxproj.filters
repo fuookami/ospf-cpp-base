@@ -465,6 +465,9 @@
     <ClInclude Include="src\ospf\log\string.hpp">
       <Filter>src\ospf\log</Filter>
     </ClInclude>
+    <ClInclude Include="src\ospf\data_structure\data_table\cell.hpp">
+      <Filter>src\ospf\data-structure\data_table</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\ospf\system_info.cpp">

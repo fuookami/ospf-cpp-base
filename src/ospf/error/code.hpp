@@ -9,6 +9,7 @@ namespace ospf
 {
     inline namespace error
     {
+        // todo: complete it and replace application error
         enum class OSPFErrCode : u64
         {
             None = 0x00_u64,

@@ -77,6 +77,21 @@ namespace ospf
                         }, *_type);
                 }
 
+                inline const bool is(const std::type_index target_type) const
+                {
+                    return std::visit([target_type](const auto& type)
+                        {
+                            if constexpr (DecaySameAs<decltype(type), std::type_index>)
+                            {
+                                return target_type == type;
+                            }
+                            else
+                            {
+                                return false;
+                            }
+                        }, *_type);
+                }
+
                 template<typename T>
                 inline const bool contains(void) const
                 {
@@ -93,11 +108,103 @@ namespace ospf
                         }, *_type);
                 }
 
+                inline const bool contains(const std::type_index target_type) const
+                {
+                    return std::visit([target_type](const auto& types)
+                        {
+                            if constexpr (DecaySameAs<decltype(types), std::set<std::type_index>>)
+                            {
+                                return types.contains(target_type);
+                            }
+                            else
+                            {
+                                return false;
+                            }
+                        }, *_type);
+                }
+
+                template<typename T>
+                inline const bool matched(void) const
+                {
+                    return std::visit([](const auto& type)
+                        {
+                            if constexpr (DecaySameAs<decltype(type), std::type_index>)
+                            {
+                                return TypeInfo<T>::index() == type;
+                            }
+                            else if constexpr (DecaySameAs<decltype(type), std::set<std::type_index>>)
+                            {
+                                return type.contains(TypeInfo<T>::index());
+                            }
+                            else
+                            {
+                                return false;
+                            }
+                        }, *_type);
+                }
+
+                inline const bool matched(const std::type_index target_type) const
+                {
+                    return std::visit([target_type](const auto& type)
+                        {
+                            if constexpr (DecaySameAs<decltype(type), std::type_index>)
+                            {
+                                return target_type == type;
+                            }
+                            else if constexpr (DecaySameAs<decltype(type), std::set<std::type_index>>)
+                            {
+                                return type.contains(target_type);
+                            }
+                            else
+                            {
+                                return false;
+                            }
+                        }, *_type);
+                }
+
+            public:
+                inline std::string to_string(void) const noexcept
+                {
+                    if (_type.has_value())
+                    {
+                        std::visit([this](const auto& type) -> std::string
+                            {
+                                if constexpr (DecaySameAs<decltype(type), std::type_index>)
+                                {
+                                    return std::format("{}({})", this->name(), name(type));
+                                }
+                                else if constexpr (DecaySameAs<decltype(type), std::set<std::type_index>>)
+                                {
+                                    if (type.empty())
+                                    {
+                                        return this->_name;
+                                    }
+                                    else if (type.size() == 1_uz)
+                                    {
+                                        return std::format("{}({})", this->name(), name(*type.begin()));
+                                    }
+                                    else
+                                    {
+                                        return std::format("{}({}...)", this->name(), name(*type.begin()));
+                                    }
+                                }
+                                else
+                                {
+                                    return "";
+                                }
+                            }, *_type);
+                    }
+                    else
+                    {
+                        return "";
+                    }
+                }
+
             public:
                 inline void clear(void) noexcept
                 {
                     _name.assign("");
-                    _type.emplace(std::nullopt);
+                    _type = std::nullopt;
                 }
 
             private:
@@ -105,5 +212,24 @@ namespace ospf
                 std::optional<Either> _type;
             };
         };
+    };
+};
+
+namespace std
+{
+    inline std::string to_string(const ospf::data_table::DataTableHeader& header) noexcept
+    {
+        return header.to_string();
+    }
+
+    template<typename CharT>
+    struct formatter<ospf::data_table::DataTableHeader, CharT>
+        : public formatter<string_view, CharT>
+    {
+        template<typename FormatContext>
+        inline static decltype(auto) format(const ospf::data_table::DataTableHeader& value, FormatContext& fc)
+        {
+            return formatter<string_view, CharT>::format(value.to_string(), fc);
+        }
     };
 };

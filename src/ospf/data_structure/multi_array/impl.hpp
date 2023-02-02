@@ -352,7 +352,7 @@ namespace ospf
                     {
                         if (VariableTypeList<Args...>::length != shape.dimension())
                         {
-                            throw OSPFException{ OSPFErrCode::ApplicationFail, std::format("dimension should be {}, not {}", shape.dimension(), VariableTypeList<Args...>::length) };
+                            throw OSPFException{ OSPFErrCode::ApplicationError, std::format("dimension should be {}, not {}", shape.dimension(), VariableTypeList<Args...>::length) };
                         }
                     }
                     VectorType ret = shape.zero();
@@ -388,7 +388,7 @@ namespace ospf
                     {
                         if (vec_dim != dimension())
                         {
-                            throw OSPFException{ OSPFErrCode::ApplicationFail, std::format("dimension should be {}, not {}", shape.dimension(), vec_dim) };
+                            throw OSPFException{ OSPFErrCode::ApplicationError, std::format("dimension should be {}, not {}", shape.dimension(), vec_dim) };
                         }
                     }
 
@@ -419,7 +419,7 @@ namespace ospf
                     {
                         if (vec_dim != dimension())
                         {
-                            throw OSPFException{ OSPFErrCode::ApplicationFail, std::format("dimension should be {}, not {}", shape.dimension(), vec_dim) };
+                            throw OSPFException{ OSPFErrCode::ApplicationError, std::format("dimension should be {}, not {}", shape.dimension(), vec_dim) };
                         }
                     }
 

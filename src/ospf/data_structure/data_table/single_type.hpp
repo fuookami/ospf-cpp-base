@@ -111,9 +111,9 @@ namespace ospf
                 using HeaderType = std::array<DataTableHeader, col>;
                 using HeaderViewType = std::span<const DataTableHeader, col>;
                 using RowViewType = SequenceTuple<const Ref<Ts>...>;
-                using ColumnViewType = std::span<const TypeAt<i, Ts...>>;
+                template<usize i>
+                using ColumnViewType = std::span<std::add_const_t<TypeAt<i, Ts...>>>;
                 using TableType = SequenceTuple<std::vector<Ts>...>;
-
 
             public:
                 STDataTable(std::array<std::string_view, col> header)

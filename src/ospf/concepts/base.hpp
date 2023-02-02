@@ -48,6 +48,12 @@ namespace ospf
 
 namespace std
 {
+    template<ospf::EnumType T>
+    inline const std::string_view to_string(const T value) noexcept
+    {
+        return ospf::to_string(value);
+    }
+
     template<ospf::EnumType T, typename CharT>
     struct formatter<T, CharT> 
         : public formatter<string_view, CharT>

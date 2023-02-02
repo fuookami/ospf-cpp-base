@@ -268,7 +268,7 @@ namespace ospf
                         {
                             if (dummy_vector.size() != shape.dimension())
                             {
-                                throw OSPFException{ OSPFErrCode::ApplicationFail, std::format("dimension should be {}, not {}", shape.dimension(), dummy_vector.size()) };
+                                throw OSPFException{ OSPFErrCode::ApplicationError, std::format("dimension should be {}, not {}", shape.dimension(), dummy_vector.size()) };
                             }
                         }
 

@@ -30,6 +30,7 @@
     <ClInclude Include="src\ospf\config.hpp" />
     <ClInclude Include="src\ospf\data_structure.hpp" />
     <ClInclude Include="src\ospf\data_structure\data_table.hpp" />
+    <ClInclude Include="src\ospf\data_structure\data_table\cell.hpp" />
     <ClInclude Include="src\ospf\data_structure\data_table\concepts.hpp" />
     <ClInclude Include="src\ospf\data_structure\data_table\dynamic_column.hpp" />
     <ClInclude Include="src\ospf\data_structure\data_table\header.hpp" />
@@ -211,7 +212,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v143</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>

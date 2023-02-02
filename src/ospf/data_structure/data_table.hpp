@@ -12,6 +12,21 @@ namespace ospf
 {
     inline namespace data_structure
     {
+        namespace data_table
+        {
+            template<typename... Ts>
+            struct CellTypeTrait
+            {
+                using Type = std::variant<OriginType<Ts>...>;
+            };
+
+            template<typename T>
+            struct CellTypeTrait<T>
+            {
+                using Type = OriginType<T>;
+            };
+        };
+
         template<typename T>
         concept DataTableConfigType = requires
         {
@@ -42,17 +57,9 @@ namespace ospf
             C::multi_type == on,
             data_table::STDataTable<C::store_type, Ts...>,
             std::conditional_t<
-                VariableTypeList<Ts...>::length == 1_uz,
-                std::conditional_t<
-                    C::nullable == on,
-                    data_table::DataTable<std::optional<Ts>, col, C::store_type>,
-                    data_table::DataTable<Ts, col, C::store_type>
-                >,
-                std::conditional_t<
-                    C::nullable == on,
-                    data_table::DataTable<std::optional<std::variant<Ts...>>, col, C::store_type>,
-                    data_table::DataTable<std::variant<Ts...>, col, C::store_type>
-                >
+                C::nullable == on,
+                data_table::DataTable<std::optional<typename data_table::CellTypeTrait<Ts...>::Type>, col, C::store_type>,
+                data_table::DataTable<typename data_table::CellTypeTrait<Ts...>::Type, col, C::store_type>
             >
         >;
 
@@ -64,17 +71,9 @@ namespace ospf
         >
             requires (C::multi_type == on)
         using DynDataTable = std::conditional_t<
-            VariableTypeList<Ts...>::length == 1_uz,
-            std::conditional_t<
-                C::nullable == on,
-                data_table::DataTable<std::optional<Ts>, dynamic_column, C::store_type>,
-                data_table::DataTable<Ts, dynamic_column, C::store_type>
-            >,
-            std::conditional_t<
-                C::nullable == on,
-                data_table::DataTable<std::optional<std::variant<Ts...>>, dynamic_column, C::store_type>,
-                data_table::DataTable<std::variant<Ts...>, dynamic_column, C::store_type>
-            >
+            C::nullable == on,
+            data_table::DataTable<std::optional<typename data_table::CellTypeTrait<Ts...>::Type>, dynamic_column, C::store_type>,
+            data_table::DataTable<typename data_table::CellTypeTrait<Ts...>::Type, dynamic_column, C::store_type>
         >;
     };
 };
