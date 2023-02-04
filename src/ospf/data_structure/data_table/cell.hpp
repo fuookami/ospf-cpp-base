@@ -14,35 +14,35 @@ namespace ospf
             template<typename C>
             struct CellValueTypeTrait
             {
-                inline static constexpr const std::optional<std::type_index> type(const C& cell) noexcept
+                inline static const std::optional<std::type_index> type(const C& cell) noexcept
                 {
                     return TypeInfo<C>::index();
                 }
 
-                inline static const DataTableHeader base_header(const std::string_view header) noexcept
+                inline static DataTableHeader base_header(const std::string_view header) noexcept
                 {
-                    return DataTableHeader{ header, TypeInfo<C>::index() };
+                    return DataTableHeader{ std::string{ header }, TypeInfo<C>::index() };
                 }
             };
 
             template<typename T>
             struct CellValueTypeTrait<std::optional<T>>
             {
-                inline static constexpr const std::optional<std::type_index> type(const std::optional<T>& cell) const noexcept
+                inline static const std::optional<std::type_index> type(const std::optional<T>& cell) noexcept
                 {
                     return TypeInfo<T>::index();
                 }
 
-                inline static const DataTableHeader base_header(const std::string_view header) noexcept
+                inline static DataTableHeader base_header(const std::string_view header) noexcept
                 {
-                    return DataTableHeader{ header, TypeInfo<T>::index() };
+                    return DataTableHeader{ std::string{ header }, TypeInfo<T>::index() };
                 }
             };
 
             template<typename... Ts>
             struct CellValueTypeTrait<std::variant<Ts...>>
             {
-                inline static constexpr const std::optional<std::type_index> type(const std::variant<Ts...>& cell) const noexcept
+                inline static const std::optional<std::type_index> type(const std::variant<Ts...>& cell) noexcept
                 {
                     return std::visit([](const auto& v)
                         {
@@ -50,16 +50,16 @@ namespace ospf
                         }, cell);
                 }
 
-                inline static const DataTableHeader base_header(const std::string_view header) noexcept
+                inline static DataTableHeader base_header(const std::string_view header) noexcept
                 {
-                    return DataTableHeader{ header, { TypeInfo<Ts>::index()... } };
+                    return DataTableHeader{ std::string{ header }, std::set<std::type_index>{ TypeInfo<Ts>::index()... } };
                 }
             };
 
             template<typename... Ts>
             struct CellValueTypeTrait<std::optional<std::variant<Ts...>>>
             {
-                inline static constexpr const std::optional<std::type_index> type(const std::optional<std::variant<Ts...>>& cell) const noexcept
+                inline static const std::optional<std::type_index> type(const std::optional<std::variant<Ts...>>& cell) noexcept
                 {
                     if (cell.has_value())
                     {
@@ -74,9 +74,9 @@ namespace ospf
                     }
                 }
 
-                inline static const DataTableHeader base_header(const std::string_view header) noexcept
+                inline static DataTableHeader base_header(const std::string_view header) noexcept
                 {
-                    return DataTableHeader{ header, { TypeInfo<Ts>::index()... } };
+                    return DataTableHeader{ std::string{ header }, { TypeInfo<Ts>::index()... } };
                 }
             };
         };

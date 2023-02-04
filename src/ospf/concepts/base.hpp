@@ -59,9 +59,10 @@ namespace std
         : public formatter<string_view, CharT>
     {
         template<typename FormatContext>
-        inline static decltype(auto) format(const T value, FormatContext& fc)
+        inline decltype(auto) format(const T value, FormatContext& fc)
         {
-            return formatter<string_view, CharT>::format(ospf::to_string(value), fc);
+            static const auto _formatter = formatter<string_view, CharT>{};
+            return _formatter.format(ospf::to_string(value), fc);
         }
     };
 };

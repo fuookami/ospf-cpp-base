@@ -1366,7 +1366,7 @@ namespace ospf
                         return (self.*get_impl)();
                     }
 
-                    inline void set_header(Self& self, const usize i, ArgRRefType<DataTableHeader> header) noexcept
+                    inline void set_header(Self& self, const usize i, ArgRRefType<DataTableHeader> header)
                     {
                         static const auto set_impl = &Self::OSPF_CRTP_FUNCTION(set_header);
                         return (self.*set_impl)(i, move<DataTableHeader>(header));

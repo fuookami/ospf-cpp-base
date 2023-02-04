@@ -16,9 +16,21 @@ namespace ospf
             {
                 std::vector<DataTableHeader> ret;
                 ret.reserve(header.size());
-                for (usize i{ 0_uz }; i != header.size(); ++i)
+                for (const auto h : header)
                 {
-                    ret.push_back(CellValueTypeTrait<C>::base_header(header[i]));
+                    ret.push_back(CellValueTypeTrait<C>::base_header(h));
+                }
+                return ret;
+            }
+
+            template<typename C>
+            inline std::vector<DataTableHeader> make_header(const std::vector<std::string_view>& header) noexcept
+            {
+                std::vector<DataTableHeader> ret;
+                ret.reserve(header.size());
+                for (const auto h : header)
+                {
+                    ret.push_back(CellValueTypeTrait<C>::base_header(h));
                 }
                 return ret;
             }
@@ -81,6 +93,9 @@ namespace ospf
                 }
 
                 DataTable(std::initializer_list<std::string_view> header)
+                    : DataTable(make_header<CellType>(std::move(header))) {}
+
+                DataTable(const std::vector<std::string_view>& header)
                     : DataTable(make_header<CellType>(header)) {}
 
             public:
@@ -100,6 +115,21 @@ namespace ospf
 
                 inline const usize insert_column(const usize pos, ArgRRefType<DataTableHeader> header, ArgCLRefType<CellType> value)
                 {
+#ifdef _DEBUG
+                    const auto type = CellValueTypeTrait<CellType>::type(value);
+                    if (type.has_value())
+                    {
+                        if (header.empty())
+                        {
+                            throw OSPFException{ OSPFErrCode::ApplicationError, "new header is uninitialized" };
+                        }
+                        else if (!header.matched(*type))
+                        {
+                            throw OSPFException{ OSPFErrCode::ApplicationError, std::format("type {} is not matched new header: {}", type_name(*type), header) };
+                        }
+                    }
+#endif
+
                     for (auto& [h, i] : _header_index)
                     {
                         if (i >= pos)
@@ -113,7 +143,6 @@ namespace ospf
                     {
                         row.insert(row.cbegin() + pos, value);
                     }
-                    // todo: check column data is fix header
                     return pos + 1_uz;
                 }
 
@@ -125,6 +154,28 @@ namespace ospf
 
                 inline const usize insert_column(const usize pos, ArgRRefType<DataTableHeader> header, const ColumnConstructor& constructor)
                 {
+#ifdef _DEBUG
+                    std::vector<CellType> new_column;
+                    new_column.reserve(this->row());
+                    for (usize i{ 0_uz }; i != this->row(); ++i)
+                    {
+                        auto value = constructor(i);
+                        const auto type = CellValueTypeTrait<CellType>::type(value);
+                        if (type.has_value())
+                        {
+                            if (header.empty())
+                            {
+                                throw OSPFException{ OSPFErrCode::ApplicationError, "new header is uninitialized" };
+                            }
+                            else if (!header.matched(*type))
+                            {
+                                throw OSPFException{ OSPFErrCode::ApplicationError, std::format("type {} is not matched new header: {}", type_name(*type), header) };
+                            }
+                        }
+                        new_column.push_back(std::move(value));
+                    }
+#endif
+
                     for (auto& [h, i] : _header_index)
                     {
                         if (i >= pos)
@@ -137,9 +188,12 @@ namespace ospf
                     for (usize i{ 0_uz }; i != this->row(); ++i)
                     {
                         auto& row = _table[i];
+#ifdef _DEBUG
+                        row.insert(row.cbegin() + pos, std::move(new_column[i]));
+#else
                         row.insert(row.cbegin() + pos, constructor(i));
+#endif
                     }
-                    // todo: check column data is fix header
                     return pos + 1_uz;
                 }
 
@@ -174,15 +228,32 @@ namespace ospf
                     return _header;
                 }
 
-                inline void OSPF_CRTP_FUNCTION(set_header)(const usize i, ArgRRefType<DataTableHeader> header) noexcept
+                inline void OSPF_CRTP_FUNCTION(set_header)(const usize i, ArgRRefType<DataTableHeader> header)
                 {
+#ifdef _DEBUG
+                    for (const auto& row : _table)
+                    {
+                        const auto type = CellValueTypeTrait<CellType>::type(row[i]);
+                        if (type.has_value())
+                        {
+                            if (header.empty())
+                            {
+                                throw OSPFException{ OSPFErrCode::ApplicationError, std::format("new header of column {} is uninitialized", i) };
+                            }
+                            else if (!header.matched(*type))
+                            {
+                                throw OSPFException{ OSPFErrCode::ApplicationError, std::format("type {} is not matched new header of column {}: {}", type_name(*type), i, header) };
+                            }
+                        }
+                    }
+#endif
+
                     if (!_header[i].empty())
                     {
                         _header_index.erase(_header[i].name());
                     }
                     _header[i] = move<DataTableHeader>(header);
                     _header_index.insert({ _header[i].name(), i });
-                    // todo: check column data is fix header
                 }
 
                 inline CLRefType<HeaderType> OSPF_CRTP_FUNCTION(get_const_header)(void) const noexcept
@@ -230,8 +301,25 @@ namespace ospf
 
                 inline void OSPF_CRTP_FUNCTION(insert_row_by_value)(const usize pos, ArgCLRefType<CellType> value)
                 {
+#ifdef _DEBUG
+                    const auto type = CellValueTypeTrait<CellType>::type(value);
+                    if (type.has_value())
+                    {
+                        for (usize i{ 0_uz }; i != this->column(); ++i)
+                        {
+                            if (_header[i].empty())
+                            {
+                                throw OSPFException{ OSPFErrCode::ApplicationError, std::format("header of column {} is uninitialized", i) };
+                            }
+                            else if (!_header[i].matched(*type))
+                            {
+                                throw OSPFException{ OSPFErrCode::ApplicationError, std::format("type {} is not matched header of column {}: {}", type_name(*type), i, _header[i]) };
+                            }
+                        }
+                    }
+#endif
+
                     _table.insert(_table.cbegin() + pos, std::vector<CellType>{ this->column(), value });
-                    // todo: check column data is fix header
                 }
 
                 inline void OSPF_CRTP_FUNCTION(insert_row_by_constructor)(const usize pos, const RowConstructor& constructor)
@@ -240,8 +328,24 @@ namespace ospf
                     new_row.reserve(this->column());
                     for (usize i{ 0_uz }; i != this->column(); ++i)
                     {
+#ifdef _DEBUG
+                        auto value = constructor(i, _header[i]);
+                        const auto type = CellValueTypeTrait<CellType>::type(value);
+                        if (type.has_value())
+                        {
+                            if (_header[i].empty())
+                            {
+                                throw OSPFException{ OSPFErrCode::ApplicationError, std::format("header of column {} is uninitialized", i) };
+                            }
+                            else if (!_header[i].matched(*type))
+                            {
+                                throw OSPFException{ OSPFErrCode::ApplicationError, std::format("type {} is not matched header of column {}: {}", type_name(*type), i, _header[i]) };
+                            }
+                        }
+                        new_row.push_back(std::move(value));
+#else
                         new_row.push_back(constructor(i, _header[i]));
-                        // todo: check column data is fix header
+#endif
                     }
                     _table.insert(_table.cbegin() + pos, std::move(new_row));
                 }
@@ -325,6 +429,9 @@ namespace ospf
                 }
 
                 DataTable(std::initializer_list<std::string_view> header)
+                    : DataTable(make_header<CellType>(std::move(header))) {}
+
+                DataTable(const std::vector<std::string_view>& header)
                     : DataTable(make_header<CellType>(header)) {}
 
             public:
@@ -344,6 +451,21 @@ namespace ospf
 
                 inline const usize insert_column(const usize pos, ArgRRefType<DataTableHeader> header, ArgCLRefType<CellType> value)
                 {
+#ifdef _DEBUG
+                    const auto type = CellValueTypeTrait<CellType>::type(value);
+                    if (type.has_value())
+                    {
+                        if (header.empty())
+                        {
+                            throw OSPFException{ OSPFErrCode::ApplicationError, std::format("new header is uninitialized") };
+                        }
+                        else if (!header.matched(*type))
+                        {
+                            throw OSPFException{ OSPFErrCode::ApplicationError, std::format("type {} is not matched new header: {}", type_name(*type), header) };
+                        }
+                    }
+#endif
+
                     for (auto& [h, i] : _header_index)
                     {
                         if (i >= pos)
@@ -354,7 +476,6 @@ namespace ospf
                     _header.insert(_header.cbegin() + pos, move<DataTableHeader>(header));
                     _header_index.insert({ _header[pos].name(), pos });
                     _table.insert(_table.cbegin() + pos, std::vector<CellType>{ this->row(), value });
-                    // todo: check column data is fix header
                     return pos + 1_uz;
                 }
 
@@ -366,6 +487,30 @@ namespace ospf
 
                 inline const usize insert_column(const usize pos, ArgRRefType<DataTableHeader> header, const ColumnConstructor& constructor)
                 {
+                    std::vector<CellType> new_column;
+                    new_column.reserve(this->row());
+                    for (usize i{ 0_uz }; i != this->row(); ++i)
+                    {
+#ifdef _DEBUG
+                        auto value = constructor(i);
+                        const auto type = CellValueTypeTrait<CellType>::type(value);
+                        if (type.has_value())
+                        {
+                            if (header.empty())
+                            {
+                                throw OSPFException{ OSPFErrCode::ApplicationError, "new header is uninitialized" };
+                            }
+                            else if (!header.matched(*type))
+                            {
+                                throw OSPFException{ OSPFErrCode::ApplicationError, std::format("type {} is not matched new header: {}", type_name(*type), header) };
+                            }
+                        }
+                        new_column.push_back(std::move(value));
+#else
+                        new_column.push_back(constructor(i));
+#endif
+                    }
+
                     for (auto& [h, i] : _header_index)
                     {
                         if (i >= pos)
@@ -375,13 +520,6 @@ namespace ospf
                     }
                     _header.insert(_header.cbegin() + pos, move<DataTableHeader>(header));
                     _header_index.insert({ _header[pos].name(), pos });
-                    std::vector<CellType> new_column;
-                    new_column.reserve(this->row());
-                    for (usize i{ 0_uz }; i != this->row(); ++i)
-                    {
-                        new_column.push_back(constructor(i));
-                    }
-                    // todo: check column data is fix header
                     _table.insert(_table.cbegin() + pos, std::move(new_column));
                     return pos + 1_uz;
                 }
@@ -417,15 +555,32 @@ namespace ospf
                     return _header;
                 }
 
-                inline void OSPF_CRTP_FUNCTION(set_header)(const usize i, ArgRRefType<DataTableHeader> header) noexcept
+                inline void OSPF_CRTP_FUNCTION(set_header)(const usize i, ArgRRefType<DataTableHeader> header)
                 {
+#ifdef _DEBUG
+                    for (auto& cell : _table[i])
+                    {
+                        const auto type = CellValueTypeTrait<CellType>::type(cell);
+                        if (type.has_value())
+                        {
+                            if (header.empty())
+                            {
+                                throw OSPFException{ OSPFErrCode::ApplicationError, "new header is uninitialized" };
+                            }
+                            else if (!header.matched(*type))
+                            {
+                                throw OSPFException{ OSPFErrCode::ApplicationError, std::format("type {} is not matched new header: {}", type_name(*type), header) };
+                            }
+                        }
+                    }
+#endif
+
                     if (!_header[i].empty())
                     {
                         _header_index.erase(_header[i].name());
                     }
                     _header[i] = move<DataTableHeader>(header);
                     _header_index.insert({ _header[i].name(), i });
-                    // todo: check column data is fix header
                 }
 
                 inline CLRefType<HeaderType> OSPF_CRTP_FUNCTION(get_const_header)(void) const noexcept
@@ -473,10 +628,24 @@ namespace ospf
 
                 inline void OSPF_CRTP_FUNCTION(insert_row_by_value)(const usize pos, ArgCLRefType<CellType> value)
                 {
-                    for (auto& column : _table)
+                    for (usize i{ 0_uz }; i != this->column(); ++i)
                     {
+                        auto& column = _table[i];
+#ifdef _DEBUG
+                        const auto type = CellValueTypeTrait::type(value);
+                        if (type.has_value())
+                        {
+                            if (_header[i].empty())
+                            {
+                                throw OSPFException{ OSPFErrCode::ApplicationError, std::format("header of column {} is uninitialized", i) };
+                            }
+                            else if (!_header[i].matched(*type))
+                            {
+                                throw OSPFException{ OSPFErrCode::ApplicationError, std::format("type {} is not matched header of column {}: {}", type_name(*type), i, _header[i]) };
+                            }
+                        }
+#endif
                         column.insert(column.cbegin() + pos, value);
-                        // todo: check column data is fix header
                     }
                 }
 
@@ -485,8 +654,24 @@ namespace ospf
                     for (usize i{ 0_uz }; i != this->column(); ++i)
                     {
                         auto& column = _table[i];
+#ifdef _DEBUG
+                        auto value = constructor(i, _header[i]);
+                        const auto type = CellValueTypeTrait<CellType>::type(value);
+                        if (type.has_value())
+                        {
+                            if (_header[i].empty())
+                            {
+                                throw OSPFException{ OSPFErrCode::ApplicationError, std::format("header of column {} is uninitialized", i) };
+                            }
+                            else if (!_header[i].matched(*type))
+                            {
+                                throw OSPFException{ OSPFErrCode::ApplicationError, std::format("type {} is not matched header of column {}: {}", type_name(*type), i, _header[i]) };
+                            }
+                        }
+                        column.insert(column.cbegin() + pos, std::move(value));
+#else
                         column.insert(column.cbegin() + pos, constructor(i, _header[i]));
-                        // todo: check column data is fix header
+#endif
                     }
                 }
 

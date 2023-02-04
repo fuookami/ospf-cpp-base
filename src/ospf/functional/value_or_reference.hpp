@@ -780,9 +780,10 @@ namespace std
         using ValueType = ospf::ValOrRef<T, cat>;
 
         template<typename FormatContext>
-        inline static decltype(auto) format(ospf::ArgCLRefType<ValueType> value, FormatContext& fc)
+        inline decltype(auto) format(ospf::ArgCLRefType<ValueType> value, FormatContext& fc)
         {
-            return formatter<T, CharT>::format(*value, fc);
+            static const auto _formatter = formatter<T, CharT>{};
+            return _formatter.format(*value, fc);
         }
     };
 };

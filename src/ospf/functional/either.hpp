@@ -635,11 +635,12 @@ namespace std
         : public formatter<string_view, CharT>
     {
         template<typename FormatContext>
-        inline static decltype(auto) format(ospf::ArgCLRefType<ospf::Either<T, U>> either, FormatContext& fc)
+        inline decltype(auto) format(ospf::ArgCLRefType<ospf::Either<T, U>> either, FormatContext& fc)
         {
             return either.visit([](const auto& ele)
                 {
-                    return formatter<ospf::OriginType<decltype(ele)>, CharT>::format(ele, fc);
+                    static const auto _formatter = formatter<ospf::OriginType<decltype(ele)>, CharT>{};
+                    return _formatter.format(ele, fc);
                 });
         }
     };

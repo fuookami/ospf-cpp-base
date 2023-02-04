@@ -1,6 +1,6 @@
 #pragma once
 
-#include <boost/algorithm/string/split.hpp>
+#include <ospf/string/split.hpp>
 #include <typeinfo>
 #include <typeindex>
 
@@ -38,10 +38,9 @@ namespace ospf
             }
         };
 
-        inline const std::string name(const std::type_index type) noexcept
+        inline const std::string_view type_name(const std::type_index type) noexcept
         {
-            std::vector<std::string> split_result;
-            return boost::split(split_result, type.name(), " :").back();
+            return split(type.name(), " :").back();
         }
     };
 };

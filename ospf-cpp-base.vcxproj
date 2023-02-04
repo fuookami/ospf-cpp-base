@@ -147,6 +147,7 @@
     <ClInclude Include="src\ospf\serialization\nullable.hpp" />
     <ClInclude Include="src\ospf\string.hpp" />
     <ClInclude Include="src\ospf\string\hasher.hpp" />
+    <ClInclude Include="src\ospf\string\split.hpp" />
     <ClInclude Include="src\ospf\system_info.hpp" />
     <ClInclude Include="src\ospf\type_family.hpp" />
     <ClInclude Include="src\ospf\uuid.hpp" />

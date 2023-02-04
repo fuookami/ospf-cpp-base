@@ -383,9 +383,10 @@ namespace std
         using RefType = ospf::reference::RefImpl<T, Ref>;
 
         template<typename FormatContext>
-        inline static decltype(auto) format(ospf::ArgCLRefType<RefType> ref, FormatContext& fc)
+        inline decltype(auto) format(ospf::ArgCLRefType<RefType> ref, FormatContext& fc)
         {
-            return formatter<T, CharT>::format(*ref, fc);
+            static const auto _formatter = formatter<OriginType<T>, CharT>{};
+            return _formatter.format(*ref, fc);
         }
     };
 };

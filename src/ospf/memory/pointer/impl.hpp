@@ -224,15 +224,17 @@ namespace std
         using PtrType = ospf::pointer::PtrImpl<T, Ptr>;
 
         template<typename FormatContext>
-        inline static decltype(auto) format(ospf::ArgCLRefType<PtrType> ptr, FormatContext& fc)
+        inline decltype(auto) format(ospf::ArgCLRefType<PtrType> ptr, FormatContext& fc)
         {
             if (ptr == nullptr)
             {
-                return formatter<string_view, CharT>::format("null", fc);
+                static const auto _formatter = formatter<string_view, CharT>{};
+                return _formatter.format("null", fc);
             }
             else
             {
-                return formatter<T, CharT>::format(*ptr, fc);
+                static const auto _formatter = formatter<OriginType<T>, CharT>{};
+                return _formatter.format(*ptr, fc);
             }
         }
     };

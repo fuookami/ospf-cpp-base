@@ -167,11 +167,11 @@ namespace ospf
                 {
                     if (_type.has_value())
                     {
-                        std::visit([this](const auto& type) -> std::string
+                        return std::visit([this](const auto& type) -> std::string
                             {
                                 if constexpr (DecaySameAs<decltype(type), std::type_index>)
                                 {
-                                    return std::format("{}({})", this->name(), name(type));
+                                    return std::format("{}({})", this->name(), type_name(type));
                                 }
                                 else if constexpr (DecaySameAs<decltype(type), std::set<std::type_index>>)
                                 {
@@ -181,11 +181,11 @@ namespace ospf
                                     }
                                     else if (type.size() == 1_uz)
                                     {
-                                        return std::format("{}({})", this->name(), name(*type.begin()));
+                                        return std::format("{}({})", this->name(), type_name(*type.begin()));
                                     }
                                     else
                                     {
-                                        return std::format("{}({}...)", this->name(), name(*type.begin()));
+                                        return std::format("{}({}...)", this->name(), type_name(*type.begin()));
                                     }
                                 }
                                 else
@@ -227,9 +227,10 @@ namespace std
         : public formatter<string_view, CharT>
     {
         template<typename FormatContext>
-        inline static decltype(auto) format(const ospf::data_table::DataTableHeader& value, FormatContext& fc)
+        inline decltype(auto) format(const ospf::data_table::DataTableHeader& value, FormatContext& fc)
         {
-            return formatter<string_view, CharT>::format(value.to_string(), fc);
+            static const auto _formatter = formatter<string_view, CharT>{};
+            return _formatter.format(value.to_string(), fc);
         }
     };
 };
