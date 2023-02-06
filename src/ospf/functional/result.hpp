@@ -435,3 +435,65 @@ namespace std
         lhs.swap(rhs);
     }
 };
+
+#ifndef OSPF_TRY_AND
+#define OSPF_TRY_AND(Lhs, Rhs) [&]() -> decltype(Lhs)\
+{\
+    auto lhs_ret = Lhs;\
+    if (lhs_ret.is_failed())\
+    {\
+        return std::move(lhs_ret);\
+    }\
+    auto rhs_ret = Rhs;\
+    if (rhs_ret.is_failed())\
+    {\
+        return std::move(rhs_ret);\
+    }\
+    return ospf::succeed;\
+}();
+#endif
+
+#ifndef OSPF_TRY_OR
+#define OSPF_TRY_OR(Lhs, Rhs) [&]() -> decltype(Lhs)\
+{\
+    auto lhs_ret = Lhs;\
+    if (lhs_ret.is_succeeded())\
+    {\
+        return ospf::succeed;\
+    }\
+    auto rhs_ret = Rhs;\
+    if (rhs_ret.is_succeeded())\
+    {\
+        return ospf::succeed;\
+    }\
+    return std::move(lhs_ret);\
+}();
+#endif
+
+#ifndef OSPF_TRY_SET
+#define OSPF_TRY_SET(Target, Func) auto Target##_ret = Func;\
+if (Target##_ret.is_failed())\
+{\
+    return std::move(Target##_ret).err();\
+}\
+Target = std::move(Target##_ret).unwrap();
+#endif
+
+#ifndef OSPF_TRY_GET
+#define OSPF_TRY_GET(Ret, Func) auto Ret##_ret = Func;\
+if (Ret##_ret.is_failed())\
+{\
+    return std::move(Ret##_ret).err();\
+}\
+auto Ret = std::move(Ret##_ret).value();
+#endif
+
+#ifndef OSPF_TRY_EXEC
+#define OSPF_TRY_EXEC(Func) {\
+    auto ret = Func;\
+    if (ret.is_failed())\
+    {\
+        return std::move(ret).err();\
+    }\
+}
+#endif
