@@ -41,16 +41,49 @@ namespace ospf
             };
 
             template<typename... Fs>
-            using FieldList = SequenceTuple<Fs...>;
+            class FieldList
+                : public SequenceTuple<Fs...>
+            {
+            public:
+                constexpr FieldList(Fs... args)
+                    : SequenceTuple<Fs...>(args...) {}
+                constexpr FieldList(const FieldList& ano) = default;
+                constexpr FieldList(FieldList&& ano) noexcept = default;
+                constexpr FieldList& operator=(const FieldList& rhs) = default;
+                constexpr FieldList& operator=(FieldList&& rhs) noexcept = default;
+                constexpr ~FieldList(void) noexcept = default;
+            };
 
             template<typename... As>
-            using AttributeList = SequenceTuple<As...>;
+            class AttrList
+                : public SequenceTuple<As...>
+            {
+            public:
+                constexpr AttrList(As... args)
+                    : SequenceTuple<As...>(args...) {}
+                constexpr AttrList(const AttrList& ano) = default;
+                constexpr AttrList(AttrList&& ano) = default;
+                constexpr AttrList& operator=(const AttrList& rhs) = default;
+                constexpr AttrList& operator=(AttrList&& rhs) = default;
+                constexpr ~AttrList(void) = default;
+            };
 
             template<typename... Bs>
-            using BaseList = SequenceTuple<Bs...>;
+            class BaseList
+                : public SequenceTuple<Bs...>
+            {
+            public:
+                constexpr BaseList(Bs... args)
+                    : SequenceTuple<Bs...>(args...) {}
+                constexpr BaseList(const BaseList& ano) = default;
+                constexpr BaseList(BaseList&& ano) noexcept = default;
+                constexpr BaseList& operator=(const BaseList& rhs) = default;
+                constexpr BaseList& operator=(BaseList&& rhs) noexcept = default;
+                constexpr ~BaseList(void) noexcept = default;
+            };
 
 #ifndef OSPF_META_ITEM
-#define OSPF_META_ITEM(Item, Name, Mem) Item<decltype(&Type::Mem)>{ Name, &Type::Mem }
+#define OSPF_META_ITEM(Item, Name, Mem) Item<decltype(&ParentType::Mem)>{ Name, &ParentType::Mem }
 #endif
 
 #ifndef OSPF_META_NAMED_FIELD
@@ -79,6 +112,7 @@ namespace ospf
 
                 template<typename P>
                 using FieldItem = meta_info::FieldItem<ParentType, P>;
+
                 template<typename P>
                 using AttributeItem = meta_info::AttributeItem<ParentType, P>;
 
@@ -99,7 +133,164 @@ namespace ospf
                     return bases.empty();
                 }
 
-                // todo
+                inline constexpr decltype(auto) virtual_bases(void) const noexcept
+                {
+                    return bases.accumulate(SequenceTuple{}, [](const auto lhs, const auto rhs)
+                        {
+                            constexpr const auto this_virtual_bases = rhs.info.virtual_bases();
+                            const auto ret = this_virtual_bases.accumulate(lhs, [](const auto lhs, const auto rhs) 
+                                {
+                                    return lhs.insert(rhs);
+                                });
+                            if constexpr (rhs.is_virtual)
+                            {
+                                return ret.insert(rhs.info);
+                            }
+                            else
+                            {
+                                return ret;
+                            }
+                        });
+                }
+
+                inline constexpr decltype(auto) fields(void) const noexcept
+                {
+                    return Trait::field_list(self());
+                }
+
+                inline constexpr decltype(auto) attributes(void) const noexcept
+                {
+                    return Trait::attribute_list(self());
+                }
+
+            public:
+                template<typename Func>
+                inline constexpr void for_each(ParentType& obj, const Func& func) const noexcept
+                {
+                    virtual_bases().for_each([&obj, &func](const auto& type)
+                        {
+                            type.fields().for_each([&obj, &func](const auto& field)
+                                {
+                                    func(obj, field);
+                                });
+                            type.attributes().for_each([&obj, &func](const auto& attribute)
+                                {
+                                    func(obj, attribute);
+                                });
+                        });
+                    for_each_non_virtual(obj, func);
+                }
+
+                template<typename Func>
+                inline constexpr void for_each(const ParentType& obj, const Func& func) const noexcept
+                {
+                    virtual_bases().for_each([&obj, &func](const auto& type)
+                        {
+                            type.fields().for_each([&obj, &func](const auto& field)
+                                {
+                                    func(obj, field);
+                                });
+                            type.attributes().for_each([&obj, &func](const auto& attribute)
+                                {
+                                    func(obj, attribute);
+                                });
+                        });
+                    for_each_non_virtual(obj, func);
+                }
+
+                template<typename Func>
+                inline constexpr void for_each(const Func& func) const noexcept
+                {
+                    virtual_bases().for_each([&func](const auto& type)
+                        {
+                            type.fields().for_each([&func](const auto& field)
+                                {
+                                    func(field);
+                                });
+                            type.attributes().for_each([&func](const auto& attribute)
+                                {
+                                    func(attribute);
+                                });
+                        });
+                    for_each_non_virtual(func);
+                }
+                
+            private:
+                template<typename Func>
+                inline constexpr void for_each_non_virtual(ParentType& obj, const Func& func) const noexcept
+                {
+                    bases.for_each([&obj, &func](const auto& type)
+                        {
+                            if constexpr (!type.is_virtual)
+                            {
+                                type.info.for_each_non_virtual(obj, func);
+                            }
+                        });
+                    fields().for_each([&obj, &func](const auto& field)
+                        {
+                            func(obj, field);
+                        });
+                    attributes().for_each([&obj, &func](const auto& attribute)
+                        {
+                            func(obj, attribute);
+                        });
+                }
+
+                template<typename Func>
+                inline constexpr void for_each_non_virtual(const ParentType& obj, const Func& func) const noexcept
+                {
+                    bases.for_each([&obj, &func](const auto& type)
+                        {
+                            if constexpr (!type.is_virtual)
+                            {
+                                type.info.for_each_non_virtual(obj, func);
+                            }
+                        });
+                    fields().for_each([&obj, &func](const auto& field)
+                        {
+                            func(obj, field);
+                        });
+                    attributes().for_each([&obj, &func](const auto& attribute)
+                        {
+                            func(obj, attribute);
+                        });
+                }
+
+                template<typename Func>
+                inline constexpr void for_each_non_virtual(const Func& func) const noexcept
+                {
+                    bases.for_each([&func](const auto& type)
+                        {
+                            if constexpr (!type.is_virtual)
+                            {
+                                type.info.for_each_non_virtual(func);
+                            }
+                        });
+                    fields().for_each([&func](const auto& field)
+                        {
+                            func(field);
+                        });
+                    attributes().for_each([&func](const auto& attribute)
+                        {
+                            func(attribute);
+                        });
+                }
+
+            private:
+                struct Trait : public Self
+                {
+                    inline static constexpr decltype(auto) field_list(const Self& self) noexcept
+                    {
+                        const auto get_impl = &Self::OSPF_CRTP_FUNCTION(get_field_list);
+                        return (self.*get_impl)();
+                    }
+
+                    inline static constexpr decltype(auto) attribute_list(const Self& self) noexcept
+                    {
+                        const auto get_impl = &Self::OSPF_CRTP_FUNCTION(get_attribute_list);
+                        return (self.*get_impl)();
+                    }
+                };
             };
         };
     };
