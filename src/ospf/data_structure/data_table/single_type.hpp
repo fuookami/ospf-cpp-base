@@ -10,7 +10,7 @@ namespace ospf
         namespace data_table
         {
             template<typename... Ts>
-                requires (VariableTypeList<Ts...>::length > 1_uz)
+                requires (VariableTypeList<Ts...>::length >= 1_uz)
             class STDataTable<StoreType::Row, Ts...>
             {
             public:

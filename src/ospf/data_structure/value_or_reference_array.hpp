@@ -18,7 +18,7 @@ namespace ospf
                 typename T,
                 usize len,
                 reference::ReferenceCategory cat,
-                template<typename T, usize l> class C
+                template<typename, usize> class C
             >
                 requires NotSameAs<T, void>
             class StaticValueOrReferenceArray;
@@ -26,7 +26,7 @@ namespace ospf
             template<
                 typename T,
                 reference::ReferenceCategory cat,
-                template<typename T> class C
+                template<typename> class C
             >
                 requires NotSameAs<T, void>
             class DynamicValueOrReferenceArray;
@@ -39,14 +39,14 @@ namespace ospf
                     typename T,
                     usize len,
                     reference::ReferenceCategory cat,
-                    template<typename T, usize l> class C
+                    template<typename, usize> class C
                 >
                 friend class StaticValueOrReferenceArray;
 
                 template<
                     typename T,
                     reference::ReferenceCategory cat,
-                    template<typename T> class C
+                    template<typename> class C
                 >
                 friend class DynamicValueOrReferenceArray;
 
@@ -87,14 +87,14 @@ namespace ospf
                     typename T,
                     usize len,
                     reference::ReferenceCategory cat,
-                    template<typename T, usize l> class C
+                    template<typename, usize> class C
                 >
                 friend class StaticValueOrReferenceArray;
 
                 template<
                     typename T,
                     reference::ReferenceCategory cat,
-                    template<typename T> class C
+                    template<typename> class C
                 >
                 friend class DynamicValueOrReferenceArray;
 
@@ -141,14 +141,14 @@ namespace ospf
                     typename T,
                     usize len,
                     reference::ReferenceCategory cat,
-                    template<typename T, usize l> class C
+                    template<typename, usize> class C
                 >
                 friend class StaticValueOrReferenceArray;
 
                 template<
                     typename T,
                     reference::ReferenceCategory cat,
-                    template<typename T> class C
+                    template<typename> class C
                 >
                 friend class DynamicValueOrReferenceArray;
 
@@ -189,14 +189,14 @@ namespace ospf
                     typename T,
                     usize len,
                     reference::ReferenceCategory cat,
-                    template<typename T, usize l> class C
+                    template<typename, usize> class C
                 >
                 friend class StaticValueOrReferenceArray;
 
                 template<
                     typename T,
                     reference::ReferenceCategory cat,
-                    template<typename T> class C
+                    template<typename> class C
                 >
                 friend class DynamicValueOrReferenceArray;
 
@@ -573,13 +573,20 @@ namespace ospf
                 typename T,
                 usize len,
                 reference::ReferenceCategory cat,
-                template<typename T, usize l> class C
+                template<typename, usize> class C
             >
                 requires NotSameAs<T, void>
             class StaticValueOrReferenceArray
                 : public ValueOrReferenceArrayImpl<T, C<ValOrRef<OriginType<T>, cat>, len>, StaticValueOrReferenceArray<T, len, cat, C>>
             {
                 using Impl = ValueOrReferenceArrayImpl<T, C<ValOrRef<OriginType<T>, cat>, len>, StaticValueOrReferenceArray<T, len, cat, C>>;
+
+                template<
+                    typename T,
+                    reference::ReferenceCategory cat,
+                    template<typename> class C
+                >
+                friend class DynamicValueOrReferenceArray;
 
             public:
                 using typename Impl::ValueType;
@@ -719,7 +726,7 @@ namespace ospf
             template<
                 typename T,
                 reference::ReferenceCategory cat,
-                template<typename T> class C
+                template<typename> class C
             >
                 requires NotSameAs<T, void>
             class DynamicValueOrReferenceArray
@@ -800,7 +807,7 @@ namespace ospf
                 }
 
                 template<std::input_iterator It>
-                    requires requires (const It it) { { *it } -> DecaySameAs<It> }
+                    requires requires (const It it) { { *it } -> DecaySameAs<ValueOrReferenceType> }
                 inline constexpr void assign(It&& first, It&& last)
                 {
                     _container.assign(std::forward<It>(first), std::forward<It>(last));
@@ -818,6 +825,67 @@ namespace ospf
                 inline constexpr void assign(std::initializer_list<ValueOrReferenceType> values)
                 {
                     _container.assign(std::move(values));
+                }
+
+                template<
+                    usize len,
+                    template<typename, usize> class C1
+                >
+                    requires std::copy_constructible<ValueOrReferenceType>
+                inline constexpr void assign(const StaticValueOrReferenceArray<ValueType, len, cat, C1>& refs)
+                {
+                    assign(refs._container.begin(), refs._container.end());
+                }
+
+                template<
+                    usize len,
+                    template<typename, usize> class C1
+                >
+                inline constexpr void assign(StaticValueOrReferenceArray<ValueType, len, cat, C1>&& refs)
+                {
+                    _container.clear();
+                    std::move(refs._container.begin(), refs._container.end(), std::back_inserter(_container));
+                }
+
+                template<
+                    typename U,
+                    usize len,
+                    template<typename, usize> class C1
+                >
+                    requires std::convertible_to<U, ValueType> && std::convertible_to<ospf::PtrType<U>, PtrType>
+                inline constexpr void assign(const StaticValueOrReferenceArray<U, len, cat, C1>& refs)
+                {
+                    assign(
+                        boost::make_transform_iterator(refs._container.begin(), [](const ValOrRef<U, cat>& value) { return ValueOrReferenceType{ value }; }),
+                        boost::make_transform_iterator(refs._container.end(), [](const ValOrRef<U, cat>& value) { return ValueOrReferenceType{ value }; })
+                    );
+                }
+
+                template<template<typename> class C1>
+                    requires std::copy_constructible<ValueOrReferenceType>
+                inline constexpr void assign(const DynamicValueOrReferenceArray<ValueType, cat, C1>& refs)
+                {
+                    assign(refs._container.begin(), refs._container.end());
+                }
+
+                template<template<typename> class C1>
+                inline constexpr void assign(DynamicValueOrReferenceArray<ValueType, cat, C1>&& refs)
+                {
+                    _container.clear();
+                    std::move(refs._container.begin(), refs._container.end(), std::back_inserter(_container));
+                }
+
+                template<
+                    typename U,
+                    usize len,
+                    template<typename, usize> class C1
+                >
+                inline constexpr void assign(const DynamicValueOrReferenceArray<U, cat, C1>& refs)
+                {
+                    assign(
+                        boost::make_transform_iterator(refs._container.begin(), [](const ValOrRef<U, cat>& value) { return ValueOrReferenceType{ value }; }),
+                        boost::make_transform_iterator(refs._container.end(), [](const ValOrRef<U, cat>& value) { return ValueOrReferenceType{ value }; })
+                    );
                 }
 
                 template<typename = void>
@@ -977,6 +1045,61 @@ namespace ospf
                     return IterType{ _container.insert(pos._iter, std::move(values)) };
                 }
 
+                template<
+                    usize len,
+                    template<typename, usize> class C1
+                >
+                inline constexpr RetType<IterType> insert(ArgCLRefType<ConstIterType> pos, const StaticValueOrReferenceArray<ValueType, len, cat, C1>& refs)
+                {
+                    return insert(pos, refs._container.begin(), refs._container.end());
+                }
+
+                template<
+                    usize len,
+                    template<typename, usize> class C1
+                >
+                inline constexpr RetType<IterType> insert(ArgCLRefType<ConstIterType> pos, StaticValueOrReferenceArray<ValueType, len, cat, C1>&& refs)
+                {
+                    return IterType{ std::move(refs._container.begin(), refs._container.end(), std::inserter(_container, pos)) };
+                }
+
+                template<
+                    typename U,
+                    usize len,
+                    template<typename, usize> class C1
+                >
+                inline constexpr RetType<IterType> insert(ArgCLRefType<ConstIterType> pos, const StaticValueOrReferenceArray<U, len, cat, C1>& refs)
+                {
+                    return insert(pos,
+                        boost::make_transform_iterator(refs._container.begin(), [](const ValOrRef<U, cat>& value) { return ValueOrReferenceType{ value }; }),
+                        boost::make_transform_iterator(refs._container.end(), [](const ValOrRef<U, cat>& value) { return ValueOrReferenceType{ value }; })
+                    );
+                }
+
+                template<template<typename> class C1>
+                inline constexpr RetType<IterType> insert(ArgCLRefType<ConstIterType> pos, const DynamicValueOrReferenceArray<ValueType, cat, C1>& refs)
+                {
+                    return insert(pos, refs._container.begin(), refs._container.end());
+                }
+
+                template<template<typename> class C1>
+                inline constexpr RetType<IterType> insert(ArgCLRefType<ConstIterType> pos, DynamicValueOrReferenceArray<ValueType, cat, C1>&& refs)
+                {
+                    return IterType{ std::move(refs._container.begin(), refs._container.end(), std::inserter(_container, pos._iter)) };
+                }
+
+                template<
+                    typename U,
+                    template<typename> class C1
+                >
+                inline constexpr RetType<IterType> insert(ArgCLRefType<ConstIterType> pos, const DynamicValueOrReferenceArray<U, cat, C1>& refs)
+                {
+                    return insert(pos,
+                        boost::make_transform_iterator(refs._container.begin(), [](const ValOrRef<U, cat>& value) { return ValueOrReferenceType{ value }; }),
+                        boost::make_transform_iterator(refs._container.end(), [](const ValOrRef<U, cat>& value) { return ValueOrReferenceType{ value }; })
+                    );
+                }
+
                 inline constexpr RetType<IterType> insert_value(ArgCLRefType<ConstIterType> pos, ArgCLRefType<ValueType> value)
                 {
                     return IterType{ _container.insert(pos._iter, ValueOrReferenceType::value(value) };
@@ -1069,6 +1192,57 @@ namespace ospf
                     _container.push_back(move<ValueOrReferenceType>(value));
                 }
 
+                template<
+                    usize len,
+                    template<typename, usize> class C1
+                >
+                    requires std::copy_constructible<ValueOrReferenceType>
+                inline constexpr void push_back(const StaticValueOrReferenceArray<ValueType, len, cat, C1>& refs)
+                {
+                    insert(this->end(), refs);
+                }
+
+                template<
+                    usize len,
+                    template<typename, usize> class C1
+                >
+                inline constexpr void push_back(StaticValueOrReferenceArray<ValueType, len, cat, C1>&& refs)
+                {
+                    insert(this->end(), std::move(refs));
+                }
+
+                template<
+                    typename U,
+                    usize len,
+                    template<typename, usize> class C1
+                >
+                inline constexpr void push_back(const StaticValueOrReferenceArray<U, len, cat, C1>& refs)
+                {
+                    insert(this->end(), refs);
+                }
+
+                template<template<typename> class C1>
+                    requires std::copy_constructible<ValueOrReferenceType>
+                inline constexpr void push_back(const DynamicValueOrReferenceArray<ValueType, cat, C1>& refs)
+                {
+                    insert(this->end(), refs);
+                }
+
+                template<template<typename> class C1>
+                inline constexpr void push_back(DynamicValueOrReferenceArray<ValueType, cat, C1>&& refs)
+                {
+                    insert(this->end(), std::move(refs));
+                }
+
+                template<
+                    typename U,
+                    template<typename> class C1
+                >
+                inline constexpr void push_back(const DynamicValueOrReferenceArray<U, cat, C1>& refs)
+                {
+                    insert(this->end(), refs);
+                }
+
                 inline constexpr void push_back_value(ArgCLRefType<ValueType> value)
                 {
                     _container.push_back(ValueOrReferenceType::value(value));
@@ -1122,6 +1296,57 @@ namespace ospf
                 inline constexpr void push_front(ArgRRefType<ValueOrReferenceType> value)
                 {
                     _container.push_front(move<ValueOrReferenceType>(value));
+                }
+
+                template<
+                    usize len,
+                    template<typename, usize> class C1
+                >
+                    requires std::copy_constructible<ValueOrReferenceType>
+                inline constexpr void push_front(const StaticValueOrReferenceArray<ValueType, len, cat, C1>& refs)
+                {
+                    insert(this->begin(), refs);
+                }
+
+                template<
+                    usize len,
+                    template<typename, usize> class C1
+                >
+                inline constexpr void push_front(StaticValueOrReferenceArray<ValueType, len, cat, C1>&& refs)
+                {
+                    insert(this->begin(), std::move(refs));
+                }
+
+                template<
+                    typename U,
+                    usize len,
+                    template<typename, usize> class C1
+                >
+                inline constexpr void push_front(const StaticValueOrReferenceArray<U, len, cat, C1>& refs)
+                {
+                    insert(this->begin(), refs);
+                }
+
+                template<template<typename> class C1>
+                    requires std::copy_constructible<ValueOrReferenceType>
+                inline constexpr void push_front(const DynamicValueOrReferenceArray<ValueType, cat, C1>& refs)
+                {
+                    insert(this->begin(), refs);
+                }
+
+                template<template<typename> class C1>
+                inline constexpr void push_front(DynamicValueOrReferenceArray<ValueType, cat, C1>&& refs)
+                {
+                    insert(this->begin(), std::move(refs));
+                }
+
+                template<
+                    typename U,
+                    template<typename> class C1
+                >
+                inline constexpr void push_front(const DynamicValueOrReferenceArray<U, cat, C1>& refs)
+                {
+                    insert(this->begin(), refs);
                 }
 
                 inline constexpr void push_front_value(ArgCLRefType<ValueType> value)
@@ -1284,14 +1509,14 @@ namespace ospf
             typename T,
             usize len,
             reference::ReferenceCategory cat = reference::ReferenceCategory::Reference,
-            template<typename T, usize l> class C = std::array
+            template<typename, usize> class C = std::array
         >
         using ValOrRefArray = typename value_or_reference_array::StaticValueOrReferenceArray<T, len, cat, C>;
 
         template<
             typename T,
             reference::ReferenceCategory cat = reference::ReferenceCategory::Reference,
-            template<typename T> class C = std::vector
+            template<typename> class C = std::vector
         >
         using DynValOrRefArray = typename value_or_reference_array::DynamicValueOrReferenceArray<T, cat, C>;
     };

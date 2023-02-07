@@ -54,7 +54,7 @@ namespace ospf
         >
             requires (C::multi_type == on || col == VariableTypeList<Ts...>::length)
         using DataTable = std::conditional_t<
-            C::multi_type == on,
+            C::multi_type == off,
             data_table::STDataTable<C::store_type, Ts...>,
             std::conditional_t<
                 C::nullable == on,

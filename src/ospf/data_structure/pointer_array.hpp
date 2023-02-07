@@ -18,14 +18,14 @@ namespace ospf
                 typename T,
                 usize len,
                 pointer::PointerCategory cat,
-                template<typename T, usize l> class C
+                template<typename, usize> class C
             >
             class StaticPointerArray;
 
             template<
                 typename T,
                 pointer::PointerCategory cat,
-                template<typename T> class C
+                template<typename> class C
             >
             class DynamicPointerArray;
 
@@ -37,14 +37,14 @@ namespace ospf
                     typename T,
                     usize len,
                     pointer::PointerCategory cat,
-                    template<typename T, usize l> class C
+                    template<typename, usize> class C
                 >
                 friend class StaticPointerArray;
 
                 template<
                     typename T,
                     pointer::PointerCategory cat,
-                    template<typename T> class C
+                    template<typename> class C
                 >
                 friend class DynamicPointerArray;
 
@@ -91,14 +91,14 @@ namespace ospf
                     typename T,
                     usize len,
                     pointer::PointerCategory cat,
-                    template<typename T, usize l> class C
+                    template<typename, usize> class C
                 >
                 friend class StaticPointerArray;
 
                 template<
                     typename T,
                     pointer::PointerCategory cat,
-                    template<typename T> class C
+                    template<typename> class C
                 >
                 friend class DynamicPointerArray;
 
@@ -151,14 +151,14 @@ namespace ospf
                     typename T,
                     usize len,
                     pointer::PointerCategory cat,
-                    template<typename T, usize l> class C
+                    template<typename, usize> class C
                 >
                 friend class StaticPointerArray;
 
                 template<
                     typename T,
                     pointer::PointerCategory cat,
-                    template<typename T> class C
+                    template<typename> class C
                 >
                 friend class DynamicPointerArray;
 
@@ -205,14 +205,14 @@ namespace ospf
                     typename T,
                     usize len,
                     pointer::PointerCategory cat,
-                    template<typename T, usize l> class C
+                    template<typename, usize> class C
                 >
                 friend class StaticPointerArray;
 
                 template<
                     typename T,
                     pointer::PointerCategory cat,
-                    template<typename T> class C
+                    template<typename> class C
                 >
                 friend class DynamicPointerArray;
 
@@ -259,14 +259,14 @@ namespace ospf
                     typename T,
                     usize len,
                     pointer::PointerCategory cat,
-                    template<typename T, usize l> class C
+                    template<typename, usize> class C
                 >
                 friend class StaticPointerArray;
 
                 template<
                     typename T,
                     pointer::PointerCategory cat,
-                    template<typename T> class C
+                    template<typename> class C
                 >
                 friend class DynamicPointerArray;
 
@@ -313,14 +313,14 @@ namespace ospf
                     typename T,
                     usize len,
                     pointer::PointerCategory cat,
-                    template<typename T, usize l> class C
+                    template<typename, usize> class C
                 >
                 friend class StaticPointerArray;
 
                 template<
                     typename T,
                     pointer::PointerCategory cat,
-                    template<typename T> class C
+                    template<typename> class C
                 >
                 friend class DynamicPointerArray;
 
@@ -373,14 +373,14 @@ namespace ospf
                     typename T,
                     usize len,
                     pointer::PointerCategory cat,
-                    template<typename T, usize l> class C
+                    template<typename, usize> class C
                 >
                 friend class StaticPointerArray;
 
                 template<
                     typename T,
                     pointer::PointerCategory cat,
-                    template<typename T> class C
+                    template<typename> class C
                 >
                 friend class DynamicPointerArray;
 
@@ -427,14 +427,14 @@ namespace ospf
                     typename T,
                     usize len,
                     pointer::PointerCategory cat,
-                    template<typename T, usize l> class C
+                    template<typename, usize> class C
                 >
                 friend class StaticPointerArray;
 
                 template<
                     typename T,
                     pointer::PointerCategory cat,
-                    template<typename T> class C
+                    template<typename> class C
                 >
                 friend class DynamicPointerArray;
 
@@ -1141,13 +1141,20 @@ namespace ospf
                     typename T, 
                     usize len,
                     pointer::PointerCategory cat,
-                    template<typename T, usize l> class C
+                    template<typename, usize> class C
                 >
                 class StaticPointerArray
                     : public PointerArrayImpl<T, C<pointer::Ptr<OriginType<T>, cat>, len>, StaticPointerArray<T, len, cat, C>>
                 {
                     using Impl = PointerArrayImpl<T, C<pointer::Ptr<OriginType<T>, cat>, len>, StaticPointerArray<T, len, cat, C>>;
                     using UncheckedAccessorImpl = PointerArrayUncheckedAccessorImpl<T, C<pointer::Ptr<OriginType<T>, cat>, len>, StaticPointerArray<T, len, cat, C>>;
+
+                    template<
+                        typename T,
+                        pointer::PointerCategory cat,
+                        template<typename> class C
+                    >
+                    friend class DynamicPointerArray;
 
                 public:
                     using typename Impl::ValueType;
@@ -1318,7 +1325,7 @@ namespace ospf
                 template<
                     typename T,
                     pointer::PointerCategory cat,
-                    template<typename T> class C
+                    template<typename> class C
                 >
                 class DynamicPointerArray
                     : public PointerArrayImpl<T, C<pointer::Ptr<OriginType<T>, cat>>, DynamicPointerArray<T, cat, C>>
@@ -1497,6 +1504,65 @@ namespace ospf
                     inline constexpr void assign(std::initializer_list<PointerType> ptrs)
                     {
                         _container.assign(std::move(ptrs));
+                    }
+
+                    template<
+                        usize len,
+                        template<typename, usize> class C1
+                    >
+                        requires std::copy_constructible<PointerType>
+                    inline constexpr void assign(const StaticPointerArray<ValueType, len, cat, C1>& ptrs)
+                    {
+                        assign(ptrs._container.begin(), ptrs._container.end());
+                    }
+
+                    template<
+                        usize len,
+                        template<typename, usize> class C1
+                    >
+                    inline constexpr void assign(StaticPointerArray<ValueType, len, cat, C1>&& ptrs)
+                    {
+                        _contaienr.clear();
+                        std::move(ptrs._container.begin(), ptrs._container.end(), std::back_inserter(_container));
+                    }
+
+                    template<
+                        typename U,
+                        usize len,
+                        template<typename, usize> class C1
+                    >
+                    inline constexpr void assign(const StaticPointerArray<U, len, cat, C1>& ptrs)
+                    {
+                        assign(
+                            boost::make_transform_iterator(ptrs._container.begin(), [](const Ptr<U, cat>& ptr) { return PointerType{ ptr }; }),
+                            boost::make_transform_iterator(ptrs._container.end(), [](const Ptr<U, cat>& ptr) { return PointerType{ ptr }; })
+                        );
+                    }
+
+                    template<template<typename> class C1>
+                        requires std::copy_constructible<PointerType>
+                    inline constexpr void assign(const DynamicPointerArray<ValueType, cat, C1>& ptrs)
+                    {
+                        assign(ptrs._container.begin(), ptrs._container.end());
+                    }
+
+                    template<template<typename> class C1>
+                    inline constexpr void assign(DynamicPointerArray<ValueType, cat, C1>&& ptrs)
+                    {
+                        _contaienr.clear();
+                        std::move(ptrs._container.begin(), ptrs._container.end(), std::back_inserter(_container));
+                    }
+
+                    template<
+                        typename U,
+                        template<typename> class C1
+                    >
+                    inline constexpr void assign(const DynamicPointerArray<U, cat, C1>& ptrs)
+                    {
+                        assign(
+                            boost::make_transform_iterator(ptrs._container.begin(), [](const Ptr<U, cat>& ptr) { return PointerType{ ptr }; }),
+                            boost::make_transform_iterator(ptrs._container.end(), [](const Ptr<U, cat>& ptr) { return PointerType{ ptr }; })
+                        );
                     }
 
                 public:
@@ -1696,6 +1762,120 @@ namespace ospf
                         return UncheckedIterType{ _container.insert(pos._iter, std::move(ptrs)) };
                     }
 
+                    template<
+                        usize len,
+                        template<typename, usize> class C1
+                    >
+                        requires std::copy_constructible<PointerType>
+                    inline constexpr RetType<IterType> insert(ArgCLRefType<ConstIterType> pos, const StaticPointerArray<ValueType, len, cat, C1>& ptrs)
+                    {
+                        return insert(pos, ptrs._container.begin(), ptrs._container.end());
+                    }
+
+                    template<
+                        usize len,
+                        template<typename, usize> class C1
+                    >
+                    inline constexpr RetType<IterType> insert(ArgCLRefType<ConstIterType> pos, StaticPointerArray<ValueType, len, cat, C1>&& ptrs)
+                    {
+                        return IterType{ std::move(ptrs._container.begin(), ptrs._container.end(), std::inserter(_container, pos._iter)) };
+                    }
+
+                    template<
+                        typename U,
+                        usize len,
+                        template<typename, usize> class C1
+                    >
+                    inline constexpr RetType<IterType> insert(ArgCLRefType<ConstIterType> pos, const StaticPointerArray<U, len, cat, C1>& ptrs)
+                    {
+                        return insert(pos,
+                            boost::make_transform_iterator(ptrs._container.begin(), [](const Ptr<U, cat>& ptr) { return PointerType{ ptr }; }),
+                            boost::make_transform_iterator(ptrs._container.end(), [](const Ptr<U, cat>& ptr) { return PointerType{ ptr }; })
+                        );
+                    }
+
+                    template<
+                        usize len,
+                        template<typename, usize> class C1
+                    >
+                        requires std::copy_constructible<PointerType>
+                    inline constexpr RetType<UncheckedIterType> insert(ArgCLRefType<ConstUncheckedIterType> pos, const StaticPointerArray<ValueType, len, cat, C1>& ptrs)
+                    {
+                        return insert(pos, ptrs._container.begin(), ptrs._container.end());
+                    }
+
+                    template<
+                        usize len,
+                        template<typename, usize> class C1
+                    >
+                    inline constexpr RetType<UncheckedIterType> insert(ArgCLRefType<ConstUncheckedIterType> pos, StaticPointerArray<ValueType, len, cat, C1>&& ptrs)
+                    {
+                        return UncheckedIterType{ std::move(ptrs._container.begin(), ptrs._container.end(), std::inserter(_container, pos._iter)) };
+                    }
+                    
+                    template<
+                        typename U,
+                        usize len,
+                        template<typename, usize> class C1
+                    >
+                    inline constexpr RetType<UncheckedIterType> insert(ArgCLRefType<ConstUncheckedIterType> pos, const StaticPointerArray<U, len, cat, C1>& ptrs)
+                    {
+                        return insert(pos, 
+                            boost::make_transform_iterator(ptrs._container.begin(), [](const Ptr<U, cat>& ptr) { return PointerType{ ptr }; }),
+                            boost::make_transform_iterator(ptrs._container.end(), [](const Ptr<U, cat>& ptr) { return PointerType{ ptr }; })
+                        );
+                    }
+
+                    template<template<typename> class C1>
+                        requires std::copy_constructible<PointerType>
+                    inline constexpr RetType<IterType> insert(ArgCLRefType<ConstIterType> pos, const DynamicPointerArray<ValueType, cat, C1>& ptrs)
+                    {
+                        return insert(pos, ptrs._container.begin(), ptrs._container.end());
+                    }
+
+                    template<template<typename> class C1>
+                    inline constexpr RetType<IterType> insert(ArgCLRefType<ConstIterType> pos, DynamicPointerArray<ValueType, cat, C1>&& ptrs)
+                    {
+                        return IterType{ std::move(ptrs._container.begin(), ptrs._container.end(), std::inserter(_container, pos._iter)) };
+                    }
+
+                    template<
+                        typename U,
+                        template<typename> class C1
+                    >
+                    inline constexpr RetType<IterType> insert(ArgCLRefType<ConstIterType> pos, const DynamicPointerArray<U, cat, C1>& ptrs)
+                    {
+                        return insert(pos,
+                            boost::make_transform_iterator(ptrs._container.begin(), [](const Ptr<U, cat>& ptr) { return PointerType{ ptr }; }),
+                            boost::make_transform_iterator(ptrs._container.end(), [](const Ptr<U, cat>& ptr) { return PointerType{ ptr }; })
+                        );
+                    }
+
+                    template<template<typename> class C1>
+                        requires std::copy_constructible<PointerType>
+                    inline constexpr RetType<UncheckedIterType> insert(ArgCLRefType<ConstUncheckedIterType> pos, const DynamicPointerArray<ValueType, cat, C1>& ptrs)
+                    {
+                        return insert(pos, ptrs._container.begin(), ptrs._container.end());
+                    }
+
+                    template<template<typename> class C1>
+                    inline constexpr RetType<UncheckedIterType> insert(ArgCLRefType<ConstUncheckedIterType> pos, DynamicPointerArray<ValueType, cat, C1>&& ptrs)
+                    {
+                        return UncheckedIterType{ std::move(ptrs._container.begin(), ptrs._container.end(), std::inserter(_container, pos._iter)) };
+                    }
+
+                    template<
+                        typename U,
+                        template<typename> class C1
+                    >
+                    inline constexpr RetType<UncheckedIterType> insert(ArgCLRefType<ConstUncheckedIterType> pos, const DynamicPointerArray<U, cat, C1>& ptrs)
+                    {
+                        return insert(pos,
+                            boost::make_transform_iterator(ptrs._container.begin(), [](const Ptr<U, cat>& ptr) { return PointerType{ ptr }; }),
+                            boost::make_transform_iterator(ptrs._container.end(), [](const Ptr<U, cat>& ptr) { return PointerType{ ptr }; })
+                        );
+                    }
+
                     inline constexpr RetType<IterType> emplace(ArgCLRefType<ConstIterType> pos, const std::nullptr_t _)
                     {
                         return IterType{ _container.emplace(pos._iter, nullptr) };
@@ -1780,6 +1960,56 @@ namespace ospf
                         _container.push_back(move<PointerType>(ptr));
                     }
 
+                    template<
+                        usize len,
+                        template<typename, usize> class C1
+                    >
+                        requires std::copy_constructible<PointerType>
+                    inline constexpr void push_back(const StaticPointerArray<ValueType, len, cat, C1>& ptrs)
+                    {
+                        insert(this->end(), ptrs);
+                    }
+
+                    template<
+                        usize len,
+                        template<typename, usize> class C1
+                    >
+                    inline constexpr void push_back(StaticPointerArray<ValueType, len, cat, C1>&& ptrs)
+                    {
+                        insert(this->end(), std::move(ptrs));
+                    }
+
+                    template<
+                        typename U,
+                        usize len,
+                        template<typename, usize> class C1
+                    >
+                    inline constexpr void push_back(const StaticPointerArray<U, len, cat, C1>& ptrs)
+                    {
+                        insert(this->end(), ptrs);
+                    }
+
+                    template<template<typename> class C1>
+                    inline constexpr void push_back(const DynamicPointerArray<ValueType, cat, C1>& ptrs)
+                    {
+                        insert(this->end(), ptrs);
+                    }
+
+                    template<template<typename> class C1>
+                    inline constexpr void push_back(DynamicPointerArray<ValueType, cat, C1>&& ptrs)
+                    {
+                        insert(this->end(), std::move(ptrs));
+                    }
+
+                    template<
+                        typename U,
+                        template<typename> class C1
+                    >
+                    inline constexpr void push_back(const DynamicPointerArray<U, cat, C1>& ptrs)
+                    {
+                        insert(this->end(), ptrs);
+                    }
+
                     inline constexpr void emplace_back(const std::nullptr_t _)
                     {
                         _container.emplace_back(nullptr);
@@ -1855,6 +2085,56 @@ namespace ospf
                     inline constexpr void push_front(ArgRRefType<PointerType> ptr)
                     {
                         _container.push_front(move<PointerType>(ptr));
+                    }
+
+                    template<
+                        usize len,
+                        template<typename, usize> class C1
+                    >
+                        requires std::copy_constructible<PointerType>
+                    inline constexpr void push_front(const StaticPointerArray<ValueType, len, cat, C1>& ptrs)
+                    {
+                        insert(this->begin(), ptrs);
+                    }
+
+                    template<
+                        usize len,
+                        template<typename, usize> class C1
+                    >
+                    inline constexpr void push_front(StaticPointerArray<ValueType, len, cat, C1>&& ptrs)
+                    {
+                        insert(this->begin(), std::move(ptrs));
+                    }
+
+                    template<
+                        typename U,
+                        usize len,
+                        template<typename, usize> class C1
+                    >
+                    inline constexpr void push_front(const StaticPointerArray<U, len, cat, C1>& ptrs)
+                    {
+                        insert(this->begin(), ptrs);
+                    }
+
+                    template<template<typename> class C1>
+                    inline constexpr void push_front(const DynamicPointerArray<ValueType, cat, C1>& ptrs)
+                    {
+                        insert(this->begin(), ptrs);
+                    }
+
+                    template<template<typename> class C1>
+                    inline constexpr void push_front(DynamicPointerArray<ValueType, cat, C1>&& ptrs)
+                    {
+                        insert(this->begin(), std::move(ptrs));
+                    }
+
+                    template<
+                        typename U,
+                        template<typename> class C1
+                    >
+                    inline constexpr void push_front(const DynamicPointerArray<U, cat, C1>& ptrs)
+                    {
+                        insert(this->begin(), ptrs);
                     }
 
                     inline constexpr void emplace_front(const std::nullptr_t _)
@@ -2002,38 +2282,38 @@ namespace ospf
             typename T,
             usize l,
             pointer::PointerCategory cat = pointer::PointerCategory::Raw,
-            template<typename T, usize l> class C = std::array
+            template<typename, usize> class C = std::array
         >
         using PtrArray = pointer_array::StaticPointerArray<T, l, cat, C>;
 
         template<typename T,
             usize l,
-            template<typename T, usize l> class C = std::array
+            template<typename, usize> class C = std::array
         >
         using SharedArray = pointer_array::StaticPointerArray<T, l, pointer::PointerCategory::Shared, C>;
 
         template<typename T,
             usize l,
-            template<typename T, usize l> class C = std::array
+            template<typename, usize> class C = std::array
         >
         using UniqueArray = pointer_array::StaticPointerArray<T, l, pointer::PointerCategory::Unique, C>;
 
         template<
             typename T,
             pointer::PointerCategory cat = pointer::PointerCategory::Raw,
-            template<typename T> class C = std::vector
+            template<typename> class C = std::vector
         >
         using DynPtrArray = pointer_array::DynamicPointerArray<T, cat, C>;
 
         template<
             typename T,
-            template<typename T> class C = std::vector
+            template<typename> class C = std::vector
         >
         using DynSharedArray = pointer_array::DynamicPointerArray<T, pointer::PointerCategory::Shared, C>;
 
         template<
             typename T,
-            template<typename T> class C = std::vector
+            template<typename> class C = std::vector
         >
         using DynUniqueArray = pointer_array::DynamicPointerArray<T, pointer::PointerCategory::Unique, C>;
     };

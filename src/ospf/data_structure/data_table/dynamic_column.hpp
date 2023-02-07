@@ -11,6 +11,15 @@ namespace ospf
     {
         namespace data_table
         {
+            template<usize col>
+            inline std::vector<DataTableHeader> make_header(std::array<DataTableHeader, col> header) noexcept
+            {
+                std::vector<DataTableHeader> ret;
+                ret.reserve(col);
+                std::move(header.begin(), header.end(), std::back_inserter(ret));
+                return ret;
+            }
+
             template<typename C>
             inline std::vector<DataTableHeader> make_header(std::initializer_list<std::string_view> header) noexcept
             {
@@ -91,6 +100,10 @@ namespace ospf
                         _header_index.insert({ _header[i].name(), i });
                     }
                 }
+
+                template<usize col>
+                DataTable(std::array<DataTableHeader, col> header)
+                    : DataTable(make_header(std::move(header))) {}
 
                 DataTable(std::initializer_list<std::string_view> header)
                     : DataTable(make_header<CellType>(std::move(header))) {}
@@ -427,6 +440,10 @@ namespace ospf
                         _header_index.insert({ _header[i].name(), i });
                     }
                 }
+
+                template<usize col>
+                DataTable(std::array<DataTableHeader, col> header)
+                    : DataTable(make_header(std::move(header))) {}
 
                 DataTable(std::initializer_list<std::string_view> header)
                     : DataTable(make_header<CellType>(std::move(header))) {}

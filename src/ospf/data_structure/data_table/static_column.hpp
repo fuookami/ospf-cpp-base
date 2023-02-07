@@ -97,6 +97,7 @@ namespace ospf
                         std::move(row.begin(), row.end(), std::back_inserter(new_row));
                         ret._table.push_back(std::move(new_row));
                     }
+                    return ret;
                 }
 
             OSPF_CRTP_PERMISSION:

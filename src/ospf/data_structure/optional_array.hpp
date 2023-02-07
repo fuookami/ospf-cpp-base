@@ -16,14 +16,14 @@ namespace ospf
             template<
                 typename T,
                 usize len,
-                template<typename T, usize l> class C
+                template<typename, usize> class C
             >
                 requires NotSameAs<T, void>
             class StaticOptionalArray;
 
             template<
                 typename T,
-                template<typename T> class C
+                template<typename> class C
             >
                 requires NotSameAs<T, void>
             class DynamicOptionalArray;
@@ -35,13 +35,13 @@ namespace ospf
                 template<
                     typename T,
                     usize len,
-                    template<typename T, usize l> class C
+                    template<typename, usize> class C
                 >
                 friend class StaticOptionalArray;
 
                 template<
                     typename T,
-                    template<typename T> class C
+                    template<typename> class C
                 >
                 friend class DynamicOptionalArray;
 
@@ -87,13 +87,13 @@ namespace ospf
                 template<
                     typename T,
                     usize len,
-                    template<typename T, usize l> class C
+                    template<typename, usize> class C
                 >
                 friend class StaticOptionalArray;
 
                 template<
                     typename T,
-                    template<typename T> class C
+                    template<typename> class C
                 >
                 friend class DynamicOptionalArray;
 
@@ -145,13 +145,13 @@ namespace ospf
                 template<
                     typename T,
                     usize len,
-                    template<typename T, usize l> class C
+                    template<typename, usize> class C
                 >
                 friend class StaticOptionalArray;
 
                 template<
                     typename T,
-                    template<typename T> class C
+                    template<typename> class C
                 >
                 friend class DynamicOptionalArray;
 
@@ -197,13 +197,13 @@ namespace ospf
                 template<
                     typename T,
                     usize len,
-                    template<typename T, usize l> class C
+                    template<typename, usize> class C
                 >
                 friend class StaticOptionalArray;
 
                 template<
                     typename T,
-                    template<typename T> class C
+                    template<typename> class C
                 >
                 friend class DynamicOptionalArray;
 
@@ -249,13 +249,13 @@ namespace ospf
                 template<
                     typename T,
                     usize len,
-                    template<typename T, usize l> class C
+                    template<typename, usize> class C
                 >
                 friend class StaticOptionalArray;
 
                 template<
                     typename T,
-                    template<typename T> class C
+                    template<typename> class C
                 >
                 friend class DynamicOptionalArray;
 
@@ -301,13 +301,13 @@ namespace ospf
                 template<
                     typename T,
                     usize len,
-                    template<typename T, usize l> class C
+                    template<typename, usize> class C
                 >
                 friend class StaticOptionalArray;
 
                 template<
                     typename T,
-                    template<typename T> class C
+                    template<typename> class C
                 >
                 friend class DynamicOptionalArray;
 
@@ -359,13 +359,13 @@ namespace ospf
                 template<
                     typename T,
                     usize len,
-                    template<typename T, usize l> class C
+                    template<typename, usize> class C
                 >
                 friend class StaticOptionalArray;
 
                 template<
                     typename T,
-                    template<typename T> class C
+                    template<typename> class C
                 >
                 friend class DynamicOptionalArray;
 
@@ -411,13 +411,13 @@ namespace ospf
                 template<
                     typename T,
                     usize len,
-                    template<typename T, usize l> class C
+                    template<typename, usize> class C
                 >
                 friend class StaticOptionalArray;
 
                 template<
                     typename T,
-                    template<typename T> class C
+                    template<typename> class C
                 >
                 friend class DynamicOptionalArray;
 
@@ -1161,7 +1161,7 @@ namespace ospf
             template<
                 typename T,
                 usize len,
-                template<typename T, usize l> class C
+                template<typename, usize> class C
             >
                 requires NotSameAs<T, void>
             class StaticOptionalArray
@@ -1330,7 +1330,7 @@ namespace ospf
 
             template<
                 typename T,
-                template<typename T> class C
+                template<typename> class C
             >
                 requires NotSameAs<T, void>
             class DynamicOptionalArray
@@ -1979,13 +1979,13 @@ namespace ospf
         template<
             typename T, 
             usize len,
-            template<typename T, usize l> class C = std::array
+            template<typename, usize> class C = std::array
         >
         using OptArray = optional_array::StaticOptionalArray<OriginType<T>, len, C>;
 
         template<
             typename T,
-            template<typename T> class C = std::vector
+            template<typename> class C = std::vector
         >
         using DynOptArray = optional_array::DynamicOptionalArray<OriginType<T>, C>;
     };
