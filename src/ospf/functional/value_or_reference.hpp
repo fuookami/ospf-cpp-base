@@ -58,31 +58,46 @@ namespace ospf
                 : _either(EitherType::left(DefaultValue<ValueType>::value)) {}
 
             template<typename U>
-                requires std::convertible_to<U, ValueType> && std::convertible_to<ospf::PtrType<U>, PtrType>
+                requires std::copy_constructible<ReferenceType> && std::convertible_to<U, ValueType> && std::convertible_to<ospf::PtrType<U>, PtrType>
             constexpr ValOrRef(const ValOrRef<U, cat>& ano)
                 : _either(std::visit([](const auto& value)
                     {
                         if constexpr (DecaySameAs<decltype(value), U>)
                         {
-                            return EitherType::left(ValueType{ value });
+                            return Either::left(ValueType{ value });
                         }
                         else if constexpr (DecaySameAs<decltype(value), Ref<U, cat>>)
                         {
-                            return EitherType::right(ReferenceType{ value });
+                            return Either::right(ReferenceType{ value });
+                        }
+                    }, ano._either)) {}
+
+            template<typename U>
+                requires std::convertible_to<U, ValueType> && std::convertible_to<ospf::PtrType<U>, PtrType>
+            constexpr ValOrRef(ValOrRef<U, cat>&& ano)
+                : _either(std::visit([](auto& value)
+                    {
+                        if constexpr (DecaySameAs<decltype(value), U>)
+                        {
+                            return Either::left(ValueType{ std::move(value) });
+                        }
+                        else if constexpr (DecaySameAs<decltype(value), Ref<U, cat>>)
+                        {
+                            return Either::right(ReferenceType{ std::move(value) });
                         }
                     }, ano._either)) {}
 
         private:
             constexpr ValOrRef(ArgCLRefType<ValueType> value)
-                : _either(EitherType::left(value)) {}
+                : _either(Either::left(value)) {}
 
             template<typename = void>
                 requires ReferenceFaster<ValueType> && std::movable<ValueType>
             constexpr ValOrRef(ArgRRefType<ValueType> value)
-                : _either(EitherType::left(move<ValueType>(value))) {}
+                : _either(Either::left(move<ValueType>(value))) {}
 
             constexpr ValOrRef(ArgRRefType<ReferenceType> ref)
-                : _either(EitherType::right(move<ReferenceType>(ref))) {}
+                : _either(Either::right(move<ReferenceType>(ref))) {}
 
         public:
             constexpr ValOrRef(const ValOrRef& ano) = default;
@@ -328,7 +343,7 @@ namespace ospf
             }
 
         private:
-            EitherType _either;
+            Either _either;
         };
 
         template<typename T, reference::ReferenceCategory cat>

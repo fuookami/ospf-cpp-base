@@ -471,6 +471,9 @@
     <ClInclude Include="src\ospf\string\split.hpp">
       <Filter>src\ospf\string</Filter>
     </ClInclude>
+    <ClInclude Include="src\ospf\functional\optional.hpp">
+      <Filter>src\ospf\functional</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\ospf\system_info.cpp">

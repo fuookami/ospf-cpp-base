@@ -62,6 +62,7 @@
     <ClInclude Include="src\ospf\functional\array.hpp" />
     <ClInclude Include="src\ospf\functional\integer_iterator.hpp" />
     <ClInclude Include="src\ospf\functional\iterator.hpp" />
+    <ClInclude Include="src\ospf\functional\optional.hpp" />
     <ClInclude Include="src\ospf\functional\range_bounds.hpp" />
     <ClInclude Include="src\ospf\functional\either.hpp" />
     <ClInclude Include="src\ospf\functional\sequence_tuple.hpp" />

@@ -1531,11 +1531,26 @@ namespace ospf
                         usize len,
                         template<typename, usize> class C1
                     >
+                        requires std::copy_constructible<PointerType> && std::convertible_to<PtrType<U>, PointerType>
                     inline constexpr void assign(const StaticPointerArray<U, len, cat, C1>& ptrs)
                     {
                         assign(
                             boost::make_transform_iterator(ptrs._container.begin(), [](const Ptr<U, cat>& ptr) { return PointerType{ ptr }; }),
                             boost::make_transform_iterator(ptrs._container.end(), [](const Ptr<U, cat>& ptr) { return PointerType{ ptr }; })
+                        );
+                    }
+
+                    template<
+                        typename U,
+                        usize len,
+                        template<typename, usize> class C1
+                    >
+                        requires std::convertible_to<PtrType<U>, PointerType>
+                    inline constexpr void assign(StaticPointerArray<U, len, cat, C1>&& ptrs)
+                    {
+                        assign(
+                            boost::make_transform_iterator(ptrs._container.begin(), [](Ptr<U, cat>& ptr) { return PointerType{ std::move(ptr) }; }),
+                            boost::make_transform_iterator(ptrs._container.end(), [](Ptr<U, cat>& ptr) { return PointerType{ std::move(ptr) }; })
                         );
                     }
 
@@ -1557,11 +1572,25 @@ namespace ospf
                         typename U,
                         template<typename> class C1
                     >
+                        requires std::copy_constructible<PointerType> && std::convertible_to<PtrType<U>, PointerType>
                     inline constexpr void assign(const DynamicPointerArray<U, cat, C1>& ptrs)
                     {
                         assign(
                             boost::make_transform_iterator(ptrs._container.begin(), [](const Ptr<U, cat>& ptr) { return PointerType{ ptr }; }),
                             boost::make_transform_iterator(ptrs._container.end(), [](const Ptr<U, cat>& ptr) { return PointerType{ ptr }; })
+                        );
+                    }
+
+                    template<
+                        typename U,
+                        template<typename> class C1
+                    >
+                        requires std::convertible_to<PtrType<U>, PointerType>
+                    inline constexpr void assign(DynamicPointerArray<U, cat, C1>&& ptrs)
+                    {
+                        assign(
+                            boost::make_transform_iterator(ptrs._container.begin(), [](Ptr<U, cat>& ptr) { return PointerType{ std::move(ptr) }; }),
+                            boost::make_transform_iterator(ptrs._container.end(), [](Ptr<U, cat>& ptr) { return PointerType{ std::move(ptr) }; })
                         );
                     }
 
@@ -1786,11 +1815,26 @@ namespace ospf
                         usize len,
                         template<typename, usize> class C1
                     >
+                        requires std::copy_constructible<PointerType> && std::convertible_to<PtrType<U>, PointerType>
                     inline constexpr RetType<IterType> insert(ArgCLRefType<ConstIterType> pos, const StaticPointerArray<U, len, cat, C1>& ptrs)
                     {
                         return insert(pos,
                             boost::make_transform_iterator(ptrs._container.begin(), [](const Ptr<U, cat>& ptr) { return PointerType{ ptr }; }),
                             boost::make_transform_iterator(ptrs._container.end(), [](const Ptr<U, cat>& ptr) { return PointerType{ ptr }; })
+                        );
+                    }
+
+                    template<
+                        typename U,
+                        usize len,
+                        template<typename, usize> class C1
+                    >
+                        requires std::convertible_to<PtrType<U>, PointerType>
+                    inline constexpr RetType<IterType> insert(ArgCLRefType<ConstIterType> pos, StaticPointerArray<U, len, cat, C1>&& ptrs)
+                    {
+                        return insert(pos,
+                            boost::make_transform_iterator(ptrs._container.begin(), [](Ptr<U, cat>& ptr) { return PointerType{ std::move(ptr) }; }),
+                            boost::make_transform_iterator(ptrs._container.end(), [](Ptr<U, cat>& ptr) { return PointerType{ std::move(ptr) }; })
                         );
                     }
 
@@ -1818,11 +1862,26 @@ namespace ospf
                         usize len,
                         template<typename, usize> class C1
                     >
+                        requires std::copy_constructible<PointerType> && std::convertible_to<PtrType<U>, PointerType>
                     inline constexpr RetType<UncheckedIterType> insert(ArgCLRefType<ConstUncheckedIterType> pos, const StaticPointerArray<U, len, cat, C1>& ptrs)
                     {
                         return insert(pos, 
                             boost::make_transform_iterator(ptrs._container.begin(), [](const Ptr<U, cat>& ptr) { return PointerType{ ptr }; }),
                             boost::make_transform_iterator(ptrs._container.end(), [](const Ptr<U, cat>& ptr) { return PointerType{ ptr }; })
+                        );
+                    }
+
+                    template<
+                        typename U,
+                        usize len,
+                        template<typename, usize> class C1
+                    >
+                        requires std::convertible_to<PtrType<U>, PointerType>
+                    inline constexpr RetType<UncheckedIterType> insert(ArgCLRefType<ConstUncheckedIterType> pos, StaticPointerArray<U, len, cat, C1>&& ptrs)
+                    {
+                        return insert(pos,
+                            boost::make_transform_iterator(ptrs._container.begin(), [](Ptr<U, cat>& ptr) { return PointerType{ std::move(ptr) }; }),
+                            boost::make_transform_iterator(ptrs._container.end(), [](Ptr<U, cat>& ptr) { return PointerType{ std::move(ptr) }; })
                         );
                     }
 
@@ -1843,11 +1902,25 @@ namespace ospf
                         typename U,
                         template<typename> class C1
                     >
+                        requires std::copy_constructible<PointerType> && std::convertible_to<PtrType<U>, PointerType>
                     inline constexpr RetType<IterType> insert(ArgCLRefType<ConstIterType> pos, const DynamicPointerArray<U, cat, C1>& ptrs)
                     {
                         return insert(pos,
                             boost::make_transform_iterator(ptrs._container.begin(), [](const Ptr<U, cat>& ptr) { return PointerType{ ptr }; }),
                             boost::make_transform_iterator(ptrs._container.end(), [](const Ptr<U, cat>& ptr) { return PointerType{ ptr }; })
+                        );
+                    }
+
+                    template<
+                        typename U,
+                        template<typename> class C1
+                    >
+                        requires std::convertible_to<PtrType<U>, PointerType>
+                    inline constexpr RetType<IterType> insert(ArgCLRefType<ConstIterType> pos, DynamicPointerArray<U, cat, C1>&& ptrs)
+                    {
+                        return insert(pos,
+                            boost::make_transform_iterator(ptrs._container.begin(), [](Ptr<U, cat>& ptr) { return PointerType{ std::move(ptr) }; }),
+                            boost::make_transform_iterator(ptrs._container.end(), [](Ptr<U, cat>& ptr) { return PointerType{ std::move(ptr) }; })
                         );
                     }
 
@@ -1868,11 +1941,25 @@ namespace ospf
                         typename U,
                         template<typename> class C1
                     >
+                        requires std::copy_constructible<PointerType> && std::convertible_to<PtrType<U>, PointerType>
                     inline constexpr RetType<UncheckedIterType> insert(ArgCLRefType<ConstUncheckedIterType> pos, const DynamicPointerArray<U, cat, C1>& ptrs)
                     {
                         return insert(pos,
                             boost::make_transform_iterator(ptrs._container.begin(), [](const Ptr<U, cat>& ptr) { return PointerType{ ptr }; }),
                             boost::make_transform_iterator(ptrs._container.end(), [](const Ptr<U, cat>& ptr) { return PointerType{ ptr }; })
+                        );
+                    }
+
+                    template<
+                        typename U,
+                        template<typename> class C1
+                    >
+                        requires std::convertible_to<PtrType<U>, PointerType>
+                    inline constexpr RetType<UncheckedIterType> insert(ArgCLRefType<ConstUncheckedIterType> pos, DynamicPointerArray<U, cat, C1>&& ptrs)
+                    {
+                        return insert(pos,
+                            boost::make_transform_iterator(ptrs._container.begin(), [](Ptr<U, cat>& ptr) { return PointerType{ std::move(ptr) }; }),
+                            boost::make_transform_iterator(ptrs._container.end(), [](Ptr<U, cat>& ptr) { return PointerType{ std::move(ptr) }; })
                         );
                     }
 
@@ -1984,12 +2071,25 @@ namespace ospf
                         usize len,
                         template<typename, usize> class C1
                     >
+                        requires std::copy_constructible<PointerType> && std::convertible_to<PtrType<U>, PointerType>
                     inline constexpr void push_back(const StaticPointerArray<U, len, cat, C1>& ptrs)
                     {
                         insert(this->end(), ptrs);
                     }
 
+                    template<
+                        typename U,
+                        usize len,
+                        template<typename, usize> class C1
+                    >
+                        requires std::convertible_to<PtrType<U>, PointerType>
+                    inline constexpr void push_back(StaticPointerArray<U, len, cat, C1>&& ptrs)
+                    {
+                        insert(this->end(), std::move(ptrs));
+                    }
+
                     template<template<typename> class C1>
+                        requires std::copy_constructible<PointerType>
                     inline constexpr void push_back(const DynamicPointerArray<ValueType, cat, C1>& ptrs)
                     {
                         insert(this->end(), ptrs);
@@ -2005,9 +2105,20 @@ namespace ospf
                         typename U,
                         template<typename> class C1
                     >
+                        requires std::copy_constructible<PointerType> && std::convertible_to<PtrType<U>, PointerType>
                     inline constexpr void push_back(const DynamicPointerArray<U, cat, C1>& ptrs)
                     {
                         insert(this->end(), ptrs);
+                    }
+
+                    template<
+                        typename U,
+                        template<typename> class C1
+                    >
+                        requires std::convertible_to<PtrType<U>, PointerType>
+                    inline constexpr void push_back(DynamicPointerArray<U, cat, C1>&& ptrs)
+                    {
+                        insert(this->end(), std::move(ptrs));
                     }
 
                     inline constexpr void emplace_back(const std::nullptr_t _)
@@ -2041,7 +2152,7 @@ namespace ospf
 
                     inline constexpr void push_front(const std::nullptr_t _)
                     {
-                        _container.insert(_container.begin(), nullptr);
+                        insert(this->begin(), nullptr);
                     }
 
                     template<typename = void>
@@ -2053,7 +2164,7 @@ namespace ospf
                     
                     inline constexpr void push_front(const PtrType<ValueType> ptr)
                     {
-                        _container.insert(_container.begin(), PointerType{ ptr });
+                        insert(this->begin(), PointerType{ ptr });
                     }
 
                     template<typename = void>
@@ -2065,7 +2176,7 @@ namespace ospf
 
                     inline constexpr void push_front(const CPtrType<ValueType> ptr)
                     {
-                        _container.insert(_container.begin(), PointerType{ ptr });
+                        insert(this->begin(), PointerType{ ptr });
                     }
 
                     template<typename = void>
@@ -2077,7 +2188,7 @@ namespace ospf
 
                     inline constexpr void push_front(ArgRRefType<PointerType> ptr)
                     {
-                        _container.insert(_container.begin(), move<PointerType>(ptr));
+                        insert(this->begin(), move<PointerType>(ptr));
                     }
 
                     template<typename = void>
@@ -2111,12 +2222,25 @@ namespace ospf
                         usize len,
                         template<typename, usize> class C1
                     >
+                        requires std::copy_constructible<PointerType> && std::convertible_to<PtrType<U>, PointerType>
                     inline constexpr void push_front(const StaticPointerArray<U, len, cat, C1>& ptrs)
                     {
                         insert(this->begin(), ptrs);
                     }
 
+                    template<
+                        typename U,
+                        usize len,
+                        template<typename, usize> class C1
+                    >
+                        requires std::convertible_to<PtrType<U>, PointerType>
+                    inline constexpr void push_front(StaticPointerArray<U, len, cat, C1>&& ptrs)
+                    {
+                        insert(this->begin(), std::move(ptrs));
+                    }
+
                     template<template<typename> class C1>
+                        requires std::copy_constructible<PointerType>
                     inline constexpr void push_front(const DynamicPointerArray<ValueType, cat, C1>& ptrs)
                     {
                         insert(this->begin(), ptrs);
@@ -2132,9 +2256,20 @@ namespace ospf
                         typename U,
                         template<typename> class C1
                     >
+                        requires std::copy_constructible<PointerType> && std::convertible_to<PtrType<U>, PointerType>
                     inline constexpr void push_front(const DynamicPointerArray<U, cat, C1>& ptrs)
                     {
                         insert(this->begin(), ptrs);
+                    }
+
+                    template<
+                        typename U,
+                        template<typename> class C1
+                    >
+                        requires std::convertible_to<PtrType<U>, PointerType>
+                    inline constexpr void push_front(DynamicPointerArray<U, cat, C1>&& ptrs)
+                    {
+                        insert(this->begin(), std::move(ptrs));
                     }
 
                     inline constexpr void emplace_front(const std::nullptr_t _)

@@ -852,12 +852,26 @@ namespace ospf
                     usize len,
                     template<typename, usize> class C1
                 >
-                    requires std::convertible_to<U, ValueType> && std::convertible_to<ospf::PtrType<U>, PtrType>
+                    requires std::convertible_to<U, ValueType> && std::convertible_to<PtrType<U>, PtrType<ValueType>>
                 inline constexpr void assign(const StaticValueOrReferenceArray<U, len, cat, C1>& refs)
                 {
                     assign(
                         boost::make_transform_iterator(refs._container.begin(), [](const ValOrRef<U, cat>& value) { return ValueOrReferenceType{ value }; }),
                         boost::make_transform_iterator(refs._container.end(), [](const ValOrRef<U, cat>& value) { return ValueOrReferenceType{ value }; })
+                    );
+                }
+
+                template<
+                    typename U,
+                    usize len,
+                    template<typename, usize> class C1
+                >
+                    requires std::convertible_to<U, ValueType> && std::convertible_to<PtrType<U>, PtrType<ValueType>>
+                inline constexpr void assign(StaticValueOrReferenceArray<U, len, cat, C1>&& refs)
+                {
+                    assign(
+                        boost::make_transform_iterator(refs._container.begin(), [](ValOrRef<U, cat>& value) { return ValueOrReferenceType{ std::move(value) }; }),
+                        boost::make_transform_iterator(refs._container.end(), [](ValOrRef<U, cat>& value) { return ValueOrReferenceType{ std::move(value) }; })
                     );
                 }
 
@@ -880,11 +894,26 @@ namespace ospf
                     usize len,
                     template<typename, usize> class C1
                 >
+                    requires std::convertible_to<U, ValueType> && std::convertible_to<PtrType<U>, PtrType<ValueType>>
                 inline constexpr void assign(const DynamicValueOrReferenceArray<U, cat, C1>& refs)
                 {
                     assign(
                         boost::make_transform_iterator(refs._container.begin(), [](const ValOrRef<U, cat>& value) { return ValueOrReferenceType{ value }; }),
                         boost::make_transform_iterator(refs._container.end(), [](const ValOrRef<U, cat>& value) { return ValueOrReferenceType{ value }; })
+                    );
+                }
+
+                template<
+                    typename U,
+                    usize len,
+                    template<typename, usize> class C1
+                >
+                    requires std::convertible_to<U, ValueType> && std::convertible_to<PtrType<U>, PtrType<ValueType>>
+                inline constexpr void assign(DynamicValueOrReferenceArray<U, cat, C1>&& refs)
+                {
+                    assign(
+                        boost::make_transform_iterator(refs._container.begin(), [](ValOrRef<U, cat>& value) { return ValueOrReferenceType{ std::move(value) }; }),
+                        boost::make_transform_iterator(refs._container.end(), [](ValOrRef<U, cat>& value) { return ValueOrReferenceType{ std::move(value) }; })
                     );
                 }
 
@@ -1068,11 +1097,26 @@ namespace ospf
                     usize len,
                     template<typename, usize> class C1
                 >
+                    requires std::convertible_to<U, ValueType> && std::convertible_to<PtrType<U>, PtrType<ValueType>>
                 inline constexpr RetType<IterType> insert(ArgCLRefType<ConstIterType> pos, const StaticValueOrReferenceArray<U, len, cat, C1>& refs)
                 {
                     return insert(pos,
                         boost::make_transform_iterator(refs._container.begin(), [](const ValOrRef<U, cat>& value) { return ValueOrReferenceType{ value }; }),
                         boost::make_transform_iterator(refs._container.end(), [](const ValOrRef<U, cat>& value) { return ValueOrReferenceType{ value }; })
+                    );
+                }
+
+                template<
+                    typename U,
+                    usize len,
+                    template<typename, usize> class C1
+                >
+                    requires std::convertible_to<U, ValueType> && std::convertible_to<PtrType<U>, PtrType<ValueType>>
+                inline constexpr RetType<IterType> insert(ArgCLRefType<ConstIterType> pos, StaticValueOrReferenceArray<U, len, cat, C1>&& refs)
+                {
+                    return insert(pos,
+                        boost::make_transform_iterator(refs._container.begin(), [](ValOrRef<U, cat>& value) { return ValueOrReferenceType{ std::move(value) }; }),
+                        boost::make_transform_iterator(refs._container.end(), [](ValOrRef<U, cat>& value) { return ValueOrReferenceType{ std::move(value) }; })
                     );
                 }
 
@@ -1092,11 +1136,25 @@ namespace ospf
                     typename U,
                     template<typename> class C1
                 >
+                    requires std::convertible_to<U, ValueType> && std::convertible_to<PtrType<U>, PtrType<ValueType>>
                 inline constexpr RetType<IterType> insert(ArgCLRefType<ConstIterType> pos, const DynamicValueOrReferenceArray<U, cat, C1>& refs)
                 {
                     return insert(pos,
                         boost::make_transform_iterator(refs._container.begin(), [](const ValOrRef<U, cat>& value) { return ValueOrReferenceType{ value }; }),
                         boost::make_transform_iterator(refs._container.end(), [](const ValOrRef<U, cat>& value) { return ValueOrReferenceType{ value }; })
+                    );
+                }
+
+                template<
+                    typename U,
+                    template<typename> class C1
+                >
+                    requires std::convertible_to<U, ValueType> && std::convertible_to<PtrType<U>, PtrType<ValueType>>
+                inline constexpr RetType<IterType> insert(ArgCLRefType<ConstIterType> pos, DynamicValueOrReferenceArray<U, cat, C1>&& refs)
+                {
+                    return insert(pos,
+                        boost::make_transform_iterator(refs._container.begin(), [](ValOrRef<U, cat>& value) { return ValueOrReferenceType{ std::move(value) }; }),
+                        boost::make_transform_iterator(refs._container.end(), [](ValOrRef<U, cat>& value) { return ValueOrReferenceType{ std::move(value) }; })
                     );
                 }
 
@@ -1216,9 +1274,21 @@ namespace ospf
                     usize len,
                     template<typename, usize> class C1
                 >
+                    requires std::convertible_to<U, ValueType> && std::convertible_to<PtrType<U>, PtrType<ValueType>>
                 inline constexpr void push_back(const StaticValueOrReferenceArray<U, len, cat, C1>& refs)
                 {
                     insert(this->end(), refs);
+                }
+
+                template<
+                    typename U,
+                    usize len,
+                    template<typename, usize> class C1
+                >
+                    requires std::convertible_to<U, ValueType> && std::convertible_to<PtrType<U>, PtrType<ValueType>>
+                inline constexpr void push_back(StaticValueOrReferenceArray<U, len, cat, C1>&& refs)
+                {
+                    insert(this->end(), std::move(refs));
                 }
 
                 template<template<typename> class C1>
@@ -1238,9 +1308,20 @@ namespace ospf
                     typename U,
                     template<typename> class C1
                 >
+                    requires std::convertible_to<U, ValueType> && std::convertible_to<PtrType<U>, PtrType<ValueType>>
                 inline constexpr void push_back(const DynamicValueOrReferenceArray<U, cat, C1>& refs)
                 {
                     insert(this->end(), refs);
+                }
+
+                template<
+                    typename U,
+                    template<typename> class C1
+                >
+                    requires std::convertible_to<U, ValueType> && std::convertible_to<PtrType<U>, PtrType<ValueType>>
+                inline constexpr void push_back(DynamicValueOrReferenceArray<U, cat, C1>&& refs)
+                {
+                    insert(this->end(), std::move(refs));
                 }
 
                 inline constexpr void push_back_value(ArgCLRefType<ValueType> value)
@@ -1322,9 +1403,21 @@ namespace ospf
                     usize len,
                     template<typename, usize> class C1
                 >
+                    requires std::convertible_to<U, ValueType> && std::convertible_to<PtrType<U>, PtrType<ValueType>>
                 inline constexpr void push_front(const StaticValueOrReferenceArray<U, len, cat, C1>& refs)
                 {
                     insert(this->begin(), refs);
+                }
+
+                template<
+                    typename U,
+                    usize len,
+                    template<typename, usize> class C1
+                >
+                    requires std::convertible_to<U, ValueType> && std::convertible_to<PtrType<U>, PtrType<ValueType>>
+                inline constexpr void push_front(StaticValueOrReferenceArray<U, len, cat, C1>&& refs)
+                {
+                    insert(this->begin(), std::move(refs));
                 }
 
                 template<template<typename> class C1>
@@ -1344,9 +1437,20 @@ namespace ospf
                     typename U,
                     template<typename> class C1
                 >
+                    requires std::convertible_to<U, ValueType> && std::convertible_to<PtrType<U>, PtrType<ValueType>>
                 inline constexpr void push_front(const DynamicValueOrReferenceArray<U, cat, C1>& refs)
                 {
                     insert(this->begin(), refs);
+                }
+
+                template<
+                    typename U,
+                    template<typename> class C1
+                >
+                    requires std::convertible_to<U, ValueType> && std::convertible_to<PtrType<U>, PtrType<ValueType>>
+                inline constexpr void push_front(DynamicValueOrReferenceArray<U, cat, C1>&& refs)
+                {
+                    insert(this->begin(), std::move(refs));
                 }
 
                 inline constexpr void push_front_value(ArgCLRefType<ValueType> value)

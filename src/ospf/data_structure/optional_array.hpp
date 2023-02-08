@@ -4,7 +4,8 @@
 #include <ospf/concepts/with_default.hpp>
 #include <ospf/literal_constant.hpp>
 #include <ospf/memory/reference.hpp>
-#include <ospf/functional/iterator.hpp>
+#include <ospf/functional/iterator.hpp>d
+#include <ospf/functional/optional.hpp>
 #include <boost/iterator/transform_iterator.hpp>
 
 namespace ospf
@@ -1170,6 +1171,12 @@ namespace ospf
                 using Impl = OptionalArrayImpl<T, C<std::optional<OriginType<T>>, len>, StaticOptionalArray<T, len, C>>;
                 using UncheckedAccessorImpl = OptionalArrayUncheckedAccessorImpl<T, C<std::optional<T>, len>, StaticOptionalArray<T, len, C>>;
 
+                template<
+                    typename T,
+                    template<typename> class C
+                >
+                friend class DynamicOptionalArray;
+
             public:
                 using typename Impl::ValueType;
                 using typename Impl::OptType;
@@ -1498,6 +1505,94 @@ namespace ospf
                     _container.assign(std::move(values));
                 }
 
+                template<
+                    usize len,
+                    template<typename, usize> class C1
+                >
+                    requires std::copy_constructible<OptType>
+                inline constexpr void assign(const StaticOptionalArray<ValueType, len, C1>& values)
+                {
+                    assign(values._container.begin(), values._container.end());
+                }
+
+                template<
+                    usize len,
+                    template<typename, usize> class C1
+                >
+                inline constexpr void assign(StaticOptionalArray<ValueType, len, C1>&& values)
+                {
+                    _container.clear();
+                    std::move(values._container.begin(), values._container.end(), std::back_inserter(_container));
+                }
+
+                template<
+                    typename U,
+                    usize len,
+                    template<typename, usize> class C1
+                >
+                    requires std::convertible_to<U, ValueType>
+                inline constexpr void assign(const StaticOptionalArray<U, len, C1>& values)
+                {
+                    assign(
+                        boost::make_transform_iterator(values._container.begin(), [](const std::optional<U>& opt) { return map<ValueType>(opt); }),
+                        boost::make_transform_iterator(values._container.end(), [](const std::optional<U>& opt) { return map<ValueType>(opt); })
+                    );
+                }
+
+                template<
+                    typename U,
+                    usize len,
+                    template<typename, usize> class C1
+                >
+                    requires std::convertible_to<U, ValueType>
+                inline constexpr void assign(StaticOptionalArray<U, len, C1>&& values)
+                {
+                    assign(
+                        boost::make_transform_iterator(values._container.begin(), [](std::optional<U>& opt) { return map<ValueType>(std::move(opt)); }),
+                        boost::make_transform_iterator(values._container.end(), [](std::optional<U>& opt) { return map<ValueType>(std::move(opt)); })
+                    );
+                }
+
+                template<template<typename> class C1>
+                    requires std::copy_constructible<OptType>
+                inline constexpr void assign(const DynamicOptionalArray<ValueType, C1>& values)
+                {
+                    assign(values._container.begin(), values._container.end());
+                }
+
+                template<template<typename> class C1>
+                inline constexpr void assign(DynamicOptionalArray<ValueType, C1>&& values)
+                {
+                    _container.clear();
+                    std::move(values._container.begin(), values._container.end(), std::back_inserter(_container));
+                }
+
+                template<
+                    typename U,
+                    template<typename> class C1
+                >
+                    requires std::convertible_to<U, ValueType>
+                inline constexpr void assign(const DynamicOptionalArray<U, C1>& values)
+                {
+                    assign(
+                        boost::make_transform_iterator(values._container.begin(), [](const std::optional<U>& opt) { return map<ValueType>(opt); }),
+                        boost::make_transform_iterator(values._container.end(), [](const std::optional<U>& opt) { return map<ValueType>(opt); })
+                    );
+                }
+
+                template<
+                    typename U,
+                    template<typename> class C1
+                >
+                    requires std::convertible_to<U, ValueType>
+                inline constexpr void assign(DynamicOptionalArray<U, C1>&& values)
+                {
+                    assign(
+                        boost::make_transform_iterator(values._container.begin(), [](std::optional<U>& opt) { return map<ValueType>(std::move(opt)); }),
+                        boost::make_transform_iterator(values._container.end(), [](std::optional<U>& opt) { return map<ValueType>(std::move(opt)); })
+                    );
+                }
+
             public:
                 inline constexpr UncheckedAccessorImpl unchecked(void) const noexcept
                 {
@@ -1633,7 +1728,7 @@ namespace ospf
                     requires requires (const It it) { { *it } -> DecaySameAs<OptType>; }
                 inline constexpr RetType<IterType> insert(ArgCLRefType<ConstIterType> pos, It&& first, It&& last)
                 {
-                    return IterType{ _container.insert(pos._iter, first, std::forward<It>(last)) };
+                    return IterType{ _container.insert(pos._iter, std::forward<It>(first), std::forward<It>(last)) };
                 }
 
                 template<std::input_iterator It>
@@ -1660,7 +1755,7 @@ namespace ospf
                     requires requires (const It it) { { *it } -> DecaySameAs<OptType>; }
                 inline constexpr RetType<UncheckedIterType> insert(ArgCLRefType<ConstUncheckedIterType> pos, It&& first, It&& last)
                 {
-                    return UncheckedIterType{ _container.insert(pos._iter, first, std::forward<It>(last)) };
+                    return UncheckedIterType{ _container.insert(pos._iter, std::forward<It>(first), std::forward<It>(last))};
                 }
 
                 inline constexpr RetType<IterType> insert(ArgCLRefType<ConstIterType> pos, std::initializer_list<ValueType> values)
@@ -1691,6 +1786,174 @@ namespace ospf
                 inline constexpr RetType<UncheckedIterType> insert(ArgCLRefType<ConstUncheckedIterType> pos, std::initializer_list<OptType> values)
                 {
                     return UncheckedIterType{ _container.insert(pos._iter, std::move(values)) };
+                }
+
+                template<
+                    usize len,
+                    template<typename, usize> class C1
+                >
+                inline constexpr RetType<IterType> insert(ArgCLRefType<ConstIterType> pos, const StaticOptionalArray<ValueType, len, C1>& values)
+                {
+                    return insert(pos, values._container.begin(), values._container.end());
+                }
+
+                template<
+                    usize len,
+                    template<typename, usize> class C1
+                >
+                inline constexpr RetType<IterType> insert(ArgCLRefType<ConstIterType> pos, StaticOptionalArray<ValueType, len, C1>&& values)
+                {
+                    return IterType{ std::move(values._container.begin(), values._container.end(), std::inserter(_container, pos._iter)) };
+                }
+
+                template<
+                    typename U,
+                    usize len,
+                    template<typename, usize> class C1
+                >
+                    requires std::convertible_to<U, ValueType>
+                inline constexpr RetType<IterType> insert(ArgCLRefType<ConstIterType> pos, const StaticOptionalArray<U, len, C1>& values)
+                {
+                    return insert(pos,
+                        boost::make_transform_iterator(values._container.begin(), [](const std::optional<U>& opt) { return map<ValueType>(opt); }),
+                        boost::make_transform_iterator(values._container.end(), [](const std::optional<U>& opt) { return map<ValueType>(opt); })
+                    );
+                }
+
+                template<
+                    typename U,
+                    usize len,
+                    template<typename, usize> class C1
+                >
+                    requires std::convertible_to<U, ValueType>
+                inline constexpr RetType<IterType> insert(ArgCLRefType<ConstIterType> pos, StaticOptionalArray<U, len, C1>&& values)
+                {
+                    return insert(pos,
+                        boost::make_transform_iterator(values._container.begin(), [](std::optional<U>& opt) { return map<ValueType>(std::move(opt)); }),
+                        boost::make_transform_iterator(values._container.end(), [](std::optional<U>& opt) { return map<ValueType>(std::move(opt)); })
+                    );
+                }
+
+                template<
+                    usize len,
+                    template<typename, usize> class C1
+                >
+                inline constexpr RetType<UncheckedIterType> insert(ArgCLRefType<ConstUncheckedIterType> pos, const StaticOptionalArray<ValueType, len, C1>& values)
+                {
+                    return insert(pos, values._container.begin(), values._container.end());
+                }
+
+                template<
+                    usize len,
+                    template<typename, usize> class C1
+                >
+                inline constexpr RetType<UncheckedIterType> insert(ArgCLRefType<ConstUncheckedIterType> pos, StaticOptionalArray<ValueType, len, C1>&& values)
+                {
+                    return IterType{ std::move(values._container.begin(), values._container.end(), std::inserter(_container, pos._iter)) };
+                }
+
+                template<
+                    typename U,
+                    usize len,
+                    template<typename, usize> class C1
+                >
+                    requires std::convertible_to<U, ValueType>
+                inline constexpr RetType<UncheckedIterType> insert(ArgCLRefType<ConstUncheckedIterType> pos, const StaticOptionalArray<U, len, C1>& values)
+                {
+                    return insert(pos,
+                        boost::make_transform_iterator(values._container.begin(), [](const std::optional<U>& opt) { return map<ValueType>(opt); }),
+                        boost::make_transform_iterator(values._container.end(), [](const std::optional<U>& opt) { return map<ValueType>(opt); })
+                    );
+                }
+                 
+                template<
+                    typename U,
+                    usize len,
+                    template<typename, usize> class C1
+                >
+                    requires std::convertible_to<U, ValueType>
+                inline constexpr RetType<UncheckedIterType> insert(ArgCLRefType<ConstUncheckedIterType> pos, StaticOptionalArray<U, len, C1>&& values)
+                {
+                    return insert(pos,
+                        boost::make_transform_iterator(values._container.begin(), [](std::optional<U>& opt) { return map<ValueType>(std::move(opt)); }),
+                        boost::make_transform_iterator(values._container.end(), [](std::optional<U>& opt) { return map<ValueType>(std::move(opt)); })
+                    );
+                }
+
+                template<template<typename> class C1>
+                inline constexpr RetType<IterType> insert(ArgCLRefType<ConstIterType> pos, const DynamicOptionalArray<ValueType, C1>& values)
+                {
+                    return insert(pos, values._container.begin(), values._container.end());
+                }
+
+                template<template<typename> class C1>
+                inline constexpr RetType<IterType> insert(ArgCLRefType<ConstIterType> pos, DynamicOptionalArray<ValueType, C1>&& values)
+                {
+                    return IterType{ std::move(values._container.begin(), values._container.end(), std::inserter(_container, pos._iter)) };
+                }
+
+                template<
+                    typename U,
+                    template<typename> class C1
+                >
+                    requires std::convertible_to<U, ValueType>
+                inline constexpr RetType<IterType> insert(ArgCLRefType<ConstIterType> pos, const DynamicOptionalArray<U, C1>& values)
+                {
+                    return insert(pos,
+                        boost::make_transform_iterator(values._container.begin(), [](const std::optional<U>& opt) { return map<ValueType>(opt); }),
+                        boost::make_transform_iterator(values._container.end(), [](const std::optional<U>& opt) { return map<ValueType>(opt); })
+                    );
+                }
+
+                template<
+                    typename U,
+                    template<typename> class C1
+                >
+                    requires std::convertible_to<U, ValueType>
+                inline constexpr RetType<IterType> insert(ArgCLRefType<ConstIterType> pos, DynamicOptionalArray<U, C1>&& values)
+                {
+                    return insert(pos,
+                        boost::make_transform_iterator(values._container.begin(), [](std::optional<U>& opt) { return map<ValueType>(std::move(opt)); }),
+                        boost::make_transform_iterator(values._container.end(), [](std::optional<U>& opt) { return map<ValueType>(std::move(opt)); })
+                    );
+                }
+
+                template<template<typename> class C1>
+                inline constexpr RetType<UncheckedIterType> insert(ArgCLRefType<ConstUncheckedIterType> pos, const DynamicOptionalArray<ValueType, C1>& values)
+                {
+                    return insert(pos, values._container.begin(), values._container.end());
+                }
+
+                template<template<typename> class C1>
+                inline constexpr RetType<UncheckedIterType> insert(ArgCLRefType<ConstUncheckedIterType> pos, DynamicOptionalArray<ValueType, C1>&& values)
+                {
+                    return IterType{ std::move(values._container.begin(), values._container.end(), std::inserter(_container, pos._iter)) };
+                }
+
+                template<
+                    typename U,
+                    template<typename> class C1
+                >
+                    requires std::convertible_to<U, ValueType>
+                inline constexpr RetType<UncheckedIterType> insert(ArgCLRefType<ConstUncheckedIterType> pos, const DynamicOptionalArray<U, C1>& values)
+                {
+                    return insert(pos,
+                        boost::make_transform_iterator(values._container.begin(), [](const std::optional<U>& opt) { return map<ValueType>(opt); }),
+                        boost::make_transform_iterator(values._container.end(), [](const std::optional<U>& opt) { return map<ValueType>(opt); })
+                    );
+                }
+
+                template<
+                    typename U,
+                    template<typename> class C1
+                >
+                    requires std::convertible_to<U, ValueType>
+                inline constexpr RetType<UncheckedIterType> insert(ArgCLRefType<ConstUncheckedIterType> pos, DynamicOptionalArray<U, C1>&& values)
+                {
+                    return insert(pos,
+                        boost::make_transform_iterator(values._container.begin(), [](std::optional<U>& opt) { return map<ValueType>(std::move(opt)); }),
+                        boost::make_transform_iterator(values._container.end(), [](std::optional<U>& opt) { return map<ValueType>(std::move(opt)); })
+                    );
                 }
 
                 inline constexpr RetType<IterType> emplace(ArgCLRefType<ConstIterType> pos, const std::nullopt_t _)
@@ -1766,6 +2029,78 @@ namespace ospf
                     _container.push_back(value);
                 }
 
+                template<
+                    usize len,
+                    template<typename, usize> class C1
+                >
+                inline constexpr void push_back(const StaticOptionalArray<ValueType, len, C1>& values)
+                {
+                    insert(this->end(), values);
+                }
+
+                template<
+                    usize len,
+                    template<typename, usize> class C1
+                >
+                inline constexpr void push_back(StaticOptionalArray<ValueType, len, C1>&& values)
+                {
+                    insert(this->end(), std::move(values));
+                }
+
+                template<
+                    typename U,
+                    usize len,
+                    template<typename, usize> class C1
+                >
+                    requires std::convertible_to<U, ValueType>
+                inline constexpr void push_back(const StaticOptionalArray<U, len, C1>& values)
+                {
+                    insert(this->end(), values);
+                }
+
+                template<
+                    typename U,
+                    usize len,
+                    template<typename, usize> class C1
+                >
+                    requires std::convertible_to<U, ValueType>
+                inline constexpr void push_back(StaticOptionalArray<U, len, C1>&& values)
+                {
+                    insert(this->end(), std::move(values));
+                }
+
+                template<template<typename> class C1>
+                inline constexpr void push_back(const DynamicOptionalArray<ValueType, C1>& values)
+                {
+                    insert(this->end(), values);
+                }
+
+                template<template<typename> class C1>
+                inline constexpr void push_back(DynamicOptionalArray<ValueType, C1>&& values)
+                {
+                    insert(this->end(), std::move(values));
+                }
+
+                template<
+                    typename U,
+                    template<typename> class C1
+                >
+                    requires std::convertible_to<U, ValueType>
+                inline constexpr void push_back(const DynamicOptionalArray<U, C1>& values)
+                {
+                    insert(this->end(), values);
+                }
+
+                template<
+                    typename U,
+                    template<typename> class C1
+                >
+                    requires std::convertible_to<U, ValueType>
+                inline constexpr void push_back(DynamicOptionalArray<U, C1>&& values)
+                {
+                    insert(this->end(), std::move(values));
+                }
+
                 inline constexpr LRefType<OptType> emplace_back(const std::nullopt_t _)
                 {
                     return _container.emplace_back(std::nullopt);
@@ -1787,7 +2122,7 @@ namespace ospf
 
                 inline constexpr void push_front(const std::nullopt_t _)
                 {
-                    _container.insert(_container.begin(), std::nullopt);
+                    insert(this->begin(), std::nullopt);
                 }
 
                 template<typename = void>
@@ -1799,7 +2134,7 @@ namespace ospf
 
                 inline constexpr void push_front(ArgCLRefType<ValueType> value)
                 {
-                    _container.insert(_container.begin(), OptType{ value });
+                    insert(this->begin(), OptType{ value });
                 }
 
                 template<typename = void>
@@ -1813,7 +2148,7 @@ namespace ospf
                     requires ReferenceFaster<ValueType> && std::movable<ValueType>
                 inline constexpr void push_front(ArgRRefType<ValueType> value)
                 {
-                    _container.insert(_container.begin(), OptType{ move<ValueType>(value) });
+                    insert(this->begin(), OptType{ move<ValueType>(value) });
                 }
 
                 template<typename = void>
@@ -1826,7 +2161,7 @@ namespace ospf
 
                 inline constexpr void push_front(ArgCLRefType<OptType> value)
                 {
-                    _container.insert(_container.begin(), value);
+                    insert(this->begin(), value);
                 }
 
                 template<typename = void>
@@ -1840,7 +2175,7 @@ namespace ospf
                     requires ReferenceFaster<OptType> && std::movable<OptType>
                 inline constexpr void push_front(ArgRRefType<OptType> value)
                 {
-                    _container.insert(_container.begin(), move<OptType>(value));
+                    insert(this->begin(), move<OptType>(value));
                 }
 
                 template<typename = void>
@@ -1849,6 +2184,78 @@ namespace ospf
                 inline constexpr void push_front(ArgRRefType<OptType> value)
                 {
                     _container.push_front(move<OptType>(value));
+                }
+
+                template<
+                    usize len,
+                    template<typename, usize> class C1
+                >
+                inline constexpr void push_front(const StaticOptionalArray<ValueType, len, C1>& values)
+                {
+                    insert(this->begin(), values);
+                }
+
+                template<
+                    usize len,
+                    template<typename, usize> class C1
+                >
+                inline constexpr void push_front(StaticOptionalArray<ValueType, len, C1>&& values)
+                {
+                    insert(this->begin(), std::move(values));
+                }
+
+                template<
+                    typename U,
+                    usize len,
+                    template<typename, usize> class C1
+                >
+                    requires std::convertible_to<U, ValueType>
+                inline constexpr void push_front(const StaticOptionalArray<U, len, C1>& values)
+                {
+                    insert(this->begin(), values);
+                }
+
+                template<
+                    typename U,
+                    usize len,
+                    template<typename, usize> class C1
+                >
+                    requires std::convertible_to<U, ValueType>
+                inline constexpr void push_front(StaticOptionalArray<U, len, C1>&& values)
+                {
+                    insert(this->begin(), std::move(values));
+                }
+
+                template<template<typename> class C1>
+                inline constexpr void push_front(const DynamicOptionalArray<ValueType, C1>& values)
+                {
+                    insert(this->begin(), values);
+                }
+
+                template<template<typename> class C1>
+                inline constexpr void push_front(DynamicOptionalArray<ValueType, C1>&& values)
+                {
+                    insert(this->begin(), std::move(values));
+                }
+
+                template<
+                    typename U,
+                    template<typename> class C1
+                >
+                    requires std::convertible_to<U, ValueType>
+                inline constexpr void push_front(const DynamicOptionalArray<U, C1>& values)
+                {
+                    insert(this->begin(), values);
+                }
+
+                template<
+                    typename U,
+                    template<typename> class C1
+                >
+                    requires std::convertible_to<U, ValueType>
+                inline constexpr void push_front(DynamicOptionalArray<U, C1>&& values)
+                {
+                    insert(this->begin(), std::move(values));
                 }
 
                 inline constexpr LRefType<OptType> emplace_front(const std::nullopt_t _)
