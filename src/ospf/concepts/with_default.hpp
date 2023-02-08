@@ -7,10 +7,10 @@ namespace ospf
 {
     inline namespace concepts
     {
-        template<typename T>
+        template<std::copy_constructible T>
         struct DefaultValue {};
 
-        template<typename T>
+        template<std::copy_constructible T>
             requires std::default_initializable<T>
         struct DefaultValue<T>
         {

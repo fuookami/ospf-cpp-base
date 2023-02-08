@@ -30,6 +30,11 @@ namespace ospf
                 return Types::length == 0_uz;
             }
 
+            inline constexpr const usize size(void) const noexcept
+            {
+                return Types::length;
+            }
+
             template<usize i>
                 requires (i < Types::length)
             inline constexpr decltype(auto) get(void) noexcept

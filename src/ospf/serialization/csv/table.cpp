@@ -3,6 +3,7 @@
 namespace ospf::data_structure::data_table
 {
     template class DataTable<std::optional<std::string>, dynamic_column, StoreType::Row>;
+    template class DataTable<std::optional<std::string_view>, dynamic_column, StoreType::Row>;
 
     template class DataTable<std::string, 1_uz, StoreType::Row>;
     template class DataTable<std::string, 2_uz, StoreType::Row>;
