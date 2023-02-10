@@ -280,7 +280,7 @@ namespace ospf
                 std::optional<NameTransfer> _transfer;
             };
 
-            // todo: deserialize from file / deserialize from string
+            // todo: deserialize from file (soft) / deserialize from string (soft)
         };
     };
 };

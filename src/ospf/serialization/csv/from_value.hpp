@@ -25,6 +25,7 @@ namespace ospf
             OSPF_BASE_API std::optional<f64> to_f64(const std::string_view value) noexcept;
 
             // todo: big int, decimal and chrono
+            // todo: impl for different character
 
             template<typename T>
             struct FromCSVValue;

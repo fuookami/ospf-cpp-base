@@ -149,6 +149,7 @@
     <ClInclude Include="src\ospf\serialization\nullable.hpp" />
     <ClInclude Include="src\ospf\string.hpp" />
     <ClInclude Include="src\ospf\string\hasher.hpp" />
+    <ClInclude Include="src\ospf\string\regex.hpp" />
     <ClInclude Include="src\ospf\string\split.hpp" />
     <ClInclude Include="src\ospf\system_info.hpp" />
     <ClInclude Include="src\ospf\type_family.hpp" />
@@ -182,6 +183,7 @@
     <ClCompile Include="src\ospf\serialization\json\io_json.cpp" />
     <ClCompile Include="src\ospf\serialization\json\to_value_json.cpp" />
     <ClCompile Include="src\ospf\string\hasher.cpp" />
+    <ClCompile Include="src\ospf\string\regex.cpp" />
     <ClCompile Include="src\ospf\system_info.cpp" />
     <ClCompile Include="src\ospf\uuid.cpp" />
   </ItemGroup>

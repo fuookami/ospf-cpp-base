@@ -3,6 +3,9 @@
 #include <ospf/serialization/csv/io.hpp>
 #include <ospf/serialization/csv/to_value.hpp>
 #include <ospf/meta_programming/type_info.hpp>
+#include <filesystem>
+#include <fstream>
+#include <sstream>
 
 namespace ospf
 {
@@ -94,7 +97,29 @@ namespace ospf
                 std::optional<NameTransfer> _transfer;
             };
 
-            // todo: serialize to file / serialize to string
+            template<typename T>
+            inline Try<> to_file(const std::filesystem::path& path, const T& obj) noexcept
+            {
+                // todo
+            }
+
+            template<typename T, usize len>
+            inline Try<> to_file(const std::filesystem::path& path, const std::span<T, len> objs) noexcept
+            {
+                // todo
+            }
+
+            template<typename T>
+            inline Result<std::string> to_string(const T& obj) noexcept
+            {
+                // todo
+            }
+
+            template<typename T, usize len>
+            inline Result<std::string> to_file(const std::span<T, len> objs) noexcept
+            {
+                // todo
+            }
         };
     };
 };

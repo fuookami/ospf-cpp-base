@@ -23,6 +23,7 @@ namespace ospf
             OSPF_BASE_API std::string from_f64(const f64 value) noexcept;
 
             // todo: big int, decimal and chrono
+            // todo: impl for different character
 
             template<typename T>
             struct ToCSVValue;

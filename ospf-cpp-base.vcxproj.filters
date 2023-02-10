@@ -477,6 +477,9 @@
     <ClInclude Include="src\ospf\serialization\json\concept.hpp">
       <Filter>src\ospf\serialization\json</Filter>
     </ClInclude>
+    <ClInclude Include="src\ospf\string\regex.hpp">
+      <Filter>src\ospf\string</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\ospf\system_info.cpp">
@@ -565,6 +568,9 @@
     </ClCompile>
     <ClCompile Include="src\ospf\log\record.cpp">
       <Filter>src\ospf\log</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ospf\string\regex.cpp">
+      <Filter>src\ospf\string</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

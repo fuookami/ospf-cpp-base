@@ -16,6 +16,8 @@ namespace ospf
         template<usize col>
         using ORMCSVViewTable = DataTable<col, DataTableConfig<StoreType::Row, off, on>, std::string_view>;
 
+        // todo: impl for different character
+
         namespace csv
         {
             template<WithMetaInfo T>
