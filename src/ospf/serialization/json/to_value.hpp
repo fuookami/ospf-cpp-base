@@ -55,14 +55,16 @@ namespace ospf
                     static const meta_info::MetaInfo<T> info{};
                     rapidjson::Value ret{ rapidjson::kObjectType };
                     std::optional<OSPFError> err;
-                    info.for_each(obj, [&value, &doc, &transfer](const auto& obj, const auto& field) 
+                    info.for_each(value, [&ret, &err, &doc, &transfer](const auto& obj, const auto& field)
                         {
+                            static_assert(SerializableToJson<decltype(field.value(obj))>);
+
                             if (err.has_value())
                             {
                                 return;
                             }
 
-                            const auto key = transfer.has_value() ? transfer(field.key()) : field.key();
+                            const auto key = transfer.has_value() ? (*transfer)(field.key()) : field.key();
                             const auto ToJsonValue<OriginType<decltype(field.value(obj))>> serializer{};
                             auto value = serializer(field.value(obj));
                             if (value.failed())

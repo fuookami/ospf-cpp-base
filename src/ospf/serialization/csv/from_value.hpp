@@ -54,7 +54,7 @@ namespace ospf
                             return *enum_value;
                         }
                     }
-                    return OSPFError{ OSPFErrCode::DeserializationFail, std::format("invalid value {} for enum {}", value, TypeInfo<T>::name()) };
+                    return OSPFError{ OSPFErrCode::DeserializationFail, std::format("invalid value \"{}\" for enum \"{}\"", value, TypeInfo<T>::name()) };
                 }
             };
 
@@ -89,7 +89,7 @@ namespace ospf
                     }
                     else
                     {
-                        return OSPFError{ OSPFErrCode::DeserializationFail, std::format("invalid value {} for bool", value) };
+                        return OSPFError{ OSPFErrCode::DeserializationFail, std::format("invalid value \"{}\" for bool", value) };
                     }
                 }
             };
@@ -106,7 +106,7 @@ namespace ospf
                     }
                     else
                     {
-                        return OSPFError{ OSPFErrCode::DeserializationFail, std::format("invalid value {} for u8", value) };
+                        return OSPFError{ OSPFErrCode::DeserializationFail, std::format("invalid value \"{}\" for u8", value) };
                     }
                 }
             };
@@ -123,7 +123,7 @@ namespace ospf
                     }
                     else
                     {
-                        return OSPFError{ OSPFErrCode::DeserializationFail, std::format("invalid value {} for i8", value) };
+                        return OSPFError{ OSPFErrCode::DeserializationFail, std::format("invalid value \"{}\" for i8", value) };
                     }
                 }
             };
@@ -140,7 +140,7 @@ namespace ospf
                     }
                     else
                     {
-                        return OSPFError{ OSPFErrCode::DeserializationFail, std::format("invalid value {} for u16", value) };
+                        return OSPFError{ OSPFErrCode::DeserializationFail, std::format("invalid value \"{}\" for u16", value) };
                     }
                 }
             };
@@ -157,7 +157,7 @@ namespace ospf
                     }
                     else
                     {
-                        return OSPFError{ OSPFErrCode::DeserializationFail, std::format("invalid value {} for i16", value) };
+                        return OSPFError{ OSPFErrCode::DeserializationFail, std::format("invalid value \"{}\" for i16", value) };
                     }
                 }
             };
@@ -174,7 +174,7 @@ namespace ospf
                     }
                     else
                     {
-                        return OSPFError{ OSPFErrCode::DeserializationFail, std::format("invalid value {} for u32", value) };
+                        return OSPFError{ OSPFErrCode::DeserializationFail, std::format("invalid value \"{}\" for u32", value) };
                     }
                 }
             };
@@ -191,7 +191,7 @@ namespace ospf
                     }
                     else
                     {
-                        return OSPFError{ OSPFErrCode::DeserializationFail, std::format("invalid value {} for i32", value) };
+                        return OSPFError{ OSPFErrCode::DeserializationFail, std::format("invalid value \"{}\" for i32", value) };
                     }
                 }
             };
@@ -208,7 +208,7 @@ namespace ospf
                     }
                     else
                     {
-                        return OSPFError{ OSPFErrCode::DeserializationFail, std::format("invalid value {} for u64", value) };
+                        return OSPFError{ OSPFErrCode::DeserializationFail, std::format("invalid value \"{}\" for u64", value) };
                     }
                 }
             };
@@ -225,7 +225,7 @@ namespace ospf
                     }
                     else
                     {
-                        return OSPFError{ OSPFErrCode::DeserializationFail, std::format("invalid value {} for i64", value) };
+                        return OSPFError{ OSPFErrCode::DeserializationFail, std::format("invalid value \"{}\" for i64", value) };
                     }
                 }
             };
@@ -242,7 +242,7 @@ namespace ospf
                     }
                     else
                     {
-                        return OSPFError{ OSPFErrCode::DeserializationFail, std::format("invalid value {} for f32", value) };
+                        return OSPFError{ OSPFErrCode::DeserializationFail, std::format("invalid value \"{}\" for f32", value) };
                     }
                 }
             };
@@ -259,7 +259,7 @@ namespace ospf
                     }
                     else
                     {
-                        return OSPFError{ OSPFErrCode::DeserializationFail, std::format("invalid value {} for f64", value) };
+                        return OSPFError{ OSPFErrCode::DeserializationFail, std::format("invalid value \"{}\" for f64", value) };
                     }
                 }
             };
