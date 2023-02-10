@@ -28,9 +28,9 @@ namespace ospf
             struct ToCSVValue;
 
             template<typename T>
-            concept SerializableToCSV = requires
+            concept SerializableToCSV = requires (const ToCSVValue<T> serializer)
             {
-                { ToCSVValue<T>{}(std::declval<T>()) } -> DecaySameAs<Result<std::string>>;
+                { serializer(std::declval<T>()) } -> DecaySameAs<Result<std::string>>;
             };
 
             template<EnumType T>
@@ -38,7 +38,7 @@ namespace ospf
             {
                 inline Result<std::string> operator()(const T value) const noexcept
                 {
-                    return magic_enum::enum_name<T>(value);
+                    return to_string(value);
                 }
             };
 
@@ -139,6 +139,24 @@ namespace ospf
                 inline Result<std::string> operator()(const i64 value) const noexcept
                 {
                     return from_i64(value);
+                }
+            };
+
+            template<>
+            struct ToCSVValue<f32>
+            {
+                inline Result<std::string> operator()(const f32 value) const noexcept
+                {
+                    return from_f32(value);
+                }
+            };
+
+            template<>
+            struct ToCSVValue<f64>
+            {
+                inline Result<std::string> operator()(const f64 value) const noexcept
+                {
+                    return from_f64(value);
                 }
             };
 

@@ -30,9 +30,9 @@ namespace ospf
             struct FromCSVValue;
 
             template<typename T>
-            concept DeserializableFromCSV = requires
+            concept DeserializableFromCSV = requires (const FromCSVValue<T> deserializer)
             {
-                { FromCSVValue<T>{}(std::declval<std::string_view>()) } -> DecaySameAs<Result<T>>;
+                { deserializer(std::declval<std::string_view>()) } -> DecaySameAs<Result<T>>;
             };
 
             template<EnumType T>
@@ -48,7 +48,11 @@ namespace ospf
                     const auto int_value = to_u64(value);
                     if (int_value.has_value())
                     {
-                        return static_cast<T>(value);
+                        const auto enum_value = magic_enum::enum_cast<T>(int_value);
+                        if (enum_value.has_value())
+                        {
+                            return *enum_value;
+                        }
                     }
                     return OSPFError{ OSPFErrCode::DeserializationFail, std::format("invalid value {} for enum {}", value, TypeInfo<T>::name()) };
                 }

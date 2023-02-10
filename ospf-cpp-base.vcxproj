@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -138,6 +138,7 @@
     <ClInclude Include="src\ospf\serialization\csv\to_value.hpp" />
     <ClInclude Include="src\ospf\serialization\dto.hpp" />
     <ClInclude Include="src\ospf\serialization\json.hpp" />
+    <ClInclude Include="src\ospf\serialization\json\concept.hpp" />
     <ClInclude Include="src\ospf\serialization\json\deserializer.hpp" />
     <ClInclude Include="src\ospf\serialization\json\from_value.hpp" />
     <ClInclude Include="src\ospf\serialization\json\get_child.hpp" />
@@ -237,10 +238,10 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>$(SolutionDir)3rd-party\magic_enum\include;$(SolutionDir)src;$(JAVA_HOME)\include\win32;$(JAVA_HOME)\include;$(BOOST_HOME)\include;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)3rd-party\rapidjson\include;$(SolutionDir)3rd-party\magic_enum\include;$(SolutionDir)src;$(JAVA_HOME)\include\win32;$(JAVA_HOME)\include;$(BOOST_HOME)\include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>$(SolutionDir)3rd-party\magic_enum\include;$(SolutionDir)src;$(JAVA_HOME)\include\win32;$(JAVA_HOME)\include;$(BOOST_HOME)\include;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)3rd-party\rapidjson\include;$(SolutionDir)3rd-party\magic_enum\include;$(SolutionDir)src;$(JAVA_HOME)\include\win32;$(JAVA_HOME)\include;$(BOOST_HOME)\include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>

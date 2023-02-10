@@ -60,6 +60,8 @@ namespace ospf
                     std::optional<OSPFError> err;
                     info.for_each(obj, [this, &row, &err](const auto& obj, const auto& field) 
                         {
+                            static_assert(SerializableToCSV<OriginType<decltype(field.value(obj))>>);
+
                             if (err.has_value())
                             {
                                 return;
@@ -70,7 +72,7 @@ namespace ospf
                             auto value = serializer(field.value(obj));
                             if (value.failed())
                             {
-                                err = OSPFError{ OSPFErrCode::SerializationFail, std::format("failed serializing field \"{}\" for type {}, {}", field.key(), TypeInfo<ValueType>::name(), value.err().message())};
+                                err = OSPFError{ OSPFErrCode::SerializationFail, std::format("failed serializing field \"{}\" for type \"{}\", {}", field.key(), TypeInfo<ValueType>::name(), value.err().message())};
                             }
                             else
                             {

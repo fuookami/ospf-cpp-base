@@ -199,8 +199,9 @@ namespace ospf
                 inline Try<> deserialize(T& obj, const meta_info::MetaInfo<T>& info, const std::span<const std::optional<S>, len> row, const ColumnMap& column_map) const noexcept
                 {
                     std::optional<OSPFError> err;
-                    info.for_each(obj, [this, row, &column_map, err] (auto& obj, const auto& field)
+                    info.for_each(obj, [this, row, &column_map, err](auto& obj, const auto& field)
                         {
+                            static_assert(DeserializableFromCSV<OriginType<decltype(field.value(obj))>>);
                             if constexpr (!field.writable())
                             {
                                 return;
