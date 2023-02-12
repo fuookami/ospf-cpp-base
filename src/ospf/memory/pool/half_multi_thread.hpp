@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <ospf/memory/pool/concept.hpp>
 #include <ospf/memory/reference.hpp>

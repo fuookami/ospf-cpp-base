@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <ospf/functional/either.hpp>
 #include <ospf/functional/integer_iterator.hpp>

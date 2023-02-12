@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <ospf/data_structure/multi_array/concepts.hpp>
 #include <ospf/data_structure/multi_array/impl.hpp>

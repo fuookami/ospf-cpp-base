@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <ospf/concepts/copy_faster.hpp>
 #include <type_traits>

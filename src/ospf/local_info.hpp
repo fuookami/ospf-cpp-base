@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <ospf/basic_definition.hpp>
 #include <magic_enum.hpp>

@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <ospf/functional/result.hpp>
 #include <ospf/serialization/csv/table.hpp>

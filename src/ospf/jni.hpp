@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #ifdef OSPF_USE_JNI
 #include "jni/jstring.hpp"

@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <ospf/functional/either.hpp>
 #include <ospf/meta_programming/type_info.hpp>
@@ -10,6 +10,7 @@ namespace ospf
     {
         namespace data_table
         {
+            template<typename CharT>
             class DataTableHeader
             {
                 using Either = functional::Either<std::type_index, std::set<std::type_index>>;
@@ -18,19 +19,19 @@ namespace ospf
                 DataTableHeader(void)
                     : _name(""), _type(std::nullopt) {}
 
-                DataTableHeader(std::string name, const std::type_index type)
+                DataTableHeader(std::basic_string<CharT> name, const std::type_index type)
                     : _name(std::move(name)), _type(Either::left(type)) {}
 
-                DataTableHeader(std::string name, std::set<std::type_index> type)
+                DataTableHeader(std::basic_string<CharT> name, std::set<std::type_index> type)
                     : _name(std::move(name)), _type(Either::right(std::move(type))) {}
                 
                 template<std::forward_iterator It>
                     requires requires (const It& it) { { *it } -> DecaySameAs<std::type_index>; }
-                DataTableHeader(std::string name, It&& first, It&& last)
+                DataTableHeader(std::basic_string<CharT> name, It&& first, It&& last)
                     : DataTableHeader(std::move(name), std::set<std::type_index>{ std::forward<It>(first), std::forward<It>(last) }) {}
 
                 template<std::ranges::range R>
-                DataTableHeader(std::string name, const R& r)
+                DataTableHeader(std::basic_string<CharT> name, const R& r)
                     : DataTableHeader(std::move(name), std::set<std::type_index>{ std::ranges::begin(r), std::ranges::end(r) }) {}
 
             public:
@@ -41,7 +42,7 @@ namespace ospf
                 ~DataTableHeader(void) = default;
 
             public:
-                inline const std::string_view name(void) const noexcept
+                inline const std::basic_string_view<CharT> name(void) const noexcept
                 {
                     return _name;
                 }
@@ -163,11 +164,11 @@ namespace ospf
                 }
 
             public:
-                inline std::string to_string(void) const noexcept
+                inline std::basic_string<CharT> to_string(void) const noexcept
                 {
                     if (_type.has_value())
                     {
-                        return std::visit([this](const auto& type) -> std::string
+                        return std::visit([this](const auto& type) -> std::basic_string<CharT>
                             {
                                 if constexpr (DecaySameAs<decltype(type), std::type_index>)
                                 {
@@ -208,7 +209,7 @@ namespace ospf
                 }
 
             private:
-                std::string _name;
+                std::basic_string<CharT> _name;
                 std::optional<Either> _type;
             };
         };
@@ -217,19 +218,20 @@ namespace ospf
 
 namespace std
 {
-    inline std::string to_string(const ospf::data_table::DataTableHeader& header) noexcept
+    template<typename CharT>
+    inline std::basic_string<CharT> to_string(const ospf::data_table::DataTableHeader<CharT>& header) noexcept
     {
         return header.to_string();
     }
 
     template<typename CharT>
-    struct formatter<ospf::data_table::DataTableHeader, CharT>
-        : public formatter<string_view, CharT>
+    struct formatter<ospf::data_table::DataTableHeader<CharT>, CharT>
+        : public formatter<basic_string_view<CharT>, CharT>
     {
         template<typename FormatContext>
-        inline decltype(auto) format(const ospf::data_table::DataTableHeader& value, FormatContext& fc)
+        inline decltype(auto) format(const ospf::data_table::DataTableHeader<CharT>& value, FormatContext& fc)
         {
-            static const auto _formatter = formatter<string_view, CharT>{};
+            static const auto _formatter = formatter<basic_string_view<CharT>, CharT>{};
             return _formatter.format(value.to_string(), fc);
         }
     };

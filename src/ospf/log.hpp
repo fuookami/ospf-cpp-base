@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <ospf/log/level.hpp>
 #include <ospf/log/record.hpp>

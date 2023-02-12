@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #ifndef OSPF_BASE_MULTI_THREAD
 #ifdef OSPF_MULTI_THREAD

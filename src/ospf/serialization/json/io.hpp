@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <ospf/functional/result.hpp>
 #include <rapidjson/document.h>

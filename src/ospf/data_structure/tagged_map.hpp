@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <ospf/concepts/with_tag.hpp>
 #include <ospf/memory/reference.hpp>

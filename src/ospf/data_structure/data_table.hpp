@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <ospf/data_structure/data_table/dynamic_column.hpp>
 #include <ospf/data_structure/data_table/static_column.hpp>

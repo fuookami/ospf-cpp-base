@@ -1,4 +1,4 @@
-#include <boost/config.hpp>
+﻿#include <boost/config.hpp>
 
 #ifdef BOOST_MSVC
 #ifdef OSPF_DYN_LINK

@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <ospf/system_info.hpp>
 #include <concepts>

@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #ifndef OSPF_BASE_API
 #if defined(_WINDLL) & defined(OSPF_BASE_LIB)

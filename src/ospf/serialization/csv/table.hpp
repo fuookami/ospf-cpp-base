@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <ospf/data_structure/data_table.hpp>
 #include <ospf/meta_programming/meta_info.hpp>
@@ -19,8 +19,6 @@ namespace ospf
 
         template<usize col, typename CharT = char>
         using ORMCSVViewTable = DataTable<col, DataTableConfig<StoreType::Row, off, on>, std::basic_string_view<CharT>>;
-
-        // todo: impl for different character
 
         namespace csv
         {
@@ -61,7 +59,7 @@ namespace ospf
                 info.for_each([&header, &transfer](const auto& field)
                     {
                         header[i] = transfer.has_value() ? (*transfer)(field.key()) : field.key();
-                        ++i;
+                ++i;
                     });
                 return header;
             }

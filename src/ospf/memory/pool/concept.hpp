@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <ospf/memory/pointer.hpp>
 #include <ospf/meta_programming/named_flag.hpp>

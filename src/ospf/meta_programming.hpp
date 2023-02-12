@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <ospf/meta_programming/crtp.hpp>
 #include <ospf/meta_programming/function_trait.hpp>

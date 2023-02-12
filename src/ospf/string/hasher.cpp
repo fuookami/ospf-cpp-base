@@ -1,4 +1,4 @@
-#include <ospf/string/hasher.hpp>
+﻿#include <ospf/string/hasher.hpp>
 
 namespace ospf::string
 {

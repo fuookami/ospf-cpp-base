@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <ospf/ospf_base_api.hpp>
 #include <ospf/basic_definition.hpp>

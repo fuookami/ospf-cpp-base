@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <ospf/concepts.hpp>
 #include <ospf/type_family.hpp>

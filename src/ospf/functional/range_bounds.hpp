@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 
 #include <ospf/functional/integer_iterator.hpp>
 #include <ospf/memory/reference.hpp>
@@ -723,12 +723,12 @@ namespace ospf
         extern template class RangeBounds<isize>;
 
         // DSL:
-        // 1.full:         _ To _    -> (-¡Þ, ¡Þ)
-        // 2.from:         a To _    -> [a,   ¡Þ)
-        // 3.to:           _ To b    -> (-¡Þ, b)
+        // 1.full:         _ To _    -> (-Â¡Ãž, Â¡Ãž)
+        // 2.from:         a To _    -> [a,   Â¡Ãž)
+        // 3.to:           _ To b    -> (-Â¡Ãž, b)
         // 4.range:        a To b    -> [a,   b)
         // 5.inclusive:    a Until b -> [a,   b]
-        // 6.to_inclusive: _ Until b -> (-¡Þ, b]
+        // 6.to_inclusive: _ Until b -> (-Â¡Ãž, b]
 
         namespace range_bounds
         {

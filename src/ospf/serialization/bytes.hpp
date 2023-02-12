@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <ospf/serialization/bytes/header.hpp>
 #include <ospf/serialization/bytes/from_value.hpp>

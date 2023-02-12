@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <ospf/memory/reference/raw.hpp>
 #include <ospf/memory/reference/borrow.hpp>

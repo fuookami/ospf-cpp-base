@@ -405,12 +405,6 @@
     <ClInclude Include="src\ospf\serialization\json\io.hpp">
       <Filter>src\ospf\serialization\json</Filter>
     </ClInclude>
-    <ClInclude Include="src\ospf\serialization\json\get_child.hpp">
-      <Filter>src\ospf\serialization\json</Filter>
-    </ClInclude>
-    <ClInclude Include="src\ospf\serialization\json\has_child.hpp">
-      <Filter>src\ospf\serialization\json</Filter>
-    </ClInclude>
     <ClInclude Include="src\ospf\serialization\json.hpp">
       <Filter>src\ospf\serialization</Filter>
     </ClInclude>
@@ -549,9 +543,6 @@
       <Filter>src\ospf\serialization\json</Filter>
     </ClCompile>
     <ClCompile Include="src\ospf\serialization\json\to_value_json.cpp">
-      <Filter>src\ospf\serialization\json</Filter>
-    </ClCompile>
-    <ClCompile Include="src\ospf\serialization\json\get_child_json.cpp">
       <Filter>src\ospf\serialization\json</Filter>
     </ClCompile>
     <ClCompile Include="src\ospf\serialization\bytes\io_bytes.cpp">

@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <ospf/config.hpp>
 #include <ospf/memory/pool/single_thread.hpp>

@@ -1,4 +1,4 @@
-#include <ospf/parallelism/guard_thread.hpp>
+﻿#include <ospf/parallelism/guard_thread.hpp>
 
 namespace ospf::parallelism
 {

@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <ospf/serialization/json/io.hpp>
 #include <ospf/serialization/json/to_value.hpp>

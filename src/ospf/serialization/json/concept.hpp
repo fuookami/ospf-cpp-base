@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <ospf/exception.hpp>
 #include <rapidjson/document.h>

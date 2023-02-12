@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <ospf/data_structure/multi_array/dummy_index.hpp>
 

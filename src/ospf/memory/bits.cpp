@@ -1,4 +1,4 @@
-#include <ospf/memory/bits.hpp>
+﻿#include <ospf/memory/bits.hpp>
 
 namespace ospf::memory::bits
 {

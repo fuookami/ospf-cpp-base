@@ -141,8 +141,6 @@
     <ClInclude Include="src\ospf\serialization\json\concept.hpp" />
     <ClInclude Include="src\ospf\serialization\json\deserializer.hpp" />
     <ClInclude Include="src\ospf\serialization\json\from_value.hpp" />
-    <ClInclude Include="src\ospf\serialization\json\get_child.hpp" />
-    <ClInclude Include="src\ospf\serialization\json\has_child.hpp" />
     <ClInclude Include="src\ospf\serialization\json\io.hpp" />
     <ClInclude Include="src\ospf\serialization\json\serializer.hpp" />
     <ClInclude Include="src\ospf\serialization\json\to_value.hpp" />
@@ -179,7 +177,6 @@
     <ClCompile Include="src\ospf\serialization\csv\to_value_csv.cpp" />
     <ClCompile Include="src\ospf\serialization\csv\table.cpp" />
     <ClCompile Include="src\ospf\serialization\json\from_value_json.cpp" />
-    <ClCompile Include="src\ospf\serialization\json\get_child_json.cpp" />
     <ClCompile Include="src\ospf\serialization\json\to_value_json.cpp" />
     <ClCompile Include="src\ospf\string\hasher.cpp" />
     <ClCompile Include="src\ospf\string\regex.cpp" />

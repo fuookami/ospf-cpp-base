@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <ospf/data_structure/multi_array/shape.hpp>
 #include <ospf/functional/integer_iterator.hpp>

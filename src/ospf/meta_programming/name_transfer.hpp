@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <ospf/string.hpp>
 #include <ospf/meta_programming/name_transfer/frontend.hpp>

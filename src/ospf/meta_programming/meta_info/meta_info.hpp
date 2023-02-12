@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <ospf/functional/sequence_tuple.hpp>
 #include <ospf/meta_programming/meta_info/meta_item.hpp>

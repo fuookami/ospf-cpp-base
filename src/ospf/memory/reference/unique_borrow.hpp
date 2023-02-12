@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <ospf/memory/reference/impl.hpp>
 #include <ospf/memory/reference/category.hpp>

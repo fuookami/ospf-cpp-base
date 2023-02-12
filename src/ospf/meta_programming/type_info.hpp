@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <ospf/string/split.hpp>
 #include <typeinfo>

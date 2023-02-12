@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <ospf/data_structure/store_type.hpp>
 #include <ospf/meta_programming/variable_type_list.hpp>

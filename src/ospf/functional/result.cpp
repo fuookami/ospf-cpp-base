@@ -1,4 +1,4 @@
-#include <ospf/functional/result.hpp>
+﻿#include <ospf/functional/result.hpp>
 
 namespace ospf::functional
 {

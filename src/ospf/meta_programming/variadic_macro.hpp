@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #ifndef OSPF_PP_VARIADIC_MACRO
 #define OSPF_PP_VARIADIC_MACRO

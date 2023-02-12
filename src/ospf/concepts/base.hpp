@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <magic_enum.hpp>
 #include <type_traits>

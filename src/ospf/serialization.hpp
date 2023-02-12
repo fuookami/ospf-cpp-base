@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <ospf/serialization/bytes.hpp>
 #include <ospf/serialization/csv.hpp>

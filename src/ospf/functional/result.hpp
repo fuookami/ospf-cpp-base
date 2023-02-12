@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <ospf/error.hpp>
 #include <ospf/functional/either.hpp>

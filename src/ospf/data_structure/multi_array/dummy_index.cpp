@@ -1,4 +1,4 @@
-#include <ospf/data_structure/multi_array/dummy_index.hpp>
+﻿#include <ospf/data_structure/multi_array/dummy_index.hpp>
 
 namespace ospf::data_structure::multi_array::dummy_index
 {

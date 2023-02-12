@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <ospf/error.hpp>
 #include <ospf/meta_programming/crtp.hpp>
