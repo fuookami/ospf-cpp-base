@@ -139,7 +139,7 @@ namespace ospf
                 inline constexpr LRefType<ValueType> get(ArgCLRefType<VectorViewType> vector)
                 {
                     const auto index = shape().index(vector);
-                    if (index.failed())
+                    if (index.is_failed())
                     {
                         throw OSPFException{ std::move(index).err() };
                     }
@@ -149,7 +149,7 @@ namespace ospf
                 inline constexpr CLRefType<ValueType> get(ArgCLRefType<VectorViewType> vector) const
                 {
                     const auto index = shape().index(vector);
-                    if (index.failed())
+                    if (index.is_failed())
                     {
                         throw OSPFException{ std::move(index).err() };
                     }

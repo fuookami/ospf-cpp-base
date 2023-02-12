@@ -25,17 +25,17 @@ namespace ospf
             // todo: big int, decimal and chrono
             // todo: impl for different character
 
-            template<typename T>
+            template<typename T, typename CharT>
             struct ToCSVValue;
 
-            template<typename T>
-            concept SerializableToCSV = requires (const ToCSVValue<T> serializer)
+            template<typename T, typename CharT>
+            concept SerializableToCSV = requires (const ToCSVValue<T, CharT>& serializer)
             {
-                { serializer(std::declval<T>()) } -> DecaySameAs<Result<std::string>>;
+                { serializer(std::declval<T>()) } -> DecaySameAs<Result<std::basic_string<CharT>>>;
             };
 
             template<EnumType T>
-            struct ToCSVValue<T>
+            struct ToCSVValue<T, char>
             {
                 inline Result<std::string> operator()(const T value) const noexcept
                 {
@@ -45,7 +45,7 @@ namespace ospf
 
             template<typename T>
                 requires (std::convertible_to<T, std::string> || std::convertible_to<T, std::string_view>)
-            struct ToCSVValue<T>
+            struct ToCSVValue<T, char>
             {
                 inline Result<std::string> operator()(ArgCLRefType<T> value) const noexcept
                 {
@@ -63,7 +63,7 @@ namespace ospf
             // todo: optional, ptr, variant, either, val/ref
 
             template<>
-            struct ToCSVValue<bool>
+            struct ToCSVValue<bool, char>
             {
                 inline Result<std::string> operator()(const bool value) const noexcept
                 {
@@ -72,7 +72,7 @@ namespace ospf
             };
 
             template<>
-            struct ToCSVValue<u8>
+            struct ToCSVValue<u8, char>
             {
                 inline Result<std::string> operator()(const u8 value) const noexcept
                 {
@@ -81,7 +81,7 @@ namespace ospf
             };
 
             template<>
-            struct ToCSVValue<i8>
+            struct ToCSVValue<i8, char>
             {
                 inline Result<std::string> operator()(const i8 value) const noexcept
                 {
@@ -90,7 +90,7 @@ namespace ospf
             };
 
             template<>
-            struct ToCSVValue<u16>
+            struct ToCSVValue<u16, char>
             {
                 inline Result<std::string> operator()(const u16 value) const noexcept
                 {
@@ -99,7 +99,7 @@ namespace ospf
             };
 
             template<>
-            struct ToCSVValue<i16>
+            struct ToCSVValue<i16, char>
             {
                 inline Result<std::string> operator()(const i16 value) const noexcept
                 {
@@ -108,7 +108,7 @@ namespace ospf
             };
 
             template<>
-            struct ToCSVValue<u32>
+            struct ToCSVValue<u32, char>
             {
                 inline Result<std::string> operator()(const u32 value) const noexcept
                 {
@@ -117,7 +117,7 @@ namespace ospf
             };
 
             template<>
-            struct ToCSVValue<i32>
+            struct ToCSVValue<i32, char>
             {
                 inline Result<std::string> operator()(const i32 value) const noexcept
                 {
@@ -126,7 +126,7 @@ namespace ospf
             };
 
             template<>
-            struct ToCSVValue<u64>
+            struct ToCSVValue<u64, char>
             {
                 inline Result<std::string> operator()(const u64 value) const noexcept
                 {
@@ -135,7 +135,7 @@ namespace ospf
             };
 
             template<>
-            struct ToCSVValue<i64>
+            struct ToCSVValue<i64, char>
             {
                 inline Result<std::string> operator()(const i64 value) const noexcept
                 {
@@ -144,7 +144,7 @@ namespace ospf
             };
 
             template<>
-            struct ToCSVValue<f32>
+            struct ToCSVValue<f32, char>
             {
                 inline Result<std::string> operator()(const f32 value) const noexcept
                 {
@@ -153,7 +153,7 @@ namespace ospf
             };
 
             template<>
-            struct ToCSVValue<f64>
+            struct ToCSVValue<f64, char>
             {
                 inline Result<std::string> operator()(const f64 value) const noexcept
                 {
@@ -162,7 +162,7 @@ namespace ospf
             };
 
             template<>
-            struct ToCSVValue<std::string>
+            struct ToCSVValue<std::string, char>
             {
                 inline Result<std::string> operator()(const std::string& value) const noexcept
                 {
@@ -171,7 +171,7 @@ namespace ospf
             };
 
             template<>
-            struct ToCSVValue<std::string_view>
+            struct ToCSVValue<std::string_view, char>
             {
                 inline Result<std::string> operator()(const std::string_view value) const noexcept
                 {

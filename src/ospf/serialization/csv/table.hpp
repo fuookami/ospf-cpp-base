@@ -2,54 +2,61 @@
 
 #include <ospf/data_structure/data_table.hpp>
 #include <ospf/meta_programming/meta_info.hpp>
+#include <ospf/meta_programming/name_transfer.hpp>
 
 namespace ospf
 {
     inline namespace serialization
     {
-        using CSVTable = DynDataTable<DataTableConfig<StoreType::Row, on, on>, std::string>;
-        using CSVViewTable = DynDataTable<DataTableConfig<StoreType::Row, on, on>, std::string_view>;
+        template<typename CharT = char>
+        using CSVTable = DynDataTable<DataTableConfig<StoreType::Row, on, on>, std::basic_string<CharT>>;
 
-        template<usize col>
-        using ORMCSVTable = DataTable<col, DataTableConfig<StoreType::Row, off, on>, std::string>;
+        template<typename CharT = char>
+        using CSVViewTable = DynDataTable<DataTableConfig<StoreType::Row, on, on>, std::basic_string_view<CharT>>;
 
-        template<usize col>
-        using ORMCSVViewTable = DataTable<col, DataTableConfig<StoreType::Row, off, on>, std::string_view>;
+        template<usize col, typename CharT = char>
+        using ORMCSVTable = DataTable<col, DataTableConfig<StoreType::Row, off, on>, std::basic_string<CharT>>;
+
+        template<usize col, typename CharT = char>
+        using ORMCSVViewTable = DataTable<col, DataTableConfig<StoreType::Row, off, on>, std::basic_string_view<CharT>>;
 
         // todo: impl for different character
 
         namespace csv
         {
-            template<WithMetaInfo T>
+            template<typename CharT>
+            using NameTransfer = std::function<const std::basic_string_view<CharT>(const std::basic_string_view<CharT>)>;
+
+            template<WithMetaInfo T, typename CharT>
             struct ORMCSVTrait
             {
                 inline static constexpr const usize col = meta_info::MetaInfo<T>{}.size();
-                using HeaderType = std::array<std::string_view, col>;
-                using RowType = std::array<std::string, col>;
-                using RowViewType = std::array<std::string_view, col>;
-                using TableType = ORMCSVTable<col>;
-                using ViewTableType = ORMCSVViewTable<col>;
+                using HeaderType = std::array<std::basic_string_view<CharT>, col>;
+                using RowType = std::array<std::basic_string<CharT>, col>;
+                using RowViewType = std::array<std::basic_string_view<CharT>, col>;
+                using TableType = ORMCSVTable<col, CharT>;
+                using ViewTableType = ORMCSVViewTable<col, CharT>;
             };
 
-            template<WithMetaInfo T>
-            using ORMHeaderType = typename ORMCSVTrait<T>::HeaderType;
+            template<WithMetaInfo T, typename CharT>
+            using ORMHeaderType = typename ORMCSVTrait<T, CharT>::HeaderType;
 
-            template<WithMetaInfo T>
-            using ORMRowType = typename ORMCSVTrait<T>::RowType;
+            template<WithMetaInfo T, typename CharT>
+            using ORMRowType = typename ORMCSVTrait<T, CharT>::RowType;
 
-            template<WithMetaInfo T>
-            using ORMRowViewType = typename ORMCSVTrait<T>::RowViewType;
+            template<WithMetaInfo T, typename CharT>
+            using ORMRowViewType = typename ORMCSVTrait<T, CharT>::RowViewType;
 
-            template<WithMetaInfo T>
-            using ORMTableType = typename ORMCSVTrait<T>::TableType;
+            template<WithMetaInfo T, typename CharT>
+            using ORMTableType = typename ORMCSVTrait<T, CharT>::TableType;
 
-            template<WithMetaInfo T>
-            using ORMViewTableType = typename ORMCSVTrait<T>::ViewTableType;
+            template<WithMetaInfo T, typename CharT>
+            using ORMViewTableType = typename ORMCSVTrait<T, CharT>::ViewTableType;
 
-            template<WithMetaInfo T>
-            inline constexpr ORMHeaderType<T> header(const meta_info::MetaInfo<T>& info, const std::optional<std::function<const std::string_view(const std::string_view)>>& transfer) noexcept
+            template<WithMetaInfo T, typename CharT>
+            inline constexpr ORMHeaderType<T, CharT> header(const meta_info::MetaInfo<T>& info, const std::optional<NameTransfer<CharT>>& transfer) noexcept
             {
-                ORMHeaderType<T> header{};
+                ORMHeaderType<T, CharT> header{};
                 usize i{ 0_uz };
                 info.for_each([&header, &transfer](const auto& field)
                     {
@@ -60,18 +67,18 @@ namespace ospf
             }
         };
 
-        template<WithMetaInfo T>
-        inline csv::ORMTableType<T> make_csv_table(const std::optional<std::function<const std::string_view(const std::string_view)>>& transfer = std::nullopt) noexcept
+        template<WithMetaInfo T, typename CharT = char>
+        inline csv::ORMTableType<T, CharT> make_csv_table(const std::optional<csv::NameTransfer<CharT>>& transfer = meta_programming::NameTransfer<NamingSystem::Underscore, NamingSystem::UpperUnderscore, CharT>{}) noexcept
         {
             static const meta_info::MetaInfo<T> info{};
-            return csv::ORMTableType<T>{ csv::header(info, transfer) };
+            return csv::ORMTableType<T, CharT>{ csv::header(info, transfer) };
         }
 
-        template<WithMetaInfo T>
-        inline csv::ORMViewTableType<T> make_csv_view_table(const std::optional<std::function<const std::string_view(const std::string_view)>>& transfer = std::nullopt) noexcept
+        template<WithMetaInfo T, typename CharT = char>
+        inline csv::ORMViewTableType<T, CharT> make_csv_view_table(const std::optional<csv::NameTransfer<CharT>>& transfer = meta_programming::NameTransfer<NamingSystem::Underscore, NamingSystem::UpperUnderscore, CharT>{}) noexcept
         {
             static const meta_info::MetaInfo<T> info{};
-            return csv::ORMViewTableType<T>{ csv::header(info, transfer) };
+            return csv::ORMViewTableType<T, CharT>{ csv::header(info, transfer) };
         }
     };
 

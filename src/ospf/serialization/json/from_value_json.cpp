@@ -2,111 +2,111 @@
 
 namespace ospf::serialization::json
 {
-    std::optional<bool> to_bool(const rapidjson::Value& value) noexcept
+    std::optional<bool> to_bool(const rapidjson::Value& json) noexcept
     {
-        if (!value.IsBool())
+        if (!json.IsBool())
         {
             return std::nullopt;
         }
-        return value.GetBool();
+        return json.GetBool();
     }
 
-    std::optional<u8> to_u8(const rapidjson::Value& value) noexcept
+    std::optional<u8> to_u8(const rapidjson::Value& json) noexcept
     {
-        if (!value.IsUint())
+        if (!json.IsUint())
         {
             return std::nullopt;
         }
-        return static_cast<u8>(value.GetUint());
+        return static_cast<u8>(json.GetUint());
     }
 
-    std::optional<i8> to_i8(const rapidjson::Value& value) noexcept
+    std::optional<i8> to_i8(const rapidjson::Value& json) noexcept
     {
-        if (!value.IsInt())
+        if (!json.IsInt())
         {
             return std::nullopt;
         }
-        return static_cast<i8>(value.GetInt());
+        return static_cast<i8>(json.GetInt());
     }
 
-    std::optional<u16> to_u16(const rapidjson::Value& value) noexcept
+    std::optional<u16> to_u16(const rapidjson::Value& json) noexcept
     {
-        if (!value.IsUint())
+        if (!json.IsUint())
         {
             return std::nullopt;
         }
-        return static_cast<u16>(value.GetUint());
+        return static_cast<u16>(json.GetUint());
     }
 
-    std::optional<i16> to_i16(const rapidjson::Value& value) noexcept
+    std::optional<i16> to_i16(const rapidjson::Value& json) noexcept
     {
-        if (!value.IsInt())
+        if (!json.IsInt())
         {
             return std::nullopt;
         }
-        return static_cast<i16>(value.GetInt());
+        return static_cast<i16>(json.GetInt());
     }
 
-    std::optional<u32> to_u32(const rapidjson::Value& value) noexcept
+    std::optional<u32> to_u32(const rapidjson::Value& json) noexcept
     {
-        if (!value.IsUint())
+        if (!json.IsUint())
         {
             return std::nullopt;
         }
-        return value.GetUint();
+        return json.GetUint();
     }
 
-    std::optional<i32> to_i32(const rapidjson::Value& value) noexcept
+    std::optional<i32> to_i32(const rapidjson::Value& json) noexcept
     {
-        if (!value.IsInt())
+        if (!json.IsInt())
         {
             return std::nullopt;
         }
-        return value.GetInt();
+        return json.GetInt();
     }
 
-    std::optional<u64> to_u64(const rapidjson::Value& value) noexcept
+    std::optional<u64> to_u64(const rapidjson::Value& json) noexcept
     {
-        if (!value.IsUint64())
+        if (!json.IsUint64())
         {
             return std::nullopt;
         }
-        return value.GetUint64();
+        return json.GetUint64();
     }
 
-    std::optional<i64> to_i64(const rapidjson::Value& value) noexcept
+    std::optional<i64> to_i64(const rapidjson::Value& json) noexcept
     {
-        if (!value.IsInt64())
+        if (!json.IsInt64())
         {
             return std::nullopt;
         }
-        return value.GetInt64();
+        return json.GetInt64();
     }
 
-    std::optional<f32> to_f32(const rapidjson::Value& value) noexcept
+    std::optional<f32> to_f32(const rapidjson::Value& json) noexcept
     {
-        if (!value.IsLosslessFloat())
+        if (!json.IsLosslessFloat())
         {
             return std::nullopt;
         }
-        return value.GetFloat();
+        return json.GetFloat();
     }
 
-    std::optional<f64> to_f64(const rapidjson::Value& value) noexcept
+    std::optional<f64> to_f64(const rapidjson::Value& json) noexcept
     {
-        if (!value.IsLosslessDouble())
+        if (!json.IsLosslessDouble())
         {
             return std::nullopt;
         }
-        return value.GetDouble();
+        return json.GetDouble();
     }
 
-    std::optional<std::string> to_string(const rapidjson::Value& value) noexcept
+    std::optional<std::string> to_string(const rapidjson::Value& json) noexcept
     {
-        if (!value.IsString())
+        if (!json.IsString())
         {
             return std::nullopt;
         }
-        return std::string{ value.GetString() };
+        return std::string{ json.GetString() };
     }
 };

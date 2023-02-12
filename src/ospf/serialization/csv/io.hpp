@@ -29,7 +29,7 @@ namespace ospf
 
             // todo: impl for different character
 
-            template<typename CharT, typename T>
+            template<typename T, typename CharT>
             inline Try<> write(std::basic_ostream<CharT>& os, const T& table, const std::basic_string_view<CharT> seperator = CharTrait<CharT>::default_seperator) noexcept
             {
                 if (table.header().empty())
@@ -65,7 +65,7 @@ namespace ospf
             }
 
             template<typename CharT>
-            inline Result<CSVTable> read(std::basic_istream<CharT>& is, const std::basic_string_view<CharT> seperator = CharTrait<CharT>::default_seperator) noexcept
+            inline Result<CSVTable<CharT>> read(std::basic_istream<CharT>& is, const std::basic_string_view<CharT> seperator = CharTrait<CharT>::default_seperator) noexcept
             {
                 std::basic_string<CharT> line;
                 if (!std::getline(is, line))
@@ -99,8 +99,8 @@ namespace ospf
                 return std::move(table);
             }
 
-            template<typename CharT, usize col>
-            inline Result<ORMCSVTable<col>> read(std::basic_istream<CharT>& is, const std::basic_string_view<CharT> seperator = CharTrait<CharT>::default_seperator) noexcept
+            template<usize col, typename CharT>
+            inline Result<ORMCSVTable<col, CharT>> read(std::basic_istream<CharT>& is, const std::basic_string_view<CharT> seperator = CharTrait<CharT>::default_seperator) noexcept
             {
                 std::basic_string<CharT> line;
                 if (!std::getline(is, line))

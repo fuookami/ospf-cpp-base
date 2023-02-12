@@ -12,7 +12,8 @@ namespace ospf
     {
         namespace json
         {
-            template<SerializableToJson T, typename CharT = char>
+            template<typename T, typename CharT = char>
+                requires SerializableToJson<T, CharT>
             class Serializer
             {
             public:
@@ -46,42 +47,43 @@ namespace ospf
                     doc.SetArray();
                     for (const auto& obj : objs)
                     {
-                        OSPF_TRY_GET(value, this->operator()(obj, doc));
-                        doc.PushBack(value.Move());
+                        OSPF_TRY_GET(json, this->operator()(obj, doc));
+                        doc.PushBack(json.Move());
                     }
                     return std::move(doc);
                 }
 
                 inline Result<rapidjson::Value> operator()(const ValueType& obj, rapidjson::Document& doc) const noexcept
                 {
-                    const ToJsonValue<ValueType> serializer{};
+                    const ToJsonValue<ValueType, CharT> serializer{};
                     return serializer(obj, doc, _transfer);
                 }
 
                 template<usize len>
                 inline Result<rapidjson::Value> operator()(const std::span<const ValueType, len> objs, rapidjson::Document& doc) const noexcept
                 {
-                    rapidjson::Value value{ rapidjson::kArrayType };
-                    const ToJsonValue<ValueType> serializer{};
+                    rapidjson::Value json{ rapidjson::kArrayType };
+                    const ToJsonValue<ValueType, CharT> serializer{};
                     for (const auto& obj : objs)
                     {
-                        OSPF_TRY_GET(value, serializer(obj, doc, _transfer));
-                        value.PushBack(value.Move());
+                        OSPF_TRY_GET(sub_json, serializer(obj, doc, _transfer));
+                        json.PushBack(sub_json.Move());
                     }
-                    return std::move(value);
+                    return std::move(json);
                 }
 
             private:
                 template<typename = void>
                     requires WithMetaInfo<ValueType>
-                inline Try<> serialize(rapidjson::Value& value, const ValueType& obj, rapidjson::Document& doc) const noexcept
+                inline Try<> serialize(rapidjson::Value& json, const ValueType& obj, rapidjson::Document& doc) const noexcept
                 {
                     static constexpr const meta_info::MetaInfo<ValueType> info{};
-                    value.SetObject();
+                    json.SetObject();
                     std::optional<OSPFError> err;
                     info.for_each(obj, [this, &err, &value, &doc](const auto& obj, const auto& field)
                         {
-                            static_assert(SerializableToJson<decltype(field.value(obj))>);
+                            using FieldValueType = OriginType<decltype(field.value(obj))>;
+                            static_assert(SerializableToJson<FieldValueType, CharT>);
 
                             if (err.has_value())
                             {
@@ -89,16 +91,16 @@ namespace ospf
                             }
 
                             const auto key = this->_transfer.has_value() ? (*this->_transfer)(field.key()) : field.key();
-                            const ToJsonValue<OriginType<decltype(field.value(obj))>> serializer{};
-                            auto value = serializer(field.value(obj));
-                            if (value.failed())
+                            const ToJsonValue<FieldValueType, CharT> serializer{};
+                            auto sub_json = serializer(field.value(obj));
+                            if (sub_json.is_failed())
                             {
-                                err = OSPFError{ OSPFErrCode::SerializationFail, std::format("failed serializing field \"{}\" for type\"{}\", {}", field.key(), TypeInfo<T>::name(), value.err().message()) };
+                                err = OSPFError{ OSPFErrCode::SerializationFail, std::format("failed serializing field \"{}\" for type\"{}\", {}", field.key(), TypeInfo<T>::name(), sub_json.err().message()) };
                                 return;
                             }
                             else
                             {
-                                value.AddMember(rapidjson::StringRef(key.data()), value.unwrap().Move(), doc.GetAllocator());
+                                json.AddMember(rapidjson::StringRef(key.data()), sub_json.unwrap().Move(), doc.GetAllocator());
                             }
                         });
                     if (err.has_value())

@@ -551,9 +551,6 @@
     <ClCompile Include="src\ospf\serialization\json\to_value_json.cpp">
       <Filter>src\ospf\serialization\json</Filter>
     </ClCompile>
-    <ClCompile Include="src\ospf\serialization\json\io_json.cpp">
-      <Filter>src\ospf\serialization\json</Filter>
-    </ClCompile>
     <ClCompile Include="src\ospf\serialization\json\get_child_json.cpp">
       <Filter>src\ospf\serialization\json</Filter>
     </ClCompile>

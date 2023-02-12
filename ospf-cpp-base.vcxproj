@@ -180,7 +180,6 @@
     <ClCompile Include="src\ospf\serialization\csv\table.cpp" />
     <ClCompile Include="src\ospf\serialization\json\from_value_json.cpp" />
     <ClCompile Include="src\ospf\serialization\json\get_child_json.cpp" />
-    <ClCompile Include="src\ospf\serialization\json\io_json.cpp" />
     <ClCompile Include="src\ospf\serialization\json\to_value_json.cpp" />
     <ClCompile Include="src\ospf\string\hasher.cpp" />
     <ClCompile Include="src\ospf\string\regex.cpp" />

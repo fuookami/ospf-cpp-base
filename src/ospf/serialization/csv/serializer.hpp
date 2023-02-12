@@ -17,15 +17,14 @@ namespace ospf
             class Serializer
             {
             public:
-                using NameTransfer = std::function<const std::basic_string_view<CharT>(const std::basic_string_view<CharT>)>;
                 using ValueType = OriginType<T>;
-                using TableType = ORMTableType<ValueType>;
-                using HeaderType = ORMHeaderType<ValueType>;
-                using RowType = ORMRowType<ValueType>;
+                using TableType = ORMTableType<ValueType, CharT>;
+                using HeaderType = ORMHeaderType<ValueType, CharT>;
+                using RowType = ORMRowType<ValueType, CharT>;
 
             public:
                 Serializer(void) = default;
-                Serializer(NameTransfer transfer)
+                Serializer(NameTransfer<CharT> transfer)
                     : _transfer(std::move(transfer)) {}
                 Serializer(const Serializer& ano) = default;
                 Serializer(Serializer&& ano) noexcept = default;
@@ -65,8 +64,9 @@ namespace ospf
                     info.for_each(obj, [this, &row, &err](const auto& obj, const auto& field)
                         {
                             // todo: impl concept refer to a type that all fileds are plane
+                            using FieldValueType = OriginType<decltype(field.value(obj))>;
                             static_assert(field.plane());
-                            static_assert(SerializableToCSV<OriginType<decltype(field.value(obj))>>);
+                            static_assert(SerializableToCSV<FieldValueType, CharT>);
 
                             if (err.has_value())
                             {
@@ -74,9 +74,9 @@ namespace ospf
                             }
 
                             const auto key = this->_transfer.has_value() ? (*this->_transfer)(field.key()) : field.key();
-                            const ToCSVValue<OriginType<decltype(field.value(obj))>> serializer{};
+                            const ToCSVValue<FieldValueType, CharT> serializer{};
                             auto value = serializer(field.value(obj));
-                            if (value.failed())
+                            if (value.is_failed())
                             {
                                 err = OSPFError{ OSPFErrCode::SerializationFail, std::format("failed serializing field \"{}\" for type \"{}\", {}", field.key(), TypeInfo<ValueType>::name(), value.err().message())};
                             }
@@ -97,7 +97,7 @@ namespace ospf
                 }
 
             private:
-                std::optional<NameTransfer> _transfer;
+                std::optional<NameTransfer<CharT>> _transfer;
             };
 
             template<typename T, typename CharT = char>
@@ -105,7 +105,7 @@ namespace ospf
             (
                 const std::filesystem::path& path, 
                 const T& obj, 
-                std::optional<typename Serializer<T, CharT>::NameTransfer> transfer = NameTransfer<NamingSystem::Underscore, NamingSystem::UpperUnderscore, CharT>{}, 
+                std::optional<NameTransfer<CharT>> transfer = meta_programming::NameTransfer<NamingSystem::Underscore, NamingSystem::UpperUnderscore, CharT>{},
                 const std::basic_string_view<CharT> seperator = CharTrait<CharT>::default_seprator
             ) noexcept
             {
@@ -136,7 +136,7 @@ namespace ospf
             (
                 const std::filesystem::path& path, 
                 const std::span<const T, len> objs, 
-                std::optional<typename Serializer<T, CharT>::NameTransfer> transfer = NameTransfer<NamingSystem::Underscore, NamingSystem::UpperUnderscore, CharT>{},
+                std::optional<NameTransfer<CharT>> transfer = meta_programming::NameTransfer<NamingSystem::Underscore, NamingSystem::UpperUnderscore, CharT>{},
                 const std::basic_string_view<CharT> seperator = CharTrait<CharT>::default_seprator
             ) noexcept
             {
@@ -166,7 +166,7 @@ namespace ospf
             inline Result<std::basic_string<CharT>> to_string
             (
                 const T& obj, 
-                std::optional<typename Serializer<T, CharT>::NameTransfer> transfer = NameTransfer<NamingSystem::Underscore, NamingSystem::UpperUnderscore, CharT>{},
+                std::optional<NameTransfer<CharT>> transfer = meta_programming::NameTransfer<NamingSystem::Underscore, NamingSystem::UpperUnderscore, CharT>{},
                 const std::basic_string_view<CharT> seperator = CharTrait<CharT>::default_seprator
             ) noexcept
             {
@@ -182,7 +182,7 @@ namespace ospf
             inline Result<std::basic_string<CharT>> to_string
             (
                 const std::span<const T, len> objs, 
-                std::optional<typename Serializer<T, CharT>::NameTransfer> transfer = NameTransfer<NamingSystem::Underscore, NamingSystem::UpperUnderscore, CharT>{},
+                std::optional<NameTransfer<CharT>> transfer = meta_programming::NameTransfer<NamingSystem::Underscore, NamingSystem::UpperUnderscore, CharT>{},
                 const std::basic_string_view<CharT> seperator = CharTrait<CharT>::default_seprator
             ) noexcept
             {

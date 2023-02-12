@@ -29,35 +29,36 @@ namespace ospf
 
             // todo: big int, decimal and chrono
 
-            template<typename T>
+            template<typename T, typename CharT>
             struct ToJsonValue;
 
-            template<typename T>
-            concept SerializableToJson = requires (const ToJsonValue<T> serializer)
+            template<typename T, typename CharT>
+            concept SerializableToJson = requires (const ToJsonValue<T, CharT> serializer)
             {
-                { serializer(std::declval<T>(), std::declval<rapidjson::Document>(), std::declval<std::optional<NameTransfer>>()) } -> DecaySameAs<Result<rapidjson::Value>>;
+                { serializer(std::declval<T>(), std::declval<rapidjson::Document>(), std::declval<std::optional<NameTransfer<CharT>>>()) } -> DecaySameAs<Result<rapidjson::Value>>;
             };
 
             template<EnumType T>
-            struct ToJsonValue<T>
+            struct ToJsonValue<T, char>
             {
-                inline Result<rapidjson::Value> operator()(const T value, rapidjson::Document& doc, const std::optional<NameTransfer>& transfer) const noexcept
+                inline Result<rapidjson::Value> operator()(const T value, rapidjson::Document& doc, const std::optional<NameTransfer<char>>& transfer) const noexcept
                 {
                     return rapidjson::Value{ to_string(value).data(), doc.GetAllocator() };
                 }
             };
 
             template<WithMetaInfo T>
-            struct ToJsonValue<T>
+            struct ToJsonValue<T, char>
             {
-                inline Result<rapidjson::Value> operator()(const T& value, rapidjson::Document& doc, const std::optional<NameTransfer>& transfer) const noexcept
+                inline Result<rapidjson::Value> operator()(const T& obj, rapidjson::Document& doc, const std::optional<NameTransfer<char>>& transfer) const noexcept
                 {
                     static constexpr const meta_info::MetaInfo<T> info{};
-                    rapidjson::Value ret{ rapidjson::kObjectType };
+                    rapidjson::Value json{ rapidjson::kObjectType };
                     std::optional<OSPFError> err;
-                    info.for_each(value, [&ret, &err, &doc, &transfer](const auto& obj, const auto& field)
+                    info.for_each(obj, [&ret, &err, &doc, &transfer](const auto& obj, const auto& field)
                         {
-                            static_assert(SerializableToJson<decltype(field.value(obj))>);
+                            using FieldValueType = OriginType<decltype(field.value(obj))>;
+                            static_assert(SerializableToJson<FieldValueType>);
 
                             if (err.has_value())
                             {
@@ -65,16 +66,16 @@ namespace ospf
                             }
 
                             const auto key = transfer.has_value() ? (*transfer)(field.key()) : field.key();
-                            const ToJsonValue<OriginType<decltype(field.value(obj))>> serializer{};
-                            auto value = serializer(field.value(obj));
-                            if (value.failed())
+                            const ToJsonValue<FieldValueType, char> serializer{};
+                            auto sub_json = serializer(field.value(obj));
+                            if (sub_json.is_failed())
                             {
-                                err = OSPFError{ OSPFErrCode::SerializationFail, std::format("failed serializing field \"{}\" for type\"{}\", {}", field.key(), TypeInfo<T>::name(), value.err().message()) };
+                                err = OSPFError{ OSPFErrCode::SerializationFail, std::format("failed serializing field \"{}\" for type\"{}\", {}", field.key(), TypeInfo<T>::name(), sub_json.err().message()) };
                                 return;
                             }
                             else
                             {
-                                ret.AddMember(rapidjson::StringRef(key.data()), value.unwrap().Move(), doc.GetAllocator());
+                                json.AddMember(rapidjson::StringRef(key.data()), sub_json.unwrap().Move(), doc.GetAllocator());
                             }
                         });
                     if (err.has_value())
@@ -83,7 +84,7 @@ namespace ospf
                     }
                     else
                     {
-                        return std::move(ret);
+                        return std::move(json);
                     }
                 }
             };
@@ -91,117 +92,117 @@ namespace ospf
             // todo: optional, ptr, variant, either, val/ref
 
             template<>
-            struct ToJsonValue<bool>
+            struct ToJsonValue<bool, char>
             {
-                inline Result<rapidjson::Value> operator()(const bool value, rapidjson::Document& doc, const std::optional<NameTransfer>& transfer) const noexcept
+                inline Result<rapidjson::Value> operator()(const bool value, rapidjson::Document& doc, const std::optional<NameTransfer<char>>& transfer) const noexcept
                 {
                     return from_bool(value, doc);
                 }
             };
 
             template<>
-            struct ToJsonValue<u8>
+            struct ToJsonValue<u8, char>
             {
-                inline Result<rapidjson::Value> operator()(const u8 value, rapidjson::Document& doc, const std::optional<NameTransfer>& transfer) const noexcept
+                inline Result<rapidjson::Value> operator()(const u8 value, rapidjson::Document& doc, const std::optional<NameTransfer<char>>& transfer) const noexcept
                 {
                     return from_u8(value, doc);
                 }
             };
 
             template<>
-            struct ToJsonValue<i8>
+            struct ToJsonValue<i8, char>
             {
-                inline Result<rapidjson::Value> operator()(const i8 value, rapidjson::Document& doc, const std::optional<NameTransfer>& transfer) const noexcept
+                inline Result<rapidjson::Value> operator()(const i8 value, rapidjson::Document& doc, const std::optional<NameTransfer<char>>& transfer) const noexcept
                 {
                     return from_i8(value, doc);
                 }
             };
 
             template<>
-            struct ToJsonValue<u16>
+            struct ToJsonValue<u16, char>
             {
-                inline Result<rapidjson::Value> operator()(const u16 value, rapidjson::Document& doc, const std::optional<NameTransfer>& transfer) const noexcept
+                inline Result<rapidjson::Value> operator()(const u16 value, rapidjson::Document& doc, const std::optional<NameTransfer<char>>& transfer) const noexcept
                 {
                     return from_u16(value, doc);
                 }
             };
 
             template<>
-            struct ToJsonValue<i16>
+            struct ToJsonValue<i16, char>
             {
-                inline Result<rapidjson::Value> operator()(const i16 value, rapidjson::Document& doc, const std::optional<NameTransfer>& transfer) const noexcept
+                inline Result<rapidjson::Value> operator()(const i16 value, rapidjson::Document& doc, const std::optional<NameTransfer<char>>& transfer) const noexcept
                 {
                     return from_i16(value, doc);
                 }
             };
 
             template<>
-            struct ToJsonValue<u32>
+            struct ToJsonValue<u32, char>
             {
-                inline Result<rapidjson::Value> operator()(const u32 value, rapidjson::Document& doc, const std::optional<NameTransfer>& transfer) const noexcept
+                inline Result<rapidjson::Value> operator()(const u32 value, rapidjson::Document& doc, const std::optional<NameTransfer<char>>& transfer) const noexcept
                 {
                     return from_u32(value, doc);
                 }
             };
 
             template<>
-            struct ToJsonValue<i32>
+            struct ToJsonValue<i32, char>
             {
-                inline Result<rapidjson::Value> operator()(const i32 value, rapidjson::Document& doc, const std::optional<NameTransfer>& transfer) const noexcept
+                inline Result<rapidjson::Value> operator()(const i32 value, rapidjson::Document& doc, const std::optional<NameTransfer<char>>& transfer) const noexcept
                 {
                     return from_i32(value, doc);
                 }
             };
 
             template<>
-            struct ToJsonValue<u64>
+            struct ToJsonValue<u64, char>
             {
-                inline Result<rapidjson::Value> operator()(const u64 value, rapidjson::Document& doc, const std::optional<NameTransfer>& transfer) const noexcept
+                inline Result<rapidjson::Value> operator()(const u64 value, rapidjson::Document& doc, const std::optional<NameTransfer<char>>& transfer) const noexcept
                 {
                     return from_u64(value, doc);
                 }
             };
 
             template<>
-            struct ToJsonValue<i64>
+            struct ToJsonValue<i64, char>
             {
-                inline Result<rapidjson::Value> operator()(const i64 value, rapidjson::Document& doc, const std::optional<NameTransfer>& transfer) const noexcept
+                inline Result<rapidjson::Value> operator()(const i64 value, rapidjson::Document& doc, const std::optional<NameTransfer<char>>& transfer) const noexcept
                 {
                     return from_i64(value, doc);
                 }
             };
 
             template<>
-            struct ToJsonValue<f32>
+            struct ToJsonValue<f32, char>
             {
-                inline Result<rapidjson::Value> operator()(const f32 value, rapidjson::Document& doc, const std::optional<NameTransfer>& transfer) const noexcept
+                inline Result<rapidjson::Value> operator()(const f32 value, rapidjson::Document& doc, const std::optional<NameTransfer<char>>& transfer) const noexcept
                 {
                     return from_f32(value, doc);
                 }
             };
 
             template<>
-            struct ToJsonValue<f64>
+            struct ToJsonValue<f64, char>
             {
-                inline Result<rapidjson::Value> operator()(const f64 value, rapidjson::Document& doc, const std::optional<NameTransfer>& transfer) const noexcept
+                inline Result<rapidjson::Value> operator()(const f64 value, rapidjson::Document& doc, const std::optional<NameTransfer<char>>& transfer) const noexcept
                 {
                     return from_f64(value, doc);
                 }
             };
 
             template<>
-            struct ToJsonValue<std::string>
+            struct ToJsonValue<std::string, char>
             {
-                inline Result<rapidjson::Value> operator()(const std::string& value, rapidjson::Document& doc, const std::optional<NameTransfer>& transfer) const noexcept
+                inline Result<rapidjson::Value> operator()(const std::string& value, rapidjson::Document& doc, const std::optional<NameTransfer<char>>& transfer) const noexcept
                 {
                     return from_string(value, doc);
                 }
             };
 
             template<>
-            struct ToJsonValue<std::string_view>
+            struct ToJsonValue<std::string_view, char>
             {
-                inline Result<rapidjson::Value> operator()(const std::string& value, rapidjson::Document& doc, const std::optional<NameTransfer>& transfer) const noexcept
+                inline Result<rapidjson::Value> operator()(const std::string& value, rapidjson::Document& doc, const std::optional<NameTransfer<char>>& transfer) const noexcept
                 {
                     return from_string_view(value, doc);
                 }
