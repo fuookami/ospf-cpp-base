@@ -1,6 +1,5 @@
 #pragma once
 
-#include <ospf/error.hpp>
 #include <ospf/functional/result.hpp>
 #include <ospf/serialization/csv/table.hpp>
 #include <istream>
@@ -12,7 +11,7 @@ namespace ospf
     {
         namespace csv
         {
-            template<typename C>
+            template<typename CharT>
             struct CharTrait;
 
             template<>

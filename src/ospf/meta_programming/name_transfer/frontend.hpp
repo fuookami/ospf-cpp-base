@@ -17,17 +17,17 @@ namespace ospf
             OSPF_BASE_API std::vector<std::string_view> pascalcase_name_split(const std::string_view name) noexcept;
             OSPF_BASE_API std::vector<std::string_view> upper_underscore_name_split(const std::string_view name) noexcept;
 
-            template<NamingSystem system>
+            template<NamingSystem system, typename CharT>
             struct Frontend 
             {
-                inline std::vector<std::string_view> operator()(const std::string_view name) const noexcept
+                inline std::vector<std::basic_string_view<CharT>> operator()(const std::std::basic_string_view<CharT> name) const noexcept
                 {
                     return {};
                 }
             };
 
             template<>
-            struct Frontend<NamingSystem::Underscore>
+            struct Frontend<NamingSystem::Underscore, char>
             {
                 inline decltype(auto) operator()(const std::string_view name) const noexcept
                 {
@@ -36,7 +36,7 @@ namespace ospf
             };
 
             template<>
-            struct Frontend<NamingSystem::Camelcase>
+            struct Frontend<NamingSystem::Camelcase, char>
             {
                 inline decltype(auto) operator()(const std::string_view name) const noexcept
                 {
@@ -45,7 +45,7 @@ namespace ospf
             };
 
             template<>
-            struct Frontend<NamingSystem::Pascalcase>
+            struct Frontend<NamingSystem::Pascalcase, char>
             {
                 inline decltype(auto) operator()(const std::string_view name) const noexcept
                 {
@@ -54,13 +54,15 @@ namespace ospf
             };
 
             template<>
-            struct Frontend<NamingSystem::UpperUnderscore>
+            struct Frontend<NamingSystem::UpperUnderscore, char>
             {
                 inline decltype(auto) operator()(const std::string_view name) const noexcept
                 {
                     return upper_underscore_name_split(name);
                 };
             };
+
+            // todo: impl for different character
         };
     };
 };

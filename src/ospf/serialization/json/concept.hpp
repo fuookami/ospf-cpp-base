@@ -17,7 +17,8 @@ namespace ospf
             using Object = rapidjson::Value;
             using Array = rapidjson::GenericArray<true, rapidjson::Value>;
             using String = const char*;
-            using NameTransfer = std::function<const std::string_view(const std::string_view)>;
+            template<typename CharT>
+            using NameTransfer = std::function<const std::basic_string_view<CharT>(const std::basic_string_view<CharT>)>;
         };
     };
 };

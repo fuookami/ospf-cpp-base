@@ -18,50 +18,57 @@ namespace ospf
             OSPF_BASE_API std::string pascalcase_name_join(const std::span<const std::string_view> words) noexcept;
             OSPF_BASE_API std::string upper_underscore_name_join(const std::span<const std::string_view> words) noexcept;
 
-            template<NamingSystem system>
+            template<NamingSystem system, typename CharT>
             struct Backend
             {
-                inline std::string operator()(const std::span<const std::string_view> words) const noexcept
+                template<usize len>
+                inline std::basic_string<CharT> operator()(const std::span<const std::basic_string_view<CharT>, len> words) const noexcept
                 {
                     return {};
                 }
             };
 
             template<>
-            struct Backend<NamingSystem::Underscore>
+            struct Backend<NamingSystem::Underscore, char>
             {
-                inline std::string operator()(const std::span<const std::string_view> words) const noexcept
+                template<usize len>
+                inline std::string operator()(const std::span<const std::string_view, len> words) const noexcept
                 {
                     return underscore_name_join(words);
                 }
             };
 
             template<>
-            struct Backend<NamingSystem::Camelcase>
+            struct Backend<NamingSystem::Camelcase, char>
             {
-                inline std::string operator()(const std::span<const std::string_view> words) const noexcept
+                template<usize len>
+                inline std::string operator()(const std::span<const std::string_view, len> words) const noexcept
                 {
                     return calmelcase_name_join(words);
                 }
             };
 
             template<>
-            struct Backend<NamingSystem::Pascalcase>
+            struct Backend<NamingSystem::Pascalcase, char>
             {
-                inline std::string operator()(const std::span<const std::string_view> words) const noexcept
+                template<usize len>
+                inline std::string operator()(const std::span<const std::string_view, len> words) const noexcept
                 {
                     return pascalcase_name_join(words);
                 }
             };
 
             template<>
-            struct Backend<NamingSystem::UpperUnderscore>
+            struct Backend<NamingSystem::UpperUnderscore, char>
             {
-                inline std::string operator()(const std::span<const std::string_view> words) const noexcept
+                template<usize len>
+                inline std::string operator()(const std::span<const std::string_view, len> words) const noexcept
                 {
                     return upper_underscore_name_join(words);
                 }
             };
+
+            // todo: impl for different character
         };
     };
 };

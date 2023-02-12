@@ -52,7 +52,7 @@ namespace ospf
             {
                 inline Result<rapidjson::Value> operator()(const T& value, rapidjson::Document& doc, const std::optional<NameTransfer>& transfer) const noexcept
                 {
-                    static const meta_info::MetaInfo<T> info{};
+                    static constexpr const meta_info::MetaInfo<T> info{};
                     rapidjson::Value ret{ rapidjson::kObjectType };
                     std::optional<OSPFError> err;
                     info.for_each(value, [&ret, &err, &doc, &transfer](const auto& obj, const auto& field)

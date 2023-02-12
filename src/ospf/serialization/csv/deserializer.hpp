@@ -3,6 +3,7 @@
 #include <ospf/serialization/csv/io.hpp>
 #include <ospf/serialization/csv/from_value.hpp>
 #include <ospf/serialization/nullable.hpp>
+#include <ospf/meta_programming/name_transfer.hpp>
 #include <ospf/meta_programming/type_info.hpp>
 #include <ospf/string/hasher.hpp>
 #include <filesystem>
@@ -15,11 +16,12 @@ namespace ospf
     {
         namespace csv
         {
-            template<WithMetaInfo T>
+            template<WithMetaInfo T, typename CharT = char>
             class Deserializer
             {
-                using NameTransfer = std::function<const std::string_view(const std::string_view)>;
-                using ColumnMap = StringHashMap<std::string_view, usize>;
+            public:
+                using NameTransfer = std::function<const std::basic_string_view<CharT>(const std::basic_string_view<CharT>)>;
+                using ColumnMap = StringHashMap<std::basic_string_view<CharT>, usize>;
                 using ValueType = OriginType<T>;
                 using RowType = ORMRowType<ValueType>;
                 using RowViewType = ORMRowViewType<ValueType>;
@@ -288,7 +290,11 @@ namespace ospf
 
             template<typename T, typename CharT = char>
                 requires std::default_initializable<T>
-            inline Try<std::vector<T>> from_file(const std::filesystem::path& path, std::optional<typename Deserializer<T>::NameTransfer> transfer = std::nullopt, const std::basic_string_view<CharT> seperator = CharTrait<CharT>::default_seprator) noexcept
+            inline Try<std::vector<T>> from_file(
+                const std::filesystem::path& path, 
+                std::optional<typename Deserializer<T, CharT>::NameTransfer> transfer = NameTransfer<NamingSystem::UpperUnderscore, NamingSystem::Underscore, CharT>{},
+                const std::basic_string_view<CharT> seperator = CharTrait<CharT>::default_seprator
+            ) noexcept
             {
                 if (!std::filesystem::exists(path))
                 {
@@ -299,17 +305,22 @@ namespace ospf
                     return OSPFError{ OSPFErrCode::NotAFile, std::format("\"{}\" is not a file", path) };
                 }
 
-                std::ifstream fin{ path };
+                std::basic_ifstream<CharT> fin{ path };
                 OSPF_TRY_GET(table, read<ORMCSVTrait<T>::col>(fin, seperator));
 
-                auto deserializer = transfer.has_value() ? Deserializer<T>{ *transfer } : Deserializer<T>{};
+                auto deserializer = transfer.has_value() ? Deserializer<T, CharT>{ std::move(transfer).value() } : Deserializer<T, CharT>{};
                 OSPF_TRY_GET(objs, deserializer(table));
                 return std::move(objs);
             }
 
             template<typename T, typename CharT = char>
                 requires std::copy_constructible<T>
-            inline Try<std::vector<T>> from_file(const std::filesystem::path& path, const T& origin_obj, std::optional<typename Deserializer<T>::NameTransfer> transfer = std::nullopt, const std::basic_string_view<CharT> seperator = CharTrait<CharT>::default_seprator) noexcept
+            inline Try<std::vector<T>> from_file(
+                const std::filesystem::path& path, 
+                const T& origin_obj, 
+                std::optional<typename Deserializer<T, CharT>::NameTransfer> transfer = NameTransfer<NamingSystem::UpperUnderscore, NamingSystem::Underscore, CharT>{},
+                const std::basic_string_view<CharT> seperator = CharTrait<CharT>::default_seprator
+            ) noexcept
             {
                 if (!std::filesystem::exists(path))
                 {
@@ -320,17 +331,21 @@ namespace ospf
                     return OSPFError{ OSPFErrCode::NotAFile, std::format("\"{}\" is not a file", path) };
                 }
 
-                std::ifstream fin{ path };
+                std::basic_ifstream<CharT> fin{ path };
                 OSPF_TRY_GET(table, read<ORMCSVTrait<T>::col>(fin, seperator));
 
-                auto deserializer = transfer.has_value() ? Deserializer<T>{ *transfer } : Deserializer<T>{};
+                auto deserializer = transfer.has_value() ? Deserializer<T, CharT>{ std::move(transfer).value() } : Deserializer<T, CharT>{};
                 OSPF_TRY_GET(objs, deserializer(table, origin_obj));
                 return std::move(objs);
             }
 
             template<typename T, typename CharT = char>
                 requires std::default_initializable<T>
-            inline Try<std::vector<T>> from_file_soft(const std::filesystem::path& path, std::optional<typename Deserializer<T>::NameTransfer> transfer = std::nullopt, const std::basic_string_view<CharT> seperator = CharTrait<CharT>::default_seprator) noexcept
+            inline Try<std::vector<T>> from_file_soft(
+                const std::filesystem::path& path, 
+                std::optional<typename Deserializer<T, CharT>::NameTransfer> transfer = NameTransfer<NamingSystem::UpperUnderscore, NamingSystem::Underscore, CharT>{},
+                const std::basic_string_view<CharT> seperator = CharTrait<CharT>::default_seprator
+            ) noexcept
             {
                 if (!std::filesystem::exists(path))
                 {
@@ -341,17 +356,22 @@ namespace ospf
                     return OSPFError{ OSPFErrCode::NotAFile, std::format("\"{}\" is not a file", path) };
                 }
 
-                std::ifstream fin{ path };
+                std::basic_ifstream<CharT> fin{ path };
                 OSPF_TRY_GET(table, read(fin, seperator));
 
-                auto deserializer = transfer.has_value() ? Deserializer<T>{ *transfer } : Deserializer<T>{};
+                auto deserializer = transfer.has_value() ? Deserializer<T, CharT>{ std::move(transfer).value() } : Deserializer<T, CharT>{};
                 OSPF_TRY_GET(objs, deserializer(table));
                 return std::move(objs);
             }
 
             template<typename T, typename CharT = char>
                 requires std::copy_constructible<T>
-            inline Try<std::vector<T>> from_file_soft(const std::filesystem::path& path, const T& origin_obj, std::optional<typename Deserializer<T>::NameTransfer> transfer = std::nullopt, const std::basic_string_view<CharT> seperator = CharTrait<CharT>::default_seprator) noexcept
+            inline Try<std::vector<T>> from_file_soft(
+                const std::filesystem::path& path, 
+                const T& origin_obj, 
+                std::optional<typename Deserializer<T, CharT>::NameTransfer> transfer = NameTransfer<NamingSystem::UpperUnderscore, NamingSystem::Underscore, CharT>{},
+                const std::basic_string_view<CharT> seperator = CharTrait<CharT>::default_seprator
+            ) noexcept
             {
                 if (!std::filesystem::exists(path))
                 {
@@ -362,58 +382,76 @@ namespace ospf
                     return OSPFError{ OSPFErrCode::NotAFile, std::format("\"{}\" is not a file", path) };
                 }
 
-                std::ifstream fin{ path };
+                std::basic_ifstream<CharT> fin{ path };
                 OSPF_TRY_GET(table, read(fin, seperator));
 
-                auto deserializer = transfer.has_value() ? Deserializer<T>{ *transfer } : Deserializer<T>{};
+                auto deserializer = transfer.has_value() ? Deserializer<T, CharT>{ std::move(transfer).value() } : Deserializer<T, CharT>{};
                 OSPF_TRY_GET(objs, deserializer(table, origin_obj));
                 return std::move(objs);
             }
 
             template<typename T, typename CharT = char>
                 requires std::default_initializable<T>
-            inline Try<std::vector<T>> from_string(const std::string_view str, std::optional<typename Deserializer<T>::NameTransfer> transfer = std::nullopt, const std::basic_string_view<CharT> seperator = CharTrait<CharT>::default_seprator) noexcept
+            inline Try<std::vector<T>> from_string(
+                const std::basic_string_view<CharT> str,
+                std::optional<typename Deserializer<T, CharT>::NameTransfer> transfer = NameTransfer<NamingSystem::UpperUnderscore, NamingSystem::Underscore, CharT>{},
+                const std::basic_string_view<CharT> seperator = CharTrait<CharT>::default_seprator
+            ) noexcept
             {
-                std::istringstream sin{ str };
+                std::basic_istringstream<CharT> sin{ str };
                 OSPF_TRY_GET(table, read<ORMCSVTrait<T>::col>(sin, seperator));
 
-                auto deserializer = transfer.has_value() ? Deserializer<T>{ *transfer } : Deserializer<T>{};
+                auto deserializer = transfer.has_value() ? Deserializer<T, CharT>{ std::move(transfer).value() } : Deserializer<T, CharT>{};
                 OSPF_TRY_GET(objs, deserializer(table));
                 return std::move(objs);
             }
 
             template<typename T, typename CharT = char>
                 requires std::copy_constructible<T>
-            inline Try<std::vector<T>> from_string(const std::string_view str, const T& origin_obj, std::optional<typename Deserializer<T>::NameTransfer> transfer = std::nullopt, const std::basic_string_view<CharT> seperator = CharTrait<CharT>::default_seprator) noexcept
+            inline Try<std::vector<T>> from_string(
+                const std::basic_string_view<CharT> str,
+                const T& origin_obj, 
+                std::optional<typename Deserializer<T, CharT>::NameTransfer> transfer = NameTransfer<NamingSystem::UpperUnderscore, NamingSystem::Underscore, CharT>{},
+                const std::basic_string_view<CharT> seperator = CharTrait<CharT>::default_seprator
+            ) noexcept
             {
-                std::istringstream sin{ str };
+                std::basic_istringstream<CharT> sin{ str };
                 OSPF_TRY_GET(table, read<ORMCSVTrait<T>::col>(sin, seperator));
 
-                auto deserializer = transfer.has_value() ? Deserializer<T>{ *transfer } : Deserializer<T>{};
+                auto deserializer = transfer.has_value() ? Deserializer<T, CharT>{ std::move(transfer).value() } : Deserializer<T, CharT>{};
                 OSPF_TRY_GET(objs, deserializer(table, origin_obj));
                 return std::move(objs);
             }
 
             template<typename T, typename CharT = char>
                 requires std::default_initializable<T>
-            inline Try<std::vector<T>> from_string_soft(const std::string_view str, std::optional<typename Deserializer<T>::NameTransfer> transfer = std::nullopt, const std::basic_string_view<CharT> seperator = CharTrait<CharT>::default_seprator) noexcept
+            inline Try<std::vector<T>> from_string_soft(
+                const std::basic_string_view<CharT> str,
+                std::optional<typename Deserializer<T, CharT>::NameTransfer> transfer = NameTransfer<NamingSystem::UpperUnderscore, NamingSystem::Underscore, CharT>{},
+                const std::basic_string_view<CharT> seperator = CharTrait<CharT>::default_seprator
+            ) noexcept
             {
-                std::istringstream sin{ str };
+                std::basic_istringstream<CharT> sin{ str };
                 OSPF_TRY_GET(table, read(sin, seperator));
 
-                auto deserializer = transfer.has_value() ? Deserializer<T>{ *transfer } : Deserializer<T>{};
+                auto deserializer = transfer.has_value() ? Deserializer<T, CharT>{ std::move(transfer).value() } : Deserializer<T, CharT>{};
                 OSPF_TRY_GET(objs, deserializer(table));
                 return std::move(objs);
             }
 
             template<typename T, typename CharT = char>
                 requires std::copy_constructible<T>
-            inline Try<std::vector<T>> from_string_soft(const std::string_view str, const T& origin_obj, std::optional<typename Deserializer<T>::NameTransfer> transfer = std::nullopt, const std::basic_string_view<CharT> seperator = CharTrait<CharT>::default_seprator) noexcept
+            inline Try<std::vector<T>> from_string_soft(
+                const std::basic_string_view<CharT> str, 
+                const T& origin_obj, 
+                std::optional<typename Deserializer<T, CharT>::NameTransfer> transfer = NameTransfer<NamingSystem::UpperUnderscore, NamingSystem::Underscore, CharT>{},
+                const std::basic_string_view<CharT> seperator = CharTrait<CharT>::default_seprator
+            ) noexcept
             {
-                std::istringstream sin{ str };
+                std::basic_istringstream<CharT> sin{ str };
                 OSPF_TRY_GET(table, read(sin, seperator));
 
-                auto deserializer = transfer.has_value() ? Deserializer<T>{ *transfer } : Deserializer<T>{};
+                auto deserializer = transfer.has_value() ? Deserializer<T, CharT>{ std::move(transfer).value() } : Deserializer<T, CharT>{};
                 OSPF_TRY_GET(objs, deserializer(table, origin_obj));
                 return std::move(objs);
             }
