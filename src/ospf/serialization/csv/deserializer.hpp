@@ -5,6 +5,9 @@
 #include <ospf/serialization/nullable.hpp>
 #include <ospf/meta_programming/type_info.hpp>
 #include <ospf/string/hasher.hpp>
+#include <filesystem>
+#include <fstream>
+#include <sstream>
 
 namespace ospf
 {
@@ -34,9 +37,9 @@ namespace ospf
             public:
                 template<typename = void>
                     requires std::default_initializable<ValueType>
-                inline std::vector<ValueType> operator()(const CSVTable& table) const noexcept
+                inline Result<std::vector<ValueType>> operator()(const CSVTable& table) const noexcept
                 {
-                    static const meta_info::MetaInfo<ValueType> info{};
+                    static constexpr const meta_info::MetaInfo<ValueType> info{};
                     OSPF_TRY_GET(column_map, parse_header(info, table.header()));
                     std::vector<ValueType> ret;
                     for (const auto& row : table.rows())
@@ -45,14 +48,14 @@ namespace ospf
                         OSPF_TRY_EXEC(deserialize(obj, info, row, column_map));
                         ret.push_back(std::move(obj));
                     }
-                    return ret;
+                    return std::move(ret);
                 }
 
                 template<typename = void>
                     requires std::copy_constructible<ValueType>
-                inline std::vector<ValueType> operator()(const CSVTable& table, const ValueType& origin_obj) const noexcept
+                inline Result<std::vector<ValueType>> operator()(const CSVTable& table, const ValueType& origin_obj) const noexcept
                 {
-                    static const meta_info::MetaInfo<ValueType> info{};
+                    static constexpr const meta_info::MetaInfo<ValueType> info{};
                     OSPF_TRY_GET(column_map, parse_header(info, table.header()));
                     std::vector<ValueType> ret;
                     for (const auto& row : table.rows())
@@ -61,14 +64,14 @@ namespace ospf
                         OSPF_TRY_EXEC(deserialize(obj, info, row, column_map));
                         ret.push_back(std::move(obj));
                     }
-                    return ret;
+                    return std::move(ret);
                 }
 
                 template<typename = void>
                     requires std::default_initializable<ValueType>
-                inline std::vector<ValueType> operator()(const CSVViewTable& table) const noexcept
+                inline Result<std::vector<ValueType>> operator()(const CSVViewTable& table) const noexcept
                 {
-                    static const meta_info::MetaInfo<ValueType> info{};
+                    static constexpr const meta_info::MetaInfo<ValueType> info{};
                     OSPF_TRY_GET(column_map, parse_header(info, table.header()));
                     std::vector<ValueType> ret;
                     for (const auto& row : table.rows())
@@ -77,14 +80,14 @@ namespace ospf
                         OSPF_TRY_EXEC(deserialize(obj, info, row, column_map));
                         ret.push_back(std::move(obj));
                     }
-                    return ret;
+                    return std::move(ret);
                 }
 
                 template<typename = void>
                     requires std::copy_constructible<ValueType>
-                inline std::vector<ValueType> operator()(const CSVViewTable& table, const ValueType& origin_obj) const noexcept
+                inline Result<std::vector<ValueType>> operator()(const CSVViewTable& table, const ValueType& origin_obj) const noexcept
                 {
-                    static const meta_info::MetaInfo<ValueType> info{};
+                    static constexpr const meta_info::MetaInfo<ValueType> info{};
                     OSPF_TRY_GET(column_map, parse_header(info, table.header()));
                     std::vector<ValueType> ret;
                     for (const auto& row : table.rows())
@@ -93,14 +96,14 @@ namespace ospf
                         OSPF_TRY_EXEC(deserialize(obj, info, row, column_map));
                         ret.push_back(std::move(obj));
                     }
-                    return ret;
+                    return std::move(ret);
                 }
 
                 template<typename = void>
                     requires std::default_initializable<ValueType>
-                inline std::vector<ValueType> operator()(const ORMTableType<ValueType>& table) const noexcept
+                inline Result<std::vector<ValueType>> operator()(const ORMTableType<ValueType>& table) const noexcept
                 {
-                    static const meta_info::MetaInfo<ValueType> info{};
+                    static constexpr const meta_info::MetaInfo<ValueType> info{};
                     OSPF_TRY_GET(column_map, parse_header(info, table.header()));
                     std::vector<ValueType> ret;
                     for (const auto& row : table.rows())
@@ -109,14 +112,14 @@ namespace ospf
                         OSPF_TRY_EXEC(deserialize(obj, info, row, column_map));
                         ret.push_back(std::move(obj));
                     }
-                    return ret;
+                    return std::move(ret);
                 }
 
                 template<typename = void>
                     requires std::copy_constructible<ValueType>
-                inline std::vector<ValueType> operator()(const ORMTableType<ValueType>& table, const ValueType& origin_obj) const noexcept
+                inline Result<std::vector<ValueType>> operator()(const ORMTableType<ValueType>& table, const ValueType& origin_obj) const noexcept
                 {
-                    static const meta_info::MetaInfo<ValueType> info{};
+                    static constexpr const meta_info::MetaInfo<ValueType> info{};
                     OSPF_TRY_GET(column_map, parse_header(info, table.header()));
                     std::vector<ValueType> ret;
                     for (const auto& row : table.rows())
@@ -125,14 +128,14 @@ namespace ospf
                         OSPF_TRY_EXEC(deserialize(obj, info, row, column_map));
                         ret.push_back(std::move(obj));
                     }
-                    return ret;
+                    return std::move(ret);
                 }
 
                 template<typename = void>
                     requires std::default_initializable<ValueType>
-                inline std::vector<ValueType> operator()(const ORMViewTableType<ValueType>& table) const noexcept
+                inline Result<std::vector<ValueType>> operator()(const ORMViewTableType<ValueType>& table) const noexcept
                 {
-                    static const meta_info::MetaInfo<ValueType> info{};
+                    static constexpr const meta_info::MetaInfo<ValueType> info{};
                     OSPF_TRY_GET(column_map, parse_header(info, table.header()));
                     std::vector<ValueType> ret;
                     for (const auto& row : table.rows())
@@ -141,14 +144,14 @@ namespace ospf
                         OSPF_TRY_EXEC(deserialize(obj, info, row, column_map));
                         ret.push_back(std::move(obj));
                     }
-                    return ret;
+                    return std::move(ret);
                 }
 
                 template<typename = void>
                     requires std::copy_constructible<ValueType>
-                inline std::vector<ValueType> operator()(const ORMViewTableType<ValueType>& table, const ValueType& origin_obj) const noexcept
+                inline Result<std::vector<ValueType>> operator()(const ORMViewTableType<ValueType>& table, const ValueType& origin_obj) const noexcept
                 {
-                    static const meta_info::MetaInfo<ValueType> info{};
+                    static constexpr const meta_info::MetaInfo<ValueType> info{};
                     OSPF_TRY_GET(column_map, parse_header(info, table.header()));
                     std::vector<ValueType> ret;
                     for (const auto& row : table.rows())
@@ -157,7 +160,7 @@ namespace ospf
                         OSPF_TRY_EXEC(deserialize(obj, info, row, column_map));
                         ret.push_back(std::move(obj));
                     }
-                    return ret;
+                    return std::move(ret);
                 }
 
             private:
@@ -201,7 +204,10 @@ namespace ospf
                     std::optional<OSPFError> err;
                     info.for_each(obj, [this, row, &column_map, err](auto& obj, const auto& field)
                         {
+                            // todo: impl concept refer to a type that all fileds are plane
+                            static_assert(field.plane());
                             static_assert(DeserializableFromCSV<OriginType<decltype(field.value(obj))>>);
+
                             if constexpr (!field.writable())
                             {
                                 return;
@@ -280,7 +286,139 @@ namespace ospf
                 std::optional<NameTransfer> _transfer;
             };
 
-            // todo: deserialize from file (soft) / deserialize from string (soft)
+            template<typename T, typename CharT = char>
+                requires std::default_initializable<T>
+            inline Try<std::vector<T>> from_file(const std::filesystem::path& path, std::optional<typename Deserializer<T>::NameTransfer> transfer = std::nullopt, const std::basic_string_view<CharT> seperator = CharTrait<CharT>::default_seprator) noexcept
+            {
+                if (!std::filesystem::exists(path))
+                {
+                    return OSPFError{ OSPFErrCode::FileNotFound, std::format("\"{}\" not exist", path) };
+                }
+                if (std::filesystem::is_directory(path))
+                {
+                    return OSPFError{ OSPFErrCode::NotAFile, std::format("\"{}\" is not a file", path) };
+                }
+
+                std::ifstream fin{ path };
+                OSPF_TRY_GET(table, read<ORMCSVTrait<T>::col>(fin, seperator));
+
+                auto deserializer = transfer.has_value() ? Deserializer<T>{ *transfer } : Deserializer<T>{};
+                OSPF_TRY_GET(objs, deserializer(table));
+                return std::move(objs);
+            }
+
+            template<typename T, typename CharT = char>
+                requires std::copy_constructible<T>
+            inline Try<std::vector<T>> from_file(const std::filesystem::path& path, const T& origin_obj, std::optional<typename Deserializer<T>::NameTransfer> transfer = std::nullopt, const std::basic_string_view<CharT> seperator = CharTrait<CharT>::default_seprator) noexcept
+            {
+                if (!std::filesystem::exists(path))
+                {
+                    return OSPFError{ OSPFErrCode::FileNotFound, std::format("\"{}\" not exist", path) };
+                }
+                if (std::filesystem::is_directory(path))
+                {
+                    return OSPFError{ OSPFErrCode::NotAFile, std::format("\"{}\" is not a file", path) };
+                }
+
+                std::ifstream fin{ path };
+                OSPF_TRY_GET(table, read<ORMCSVTrait<T>::col>(fin, seperator));
+
+                auto deserializer = transfer.has_value() ? Deserializer<T>{ *transfer } : Deserializer<T>{};
+                OSPF_TRY_GET(objs, deserializer(table, origin_obj));
+                return std::move(objs);
+            }
+
+            template<typename T, typename CharT = char>
+                requires std::default_initializable<T>
+            inline Try<std::vector<T>> from_file_soft(const std::filesystem::path& path, std::optional<typename Deserializer<T>::NameTransfer> transfer = std::nullopt, const std::basic_string_view<CharT> seperator = CharTrait<CharT>::default_seprator) noexcept
+            {
+                if (!std::filesystem::exists(path))
+                {
+                    return OSPFError{ OSPFErrCode::FileNotFound, std::format("\"{}\" not exist", path) };
+                }
+                if (std::filesystem::is_directory(path))
+                {
+                    return OSPFError{ OSPFErrCode::NotAFile, std::format("\"{}\" is not a file", path) };
+                }
+
+                std::ifstream fin{ path };
+                OSPF_TRY_GET(table, read(fin, seperator));
+
+                auto deserializer = transfer.has_value() ? Deserializer<T>{ *transfer } : Deserializer<T>{};
+                OSPF_TRY_GET(objs, deserializer(table));
+                return std::move(objs);
+            }
+
+            template<typename T, typename CharT = char>
+                requires std::copy_constructible<T>
+            inline Try<std::vector<T>> from_file_soft(const std::filesystem::path& path, const T& origin_obj, std::optional<typename Deserializer<T>::NameTransfer> transfer = std::nullopt, const std::basic_string_view<CharT> seperator = CharTrait<CharT>::default_seprator) noexcept
+            {
+                if (!std::filesystem::exists(path))
+                {
+                    return OSPFError{ OSPFErrCode::FileNotFound, std::format("\"{}\" not exist", path) };
+                }
+                if (std::filesystem::is_directory(path))
+                {
+                    return OSPFError{ OSPFErrCode::NotAFile, std::format("\"{}\" is not a file", path) };
+                }
+
+                std::ifstream fin{ path };
+                OSPF_TRY_GET(table, read(fin, seperator));
+
+                auto deserializer = transfer.has_value() ? Deserializer<T>{ *transfer } : Deserializer<T>{};
+                OSPF_TRY_GET(objs, deserializer(table, origin_obj));
+                return std::move(objs);
+            }
+
+            template<typename T, typename CharT = char>
+                requires std::default_initializable<T>
+            inline Try<std::vector<T>> from_string(const std::string_view str, std::optional<typename Deserializer<T>::NameTransfer> transfer = std::nullopt, const std::basic_string_view<CharT> seperator = CharTrait<CharT>::default_seprator) noexcept
+            {
+                std::istringstream sin{ str };
+                OSPF_TRY_GET(table, read<ORMCSVTrait<T>::col>(sin, seperator));
+
+                auto deserializer = transfer.has_value() ? Deserializer<T>{ *transfer } : Deserializer<T>{};
+                OSPF_TRY_GET(objs, deserializer(table));
+                return std::move(objs);
+            }
+
+            template<typename T, typename CharT = char>
+                requires std::copy_constructible<T>
+            inline Try<std::vector<T>> from_string(const std::string_view str, const T& origin_obj, std::optional<typename Deserializer<T>::NameTransfer> transfer = std::nullopt, const std::basic_string_view<CharT> seperator = CharTrait<CharT>::default_seprator) noexcept
+            {
+                std::istringstream sin{ str };
+                OSPF_TRY_GET(table, read<ORMCSVTrait<T>::col>(sin, seperator));
+
+                auto deserializer = transfer.has_value() ? Deserializer<T>{ *transfer } : Deserializer<T>{};
+                OSPF_TRY_GET(objs, deserializer(table, origin_obj));
+                return std::move(objs);
+            }
+
+            template<typename T, typename CharT = char>
+                requires std::default_initializable<T>
+            inline Try<std::vector<T>> from_string_soft(const std::string_view str, std::optional<typename Deserializer<T>::NameTransfer> transfer = std::nullopt, const std::basic_string_view<CharT> seperator = CharTrait<CharT>::default_seprator) noexcept
+            {
+                std::istringstream sin{ str };
+                OSPF_TRY_GET(table, read(sin, seperator));
+
+                auto deserializer = transfer.has_value() ? Deserializer<T>{ *transfer } : Deserializer<T>{};
+                OSPF_TRY_GET(objs, deserializer(table));
+                return std::move(objs);
+            }
+
+            template<typename T, typename CharT = char>
+                requires std::copy_constructible<T>
+            inline Try<std::vector<T>> from_string_soft(const std::string_view str, const T& origin_obj, std::optional<typename Deserializer<T>::NameTransfer> transfer = std::nullopt, const std::basic_string_view<CharT> seperator = CharTrait<CharT>::default_seprator) noexcept
+            {
+                std::istringstream sin{ str };
+                OSPF_TRY_GET(table, read(sin, seperator));
+
+                auto deserializer = transfer.has_value() ? Deserializer<T>{ *transfer } : Deserializer<T>{};
+                OSPF_TRY_GET(objs, deserializer(table, origin_obj));
+                return std::move(objs);
+            }
+
+            // todo: from bytes
         };
     };
 };

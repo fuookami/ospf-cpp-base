@@ -271,8 +271,8 @@ namespace ospf
             using typename Impl::VectorViewType;
 
         public:
-            constexpr Shape(ArgCLRefType<VectorType> shape)
-                : _shape(move<VectorType>(shape)), _offset(0_uz), _size(0_uz)
+            constexpr Shape(ArgRRefType<VectorType> shape)
+                : _shape(move<VectorType>(shape)), _offset({ 0_uz }), _size(0_uz)
             {
                 std::tie(_offset, _size) = offset(_shape);
             }

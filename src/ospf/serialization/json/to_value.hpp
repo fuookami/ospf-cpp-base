@@ -65,7 +65,7 @@ namespace ospf
                             }
 
                             const auto key = transfer.has_value() ? (*transfer)(field.key()) : field.key();
-                            const auto ToJsonValue<OriginType<decltype(field.value(obj))>> serializer{};
+                            const ToJsonValue<OriginType<decltype(field.value(obj))>> serializer{};
                             auto value = serializer(field.value(obj));
                             if (value.failed())
                             {
@@ -74,7 +74,7 @@ namespace ospf
                             }
                             else
                             {
-                                ret.AddMember(rapidjson::StringRef{ key.data() }, value.unwrap().Move(), doc.GetAllocator());
+                                ret.AddMember(rapidjson::StringRef(key.data()), value.unwrap().Move(), doc.GetAllocator());
                             }
                         });
                     if (err.has_value())

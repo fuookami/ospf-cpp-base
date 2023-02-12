@@ -31,7 +31,7 @@ namespace std
         template<typename FormatContext>
         inline decltype(auto) format(const rapidjson::Value& value, FormatContext& fc)
         {
-            std::basic_ostream<CharT> sout;
+            std::basic_ostringstream<CharT> sout;
             rapidjson::BasicOStreamWrapper osw{ sout };
             rapidjson::Writer writer{ osw };
 
@@ -41,7 +41,7 @@ namespace std
             }
 
             static const auto _formatter = formatter<string_view, CharT>{};
-            return _formatter.format(ospf::to_string(sout.str()), fc);
+            return _formatter.format(sout.str(), fc);
         }
     };
 };

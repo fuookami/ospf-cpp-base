@@ -64,7 +64,7 @@ namespace ospf
             }
             else
             {
-                return regex_split(src, regex::RegexTrait<CharT>::generate_regex_expr(splitors));
+                return regex_split(src, std::basic_string_view<CharT>{ regex::RegexTrait<CharT>::generate_regex_expr(splitors) });
             }
         }
 

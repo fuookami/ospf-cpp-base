@@ -485,7 +485,7 @@ if (Ret##_ret.is_failed())\
 {\
     return std::move(Ret##_ret).err();\
 }\
-auto Ret = std::move(Ret##_ret).value();
+auto Ret = std::move(Ret##_ret).unwrap();
 #endif
 
 #ifndef OSPF_TRY_EXEC

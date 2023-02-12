@@ -47,6 +47,56 @@ namespace ospf
                     std::swap(_ptr, rhs._ptr);
                 }
 
+            public:
+                using Impl::operator==;
+                using Impl::operator!=;
+
+                inline constexpr const bool operator==(const Ref& rhs) const noexcept
+                {
+                    return _ptr == rhs._ptr
+                        || *_ptr == *rhs._ptr;
+                }
+
+                inline constexpr const bool operator!=(const Ref& rhs) const noexcept
+                {
+                    return _ptr != rhs._ptr
+                        && *_ptr != *rhs._ptr;
+                }
+
+            public:
+                using Impl::operator<;
+                using Impl::operator<=;
+                using Impl::operator>;
+                using Impl::operator>=;
+
+                inline constexpr const bool operator<(const Ref& rhs) const noexcept
+                {
+                    return *_ptr < *rhs._ptr;
+                }
+
+                inline constexpr const bool operator<=(const Ref& rhs) const noexcept
+                {
+                    return *_ptr <= *rhs._ptr;
+                }
+
+                inline constexpr const bool operator>(const Ref& rhs) const noexcept
+                {
+                    return *_ptr > *rhs._ptr;
+                }
+
+                inline constexpr const bool operator>=(const Ref& rhs) const noexcept
+                {
+                    return *_ptr >= *rhs._ptr;
+                }
+
+            public:
+                using Impl::operator<=>;
+
+                inline constexpr const bool operator<=>(const Ref& rhs) const noexcept
+                {
+                    return *_ptr <=> *rhs._ptr;
+                }
+
             OSPF_CRTP_PERMISSION:
                 inline RefType OSPF_CRTP_FUNCTION(get_ref)(void) noexcept
                 {

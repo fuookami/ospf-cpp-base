@@ -215,17 +215,17 @@ namespace ospf
 
             public:
                 template<typename U>
-                    requires std::convertible_to<ospf::PtrType<U>, PtrType>
+                    requires DecayNotSameAs<U, T> && std::convertible_to<ospf::PtrType<U>, PtrType>
                 explicit Ptr(std::unique_ptr<U> ptr) noexcept
                     : _ptr(move<std::unique_ptr<U>>(ptr)) {}
 
                 template<typename U, typename D>
-                    requires std::convertible_to<ospf::PtrType<U>, PtrType>
+                    requires DecayNotSameAs<U, T> && std::convertible_to<ospf::PtrType<U>, PtrType>
                 explicit Ptr(std::unique_ptr<U, D> ptr) noexcept
                     : _ptr(move<std::unique_ptr<U, D>>(ptr)) {}
 
                 template<typename U, typename D>
-                    requires std::convertible_to<ospf::PtrType<U>, PtrType>
+                    requires DecayNotSameAs<U, T> && std::convertible_to<ospf::PtrType<U>, PtrType>
                 explicit Ptr(std::unique_ptr<const U, D> ptr) noexcept
                     : _ptr(move<std::unique_ptr<const U, D>>(ptr)) {}
 

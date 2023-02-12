@@ -3,6 +3,7 @@
 #include <ospf/basic_definition.hpp>
 #include <ospf/ospf_base_api.hpp>
 #include <ospf/functional/result.hpp>
+#include <ospf/meta_programming/meta_info.hpp>
 #include <ospf/serialization/json/concept.hpp>
 #include <rapidjson/document.h>
 

@@ -36,10 +36,10 @@ namespace ospf
             {
                 return std::bit_cast<T>(bits::reverse_bits_u64(std::bit_cast<u64>(value)));
             }
-            else
-            {
-                static_assert(false, "unsupported bits size.");
-            }
+            //else
+            //{
+            //    static_assert(false, "unsupported bits size.");
+            //}
         }
     };
 };

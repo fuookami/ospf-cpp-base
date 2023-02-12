@@ -63,7 +63,6 @@ namespace ospf
                     return cptr() != nullptr;
                 }
 
-            public:
                 template<typename U, typename P>
                 inline const bool operator==(const PtrImpl<U, P>& ptr) const noexcept
                 {
@@ -76,6 +75,19 @@ namespace ospf
                     return cptr() != ptr.cptr();
                 }
 
+                template<typename U>
+                inline const bool operator==(const U* const ptr) const noexcept
+                {
+                    return cptr() == ptr;
+                }
+
+                template<typename U>
+                inline const bool operator!=(const U* const ptr) const noexcept
+                {
+                    return cptr() != ptr;
+                }
+
+            public:
                 template<typename U, typename P>
                 inline const bool operator<(const PtrImpl<U, P>& ptr) const noexcept
                 {
@@ -100,10 +112,41 @@ namespace ospf
                     return cptr() >= ptr.cptr();
                 }
 
+                template<typename U>
+                inline const bool operator<(const U* const ptr) const noexcept
+                {
+                    return cptr() < ptr;
+                }
+
+                template<typename U>
+                inline const bool operator<=(const U* const ptr) const noexcept
+                {
+                    return cptr() <= ptr;
+                }
+
+                template<typename U>
+                inline const bool operator>(const U* const ptr) const noexcept
+                {
+                    return cptr() > ptr;
+                }
+
+                template<typename U>
+                inline const bool operator>=(const U* const ptr) const noexcept
+                {
+                    return cptr() >= ptr;
+                }
+
+            public:
                 template<typename U, typename P>
                 inline decltype(auto) operator<=>(const PtrImpl<U, P>& ptr) const noexcept
                 {
                     return cptr() <=> ptr.cptr();
+                }
+
+                template<typename U>
+                inline decltype(auto) operator<=>(const U* const ptr) const noexcept
+                {
+                    return cptr() <=> ptr;
                 }
 
             public:
