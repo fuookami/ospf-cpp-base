@@ -25,6 +25,7 @@
     <ClInclude Include="src\ospf\concepts\container.hpp" />
     <ClInclude Include="src\ospf\concepts\copy_faster.hpp" />
     <ClInclude Include="src\ospf\concepts\base.hpp" />
+    <ClInclude Include="src\ospf\concepts\enum.hpp" />
     <ClInclude Include="src\ospf\concepts\with_default.hpp" />
     <ClInclude Include="src\ospf\concepts\with_tag.hpp" />
     <ClInclude Include="src\ospf\config.hpp" />
@@ -207,7 +208,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v143</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">

@@ -164,11 +164,12 @@ namespace ospf
                 }
 
             public:
+                // todo: impl for different character
                 inline std::basic_string<CharT> to_string(void) const noexcept
                 {
                     if (_type.has_value())
                     {
-                        return std::visit([this](const auto& type) -> std::basic_string<CharT>
+                        return std::visit([this](const auto& type) -> std::string
                             {
                                 if constexpr (DecaySameAs<decltype(type), std::type_index>)
                                 {
@@ -219,7 +220,7 @@ namespace ospf
 namespace std
 {
     template<typename CharT>
-    inline std::basic_string<CharT> to_string(const ospf::data_table::DataTableHeader<CharT>& header) noexcept
+    inline basic_string<CharT> to_string(const ospf::data_table::DataTableHeader<CharT>& header) noexcept
     {
         return header.to_string();
     }

@@ -474,6 +474,9 @@
     <ClInclude Include="src\ospf\string\regex.hpp">
       <Filter>src\ospf\string</Filter>
     </ClInclude>
+    <ClInclude Include="src\ospf\concepts\enum.hpp">
+      <Filter>src\ospf\concepts</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\ospf\system_info.cpp">
@@ -482,14 +485,8 @@
     <ClCompile Include="src\ospf\jni\jstring.cpp">
       <Filter>src\ospf\jni</Filter>
     </ClCompile>
-    <ClCompile Include="src\ospf\meta_programming\name_transfer\backend.cpp">
-      <Filter>src\ospf\meta-programming\name_transfer</Filter>
-    </ClCompile>
     <ClCompile Include="src\ospf\meta_programming\name_transfer\frontend.cpp">
       <Filter>src\ospf\meta-programming\name_transfer</Filter>
-    </ClCompile>
-    <ClCompile Include="src\ospf\string\hasher.cpp">
-      <Filter>src\ospf\string</Filter>
     </ClCompile>
     <ClCompile Include="src\ospf\meta_programming\name_transfer.cpp">
       <Filter>src\ospf\meta-programming</Filter>
@@ -559,6 +556,12 @@
     </ClCompile>
     <ClCompile Include="src\ospf\string\regex.cpp">
       <Filter>src\ospf\string</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ospf\string\hasher.cpp">
+      <Filter>src\ospf\string</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ospf\meta_programming\name_transfer\backend.cpp">
+      <Filter>src\ospf\meta-programming\name_transfer</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

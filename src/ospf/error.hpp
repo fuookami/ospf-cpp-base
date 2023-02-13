@@ -5,8 +5,8 @@
 
 namespace ospf
 {
-    using OSPFError = Error<OSPFErrCode>;
+    using OSPFError = Error<OSPFErrCode, char>;
 
     template<typename T>
-    using ExOSPFError = ExError<OSPFErrCode, T>;
+    using ExOSPFError = ExError<OSPFErrCode, T, char>;
 };

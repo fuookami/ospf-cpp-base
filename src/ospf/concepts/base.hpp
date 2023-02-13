@@ -1,6 +1,8 @@
 ﻿#pragma once
 
+#include <ospf/basic_definition.hpp>
 #include <magic_enum.hpp>
+#include <boost/locale.hpp>
 #include <type_traits>
 #include <format>
 
@@ -8,14 +10,26 @@ namespace ospf
 {
     inline namespace concepts
     {
-        template<typename T>
-        concept EnumType = std::is_enum_v<T>;
+        template<typename T, typename... Args>
+        struct IsSameAs;
 
-        template<EnumType T>
-        inline constexpr const std::string_view to_string(const T value) noexcept
+        template<typename T, typename U>
+        struct IsSameAs<T, U>
         {
-            return magic_enum::enum_name<T>(value);
-        }
+            static constexpr const bool value = std::is_same_v<T, U>;
+        };
+
+        template<typename T, typename U, typename... Args>
+        struct IsSameAs<T, U, Args...>
+        {
+            static constexpr const bool value = IsSameAs<T, U>::value || IsSameAs<T, Args...>::value;
+        };
+
+        template<typename T, typename... Args>
+        static constexpr const bool is_same_as = IsSameAs<T, Args...>::value;
+
+        template<typename T, typename... Args>
+        concept SameAs = is_same_as<T, Args...>;
 
         template<typename T, typename U>
         concept NotSameAs = !std::is_same_v<T, U>;
@@ -43,26 +57,26 @@ namespace ospf
 
         template<typename T, typename... Args>
         concept DecayNotSameAs = !is_decay_same_as<T, Args...>;
-    };
-};
 
-namespace std
-{
-    template<ospf::EnumType T>
-    inline const std::string_view to_string(const T value) noexcept
-    {
-        return ospf::to_string(value);
-    }
+        template<typename T>
+        concept NotVoidType = NotSameAs<T, void>;
 
-    template<ospf::EnumType T, typename CharT>
-    struct formatter<T, CharT> 
-        : public formatter<string_view, CharT>
-    {
-        template<typename FormatContext>
-        inline decltype(auto) format(const T value, FormatContext& fc)
-        {
-            static const auto _formatter = formatter<string_view, CharT>{};
-            return _formatter.format(ospf::to_string(value), fc);
-        }
+        template<typename T>
+        concept DecayNotVoidType = DecayNotSameAs<T, void>;
+
+        template<typename T>
+        concept CharType = SameAs<T, char, wchar, u8char, u16char, u32char>;
+
+        template<typename T>
+        concept StringType = DecaySameAs<T, std::string, std::wstring, std::u8string, std::u16string, std::u32string>;
+
+        template<typename T>
+        concept StringViewType = DecaySameAs<T, std::string_view, std::wstring_view, std::u8string_view, std::u16string_view, std::u32string_view>;
+
+        template<typename T>
+        concept StringOrViewType = StringType<T> || StringViewType<T>;
+
+        template<StringOrViewType T>
+        using CharTypeOf = typename T::value_type;
     };
 };

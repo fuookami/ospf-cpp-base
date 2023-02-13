@@ -15,34 +15,37 @@ namespace ospf
         template<typename T>
         concept ErrorType = requires(const T & error)
         {
-            requires EnumType<typename T::CodeType>;
             { error.code() } -> EnumType;
-            { error.message() } -> DecaySameAs<std::string_view>;
+            { error.message() } -> StringViewType;
         };
 
         template<typename T>
         concept ExErrorType = ErrorType<T> && requires(const T& error)
         {
-            requires NotSameAs<typename T::ArgType, void>;
-            { error.arg() } -> NotSameAs<void>;
+            { error.arg() } -> NotVoidType;
         };
 
-        template<typename C>
-            requires std::is_enum_v<C>
+        template<EnumType C, CharType CharT>
         class Error
         {
         public:
-            using CodeType = C;
+            using CodeType = OriginType<C>;
+            using StringType = std::basic_string<CharT>;
+            using StringViewType = std::basic_string_view<CharT>;
 
         public:
             template<typename = void>
                 requires WithDefault<C>
             constexpr Error(void)
                 : Error(DefaultValue<C>::value) {}
-            constexpr Error(C code)
-                : _code(code), _msg(magic_enum::enum_name<C>(code)) {}
-            constexpr explicit Error(C code, std::string msg)
-                : _code(code), _msg(move<std::string>(msg)) {}
+
+            constexpr Error(CodeType code)
+                : _code(code), _msg(to_string<CodeType, CharT>(code)) {}
+
+            constexpr explicit Error(CodeType code, StringType msg)
+                : _code(code), _msg(std::move(msg)) {}
+
+        public:
             constexpr Error(const Error& ano) = default;
             constexpr Error(Error&& ano) noexcept = default;
             constexpr Error& operator=(const Error& rhs) = default;
@@ -50,50 +53,53 @@ namespace ospf
             constexpr ~Error(void) noexcept = default;
 
         public:
-            inline constexpr const C code(void) const & noexcept
+            inline constexpr const CodeType code(void) const & noexcept
             {
                 return _code;
             }
 
-            inline constexpr const std::string_view message(void) const & noexcept
+            inline constexpr const StringViewType message(void) const & noexcept
             {
                 return _msg;
             }
 
-            inline std::string message(void) && noexcept
+            inline StringType message(void) && noexcept
             {
                 return std::move(_msg);
             }
 
         private:
-            C _code;
-            std::string _msg;
+            CodeType _code;
+            StringType _msg;
         };
 
-        template<typename C, typename T>
-            requires std::is_enum_v<C> && NotSameAs<T, void>
+        template<EnumType C, NotVoidType T, CharType CharT>
         class ExError
-            : public Error<C>
+            : public Error<C, CharT>
         {
+            using Base = Error<C, CharT>;
+
         public:
-            using typename Error<C>::CodeType;
-            using ArgType = OriginType<T>;
+            using typename Base::CodeType;
+            using typename Base::StringType;
+            using typename Base::StringViewType;
+            using ArgType = T;
 
         public:
             constexpr ExError(void)
-                : Error<C>(), _arg(std::nullopt) {}
+                : Base(), _arg(std::nullopt) {}
 
-            constexpr ExError(C code)
-                : Error<C>(code), _arg(std::nullopt) {}
+            constexpr ExError(CodeType code)
+                : Base(code), _arg(std::nullopt) {}
 
-            constexpr explicit ExError(C code, std::string msg)
-                : Error<C>(code, move<std::string>(msg)), _arg(std::nullopt) {}
+            constexpr explicit ExError(CodeType code, StringType msg)
+                : Base(code, std::move(msg)), _arg(std::nullopt) {}
 
-            constexpr explicit ExError(C code, std::string msg, ArgRRefType<ArgType> arg)
-                : Error<C>(code, move<std::string>(msg)), _arg(move<ArgType>(arg)) {}
+            constexpr explicit ExError(CodeType code, StringType msg, ArgRRefType<ArgType> arg)
+                : Base(code, std::move(msg)), _arg(move<ArgType>(arg)) {}
 
-            constexpr explicit ExError(Error<C> error, ArgRRefType<ArgType> arg)
-                : Error<C>(std::move(error)), _arg(move<ArgType>(arg)) {}
+            constexpr explicit ExError(Base error, ArgRRefType<ArgType> arg)
+                : Base(std::move(error)), _arg(move<ArgType>(arg)) {}
 
         public:
             constexpr ExError(const ExError& ano) = default;
@@ -103,37 +109,41 @@ namespace ospf
             constexpr ~ExError(void) noexcept = default;
 
         public:
-            inline constexpr const std::optional<T>& arg(void) const & noexcept
+            inline constexpr const std::optional<ArgType>& arg(void) const & noexcept
             {
                 return _arg;
             }
 
-            inline std::optional<T> arg(void) && noexcept
+            inline std::optional<ArgType> arg(void) && noexcept
             {
                 return std::move(_arg);
             }
 
         private:
-            std::optional<T> _arg;
+            std::optional<ArgType> _arg;
         };
 
-        extern template class Error<OSPFErrCode>;
+        extern template class Error<OSPFErrCode, char>;
+        extern template class Error<OSPFErrCode, wchar>;
+        extern template class Error<OSPFErrCode, u8char>;
+        extern template class Error<OSPFErrCode, u16char>;
+        extern template class Error<OSPFErrCode, u32char>;
     };
 };
 
 namespace ospf::concepts
 {
-    template<typename C>
-        requires std::is_enum_v<C> && WithDefault<C>
-    struct DefaultValue<Error<C>>
+    template<EnumType C, CharType CharT>
+        requires WithDefault<C>
+    struct DefaultValue<Error<C, CharT>>
     {
-        static constexpr const Error<C> value = Error<C>{};
+        static constexpr const Error<C, CharT> value = Error<C, CharT>{};
     };
 
-    template<typename C, typename T>
-        requires std::is_enum_v<C> && NotSameAs<T, void> && WithDefault<C>
-    struct DefaultValue<ExError<C, T>>
+    template<EnumType C, NotVoidType T, CharType CharT>
+        requires WithDefault<C>
+    struct DefaultValue<ExError<C, T, CharT>>
     {
-        static constexpr const ExError<C, T> value = ExError<C, T>{};
+        static constexpr const ExError<C, T, CharT> value = ExError<C, T, CharT>{};
     };
 };

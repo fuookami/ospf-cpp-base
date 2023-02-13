@@ -8,9 +8,9 @@
 namespace ospf
 {
     using wchar = wchar_t;
-    using char8 = char8_t;
-    using char16 = char16_t;
-    using char32 = char32_t;
+    using u8char = char8_t;
+    using u16char = char16_t;
+    using u32char = char32_t;
 
     using i8 = std::int8_t;
     using u8 = std::uint8_t;

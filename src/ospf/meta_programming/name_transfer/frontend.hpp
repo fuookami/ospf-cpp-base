@@ -2,9 +2,13 @@
 
 #include <ospf/ospf_base_api.hpp>
 #include <ospf/basic_definition.hpp>
+#include <ospf/literal_constant.hpp>
 #include <ospf/meta_programming/naming_system.hpp>
-#include <vector>
+#include <locale>
+#include <ranges>
+#include <string>
 #include <string_view>
+#include <vector>
 
 namespace ospf
 {
@@ -12,57 +16,138 @@ namespace ospf
     {
         namespace name_transfer
         {
-            OSPF_BASE_API std::vector<std::string_view> underscore_name_split(const std::string_view name) noexcept;
-            OSPF_BASE_API std::vector<std::string_view> calmelcase_name_split(const std::string_view name) noexcept;
-            OSPF_BASE_API std::vector<std::string_view> pascalcase_name_split(const std::string_view name) noexcept;
-            OSPF_BASE_API std::vector<std::string_view> upper_underscore_name_split(const std::string_view name) noexcept;
+            // todo: impl abbreviations list for splitting
 
             template<NamingSystem system, typename CharT>
-            struct Frontend 
+            struct Frontend;
+
+            template<typename CharT>
+            struct Frontend<NamingSystem::Underscore, CharT>
             {
-                inline std::vector<std::basic_string_view<CharT>> operator()(const std::std::basic_string_view<CharT> name) const noexcept
+                using StringType = std::basic_string<CharT>;
+                using StringViewType = std::basic_string_view<CharT>;
+
+                inline std::vector<StringViewType> operator()(const StringViewType name) const noexcept
                 {
-                    return {};
+                    if (name.empty())
+                    {
+                        return {};
+                    }
+                    assert(std::ranges::all_of(name, [](const CharT ch)
+                        {
+                            return std::isalnum(ch, std::locale{}) || ch == CharT{ '_' };
+                        }));
+
+                    usize p{ 0_uz }, q{ 1_uz };
+                    bool flag{ name.front() == CharT{ '_' } };
+                    std::vector<StringViewType> ret;
+                    for (usize i{ 0_uz }; i != name.size(); ++i)
+                    {
+                        if (name[i] == '_')
+                        {
+                            if (p != q && !flag)
+                            {
+                                ret.push_back(name.substr(p, q - p));
+                            }
+                            p = q = i + 1_uz;
+                            flag = true;
+                        }
+                        else if (flag)
+                        {
+                            p = i;
+                            q = i + 1_uz;
+                            flag = false;
+                        }
+                        else
+                        {
+                            q = i + 1_uz;
+                        }
+                    }
+                    if (p != q)
+                    {
+                        ret.push_back(name.substr(p, q - p));
+                    }
+                    return ret;
                 }
             };
 
-            template<>
-            struct Frontend<NamingSystem::Underscore, char>
+            template<typename CharT>
+            struct Frontend<NamingSystem::Camelcase, CharT>
             {
-                inline decltype(auto) operator()(const std::string_view name) const noexcept
+                using StringType = std::basic_string<CharT>;
+                using StringViewType = std::basic_string_view<CharT>;
+
+                inline std::vector<StringViewType> operator()(const StringViewType name) const noexcept
                 {
-                    return underscore_name_split(name);
+                    if (name.empty())
+                    {
+                        return {};
+                    }
+                    assert(std::ranges::all_of(name, [](const CharT ch)
+                        {
+                            return std::isalnum(ch, std::locale{});
+                        }));
+
+                    usize p{ 0_uz }, q{ 1_uz };
+                    bool flag{ std::isupper(name.front(), std::locale{}) };
+                    std::vector<StringViewType> ret;
+                    for (usize i{ 0_uz }; i != name.size(); ++i)
+                    {
+                        if (std::isupper(name[i], std::locale{}))
+                        {
+                            if (flag)
+                            {
+                                q = i + 1_uz;
+                            }
+                            else
+                            {
+                                if ((q - p) > 1_uz && !flag)
+                                {
+                                    ret.push_back(name.substr(p, q - p));
+                                }
+                                p = i;
+                                q = i + 1_uz;
+                                flag = true;
+                            }
+                        }
+                        else if (std::islower(name[i], std::locale{}))
+                        {
+                            if ((q - p) > 1_uz && flag)
+                            {
+                                ret.push_back(name.substr(p, q - p - 1_uz));
+                                p = q - 1_uz;
+                            }
+                            q = i + 1_uz;
+                            flag = false;
+                        }
+                    }
+                    if (p != q)
+                    {
+                        ret.push_back(name.substr(p, q - p));
+                    }
+                    return ret;
                 }
             };
 
-            template<>
-            struct Frontend<NamingSystem::Camelcase, char>
-            {
-                inline decltype(auto) operator()(const std::string_view name) const noexcept
-                {
-                    return calmelcase_name_split(name);
-                }
-            };
+            template<typename CharT>
+            struct Frontend<NamingSystem::Pascalcase, CharT>
+                : public Frontend<NamingSystem::Camelcase, CharT> {};
 
-            template<>
-            struct Frontend<NamingSystem::Pascalcase, char>
-            {
-                inline decltype(auto) operator()(const std::string_view name) const noexcept
-                {
-                    return pascalcase_name_split(name);
-                }
-            };
+            template<typename CharT>
+            struct Frontend<NamingSystem::UpperUnderscore, CharT>
+                : public Frontend<NamingSystem::Underscore, CharT> {};
 
-            template<>
-            struct Frontend<NamingSystem::UpperUnderscore, char>
-            {
-                inline decltype(auto) operator()(const std::string_view name) const noexcept
-                {
-                    return upper_underscore_name_split(name);
-                };
-            };
+            extern template struct Frontend<NamingSystem::Underscore, char>;
+            extern template struct Frontend<NamingSystem::Underscore, wchar>;
 
-            // todo: impl for different character
+            extern template struct Frontend<NamingSystem::Camelcase, char>;
+            extern template struct Frontend<NamingSystem::Camelcase, wchar>;
+
+            extern template struct Frontend<NamingSystem::Pascalcase, char>;
+            extern template struct Frontend<NamingSystem::Pascalcase, wchar>;
+
+            extern template struct Frontend<NamingSystem::UpperUnderscore, char>;
+            extern template struct Frontend<NamingSystem::UpperUnderscore, wchar>;
         };
     };
 };

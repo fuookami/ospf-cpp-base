@@ -1,9 +1,9 @@
 ﻿#pragma once
 
 #include <ospf/basic_definition.hpp>
-#include <ospf/concepts.hpp>
+#include <ospf/concepts/enum.hpp>
+#include <ospf/concepts/with_default.hpp>
 #include <ospf/literal_constant.hpp>
-#include <format>
 
 namespace ospf
 {

@@ -2,9 +2,13 @@
 
 #include <ospf/ospf_base_api.hpp>
 #include <ospf/basic_definition.hpp>
+#include <ospf/concepts/base.hpp>
+#include <ospf/literal_constant.hpp>
 #include <ospf/meta_programming/naming_system.hpp>
-#include <vector>
+#include <locale>
+#include <numeric>
 #include <span>
+#include <string>
 #include <string_view>
 
 namespace ospf
@@ -13,63 +17,169 @@ namespace ospf
     {
         namespace name_transfer
         {
-            OSPF_BASE_API std::string underscore_name_join(const std::span<const std::string_view> words) noexcept;
-            OSPF_BASE_API std::string calmelcase_name_join(const std::span<const std::string_view> words) noexcept;
-            OSPF_BASE_API std::string pascalcase_name_join(const std::span<const std::string_view> words) noexcept;
-            OSPF_BASE_API std::string upper_underscore_name_join(const std::span<const std::string_view> words) noexcept;
+            template<NamingSystem system, CharType CharT>
+            struct Backend;
 
-            template<NamingSystem system, typename CharT>
-            struct Backend
+            template<CharType CharT>
+            struct Backend<NamingSystem::Underscore, CharT>
             {
+                using StringType = std::basic_string<CharT>;
+                using StringViewType = std::basic_string_view<CharT>;
+
                 template<usize len>
-                inline std::basic_string<CharT> operator()(const std::span<const std::basic_string_view<CharT>, len> words) const noexcept
+                inline StringType operator()(const std::span<const StringViewType, len> words) const noexcept
                 {
-                    return {};
+                    if (words.empty())
+                    {
+                        return StringType{};
+                    }
+
+                    StringType ret{};
+                    const usize size = std::accumulate(words.begin(), words.end(), 0_uz,
+                        [](const usize lhs, const StringViewType str)
+                        {
+                            return lhs + str.size();
+                        }) + words.size() - 1_uz;
+                    ret.resize(size, CharT{ '_' });
+
+                    for (usize i{ 0_uz }, k{ 0_uz }; i != words.size(); ++i)
+                    {
+                        const StringViewType word = words[i];
+                        assert(!word.empty());
+                        for (usize j{ 0_uz }; j != word.size(); ++j, ++k)
+                        {
+                            ret[k] = std::tolower(word[j], std::locale{});
+                        }
+                        ++k;
+                    }
+
+                    return ret;
                 }
             };
 
-            template<>
-            struct Backend<NamingSystem::Underscore, char>
+            template<typename CharT>
+            struct Backend<NamingSystem::Camelcase, CharT>
             {
+                using StringType = std::basic_string<CharT>;
+                using StringViewType = std::basic_string_view<CharT>;
+
                 template<usize len>
-                inline std::string operator()(const std::span<const std::string_view, len> words) const noexcept
+                inline StringType operator()(const std::span<const StringViewType, len> words) const noexcept
                 {
-                    return underscore_name_join(words);
+                    if (words.empty())
+                    {
+                        return StringType{};
+                    }
+
+                    StringType ret{};
+                    const usize size = std::accumulate(words.begin(), words.end(), 0_uz,
+                        [](const usize lhs, const StringViewType str) 
+                        { 
+                            return lhs + str.size(); 
+                        });
+                    ret.resize(size, CharT{ ' ' });
+                    usize k{ 0_uz };
+                    for (usize j{ 0_uz }; j != words.front().size(); ++j, ++k)
+                    {
+                        ret[k] = std::tolower(words.front()[j], std::locale{});
+                    }
+                    for (usize i{ 1_uz }; i != words.size(); ++i)
+                    {
+                        const StringViewType word = words[i];
+                        assert(!word.empty());
+                        ret[k] = std::toupper(word.front(), std::locale{});
+                        ++k;
+                        for (usize j{ 1_uz }; j != word.size(); ++j, ++k)
+                        {
+                            ret[k] = std::tolower(word[j], std::locale{});
+                        }
+                    }
+                    return ret;
                 }
             };
 
-            template<>
-            struct Backend<NamingSystem::Camelcase, char>
+            template<typename CharT>
+            struct Backend<NamingSystem::Pascalcase, CharT>
             {
+                using StringType = std::basic_string<CharT>;
+                using StringViewType = std::basic_string_view<CharT>;
+
                 template<usize len>
-                inline std::string operator()(const std::span<const std::string_view, len> words) const noexcept
+                inline StringType operator()(const std::span<const StringViewType, len> words) const noexcept
                 {
-                    return calmelcase_name_join(words);
+                    if (words.empty())
+                    {
+                        return "";
+                    }
+
+                    StringType ret{};
+                    const usize size = std::accumulate(words.begin(), words.end(), 0_uz,
+                        [](const usize lhs, const StringViewType str) 
+                        { 
+                            return lhs + str.size(); 
+                        });
+                    ret.resize(size, CharT{ ' ' });
+                    for (usize i{ 0_uz }, k{ 0_uz }; i != words.size(); ++i)
+                    {
+                        const StringViewType word = words[i];
+                        assert(!word.empty());
+                        ret[k] = std::toupper(word.front(), std::locale{});
+                        ++k;
+                        for (usize j{ 1_uz }; j != word.size(); ++j, ++k)
+                        {
+                            ret[k] = std::tolower(word[j], std::locale{});
+                        }
+                    }
+                    return ret;
                 }
             };
 
-            template<>
-            struct Backend<NamingSystem::Pascalcase, char>
+            template<typename CharT>
+            struct Backend<NamingSystem::UpperUnderscore, CharT>
             {
+                using StringType = std::basic_string<CharT>;
+                using StringViewType = std::basic_string_view<CharT>;
+
                 template<usize len>
-                inline std::string operator()(const std::span<const std::string_view, len> words) const noexcept
+                inline StringType operator()(const std::span<const StringViewType, len> words) const noexcept
                 {
-                    return pascalcase_name_join(words);
+                    if (words.empty())
+                    {
+                        return "";
+                    }
+
+                    StringType ret{};
+                    const usize size = std::accumulate(words.begin(), words.end(), 0_uz,
+                        [](const usize lhs, const StringViewType str) 
+                        { 
+                            return lhs + str.size(); 
+                        }) + words.size() - 1_uz;
+                    ret.resize(size, CharT{ '_' });
+                    for (usize i{ 0_uz }, k{ 0_uz }; i != words.size(); ++i)
+                    {
+                        const StringViewType word = words[i];
+                        assert(!word.empty());
+                        for (usize j{ 0_uz }; j != word.size(); ++j, ++k)
+                        {
+                            ret[k] = std::toupper(word[j], std::locale{});
+                        }
+                        ++k;
+                    }
+                    return ret;
                 }
             };
 
-            template<>
-            struct Backend<NamingSystem::UpperUnderscore, char>
-            {
-                template<usize len>
-                inline std::string operator()(const std::span<const std::string_view, len> words) const noexcept
-                {
-                    return upper_underscore_name_join(words);
-                }
-            };
+            extern template struct Backend<NamingSystem::Underscore, char>;
+            extern template struct Backend<NamingSystem::Underscore, wchar>;
 
-            // todo: impl for different character
+            extern template struct Backend<NamingSystem::Camelcase, char>;
+            extern template struct Backend<NamingSystem::Camelcase, wchar>;
+
+            extern template struct Backend<NamingSystem::Pascalcase, char>;
+            extern template struct Backend<NamingSystem::Pascalcase, wchar>;
+
+            extern template struct Backend<NamingSystem::UpperUnderscore, char>;
+            extern template struct Backend<NamingSystem::UpperUnderscore, wchar>;
         };
     };
 };
-
