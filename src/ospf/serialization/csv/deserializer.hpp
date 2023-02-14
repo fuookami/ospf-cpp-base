@@ -16,7 +16,7 @@ namespace ospf
     {
         namespace csv
         {
-            template<WithMetaInfo T, typename CharT = char>
+            template<WithMetaInfo T, CharType CharT = char>
             class Deserializer
             {
             public:
@@ -322,7 +322,7 @@ namespace ospf
                 std::optional<NameTransfer<CharT>> _transfer;
             };
 
-            template<typename T, typename CharT = char>
+            template<typename T, CharType CharT = char>
                 requires std::default_initializable<T>
             inline Try<std::vector<T>> from_file(
                 const std::filesystem::path& path, 
@@ -347,7 +347,7 @@ namespace ospf
                 return std::move(objs);
             }
 
-            template<typename T, typename CharT = char>
+            template<typename T, CharType CharT = char>
                 requires std::copy_constructible<T>
             inline Try<std::vector<T>> from_file(
                 const std::filesystem::path& path, 
@@ -373,7 +373,7 @@ namespace ospf
                 return std::move(objs);
             }
 
-            template<typename T, typename CharT = char>
+            template<typename T, CharType CharT = char>
                 requires std::default_initializable<T>
             inline Try<std::vector<T>> from_file_soft(
                 const std::filesystem::path& path, 
@@ -398,7 +398,7 @@ namespace ospf
                 return std::move(objs);
             }
 
-            template<typename T, typename CharT = char>
+            template<typename T, CharType CharT = char>
                 requires std::copy_constructible<T>
             inline Try<std::vector<T>> from_file_soft(
                 const std::filesystem::path& path, 
@@ -424,7 +424,7 @@ namespace ospf
                 return std::move(objs);
             }
 
-            template<typename T, typename CharT = char>
+            template<typename T, CharType CharT = char>
                 requires std::default_initializable<T>
             inline Try<std::vector<T>> from_string(
                 const std::basic_string_view<CharT> str,
@@ -440,7 +440,7 @@ namespace ospf
                 return std::move(objs);
             }
 
-            template<typename T, typename CharT = char>
+            template<typename T, CharType CharT = char>
                 requires std::copy_constructible<T>
             inline Try<std::vector<T>> from_string(
                 const std::basic_string_view<CharT> str,
@@ -457,7 +457,7 @@ namespace ospf
                 return std::move(objs);
             }
 
-            template<typename T, typename CharT = char>
+            template<typename T, CharType CharT = char>
                 requires std::default_initializable<T>
             inline Try<std::vector<T>> from_string_soft(
                 const std::basic_string_view<CharT> str,
@@ -473,7 +473,7 @@ namespace ospf
                 return std::move(objs);
             }
 
-            template<typename T, typename CharT = char>
+            template<typename T, CharType CharT = char>
                 requires std::copy_constructible<T>
             inline Try<std::vector<T>> from_string_soft(
                 const std::basic_string_view<CharT> str, 

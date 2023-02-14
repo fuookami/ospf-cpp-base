@@ -1,5 +1,7 @@
 ﻿#pragma once
 
+#include <ospf/ospf_base_api.hpp>
+#include <ospf/concepts/base.hpp>
 #include <ospf/functional/either.hpp>
 #include <ospf/meta_programming/type_info.hpp>
 #include <set>
@@ -10,28 +12,32 @@ namespace ospf
     {
         namespace data_table
         {
-            template<typename CharT>
+            template<CharType CharT>
             class DataTableHeader
             {
                 using Either = functional::Either<std::type_index, std::set<std::type_index>>;
+                using StringType = std::basic_string<CharT>;
+                using StringViewType = std::basic_string_view<CharT>;
+
+                friend StringType to_string(const DataTableHeader& header) noexcept;
 
             public:
                 DataTableHeader(void)
-                    : _name(""), _type(std::nullopt) {}
+                    : _type(std::nullopt) {}
 
-                DataTableHeader(std::basic_string<CharT> name, const std::type_index type)
+                DataTableHeader(StringType name, const std::type_index type)
                     : _name(std::move(name)), _type(Either::left(type)) {}
 
-                DataTableHeader(std::basic_string<CharT> name, std::set<std::type_index> type)
+                DataTableHeader(StringType name, std::set<std::type_index> type)
                     : _name(std::move(name)), _type(Either::right(std::move(type))) {}
                 
                 template<std::forward_iterator It>
                     requires requires (const It& it) { { *it } -> DecaySameAs<std::type_index>; }
-                DataTableHeader(std::basic_string<CharT> name, It&& first, It&& last)
+                DataTableHeader(StringType name, It&& first, It&& last)
                     : DataTableHeader(std::move(name), std::set<std::type_index>{ std::forward<It>(first), std::forward<It>(last) }) {}
 
                 template<std::ranges::range R>
-                DataTableHeader(std::basic_string<CharT> name, const R& r)
+                DataTableHeader(StringType name, const R& r)
                     : DataTableHeader(std::move(name), std::set<std::type_index>{ std::ranges::begin(r), std::ranges::end(r) }) {}
 
             public:
@@ -42,7 +48,7 @@ namespace ospf
                 ~DataTableHeader(void) = default;
 
             public:
-                inline const std::basic_string_view<CharT> name(void) const noexcept
+                inline const StringViewType name(void) const noexcept
                 {
                     return _name;
                 }
@@ -164,45 +170,6 @@ namespace ospf
                 }
 
             public:
-                // todo: impl for different character
-                inline std::basic_string<CharT> to_string(void) const noexcept
-                {
-                    if (_type.has_value())
-                    {
-                        return std::visit([this](const auto& type) -> std::string
-                            {
-                                if constexpr (DecaySameAs<decltype(type), std::type_index>)
-                                {
-                                    return std::format("{}({})", this->name(), type_name(type));
-                                }
-                                else if constexpr (DecaySameAs<decltype(type), std::set<std::type_index>>)
-                                {
-                                    if (type.empty())
-                                    {
-                                        return this->_name;
-                                    }
-                                    else if (type.size() == 1_uz)
-                                    {
-                                        return std::format("{}({})", this->name(), type_name(*type.begin()));
-                                    }
-                                    else
-                                    {
-                                        return std::format("{}({}...)", this->name(), type_name(*type.begin()));
-                                    }
-                                }
-                                else
-                                {
-                                    return "";
-                                }
-                            }, *_type);
-                    }
-                    else
-                    {
-                        return "";
-                    }
-                }
-
-            public:
                 inline void clear(void) noexcept
                 {
                     _name.assign("");
@@ -213,27 +180,32 @@ namespace ospf
                 std::basic_string<CharT> _name;
                 std::optional<Either> _type;
             };
+
+            OSPF_BASE_API std::string to_string(const DataTableHeader<char>& header) noexcept;
+            OSPF_BASE_API std::wstring to_string(const DataTableHeader<wchar>& header) noexcept;
+
+            // todo: impl for different character
         };
     };
 };
 
 namespace std
 {
-    template<typename CharT>
+    template<ospf::CharType CharT>
     inline basic_string<CharT> to_string(const ospf::data_table::DataTableHeader<CharT>& header) noexcept
     {
         return header.to_string();
     }
 
-    template<typename CharT>
+    template<ospf::CharType CharT>
     struct formatter<ospf::data_table::DataTableHeader<CharT>, CharT>
         : public formatter<basic_string_view<CharT>, CharT>
     {
         template<typename FormatContext>
-        inline decltype(auto) format(const ospf::data_table::DataTableHeader<CharT>& value, FormatContext& fc)
+        inline decltype(auto) format(const ospf::data_table::DataTableHeader<CharT>& header, FormatContext& fc)
         {
             static const auto _formatter = formatter<basic_string_view<CharT>, CharT>{};
-            return _formatter.format(value.to_string(), fc);
+            return _formatter.format(ospf::data_table::to_string(header), fc);
         }
     };
 };

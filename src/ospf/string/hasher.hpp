@@ -36,8 +36,8 @@ namespace ospf
             }
         };
 
-        extern template class StringHasher<char>;
-        extern template class StringHasher<wchar>;
+        extern template struct StringHasher<char>;
+        extern template struct StringHasher<wchar>;
 
 #ifdef BOOST_MSVC
         template<StringOrViewType K, NotVoidType V>

@@ -25,11 +25,11 @@ namespace ospf
             // todo: big int, decimal and chrono
             // todo: impl for different character
 
-            template<typename T, typename CharT>
+            template<typename T, CharType CharT>
             struct ToCSVValue;
 
             template<typename T, typename CharT>
-            concept SerializableToCSV = requires (const ToCSVValue<T, CharT>& serializer)
+            concept SerializableToCSV = CharType<CharT> && requires (const ToCSVValue<T, CharT>& serializer)
             {
                 { serializer(std::declval<T>()) } -> DecaySameAs<Result<std::basic_string<CharT>>>;
             };

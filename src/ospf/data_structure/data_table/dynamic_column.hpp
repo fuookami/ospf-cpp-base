@@ -11,19 +11,19 @@ namespace ospf
     {
         namespace data_table
         {
-            template<usize col>
-            inline std::vector<DataTableHeader> make_header(std::array<DataTableHeader, col> header) noexcept
+            template<CharType CharT, usize col>
+            inline std::vector<DataTableHeader<CharT>> make_header(std::array<DataTableHeader<CharT>, col> header) noexcept
             {
-                std::vector<DataTableHeader> ret;
+                std::vector<DataTableHeader<CharT>> ret;
                 ret.reserve(col);
                 std::move(header.begin(), header.end(), std::back_inserter(ret));
                 return ret;
             }
 
-            template<typename C>
-            inline std::vector<DataTableHeader> make_header(std::initializer_list<std::string_view> header) noexcept
+            template<CharType CharT, typename C>
+            inline std::vector<DataTableHeader<CharT>> make_header(std::initializer_list<std::basic_string_view<CharT>> header) noexcept
             {
-                std::vector<DataTableHeader> ret;
+                std::vector<DataTableHeader<CharT>> ret;
                 ret.reserve(header.size());
                 for (const auto h : header)
                 {
@@ -32,10 +32,10 @@ namespace ospf
                 return ret;
             }
 
-            template<typename C>
-            inline std::vector<DataTableHeader> make_header(const std::vector<std::string_view>& header) noexcept
+            template<CharType CharT, typename C>
+            inline std::vector<DataTableHeader<CharT>> make_header(const std::vector<std::basic_string_view<CharT>>& header) noexcept
             {
-                std::vector<DataTableHeader> ret;
+                std::vector<DataTableHeader<CharT>> ret;
                 ret.reserve(header.size());
                 for (const auto h : header)
                 {
@@ -44,34 +44,37 @@ namespace ospf
                 return ret;
             }
 
-            template<typename C>
-            class DataTable<C, dynamic_column, StoreType::Row>
+            template<typename C, CharType CharT>
+            class DataTable<C, dynamic_column, StoreType::Row, CharT>
                 : public DataTableImpl<
                     dynamic_column, 
                     StoreType::Row, 
+                    CharT,
                     OriginType<C>, 
-                    std::vector<DataTableHeader>, 
+                    std::vector<DataTableHeader<CharT>>, 
                     std::span<const OriginType<C>>, 
                     DynRefArray<OriginType<C>>, 
                     std::vector<std::vector<OriginType<C>>>, 
-                    DataTable<C, dynamic_column, StoreType::Row>
+                    DataTable<C, dynamic_column, StoreType::Row, CharT>
                 >
             {
                 using Impl = DataTableImpl<
                     dynamic_column,
                     StoreType::Row,
+                    CharT,
                     OriginType<C>,
-                    std::vector<DataTableHeader>,
+                    std::vector<DataTableHeader<CharT>>,
                     std::span<const OriginType<C>>,
                     DynRefArray<OriginType<C>>,
                     std::vector<std::vector<OriginType<C>>>,
-                    DataTable<C, dynamic_column, StoreType::Row>
+                    DataTable<C, dynamic_column, StoreType::Row, CharT>
                 >;
 
                 template<
                     typename C,
                     usize col,
-                    StoreType st
+                    StoreType st,
+                    CharType CharT
                 >
                 friend class DataTable;
 
@@ -88,6 +91,8 @@ namespace ospf
                 using typename Impl::ColumnReverseIterType;
                 using typename Impl::RowConstructor;
                 using typename Impl::ColumnConstructor;
+                using typename Impl::StringType;
+                using typename Impl::StringViewType;
 
             public:
                 DataTable(void) = default;
@@ -102,14 +107,14 @@ namespace ospf
                 }
 
                 template<usize col>
-                DataTable(std::array<DataTableHeader, col> header)
+                DataTable(std::array<DataTableHeader<CharT>, col> header)
                     : DataTable(make_header(std::move(header))) {}
 
-                DataTable(std::initializer_list<std::string_view> header)
-                    : DataTable(make_header<CellType>(std::move(header))) {}
+                DataTable(std::initializer_list<StringViewType> header)
+                    : DataTable(make_header<CharT, CellType>(std::move(header))) {}
 
-                DataTable(const std::vector<std::string_view>& header)
-                    : DataTable(make_header<CellType>(header)) {}
+                DataTable(const std::vector<StringViewType>& header)
+                    : DataTable(make_header<CharT, CellType>(header)) {}
 
             public:
                 DataTable(const DataTable& ano) = default;
@@ -121,12 +126,12 @@ namespace ospf
             public:
                 template<typename = void>
                     requires WithDefault<CellType>
-                inline const usize insert_column(const usize pos, ArgRRefType<DataTableHeader> header)
+                inline const usize insert_column(const usize pos, ArgRRefType<DataTableHeader<CharT>> header)
                 {
-                    return insert_column(pos, move<DataTableHeader>(header), DefaultValue<CellType>::value);
+                    return insert_column(pos, move<DataTableHeader<CharT>>(header), DefaultValue<CellType>::value);
                 }
 
-                inline const usize insert_column(const usize pos, ArgRRefType<DataTableHeader> header, ArgCLRefType<CellType> value)
+                inline const usize insert_column(const usize pos, ArgRRefType<DataTableHeader<CharT>> header, ArgCLRefType<CellType> value)
                 {
 #ifdef _DEBUG
                     const auto type = CellValueTypeTrait<CellType>::type(value);
@@ -150,7 +155,7 @@ namespace ospf
                             ++i;
                         }
                     }
-                    _header.insert(_header.cbegin() + pos, move<DataTableHeader>(header));
+                    _header.insert(_header.cbegin() + pos, move<DataTableHeader<CharT>>(header));
                     _header_index.insert({ _header[pos].name(), pos });
                     for (auto& row : _table)
                     {
@@ -160,12 +165,12 @@ namespace ospf
                 }
 
                 template<typename U>
-                inline const usize insert_column(const usize pos, ArgRRefType<DataTableHeader> header, U&& value)
+                inline const usize insert_column(const usize pos, ArgRRefType<DataTableHeader<CharT>> header, U&& value)
                 {
-                    return insert_column(pos, move<DataTableHeader>(header), CellType{ std::forward<U>(value) });
+                    return insert_column(pos, move<DataTableHeader<CharT>>(header), CellType{ std::forward<U>(value) });
                 }
 
-                inline const usize insert_column(const usize pos, ArgRRefType<DataTableHeader> header, const ColumnConstructor& constructor)
+                inline const usize insert_column(const usize pos, ArgRRefType<DataTableHeader<CharT>> header, const ColumnConstructor& constructor)
                 {
 #ifdef _DEBUG
                     std::vector<CellType> new_column;
@@ -196,7 +201,7 @@ namespace ospf
                             ++i;
                         }
                     }
-                    _header.insert(_header.cbegin() + pos, move<DataTableHeader>(header));
+                    _header.insert(_header.cbegin() + pos, move<DataTableHeader<CharT>>(header));
                     _header_index.insert({ _header[pos].name(), pos });
                     for (usize i{ 0_uz }; i != this->row(); ++i)
                     {
@@ -212,26 +217,26 @@ namespace ospf
 
                 template<typename = void>
                     requires WithDefault<CellType>
-                inline RetType<ColumnIterType> insert_column(ArgCLRefType<ColumnIterType> pos, ArgRRefType<DataTableHeader> header)
+                inline RetType<ColumnIterType> insert_column(ArgCLRefType<ColumnIterType> pos, ArgRRefType<DataTableHeader<CharT>> header)
                 {
-                    return insert_column(pos, move<DataTableHeader>(header), DefaultValue<CellType>::value);
+                    return insert_column(pos, move<DataTableHeader<CharT>>(header), DefaultValue<CellType>::value);
                 }
 
-                inline RetType<ColumnIterType> insert_column(ArgCLRefType<ColumnIterType> pos, ArgRRefType<DataTableHeader> header, ArgCLRefType<CellType> value)
+                inline RetType<ColumnIterType> insert_column(ArgCLRefType<ColumnIterType> pos, ArgRRefType<DataTableHeader<CharT>> header, ArgCLRefType<CellType> value)
                 {
-                    insert_column(static_cast<const usize>(pos), move<DataTableHeader>(header), value);
+                    insert_column(static_cast<const usize>(pos), move<DataTableHeader<CharT>>(header), value);
                     return pos + 1_iz;
                 }
 
                 template<typename U>
-                inline RetType<ColumnIterType> insert_column(ArgCLRefType<ColumnIterType> pos, ArgRRefType<DataTableHeader> header, U&& value)
+                inline RetType<ColumnIterType> insert_column(ArgCLRefType<ColumnIterType> pos, ArgRRefType<DataTableHeader<CharT>> header, U&& value)
                 {
-                    return insert_column(pos, move<DataTableHeader>(header), CellType{ std::forward<U>(value) });
+                    return insert_column(pos, move<DataTableHeader<CharT>>(header), CellType{ std::forward<U>(value) });
                 }
 
-                inline RetType<ColumnIterType> insert_column(ArgCLRefType<ColumnIterType> pos, ArgRRefType<DataTableHeader> header, const ColumnConstructor& constructor)
+                inline RetType<ColumnIterType> insert_column(ArgCLRefType<ColumnIterType> pos, ArgRRefType<DataTableHeader<CharT>> header, const ColumnConstructor& constructor)
                 {
-                    insert_column(static_cast<const usize>(pos), move<DataTableHeader>(header), constructor);
+                    insert_column(static_cast<const usize>(pos), move<DataTableHeader<CharT>>(header), constructor);
                     return pos + 1_iz;
                 }
 
@@ -241,7 +246,7 @@ namespace ospf
                     return _header;
                 }
 
-                inline void OSPF_CRTP_FUNCTION(set_header)(const usize i, ArgRRefType<DataTableHeader> header)
+                inline void OSPF_CRTP_FUNCTION(set_header)(const usize i, ArgRRefType<DataTableHeader<CharT>> header)
                 {
 #ifdef _DEBUG
                     for (const auto& row : _table)
@@ -265,7 +270,7 @@ namespace ospf
                     {
                         _header_index.erase(_header[i].name());
                     }
-                    _header[i] = move<DataTableHeader>(header);
+                    _header[i] = move<DataTableHeader<CharT>>(header);
                     _header_index.insert({ _header[i].name(), i });
                 }
 
@@ -274,7 +279,7 @@ namespace ospf
                     return _header;
                 }
 
-                inline const std::optional<usize> OSPF_CRTP_FUNCTION(get_column_index)(const std::string_view header) const noexcept
+                inline const std::optional<usize> OSPF_CRTP_FUNCTION(get_column_index)(const StringViewType header) const noexcept
                 {
                     const auto it = _header_index.find(header);
                     if (it != _header_index.cend())
@@ -380,38 +385,41 @@ namespace ospf
 
             private:
                 HeaderType _header;
-                StringHashMap<std::string_view, usize> _header_index;
+                StringHashMap<StringViewType, usize> _header_index;
                 std::vector<std::vector<CellType>> _table;
             };
 
-            template<typename C>
-            class DataTable<C, dynamic_column, StoreType::Column>
+            template<typename C, CharType CharT>
+            class DataTable<C, dynamic_column, StoreType::Column, CharT>
                 : public DataTableImpl<
                     dynamic_column, 
                     StoreType::Column,
+                    CharT,
                     OriginType<C>, 
-                    std::vector<DataTableHeader>, 
+                    std::vector<DataTableHeader<CharT>>, 
                     std::span<const OriginType<C>>, 
                     DynRefArray<OriginType<C>>, 
                     std::vector<std::vector<OriginType<C>>>, 
-                    DataTable<C, dynamic_column, StoreType::Column>
+                    DataTable<C, dynamic_column, StoreType::Column, CharT>
                 >
             {
                 using Impl = DataTableImpl<
                     dynamic_column,
                     StoreType::Column,
+                    CharT,
                     OriginType<C>,
-                    std::vector<DataTableHeader>,
+                    std::vector<DataTableHeader<CharT>>,
                     std::span<const OriginType<C>>,
                     DynRefArray<OriginType<C>>,
                     std::vector<std::vector<OriginType<C>>>,
-                    DataTable<C, dynamic_column, StoreType::Column>
+                    DataTable<C, dynamic_column, StoreType::Column, CharT>
                 >;
 
                 template<
                     typename C,
                     usize col,
-                    StoreType st
+                    StoreType st,
+                    CharType CharT
                 >
                 friend class DataTable;
 
@@ -428,6 +436,8 @@ namespace ospf
                 using typename Impl::ColumnReverseIterType;
                 using typename Impl::RowConstructor;
                 using typename Impl::ColumnConstructor;
+                using typename Impl::StringType;
+                using typename Impl::StringViewType;
 
             public:
                 DataTable(void) = default;
@@ -442,14 +452,14 @@ namespace ospf
                 }
 
                 template<usize col>
-                DataTable(std::array<DataTableHeader, col> header)
+                DataTable(std::array<DataTableHeader<CharT>, col> header)
                     : DataTable(make_header(std::move(header))) {}
 
-                DataTable(std::initializer_list<std::string_view> header)
-                    : DataTable(make_header<CellType>(std::move(header))) {}
+                DataTable(std::initializer_list<StringViewType> header)
+                    : DataTable(make_header<CharT, CellType>(std::move(header))) {}
 
-                DataTable(const std::vector<std::string_view>& header)
-                    : DataTable(make_header<CellType>(header)) {}
+                DataTable(const std::vector<StringViewType>& header)
+                    : DataTable(make_header<CharT, CellType>(header)) {}
 
             public:
                 DataTable(const DataTable& ano) = default;
@@ -461,12 +471,12 @@ namespace ospf
             public:
                 template<typename = void>
                     requires WithDefault<CellType>
-                inline const usize insert_column(const usize pos, ArgRRefType<DataTableHeader> header)
+                inline const usize insert_column(const usize pos, ArgRRefType<DataTableHeader<CharT>> header)
                 {
-                    return insert_row(pos, move<DataTableHeader>(header), DefaultValue<CellType>::value);
+                    return insert_row(pos, move<DataTableHeader<CharT>>(header), DefaultValue<CellType>::value);
                 }
 
-                inline const usize insert_column(const usize pos, ArgRRefType<DataTableHeader> header, ArgCLRefType<CellType> value)
+                inline const usize insert_column(const usize pos, ArgRRefType<DataTableHeader<CharT>> header, ArgCLRefType<CellType> value)
                 {
 #ifdef _DEBUG
                     const auto type = CellValueTypeTrait<CellType>::type(value);
@@ -490,19 +500,19 @@ namespace ospf
                             ++i;
                         }
                     }
-                    _header.insert(_header.cbegin() + pos, move<DataTableHeader>(header));
+                    _header.insert(_header.cbegin() + pos, move<DataTableHeader<CharT>>(header));
                     _header_index.insert({ _header[pos].name(), pos });
                     _table.insert(_table.cbegin() + pos, std::vector<CellType>{ this->row(), value });
                     return pos + 1_uz;
                 }
 
                 template<typename U>
-                inline const usize insert_column(const usize pos, ArgRRefType<DataTableHeader> header, U&& value)
+                inline const usize insert_column(const usize pos, ArgRRefType<DataTableHeader<CharT>> header, U&& value)
                 {
-                    return insert_column(pos, move<DataTableHeader>(header), CellType{ std::forward<U>(value) });
+                    return insert_column(pos, move<DataTableHeader<CharT>>(header), CellType{ std::forward<U>(value) });
                 }
 
-                inline const usize insert_column(const usize pos, ArgRRefType<DataTableHeader> header, const ColumnConstructor& constructor)
+                inline const usize insert_column(const usize pos, ArgRRefType<DataTableHeader<CharT>> header, const ColumnConstructor& constructor)
                 {
                     std::vector<CellType> new_column;
                     new_column.reserve(this->row());
@@ -535,7 +545,7 @@ namespace ospf
                             ++i;
                         }
                     }
-                    _header.insert(_header.cbegin() + pos, move<DataTableHeader>(header));
+                    _header.insert(_header.cbegin() + pos, move<DataTableHeader<CharT>>(header));
                     _header_index.insert({ _header[pos].name(), pos });
                     _table.insert(_table.cbegin() + pos, std::move(new_column));
                     return pos + 1_uz;
@@ -543,26 +553,26 @@ namespace ospf
 
                 template<typename = void>
                     requires WithDefault<CellType>
-                inline RetType<ColumnIterType> insert_column(ArgCLRefType<ColumnIterType> pos, ArgRRefType<DataTableHeader> header)
+                inline RetType<ColumnIterType> insert_column(ArgCLRefType<ColumnIterType> pos, ArgRRefType<DataTableHeader<CharT>> header)
                 {
-                    return insert_column(pos, move<DataTableHeader>(header), DefaultValue<CellType>::value);
+                    return insert_column(pos, move<DataTableHeader<CharT>>(header), DefaultValue<CellType>::value);
                 }
 
-                inline RetType<ColumnIterType> insert_column(ArgCLRefType<ColumnIterType> pos, ArgRRefType<DataTableHeader> header, ArgCLRefType<CellType> value)
+                inline RetType<ColumnIterType> insert_column(ArgCLRefType<ColumnIterType> pos, ArgRRefType<DataTableHeader<CharT>> header, ArgCLRefType<CellType> value)
                 {
-                    insert_column(static_cast<const usize>(pos), move<DataTableHeader>(header), value);
+                    insert_column(static_cast<const usize>(pos), move<DataTableHeader<CharT>>(header), value);
                     return pos + 1_iz;
                 }
 
                 template<typename U>
-                inline RetType<ColumnIterType> insert_column(ArgCLRefType<ColumnIterType> pos, ArgRRefType<DataTableHeader> header, U&& value)
+                inline RetType<ColumnIterType> insert_column(ArgCLRefType<ColumnIterType> pos, ArgRRefType<DataTableHeader<CharT>> header, U&& value)
                 {
-                    return insert_column(pos, move<DataTableHeader>(header), CellType{ std::forward<U>(value) });
+                    return insert_column(pos, move<DataTableHeader<CharT>>(header), CellType{ std::forward<U>(value) });
                 }
 
-                inline RetType<ColumnIterType> insert_column(ArgCLRefType<ColumnIterType> pos, ArgRRefType<DataTableHeader> header, const ColumnConstructor& constructor)
+                inline RetType<ColumnIterType> insert_column(ArgCLRefType<ColumnIterType> pos, ArgRRefType<DataTableHeader<CharT>> header, const ColumnConstructor& constructor)
                 {
-                    insert_column(static_cast<const usize>(pos), move<DataTableHeader>(header), constructor);
+                    insert_column(static_cast<const usize>(pos), move<DataTableHeader<CharT>>(header), constructor);
                     return pos + 1_iz;
                 }
 
@@ -572,7 +582,7 @@ namespace ospf
                     return _header;
                 }
 
-                inline void OSPF_CRTP_FUNCTION(set_header)(const usize i, ArgRRefType<DataTableHeader> header)
+                inline void OSPF_CRTP_FUNCTION(set_header)(const usize i, ArgRRefType<DataTableHeader<CharT>> header)
                 {
 #ifdef _DEBUG
                     for (auto& cell : _table[i])
@@ -596,7 +606,7 @@ namespace ospf
                     {
                         _header_index.erase(_header[i].name());
                     }
-                    _header[i] = move<DataTableHeader>(header);
+                    _header[i] = move<DataTableHeader<CharT>>(header);
                     _header_index.insert({ _header[i].name(), i });
                 }
 
@@ -605,7 +615,7 @@ namespace ospf
                     return _header;
                 }
 
-                inline const std::optional<usize> OSPF_CRTP_FUNCTION(get_column_index)(const std::string_view header) const noexcept
+                inline const std::optional<usize> OSPF_CRTP_FUNCTION(get_column_index)(const StringViewType header) const noexcept
                 {
                     const auto it = _header_index.find(header);
                     if (it != _header_index.cend())
@@ -712,7 +722,7 @@ namespace ospf
 
             private:
                 HeaderType _header;
-                StringHashMap<std::string_view, usize> _header_index;
+                StringHashMap<StringViewType, usize> _header_index;
                 std::vector<std::vector<CellType>> _table;
             };
         };

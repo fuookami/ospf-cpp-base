@@ -155,6 +155,7 @@
     <ClInclude Include="src\ospf\uuid.hpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\ospf\data_structure\data_table\header.cpp" />
     <ClCompile Include="src\ospf\data_structure\multi_array\dummy_index.cpp" />
     <ClCompile Include="src\ospf\data_structure\multi_array\shape.cpp" />
     <ClCompile Include="src\ospf\error\error.cpp" />

@@ -376,7 +376,7 @@ namespace std
         }
     };
 
-    template<typename T, typename Ref, typename CharT>
+    template<typename T, typename Ref, ospf::CharType CharT>
     struct formatter<ospf::reference::RefImpl<T, Ref>, CharT> 
         : public formatter<T, CharT>
     {
@@ -385,7 +385,7 @@ namespace std
         template<typename FormatContext>
         inline decltype(auto) format(ospf::ArgCLRefType<RefType> ref, FormatContext& fc)
         {
-            static const auto _formatter = formatter<OriginType<T>, CharT>{};
+            static const auto _formatter = formatter<ospf::OriginType<T>, CharT>{};
             return _formatter.format(*ref, fc);
         }
     };

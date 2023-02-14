@@ -57,7 +57,7 @@ namespace ospf
                 }
             };
 
-            template<typename CharT>
+            template<CharType CharT>
             struct Backend<NamingSystem::Camelcase, CharT>
             {
                 using StringType = std::basic_string<CharT>;
@@ -98,7 +98,7 @@ namespace ospf
                 }
             };
 
-            template<typename CharT>
+            template<CharType CharT>
             struct Backend<NamingSystem::Pascalcase, CharT>
             {
                 using StringType = std::basic_string<CharT>;
@@ -134,7 +134,7 @@ namespace ospf
                 }
             };
 
-            template<typename CharT>
+            template<CharType CharT>
             struct Backend<NamingSystem::UpperUnderscore, CharT>
             {
                 using StringType = std::basic_string<CharT>;

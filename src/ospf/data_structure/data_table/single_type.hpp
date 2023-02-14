@@ -9,21 +9,23 @@ namespace ospf
     {
         namespace data_table
         {
-            template<typename... Ts>
+            template<CharType CharT, typename... Ts>
                 requires (VariableTypeList<Ts...>::length >= 1_uz)
-            class STDataTable<StoreType::Row, Ts...>
+            class STDataTable<StoreType::Row, CharT, Ts...>
             {
             public:
                 static constexpr const usize col = VariableTypeList<Ts...>::length;
-                using HeaderType = std::array<DataTableHeader, col>;
-                using HeaderViewType = std::span<const DataTableHeader, col>;
+                using HeaderType = std::array<DataTableHeader<CharT>, col>;
+                using HeaderViewType = std::span<const DataTableHeader<CharT>, col>;
                 using RowViewType = SequenceTuple<const Ref<Ts>...>;
                 template<usize i>
                 using ColumnViewType = DynRefArray<TypeAt<i, Ts...>>;
                 using TableType = std::vector<SequenceTuple<Ts...>>;
+                using StringType = std::basic_string<CharT>;
+                using StringViewType = std::basic_string_view<CharT>;
 
             public:
-                STDataTable(std::array<std::string_view, col> header)
+                STDataTable(std::array<StringViewType, col> header)
                 {
                     init_header<0_uz>(header);
                 }
@@ -56,12 +58,12 @@ namespace ospf
                     return _header;
                 }
 
-                inline const bool contains_header(const std::string_view header) const noexcept
+                inline const bool contains_header(const StringViewType header) const noexcept
                 {
                     return _header_index.contains(header);
                 }
 
-                inline const std::optional<usize> header_index(const std::string_view header) const noexcept
+                inline const std::optional<usize> header_index(const StringViewType header) const noexcept
                 {
                     const auto it = _header_index.find(header);
                     if (it != _header.cend())
@@ -84,7 +86,7 @@ namespace ospf
 
             private:
                 template<usize i>
-                inline void init_header(const std::array<std::string_view, col>& header) noexcept
+                inline void init_header(const std::array<StringViewType, col>& header) noexcept
                 {
                     if (i == col)
                     {
@@ -98,25 +100,27 @@ namespace ospf
 
             private:
                 HeaderType _header;
-                StringHashMap<std::string_view, usize> _header_index;
+                StringHashMap<StringViewType, usize> _header_index;
                 std::vector<SequenceTuple<Ts...>> _table;;
             };
 
-            template<typename... Ts>
+            template<CharType CharT, typename... Ts>
                 requires (VariableTypeList<Ts...>::length > 1_uz)
-            class STDataTable<StoreType::Column, Ts...>
+            class STDataTable<StoreType::Column, CharT, Ts...>
             {
             public:
                 static constexpr const usize col = VariableTypeList<Ts...>::length;
-                using HeaderType = std::array<DataTableHeader, col>;
-                using HeaderViewType = std::span<const DataTableHeader, col>;
+                using HeaderType = std::array<DataTableHeader<CharT>, col>;
+                using HeaderViewType = std::span<const DataTableHeader<CharT>, col>;
                 using RowViewType = SequenceTuple<const Ref<Ts>...>;
                 template<usize i>
                 using ColumnViewType = std::span<std::add_const_t<TypeAt<i, Ts...>>>;
                 using TableType = SequenceTuple<std::vector<Ts>...>;
+                using StringType = std::basic_string<CharT>;
+                using StringViewType = std::basic_string_view<CharT>;
 
             public:
-                STDataTable(std::array<std::string_view, col> header)
+                STDataTable(std::array<StringViewType, col> header)
                     : _table(std::vector<Ts>{}...)
                 {
                     init_header<0_uz>(header);
@@ -150,12 +154,12 @@ namespace ospf
                     return _header;
                 }
 
-                inline const bool contains_header(const std::string_view header) const noexcept
+                inline const bool contains_header(const StringViewType header) const noexcept
                 {
                     return _header_index.contains(header);
                 }
 
-                inline const std::optional<usize> header_index(const std::string_view header) const noexcept
+                inline const std::optional<usize> header_index(const StringViewType header) const noexcept
                 {
                     const auto it = _header_index.find(header);
                     if (it != _header.cend())
@@ -178,7 +182,7 @@ namespace ospf
 
             private:
                 template<usize i>
-                inline void init_header(const std::array<std::string_view, col>& header) noexcept
+                inline void init_header(const std::array<StringViewType, col>& header) noexcept
                 {
                     if (i == col)
                     {
@@ -192,7 +196,7 @@ namespace ospf
 
             private:
                 HeaderType _header;
-                StringHashMap<std::string_view, usize> _header_index;
+                StringHashMap<StringViewType, usize> _header_index;
                 SequenceTuple<std::vector<Ts>...> _table;
             };
         };

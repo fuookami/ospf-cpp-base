@@ -17,7 +17,7 @@ namespace ospf
             using Object = rapidjson::Value;
             using Array = rapidjson::GenericArray<true, rapidjson::Value>;
             using String = const char*;
-            template<typename CharT>
+            template<CharType CharT>
             using NameTransfer = std::function<const std::basic_string_view<CharT>(const std::basic_string_view<CharT>)>;
         };
     };
@@ -25,9 +25,9 @@ namespace ospf
 
 namespace std
 {
-    template<typename CharT>
+    template<ospf::CharType CharT>
     struct formatter<rapidjson::Value, CharT>
-        : public formatter<string_view, CharT>
+        : public formatter<basic_string_view<CharT>, CharT>
     {
         template<typename FormatContext>
         inline decltype(auto) format(const rapidjson::Value& value, FormatContext& fc)
@@ -41,7 +41,7 @@ namespace std
                 throw ospf::OSPFException{ ospf::OSPFErrCode::SerializationFail };
             }
 
-            static const auto _formatter = formatter<string_view, CharT>{};
+            static const auto _formatter = formatter<basic_string_view<CharT>, CharT>{};
             return _formatter.format(sout.str(), fc);
         }
     };

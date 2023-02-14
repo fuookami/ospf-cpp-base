@@ -13,7 +13,7 @@ namespace ospf
     {
         namespace csv
         {
-            template<WithMetaInfo T, typename CharT = char>
+            template<WithMetaInfo T, CharType CharT = char>
             class Serializer
             {
             public:
@@ -100,7 +100,7 @@ namespace ospf
                 std::optional<NameTransfer<CharT>> _transfer;
             };
 
-            template<typename T, typename CharT = char>
+            template<typename T, CharType CharT = char>
             inline Try<> to_file
             (
                 const std::filesystem::path& path, 
@@ -131,7 +131,7 @@ namespace ospf
                 return succeed;
             }
 
-            template<typename T, usize len, typename CharT = char>
+            template<typename T, usize len, CharType CharT = char>
             inline Try<> to_file
             (
                 const std::filesystem::path& path, 
@@ -162,7 +162,7 @@ namespace ospf
                 return succeed;
             }
 
-            template<typename T, typename CharT = char>
+            template<typename T, CharType CharT = char>
             inline Result<std::basic_string<CharT>> to_string
             (
                 const T& obj, 
@@ -178,7 +178,7 @@ namespace ospf
                 return sout.str();
             }
 
-            template<typename T, usize len, typename CharT = char>
+            template<typename T, usize len, CharType CharT = char>
             inline Result<std::basic_string<CharT>> to_string
             (
                 const std::span<const T, len> objs, 

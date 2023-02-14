@@ -9,7 +9,7 @@ namespace ospf
 {
     inline namespace string
     {
-        template<typename CharT>
+        template<CharType CharT>
         inline static constexpr std::vector<std::basic_string_view<CharT>> regex_split(const std::basic_string_view<CharT> src, const std::basic_string_view<CharT> regex) noexcept
         {
             std::basic_regex<CharT> reg{ regex.data() };
@@ -43,19 +43,19 @@ namespace ospf
             return ret;
         }
 
-        template<typename CharT>
+        template<CharType CharT>
         inline static constexpr std::vector<std::basic_string_view<CharT>> regex_split(const std::basic_string_view<CharT> src, const CharT* regex) noexcept
         {
             return regex_split(src, std::basic_string_view<CharT>{ regex });
         }
 
-        template<typename CharT>
+        template<CharType CharT>
         inline static constexpr std::vector<std::basic_string_view<CharT>> regex_split(const CharT* src, const CharT* regex) noexcept
         {
             return regex_split(std::basic_string_view<CharT>{ src }, std::basic_string_view<CharT>{ regex });
         }
 
-        template<typename CharT>
+        template<CharType CharT>
         inline static constexpr decltype(auto) split(const std::basic_string_view<CharT> src, const std::basic_string_view<CharT> splitors = std::basic_string_view<CharT>{}) noexcept
         {
             if (splitors.empty())
@@ -68,19 +68,19 @@ namespace ospf
             }
         }
 
-        template<typename CharT>
+        template<CharType CharT>
         std::vector<std::basic_string_view<CharT>> split(const std::basic_string_view<CharT> src, const CharT* splitors) noexcept
         {
             return split(src, std::basic_string_view<CharT>{ splitors });
         }
 
-        template<typename CharT>
+        template<CharType CharT>
         std::vector<std::basic_string_view<CharT>> split(const CharT* src, const CharT* splitors) noexcept
         {
             return split(std::basic_string_view<CharT>{ src }, std::basic_string_view<CharT>{ splitors });
         }
 
-        template<typename CharT>
+        template<CharType CharT>
         std::vector<std::basic_string_view<CharT>> regex_catch(const std::basic_string_view<CharT> src, const std::basic_string_view<CharT> regex) noexcept
         {
             std::basic_regex<CharT> reg(regex);
@@ -95,13 +95,13 @@ namespace ospf
             return ret;
         }
 
-        template<typename CharT>
+        template<CharType CharT>
         std::vector<std::basic_string_view<CharT>> regex_catch(const std::basic_string_view<CharT> src, const CharT* regex) noexcept
         {
             return regex_catch(src, std::basic_string_view<CharT>{ regex });
         }
 
-        template<typename CharT>
+        template<CharType CharT>
         std::vector<std::basic_string_view<CharT>> regex_catch(const CharT* src, const CharT* regex) noexcept
         {
             return regex_catch(std::basic_string_view<CharT>{ src }, std::basic_string_view<CharT>{ regex });

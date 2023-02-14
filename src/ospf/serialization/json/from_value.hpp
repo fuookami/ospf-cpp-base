@@ -28,11 +28,11 @@ namespace ospf
 
             // todo: big int, decimal and chrono
 
-            template<typename T, typename CharT>
+            template<typename T, CharType CharT>
             struct FromJsonValue;
 
             template<typename T, typename CharT>
-            concept DeserializableFromJson = (requires (const FromJsonValue<T, CharT>& deserializer)
+            concept DeserializableFromJson = CharType<CharT> && (requires (const FromJsonValue<T, CharT>& deserializer)
                 {
                     { deserializer(std::declval<rapidjson::Value>(), std::declval<T>(), std::declval<std::optional<NameTransfer<CharT>>>()) } -> DecaySameAs<Try<>>;
                 }) 
@@ -121,7 +121,7 @@ namespace ospf
                                     }
                                     if (value.is_successful())
                                     {
-                                        filed.value(obj) = std::move(value).unwrap();
+                                        field.value(obj) = std::move(value).unwrap();
                                     }
                                 }
                             }

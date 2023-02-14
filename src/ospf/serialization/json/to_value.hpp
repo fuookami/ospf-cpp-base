@@ -29,11 +29,11 @@ namespace ospf
 
             // todo: big int, decimal and chrono
 
-            template<typename T, typename CharT>
+            template<typename T, CharType CharT>
             struct ToJsonValue;
 
             template<typename T, typename CharT>
-            concept SerializableToJson = requires (const ToJsonValue<T, CharT> serializer)
+            concept SerializableToJson = CharType<CharT> && requires (const ToJsonValue<T, CharT> serializer)
             {
                 { serializer(std::declval<T>(), std::declval<rapidjson::Document>(), std::declval<std::optional<NameTransfer<CharT>>>()) } -> DecaySameAs<Result<rapidjson::Value>>;
             };
@@ -55,7 +55,7 @@ namespace ospf
                     static constexpr const meta_info::MetaInfo<T> info{};
                     rapidjson::Value json{ rapidjson::kObjectType };
                     std::optional<OSPFError> err;
-                    info.for_each(obj, [&ret, &err, &doc, &transfer](const auto& obj, const auto& field)
+                    info.for_each(obj, [&json, &err, &doc, &transfer](const auto& obj, const auto& field)
                         {
                             using FieldValueType = OriginType<decltype(field.value(obj))>;
                             static_assert(SerializableToJson<FieldValueType>);

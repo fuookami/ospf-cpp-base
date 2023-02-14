@@ -12,7 +12,7 @@ namespace ospf
     {
         namespace json
         {
-            template<typename T, typename CharT = char>
+            template<typename T, CharType CharT = char>
                 requires DeserializableFromJson<T, CharT>
             class Deserializer
             {
@@ -83,7 +83,7 @@ namespace ospf
                 std::optional<NameTransfer<CharT>> _transfer;
             };
 
-            template<typename T, typename CharT = char>
+            template<typename T, CharType CharT = char>
                 requires WithMetaInfo<T> && std::default_initializable<T>
             inline Result<T> from_file
             (
@@ -108,7 +108,7 @@ namespace ospf
                 return std::move(obj);
             }
 
-            template<typename T, typename CharT = char>
+            template<typename T, CharType CharT = char>
                 requires WithMetaInfo<T>
             inline Try<T> from_file
             (
@@ -134,7 +134,7 @@ namespace ospf
                 return succeed;
             }
 
-            template<typename T, typename CharT = char>
+            template<typename T, CharType CharT = char>
                 requires std::default_initializable<T>
             inline Result<std::vector<T>> from_file_array
             (
@@ -160,7 +160,7 @@ namespace ospf
                 return std::move(objs);
             }
 
-            template<typename T, typename CharT = char>
+            template<typename T, CharType CharT = char>
                 requires std::copy_constructible<T>
             inline Result<std::vector<T>> from_file_array
             (
@@ -187,7 +187,7 @@ namespace ospf
                 return std::move(objs);
             }
 
-            template<typename T, typename CharT = char>
+            template<typename T, CharType CharT = char>
                 requires WithMetaInfo<T> && std::default_initializable<T>
             inline Result<T> from_string
             (
@@ -203,7 +203,7 @@ namespace ospf
                 return std::move(obj);
             }
 
-            template<typename T, typename CharT = char>
+            template<typename T, CharType CharT = char>
                 requires WithMetaInfo<T>
             inline Try<T> from_string
             (
@@ -220,7 +220,7 @@ namespace ospf
                 return succeed;
             }
 
-            template<typename T, typename CharT = char>
+            template<typename T, CharType CharT = char>
                 requires std::default_initializable<T>
             inline Result<std::vector<T>> from_string_array
             (
@@ -237,7 +237,7 @@ namespace ospf
                 return std::move(objs);
             }
 
-            template<typename T, typename CharT = char>
+            template<typename T, CharType CharT = char>
                 requires std::copy_constructible<T>
             inline Result<std::vector<T>> from_string_array
             (
@@ -255,7 +255,7 @@ namespace ospf
                 return std::move(objs);
             }
 
-            template<typename T, typename CharT = char>
+            template<typename T, CharType CharT = char>
                 requires WithMetaInfo<T> && std::default_initializable<T>
             inline Result<T> from_json
             (
@@ -268,7 +268,7 @@ namespace ospf
                 return std::move(obj);
             }
 
-            template<typename T, typename CharT = char>
+            template<typename T, CharType CharT = char>
                 requires WithMetaInfo<T>
             inline Try<T> from_json
             (
@@ -282,7 +282,7 @@ namespace ospf
                 return succeed;
             }
 
-            template<typename T, typename CharT = char>
+            template<typename T, CharType CharT = char>
                 requires std::default_initializable<T>
             inline Result<std::vector<T>> from_json_array
             (
@@ -295,7 +295,7 @@ namespace ospf
                 return std::move(objs);
             }
 
-            template<typename T, typename CharT = char>
+            template<typename T, CharType CharT = char>
                 requires std::copy_constructible<T>
             inline Result<std::vector<T>> from_json_array
             (

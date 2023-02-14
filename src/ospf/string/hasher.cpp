@@ -2,6 +2,6 @@
 
 namespace ospf::string
 {
-    template class StringHasher<char>;
-    template class StringHasher<wchar>;
+    template struct StringHasher<char>;
+    template struct StringHasher<wchar>;
 };

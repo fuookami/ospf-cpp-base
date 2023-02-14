@@ -261,8 +261,8 @@ namespace std
         }
     };
 
-    template<typename T, typename Ptr, typename CharT>
-    struct formatter<ospf::pointer::PtrImpl<T, Ptr>, CharT> : formatter<string_view, CharT>
+    template<typename T, typename Ptr>
+    struct formatter<ospf::pointer::PtrImpl<T, Ptr>, char> : formatter<string_view, char>
     {
         using PtrType = ospf::pointer::PtrImpl<T, Ptr>;
 
@@ -271,16 +271,39 @@ namespace std
         {
             if (ptr == nullptr)
             {
-                static const auto _formatter = formatter<string_view, CharT>{};
+                static const auto _formatter = formatter<string_view, char>{};
                 return _formatter.format("null", fc);
             }
             else
             {
-                static const auto _formatter = formatter<OriginType<T>, CharT>{};
+                static const auto _formatter = formatter<ospf::OriginType<T>, char>{};
                 return _formatter.format(*ptr, fc);
             }
         }
     };
+
+    template<typename T, typename Ptr>
+    struct formatter<ospf::pointer::PtrImpl<T, Ptr>, ospf::wchar> : formatter<wstring_view, ospf::wchar>
+    {
+        using PtrType = ospf::pointer::PtrImpl<T, Ptr>;
+
+        template<typename FormatContext>
+        inline decltype(auto) format(ospf::ArgCLRefType<PtrType> ptr, FormatContext& fc)
+        {
+            if (ptr == nullptr)
+            {
+                static const auto _formatter = formatter<wstring_view, ospf::wchar>{};
+                return _formatter.format(L"null", fc);
+            }
+            else
+            {
+                static const auto _formatter = formatter<ospf::OriginType<T>, ospf::wchar>{};
+                return _formatter.format(*ptr, fc);
+            }
+        }
+    };
+
+    // todo: impl for different character
 };
 
 namespace ospf

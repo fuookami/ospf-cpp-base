@@ -27,11 +27,11 @@ namespace ospf
             // todo: big int, decimal and chrono
             // todo: impl for different character
 
-            template<typename T, typename CharT>
+            template<typename T, CharType CharT>
             struct FromCSVValue;
 
             template<typename T, typename CharT>
-            concept DeserializableFromCSV = requires (const FromCSVValue<T, CharT>& deserializer)
+            concept DeserializableFromCSV = CharType<CharT> && requires (const FromCSVValue<T, CharT>& deserializer)
             {
                 { deserializer(std::declval<std::basic_string_view<CharT>>()) } -> DecaySameAs<Result<T>>;
             };

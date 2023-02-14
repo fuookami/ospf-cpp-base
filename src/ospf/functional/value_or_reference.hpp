@@ -788,7 +788,7 @@ namespace std
         }
     };
 
-    template<typename T, ospf::reference::ReferenceCategory cat, typename CharT>
+    template<typename T, ospf::reference::ReferenceCategory cat, ospf::CharType CharT>
     struct formatter<ospf::ValOrRef<T, cat>, CharT>
         : public formatter<T, CharT>
     {

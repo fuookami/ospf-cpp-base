@@ -563,5 +563,8 @@
     <ClCompile Include="src\ospf\meta_programming\name_transfer\backend.cpp">
       <Filter>src\ospf\meta-programming\name_transfer</Filter>
     </ClCompile>
+    <ClCompile Include="src\ospf\data_structure\data_table\header.cpp">
+      <Filter>src\ospf\data-structure\data_table</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

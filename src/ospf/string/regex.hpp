@@ -9,7 +9,7 @@ namespace ospf
     {
         namespace regex
         {
-            template<typename CharT>
+            template<CharType CharT>
             struct RegexTrait;
 
             template<>

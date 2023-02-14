@@ -18,10 +18,10 @@ namespace ospf
         {
             // todo: impl abbreviations list for splitting
 
-            template<NamingSystem system, typename CharT>
+            template<NamingSystem system, CharType CharT>
             struct Frontend;
 
-            template<typename CharT>
+            template<CharType CharT>
             struct Frontend<NamingSystem::Underscore, CharT>
             {
                 using StringType = std::basic_string<CharT>;
@@ -71,7 +71,7 @@ namespace ospf
                 }
             };
 
-            template<typename CharT>
+            template<CharType CharT>
             struct Frontend<NamingSystem::Camelcase, CharT>
             {
                 using StringType = std::basic_string<CharT>;
@@ -129,11 +129,11 @@ namespace ospf
                 }
             };
 
-            template<typename CharT>
+            template<CharType CharT>
             struct Frontend<NamingSystem::Pascalcase, CharT>
                 : public Frontend<NamingSystem::Camelcase, CharT> {};
 
-            template<typename CharT>
+            template<CharType CharT>
             struct Frontend<NamingSystem::UpperUnderscore, CharT>
                 : public Frontend<NamingSystem::Underscore, CharT> {};
 

@@ -11,7 +11,7 @@ namespace ospf
     {
         namespace csv
         {
-            template<typename CharT>
+            template<CharType CharT>
             struct CharTrait;
 
             template<>
@@ -29,7 +29,7 @@ namespace ospf
 
             // todo: impl for different character
 
-            template<typename T, typename CharT>
+            template<typename T, CharType CharT>
             inline Try<> write(std::basic_ostream<CharT>& os, const T& table, const std::basic_string_view<CharT> seperator = CharTrait<CharT>::default_seperator) noexcept
             {
                 if (table.header().empty())
@@ -64,7 +64,7 @@ namespace ospf
                 return ospf::succeed;
             }
 
-            template<typename CharT>
+            template<CharType CharT>
             inline Result<CSVTable<CharT>> read(std::basic_istream<CharT>& is, const std::basic_string_view<CharT> seperator = CharTrait<CharT>::default_seperator) noexcept
             {
                 std::basic_string<CharT> line;
@@ -99,7 +99,7 @@ namespace ospf
                 return std::move(table);
             }
 
-            template<usize col, typename CharT>
+            template<usize col, CharType CharT>
             inline Result<ORMCSVTable<col, CharT>> read(std::basic_istream<CharT>& is, const std::basic_string_view<CharT> seperator = CharTrait<CharT>::default_seperator) noexcept
             {
                 std::basic_string<CharT> line;

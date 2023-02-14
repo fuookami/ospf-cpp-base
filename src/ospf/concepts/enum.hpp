@@ -24,13 +24,9 @@ namespace ospf
                 const auto it = cache.find(str);
                 if (it == cache.end())
                 {
-                    const auto [new_it, _] = cache.insert({ str, boost::locale::conv::to_utf<CharT>(std::string{ str }, std::locale{}) });
-                    return new_it->second;
+                    it = cache.insert({ str, boost::locale::conv::to_utf<CharT>(std::string{ str }, std::locale{}) }).first;
                 }
-                else
-                {
-                    return it->second;
-                }
+                return it->second;
             }
         }
     };
