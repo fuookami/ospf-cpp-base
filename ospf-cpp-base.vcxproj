@@ -83,6 +83,7 @@
     <ClInclude Include="src\ospf\log\string.hpp" />
     <ClInclude Include="src\ospf\memory.hpp" />
     <ClInclude Include="src\ospf\memory\bits.hpp" />
+    <ClInclude Include="src\ospf\memory\bytes.hpp" />
     <ClInclude Include="src\ospf\memory\pointer.hpp" />
     <ClInclude Include="src\ospf\memory\pointer\category.hpp" />
     <ClInclude Include="src\ospf\memory\pointer\impl.hpp" />
@@ -124,6 +125,7 @@
     <ClInclude Include="src\ospf\random.hpp" />
     <ClInclude Include="src\ospf\serialization.hpp" />
     <ClInclude Include="src\ospf\serialization\bytes.hpp" />
+    <ClInclude Include="src\ospf\serialization\bytes\concepts.hpp" />
     <ClInclude Include="src\ospf\serialization\bytes\deserializer.hpp" />
     <ClInclude Include="src\ospf\serialization\bytes\from_value.hpp" />
     <ClInclude Include="src\ospf\serialization\bytes\header.hpp" />
@@ -139,7 +141,7 @@
     <ClInclude Include="src\ospf\serialization\csv\to_value.hpp" />
     <ClInclude Include="src\ospf\serialization\dto.hpp" />
     <ClInclude Include="src\ospf\serialization\json.hpp" />
-    <ClInclude Include="src\ospf\serialization\json\concept.hpp" />
+    <ClInclude Include="src\ospf\serialization\json\concepts.hpp" />
     <ClInclude Include="src\ospf\serialization\json\deserializer.hpp" />
     <ClInclude Include="src\ospf\serialization\json\from_value.hpp" />
     <ClInclude Include="src\ospf\serialization\json\io.hpp" />
@@ -209,13 +211,13 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>

@@ -136,14 +136,6 @@ namespace ospf
                     return bases.empty();
                 }
 
-                inline constexpr const usize size(void) const noexcept
-                {
-                    return virtual_bases().accumulate(0_uz, [](const auto lhs, const auto& type)
-                        {
-                            return lhs + type.size();
-                        }) + non_virtual_size();
-                }
-
                 inline constexpr decltype(auto) virtual_bases(void) const noexcept
                 {
                     return bases.accumulate(SequenceTuple{}, [](const auto& lhs, const auto& rhs)
@@ -227,21 +219,6 @@ namespace ospf
                 }
                 
             private:
-                inline constexpr const usize non_virtual_size(void) const noexcept
-                {
-                    return bases.accumulate(0_uz, [](const auto lhs, const auto& type) 
-                        {
-                            if constexpr (!type.is_virtual)
-                            {
-                                return lhs + type.info.non_virtual_size();
-                            }
-                            else
-                            {
-                                return lhs;
-                            }
-                        }) + fields().size() + attributes().size();
-                }
-
                 template<typename Func>
                 inline constexpr void for_each_non_virtual(ParentType& obj, const Func& func) const noexcept
                 {

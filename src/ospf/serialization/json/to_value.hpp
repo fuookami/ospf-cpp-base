@@ -1,10 +1,9 @@
 ﻿#pragma once
 
-#include <ospf/basic_definition.hpp>
-#include <ospf/ospf_base_api.hpp>
 #include <ospf/functional/result.hpp>
 #include <ospf/meta_programming/meta_info.hpp>
-#include <ospf/serialization/json/concept.hpp>
+#include <ospf/ospf_base_api.hpp>
+#include <ospf/serialization/json/concepts.hpp>
 #include <rapidjson/document.h>
 
 namespace ospf
@@ -89,7 +88,7 @@ namespace ospf
                 }
             };
 
-            // todo: optional, ptr, variant, either, val/ref
+            // todo: optional, ptr, variant, either, val/ref, range, span
 
             template<>
             struct ToJsonValue<bool, char>

@@ -16,6 +16,12 @@ inline constexpr const ospf::usize operator"" _uz(unsigned long long int value)
     return static_cast<ospf::usize>(value);
 }
 
+inline constexpr const ospf::ubyte operator"" _ub(unsigned long long int value)
+{
+    assert(value <= 0xff);
+    return static_cast<ospf::ubyte>(value);
+}
+
 inline constexpr const ospf::u8 operator"" _u8(unsigned long long int value)
 {
     assert(value <= 0xff);

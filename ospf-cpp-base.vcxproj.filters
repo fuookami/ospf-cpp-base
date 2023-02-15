@@ -468,7 +468,7 @@
     <ClInclude Include="src\ospf\functional\optional.hpp">
       <Filter>src\ospf\functional</Filter>
     </ClInclude>
-    <ClInclude Include="src\ospf\serialization\json\concept.hpp">
+    <ClInclude Include="src\ospf\serialization\json\concepts.hpp">
       <Filter>src\ospf\serialization\json</Filter>
     </ClInclude>
     <ClInclude Include="src\ospf\string\regex.hpp">
@@ -476,6 +476,12 @@
     </ClInclude>
     <ClInclude Include="src\ospf\concepts\enum.hpp">
       <Filter>src\ospf\concepts</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ospf\serialization\bytes\concepts.hpp">
+      <Filter>src\ospf\serialization\bytes</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ospf\memory\bytes.hpp">
+      <Filter>src\ospf\memory</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

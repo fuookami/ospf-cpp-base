@@ -41,11 +41,6 @@ namespace ospf
                     return Trait::is_writable(self());
                 }
 
-                inline constexpr const usize size(void) const noexcept
-                {
-                    return sizeof(value(std::declval<ParentType>()));
-                }
-
             public:
                 inline const std::type_index index(void) const noexcept
                 {
