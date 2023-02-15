@@ -2,7 +2,10 @@
 
 #include <ospf/basic_definition.hpp>
 #include <ospf/functional/result.hpp>
+#include <ospf/functional/value_or_reference.hpp>
+#include <ospf/memory/pointer/category.hpp>
 #include <ospf/ospf_base_api.hpp>
+#include <deque>
 
 namespace ospf
 {
@@ -34,33 +37,256 @@ namespace ospf
                 { serializer(std::declval<T>()) } -> DecaySameAs<Result<std::basic_string<CharT>>>;
             };
 
-            template<EnumType T>
-            struct ToCSVValue<T, char>
+            template<EnumType T, CharType CharT>
+            struct ToCSVValue<T, CharT>
             {
-                inline Result<std::string> operator()(const T value) const noexcept
+                inline Result<std::basic_string<CharT>> operator()(const T value) const noexcept
                 {
-                    return to_string(value);
+                    return to_string<T, CharT>(value);
                 }
             };
 
-            template<typename T>
-                requires (std::convertible_to<T, std::string> || std::convertible_to<T, std::string_view>)
-            struct ToCSVValue<T, char>
+            template<typename T, CharType CharT>
+                requires (std::convertible_to<T, std::basic_string<CharT>> || std::convertible_to<T, std::basic_string_view<CharT>>)
+            struct ToCSVValue<T, CharT>
             {
-                inline Result<std::string> operator()(ArgCLRefType<T> value) const noexcept
+                inline Result<std::basic_string<CharT>> operator()(ArgCLRefType<T> value) const noexcept
                 {
-                    if constexpr (std::convertible_to<T, std::string_view>)
+                    if constexpr (std::convertible_to<T, std::basic_string_view<CharT>>)
                     {
-                        return std::string{ static_cast<std::string_view>(value) };
+                        return std::basic_string<CharT>{ static_cast<std::basic_string_view<CharT>>(value) };
                     }
                     else
                     {
-                        return static_cast<std::string>(value);
+                        return static_cast<std::basic_string<CharT>>(value);
                     }
                 }
             };
 
-            // todo: optional, ptr, variant, either, val/ref
+            template<typename T, CharType CharT>
+                requires SerializableToCSV<T, CharT>
+            struct ToCSVValue<std::optional<T>, CharT>
+            {
+                inline Result<std::basic_string<CharT>> operator()(const std::optional<T>& value) const noexcept
+                {
+                    static const ToCSVValue<T, CharT> serializer{};
+                    if (value.has_value())
+                    {
+                        return serializer(*value);
+                    }
+                    else
+                    {
+                        return std::basic_string<CharT>{};
+                    }
+                }
+            };
+
+            template<typename T, pointer::PointerCategory cat, CharType CharT>
+                requires SerializableToCSV<T, CharT>
+            struct ToCSVValue<pointer::Ptr<T, cat>, CharT>
+            {
+                inline Result<std::basic_string<CharT>> operator()(const pointer::Ptr<T, cat>& value) const noexcept
+                {
+                    static const ToCSVValue<T, CharT> serializer{};
+                    if (value != nullptr)
+                    {
+                        return serializer(*value);
+                    }
+                    else
+                    {
+                        return std::basic_string<CharT>{};
+                    }
+                }
+            };
+
+            template<typename T, reference::ReferenceCategory cat, CharType CharT>
+                requires SerializableToCSV<T, CharT>
+            struct ToCSVValue<reference::Ref<T, cat>, CharT>
+            {
+                inline Result<std::basic_string<CharT>> operator()(const reference::Ref<T, cat>& value) const noexcept
+                {
+                    static const ToCSVValue<T, CharT> serializer{};
+                    return serializer(*value);
+                }
+            };
+
+            template<typename T, typename U, CharType CharT>
+                requires SerializableToCSV<T, CharT> && SerializableToCSV<U, CharT>
+            struct ToCSVValue<std::pair<T, U>, CharT>
+            {
+                inline Result<std::basic_string<CharT>> operator()(const std::pair<T, U>& value) const noexcept
+                {
+                    std::basic_ostringstream<CharT> sout;
+                    static const ToCSVValue<T, CharT> serializer1{};
+                    OSPF_TRY_GET(value1, serializer1(value.first));
+                    sout << std::move(value1);
+                    sout << CharT{ ';' };
+                    static const ToCSVValue<U, CharT> serializer2{};
+                    OSPF_TRY_GET(value2, serializer2(value.second));
+                    sout << std::move(value2);
+                    return sout.str();
+                }
+            };
+
+            template<typename... Ts, CharType CharT>
+            struct ToCSVValue<std::tuple<Ts...>, CharT>
+            {
+                inline Result<std::basic_string<CharT>> operator()(const std::tuple<Ts...>& value) const noexcept
+                {
+                    std::basic_ostringstream<CharT> sout;
+                    OSPF_TRY_EXEC(serialize<0_uz>(sout, value));
+                    return sout.str();
+                }
+
+                template<usize i>
+                inline static Try<> serialize(std::basic_ostringstream<CharT>& os, const std::tuple<Ts...>& value) noexcept
+                {
+                    if constexpr (i == VariableTypeList<Ts...>::length)
+                    {
+                        return succeed;
+                    }
+                    else
+                    {
+                        using ValueType = OriginType<decltype(std::get<i>(value))>;
+                        static_assert(SerializableToCSV<ValueType, CharT>);
+                        static const ToCSVValue<ValueType, CharT> serializer{};
+                        sout << serializer(std::get<i>(value));
+                        if constexpr (i != (VariableTypeList<Ts...>::length - 1_uz))
+                        {
+                            soout << CharT{ ';' };
+                        }
+                        return serialize<i + 1_uz>(os, value);
+                    }
+                }
+            };
+
+            template<typename... Ts, CharType CharT>
+            struct ToCSVValue<std::variant<Ts...>, CharT>
+            {
+                inline Result<std::basic_string<CharT>> operator()(const std::variant<Ts...>& value) const noexcept
+                {
+                    return std::visit([](const auto& this_value)
+                        {
+                            using ValueType = OriginType<decltype(this_value)>;
+                            static_assert(SerializableToCSV<ValueType, CharT>);
+                            static const ToCSVValue<ValueType, CharT> serializer{};
+                            return serializer(this_value);
+                        }, value);
+                }
+            };
+
+            template<typename T, typename U, CharType CharT>
+                requires SerializableToCSV<T, CharT>&& SerializableToCSV<U, CharT>
+            struct ToCSVValue<Either<T, U>, CharT>
+            {
+                inline Result<std::basic_string<CharT>> operator()(const Either<T, U>& value) const noexcept
+                {
+                    return std::visit([](const auto& this_value)
+                        {
+                            using ValueType = OriginType<decltype(this_value)>;
+                            static_assert(SerializableToCSV<ValueType, CharT>);
+                            static const ToCSVValue<ValueType, CharT> serializer{};
+                            return serializer(this_value);
+                        }, value);
+                }
+            };
+
+            template<typename T, reference::ReferenceCategory cat, CharType CharT>
+                requires SerializableToCSV<T, CharT>
+            struct ToCSVValue<ValOrRef<T, cat>, CharT>
+            {
+                inline Result<std::basic_string<CharT>> operator()(const ValOrRef<T, cat>& value) const noexcept
+                {
+                    static const ToCSVValue<T, CharT> serializer{};
+                    return serializer(*value);
+                }
+            };
+
+            template<typename T, usize len, CharType CharT>
+                requires SerializableToCSV<T, CharT>
+            struct ToCSVValue<std::array<T, len>, CharT>
+            {
+                inline Result<std::basic_string<CharT>> operator()(const std::array<T, len> values) const noexcept
+                {
+                    std::basic_ostringstream<CharT> sout;
+                    static const ToCSVValue<T, CharT> serializer{};
+                    for (usize i{ 0_uz }; i != values.size(); ++i)
+                    {
+                        OSPF_TRY_GET(this_value, serializer(values[i]));
+                        sout << std::move(this_value);
+                        if (i != (values.size() - 1_uz); ++i)
+                        {
+                            sout << CharT{ ',' };
+                        }
+                    }
+                    return sout.str();
+                }
+            };
+
+            template<typename T, CharType CharT>
+                requires SerializableToCSV<T, CharT>
+            struct ToCSVValue<std::vector<T>, CharT>
+            {
+                inline Result<std::basic_string<CharT>> operator()(const std::vector<T>& values) const noexcept
+                {
+                    std::basic_ostringstream<CharT> sout;
+                    static const ToCSVValue<T, CharT> serializer{};
+                    for (usize i{ 0_uz }; i != values.size(); ++i)
+                    {
+                        OSPF_TRY_GET(this_value, serializer(values[i]));
+                        sout << std::move(this_value);
+                        if (i != (values.size() - 1_uz); ++i)
+                        {
+                            sout << CharT{ ',' };
+                        }
+                    }
+                    return sout.str();
+                }
+            };
+
+            template<typename T, CharType CharT>
+                requires SerializableToCSV<T, CharT>
+            struct ToCSVValue<std::deque<T>, CharT>
+            {
+                inline Result<std::basic_string<CharT>> operator()(const std::deque<T>& values) const noexcept
+                {
+                    std::basic_ostringstream<CharT> sout;
+                    static const ToCSVValue<T, CharT> serializer{};
+                    for (usize i{ 0_uz }; i != values.size(); ++i)
+                    {
+                        OSPF_TRY_GET(this_value, serializer(values[i]));
+                        sout << std::move(this_value);
+                        if (i != (values.size() - 1_uz); ++i)
+                        {
+                            sout << CharT{ ',' };
+                        }
+                    }
+                    return sout.str();
+                }
+            };
+
+            template<typename T, usize len, CharType CharT>
+                requires SerializableToCSV<T, CharT>
+            struct ToCSVValue<std::span<T, len>, CharT>
+            {
+                inline Result<std::basic_string<CharT>> operator()(const std::span<T, len> values) const noexcept
+                {
+                    std::basic_ostringstream<CharT> sout;
+                    static const ToCSVValue<T, CharT> serializer{};
+                    for (usize i{ 0_uz }; i != values.size(); ++i)
+                    {
+                        OSPF_TRY_GET(this_value, serializer(values[i]));
+                        sout << std::move(this_value);
+                        if (i != (values.size() - 1_uz); ++i)
+                        {
+                            sout << CharT{ ',' };
+                        }
+                    }
+                    return sout.str();
+                }
+            };
+
+            // todo: optional_array, pointer_array, reference_array, tagged_map, value_or_reference_array
 
             template<>
             struct ToCSVValue<bool, char>

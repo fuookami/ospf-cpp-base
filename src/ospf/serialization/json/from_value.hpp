@@ -41,20 +41,20 @@ namespace ospf
                     { deserializer(std::declval<rapidjson::Value>(), std::declval<std::optional<NameTransfer<CharT>>>()) } -> DecaySameAs<Result<T>>;
                 });
 
-            template<EnumType T>
-            struct FromJsonValue<T, char>
+            template<EnumType T, CharType CharT>
+            struct FromJsonValue<T, CharT>
             {
-                inline Try<> operator()(const rapidjson::Value& json, T& value, const std::optional<NameTransfer<char>>& transfer) const noexcept
+                inline Try<> operator()(const rapidjson::Value& json, T& value, const std::optional<NameTransfer<CharT>>& transfer) const noexcept
                 {
                     OSPF_TRY_SET(value, this->operator()(json));
                     return succeed;
                 }
 
-                inline Result<T> operator()(const rapidjson::Value& json, const std::optional<NameTransfer<char>>& transfer) const noexcept
+                inline Result<T> operator()(const rapidjson::Value& json, const std::optional<NameTransfer<CharT>>& transfer) const noexcept
                 {
                     if (json.IsString())
                     {
-                        const auto enum_value = magic_enum::enum_cast<T>(json.GetString());
+                        const auto enum_value = parse_enum<T, CharT>(json.GetString());
                         if (enum_value.has_value())
                         {
                             return *enum_value;
@@ -72,10 +72,10 @@ namespace ospf
                 }
             };
 
-            template<WithMetaInfo T>
-            struct FromJsonValue<T, char>
+            template<WithMetaInfo T, CharType CharT>
+            struct FromJsonValue<T, CharT>
             {
-                inline Try<> operator()(const rapidjson::Value& json, T& obj, const std::optional<NameTransfer<char>>& transfer) const noexcept
+                inline Try<> operator()(const rapidjson::Value& json, T& obj, const std::optional<NameTransfer<CharT>>& transfer) const noexcept
                 {
                     static constexpr const meta_info::MetaInfo<T> info{};
                     std::optional<OSPFError> err;
@@ -88,7 +88,7 @@ namespace ospf
                             else
                             {
                                 using FieldValueType = OriginType<decltype(field.value(obj))>;
-                                static_assert(DeserializableFromJson<FieldValueType, char>);
+                                static_assert(DeserializableFromJson<FieldValueType, CharT>);
 
                                 if (err.has_value())
                                 {
@@ -109,7 +109,7 @@ namespace ospf
                                 }
                                 else
                                 {
-                                    const auto deserializer = FromJsonValue<FieldValueType, char>{};
+                                    const auto deserializer = FromJsonValue<FieldValueType, CharT>{};
                                     auto value = deserializer(json, transfer);
                                     if constexpr (!serialization_nullable<FieldValueType>)
                                     {
@@ -131,7 +131,7 @@ namespace ospf
 
                 template<typename = void>
                     requires std::default_initializable<T>
-                inline Result<T> operator()(const rapidjson::Value& json, const std::optional<NameTransfer<char>>& transfer) const noexcept
+                inline Result<T> operator()(const rapidjson::Value& json, const std::optional<NameTransfer<CharT>>& transfer) const noexcept
                 {
                     T obj{};
                     OSPF_TRY_EXEC(this->operator()(json, obj));

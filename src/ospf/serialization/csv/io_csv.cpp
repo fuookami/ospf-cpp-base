@@ -74,4 +74,77 @@ namespace ospf::serialization::csv
             return os;
         }
     }
+
+    std::wstring CharTrait<wchar>::catch_regex(const std::wstring_view seperator) noexcept
+    {
+        return std::format(L"\"[\\s\\S]*?\"({}|$)", regex::RegexTrait<wchar>::to_regex_expr(seperator));
+    }
+
+    std::wostream& CharTrait<wchar>::write(std::wostream& os, const std::wstring& cell, const std::wstring_view seperator) noexcept
+    {
+        if (cell.find(seperator) != std::wstring_view::npos)
+        {
+            os << L"\"" << cell << L"\"";
+        }
+        else
+        {
+            os << cell;
+        }
+        return os;
+    }
+
+    std::wostream& CharTrait<wchar>::write(std::wostream& os, const std::optional<std::wstring>& cell, const std::wstring_view seperator) noexcept
+    {
+        if (cell.has_value())
+        {
+            if (cell->find(seperator) != std::wstring_view::npos)
+            {
+                os << L"\"" << *cell << L"\"";
+            }
+            else
+            {
+                os << *cell;
+            }
+            return os;
+        }
+        else
+        {
+            os << "";
+            return os;
+        }
+    }
+
+    std::wostream& CharTrait<wchar>::write(std::wostream& os, const std::wstring_view cell, const std::wstring_view seperator) noexcept
+    {
+        if (cell.find(seperator) != std::wstring_view::npos)
+        {
+            os << L"\"" << cell << L"\"";
+        }
+        else
+        {
+            os << cell;
+        }
+        return os;
+    }
+
+    std::wostream& CharTrait<wchar>::write(std::wostream& os, const std::optional<std::wstring_view> cell, const std::wstring_view seperator) noexcept
+    {
+        if (cell.has_value())
+        {
+            if (cell->find(seperator) != std::wstring_view::npos)
+            {
+                os << L"\"" << *cell << L"\"";
+            }
+            else
+            {
+                os << *cell;
+            }
+            return os;
+        }
+        else
+        {
+            os << "";
+            return os;
+        }
+    }
 };

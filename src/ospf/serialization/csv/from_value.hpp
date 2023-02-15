@@ -36,12 +36,12 @@ namespace ospf
                 { deserializer(std::declval<std::basic_string_view<CharT>>()) } -> DecaySameAs<Result<T>>;
             };
 
-            template<EnumType T>
-            struct FromCSVValue<T, char>
+            template<EnumType T, CharType CharT>
+            struct FromCSVValue<T, CharT>
             {
-                inline Result<T> operator()(const std::string_view value) const noexcept
+                inline Result<T> operator()(const std::basic_string_view<CharT> value) const noexcept
                 {
-                    const auto enum_value = magic_enum::enum_cast<T>(value);
+                    const auto enum_value = parse_enum<T, CharT>(value);
                     if (enum_value.has_value())
                     {
                         return *enum_value;
@@ -59,19 +59,19 @@ namespace ospf
                 }
             };
 
-            template<typename T>
-                requires (std::convertible_to<std::string, T> || std::convertible_to<std::string_view, T>)
-            struct FromCSVValue<T, char>
+            template<typename T, CharType CharT>
+                requires (std::convertible_to<std::basic_string<CharT>, T> || std::convertible_to<std::basic_string_view<CharT>, T>)
+            struct FromCSVValue<T, CharT>
             {
-                inline Result<T> operator()(const std::string_view value) const noexcept
+                inline Result<T> operator()(const std::basic_string_view<CharT> value) const noexcept
                 {
-                    if constexpr (std::convertible_to<std::string_view, T>)
+                    if constexpr (std::convertible_to<std::basic_string_view<CharT>, T>)
                     {
                         return static_cast<T>(value);
                     }
                     else
                     {
-                        return static_cast<T>(std::string{ value });
+                        return static_cast<T>(std::basic_string<CharT>{ value });
                     }
                 }
             };

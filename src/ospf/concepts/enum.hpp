@@ -29,6 +29,28 @@ namespace ospf
                 return it->second;
             }
         }
+
+        template<EnumType T, CharType CharT = char>
+        inline constexpr std::optional<T> parse_enum(const std::basic_string_view<CharT> str) noexcept
+        {
+            if constexpr (SameAs<CharT, char>)
+            {
+                return magic_enum::enum_cast<T>(value);
+            }
+            else
+            {
+                static StringHashMap<std::basic_string<CharT>, std::optional<T>> cache;
+                const auto it = cache.find(str);
+                if (it == cache.end())
+                {
+                    const auto wstr = std::basic_string<CharT>{ str };
+                    const auto name = boost::locale::conv::to_utf<CharT>(wstr, std::locale{});
+                    const auto value = magic_enum::enum_cast<T>(name);
+                    it = cache.insert({ std::move(wstr), value }).first;
+                }
+                return it->second;
+            }
+        }
     };
 };
 

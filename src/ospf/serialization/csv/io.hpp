@@ -27,6 +27,19 @@ namespace ospf
                 OSPF_BASE_API static std::ostream& write(std::ostream& os, const std::optional<std::string_view> cell, const std::string_view seperator) noexcept;
             };
 
+            template<>
+            struct CharTrait<wchar>
+            {
+                static constexpr const std::wstring_view default_seperator{ L"," };
+                static constexpr const std::wstring_view line_breaker{ L"\n" };
+
+                OSPF_BASE_API static std::wstring catch_regex(const std::wstring_view seperator) noexcept;
+                OSPF_BASE_API static std::wostream& write(std::wostream& os, const std::wstring& cell, const std::wstring_view seperator) noexcept;
+                OSPF_BASE_API static std::wostream& write(std::wostream& os, const std::optional<std::wstring>& cell, const std::wstring_view seperator) noexcept;
+                OSPF_BASE_API static std::wostream& write(std::wostream& os, const std::wstring_view cell, const std::wstring_view seperator) noexcept;
+                OSPF_BASE_API static std::wostream& write(std::wostream& os, const std::optional<std::wstring_view> cell, const std::wstring_view seperator) noexcept;
+            };
+
             // todo: impl for different character
 
             template<typename T, CharType CharT>
@@ -138,6 +151,6 @@ namespace ospf
                 
                 return std::move(table);
             }
-        };
+};
     };
 };

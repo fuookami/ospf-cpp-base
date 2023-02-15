@@ -1,5 +1,10 @@
 ﻿#pragma once
 
+#include <ospf/memory/pointer.hpp>
+#include <optional>
+#include <vector>
+#include <deque>
+
 namespace ospf
 {
     inline namespace serialization
@@ -16,6 +21,29 @@ namespace ospf
         template<typename T>
         concept SerializationNullable = serialization_nullable<T>;
 
-        // todo: impl for types
+        template<typename T>
+        struct SerializationNullableTrait<std::optional<T>>
+        {
+            static constexpr const bool value = true;
+        };
+
+        template<typename T, pointer::PointerCategory cat>
+            requires std::default_initializable<pointer::Ptr<T, cat>>
+        struct SerializationNullableTrait<pointer::Ptr<T, cat>>
+        {
+            static constexpr const bool value = true;
+        };
+
+        template<typename T>
+        struct SerializationNullableTrait<std::vector<T>>
+        {
+            static constexpr const bool value = true;
+        };
+
+        template<typename T>
+        struct SerializationNullableTrait<std::deque<T>>
+        {
+            static constexpr const bool value = true;
+        };
     };
 };
