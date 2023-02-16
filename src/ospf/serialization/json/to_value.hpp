@@ -1,5 +1,10 @@
 ﻿#pragma once
 
+#include <ospf/data_structure/optional_array.hpp>
+#include <ospf/data_structure/pointer_array.hpp>
+#include <ospf/data_structure/reference_array.hpp>
+#include <ospf/data_structure/tagged_map.hpp>
+#include <ospf/data_structure/value_or_reference_array.hpp>
 #include <ospf/functional/result.hpp>
 #include <ospf/meta_programming/meta_info.hpp>
 #include <ospf/ospf_base_api.hpp>
@@ -32,7 +37,7 @@ namespace ospf
             struct ToJsonValue;
 
             template<typename T, typename CharT>
-            concept SerializableToJson = CharType<CharT> && requires (const ToJsonValue<T, CharT> serializer)
+            concept SerializableToJson = CharType<CharT> && requires (const ToJsonValue<OriginType<T>, CharT> serializer)
             {
                 { serializer(std::declval<T>(), std::declval<rapidjson::Document>(), std::declval<std::optional<NameTransfer<CharT>>>()) } -> DecaySameAs<Result<rapidjson::Value>>;
             };
@@ -57,25 +62,25 @@ namespace ospf
                     info.for_each(obj, [&json, &err, &doc, &transfer](const auto& obj, const auto& field)
                         {
                             using FieldValueType = OriginType<decltype(field.value(obj))>;
-                            static_assert(SerializableToJson<FieldValueType>);
+                    static_assert(SerializableToJson<FieldValueType>);
 
-                            if (err.has_value())
-                            {
-                                return;
-                            }
+                    if (err.has_value())
+                    {
+                        return;
+                    }
 
-                            const auto key = transfer.has_value() ? (*transfer)(field.key()) : field.key();
-                            const ToJsonValue<FieldValueType, char> serializer{};
-                            auto sub_json = serializer(field.value(obj));
-                            if (sub_json.is_failed())
-                            {
-                                err = OSPFError{ OSPFErrCode::SerializationFail, std::format("failed serializing field \"{}\" for type\"{}\", {}", field.key(), TypeInfo<T>::name(), sub_json.err().message()) };
-                                return;
-                            }
-                            else
-                            {
-                                json.AddMember(rapidjson::StringRef(key.data()), sub_json.unwrap().Move(), doc.GetAllocator());
-                            }
+                    const auto key = transfer.has_value() ? (*transfer)(field.key()) : field.key();
+                    const ToJsonValue<FieldValueType, char> serializer{};
+                    auto sub_json = serializer(field.value(obj), doc, transfer);
+                    if (sub_json.is_failed())
+                    {
+                        err = OSPFError{ OSPFErrCode::SerializationFail, std::format("failed serializing field \"{}\" for type\"{}\", {}", field.key(), TypeInfo<T>::name(), sub_json.err().message()) };
+                        return;
+                    }
+                    else
+                    {
+                        json.AddMember(rapidjson::StringRef(key.data()), sub_json.unwrap().Move(), doc.GetAllocator());
+                    }
                         });
                     if (err.has_value())
                     {
@@ -88,7 +93,445 @@ namespace ospf
                 }
             };
 
-            // todo: optional, ptr, variant, either, val/ref, range, span
+            template<typename T, CharType CharT>
+                requires SerializableToJson<T, CharT>
+            struct ToJsonValue<std::optional<T>, CharT>
+            {
+                inline Result<rapidjson::Value> operator()(const std::optional<T>& obj, rapidjson::Document& doc, const std::optional<NameTransfer<CharT>>& transfer) const noexcept
+                {
+                    static const ToJsonValue<OriginType<T>, CharT> serializer{};
+                    if (obj.has_value())
+                    {
+                        return serializer(*obj, doc, transfer);
+                    }
+                    else
+                    {
+                        return rapidjson::Value{ rapidjson::kNullType };
+                    }
+                }
+            };
+
+            template<typename T, pointer::PointerCategory cat, CharType CharT>
+                requires SerializableToJson<T, CharT>
+            struct ToJsonValue<pointer::Ptr<T, cat>, CharT>
+            {
+                inline Result<rapidjson::Value> operator()(const pointer::Ptr<T, cat>& obj, rapidjson::Document& doc, const std::optional<NameTransfer<CharT>>& transfer) const noexcept
+                {
+                    static const ToJsonValue<OriginType<T>, CharT> serializer{};
+                    if (obj != nullptr)
+                    {
+                        return serializer(*obj, doc, transfer);
+                    }
+                    else
+                    {
+                        return rapidjson::Value{ rapidjson::kNullType };
+                    }
+                }
+            };
+
+            template<typename T, reference::ReferenceCategory cat, CharType CharT>
+                requires SerializableToJson<T, CharT>
+            struct ToJsonValue<reference::Ref<T, cat>, CharT>
+            {
+                inline Result<rapidjson::Value> operator()(const reference::Ref<T, cat>& obj, rapidjson::Document& doc, const std::optional<NameTransfer<CharT>>& transfer) const noexcept
+                {
+                    static const ToJsonValue<OriginType<T>, CharT> serializer{};
+                    return serializer(*obj, doc, transfer);
+                }
+            };
+
+            template<typename T, typename U, CharType CharT>
+                requires SerializableToJson<T, CharT>&& SerializableToJson<U, CharT>
+            struct ToJsonValue<std::pair<T, U>, CharT>
+            {
+                inline Result<rapidjson::Value> operator()(const std::pair<T, U>& obj, rapidjson::Document& doc, const std::optional<NameTransfer<CharT>>& transfer) const noexcept
+                {
+                    rapidjson::Value json{ rapidjson::kArrayType };
+                    static const ToJsonValue<OriginType<T>, CharT> serializer1{};
+                    OSPF_TRY_GET(sub_json1, serializer1(obj.first, doc, transfer));
+                    json.PushBack(sub_json1.Move(), doc.GetAllocator());
+                    static const ToJsonValue<OriginType<U>, CharT> serializer2{};
+                    OSPF_TRY_GET(sub_json2, serializer2(obj.second, doc, transfer));
+                    json.PushBack(sub_json2.Move(), doc.GetAllocator());
+                    return std::move(json);
+                }
+            };
+
+            template<typename... Ts, CharType CharT>
+            struct ToJsonValue<std::tuple<Ts...>, CharT>
+            {
+                inline Result<rapidjson::Value> operator()(const std::tuple<Ts...>& obj, rapidjson::Document& doc, const std::optional<NameTransfer<CharT>>& transfer) const noexcept
+                {
+                    rapidjson::Value json{ rapidjson::kArrayType };
+                    OSPF_TRY_EXEC(serialize<0_uz>(json, obj, doc, transfer));
+                    return std::move(json);
+                }
+
+                template<usize i>
+                inline static Try<> serialize(rapidjson::Value& json, const std::tuple<Ts...>& obj, rapidjson::Document& doc, const std::optional<NameTransfer<CharT>>& transfer) noexcept
+                {
+                    if constexpr (i == VariableTypeList<Ts...>::length)
+                    {
+                        return suceed;
+                    }
+                    else
+                    {
+                        using ValueType = OriginType<decltype(std::get<i>(obj))>;
+                        static_assert(SerializableToJson<ValueType, CharT>);
+                        static const ToJsonValue<ValueType, CharT> serializer{};
+                        OSPF_TRY_GET(sub_json, serializer(std::get<i>(obj), doc, transfer));
+                        json.PushBack(sub_json.Move(), doc.GetAllocator());
+                        return serialize<i + 1_uz>(json, obj, doc, transfer);
+                    }
+                }
+            };
+
+            template<typename... Ts, CharType CharT>
+            struct ToJsonValue<std::variant<Ts...>, CharT>
+            {
+                inline Result<rapidjson::Value> operator()(const std::variant<Ts...>& obj, rapidjson::Document& doc, const std::optional<NameTransfer<CharT>>& transfer) const noexcept
+                {
+                    rapidjson::Value json{ rapidjson::kObjectType };
+                    json.AddMember("index", rapidjson::Value{ obj.index() }, doc.GetAllocator());
+                    OSPF_TRY_EXEC(std::visit([&json, &doc, &transfer](const auto& this_value)
+                        {
+                            using ValueType = OriginType<decltype(this_value)>;
+                    static_assert(SerializableToJson<ValueType, CharT>);
+                    static const ToJsonValue<ValueType, CharT> serializer{};
+                    OSPF_TRY_GET(sub_json, serializer(this_value, doc, transfer));
+                    json.AddMember("value", sub_json.Move(), doc.GetAllocator());
+                    return succeed;
+                        }, obj));
+                    return std::move(json);
+                }
+            };
+
+            template<typename T, typename U, CharType CharT>
+                requires SerializableToJson<T, CharT>&& SerializableToJson<U, CharT>
+            struct ToJsonValue<Either<T, U>, CharT>
+            {
+                inline Result<rapidjson::Value> operator()(const Either<T, U>& obj, rapidjson::Document& doc, const std::optional<NameTransfer<CharT>>& transfer) const noexcept
+                {
+                    rapidjson::Value json{ rapidjson::kObjectType };
+                    json.AddMember("index", rapidjson::Value{ obj.is_left() ? 0_uz : 1_uz }, doc.GetAllocator());
+                    OSPF_TRY_EXEC(std::visit([&json, &doc, &transfer](const auto& this_value)
+                        {
+                            using ValueType = OriginType<decltype(this_value)>;
+                    static const ToJsonValue<ValueType, CharT> serializer{};
+                    OSPF_TRY_GET(sub_json, serializer(this_value, doc, transfer));
+                    json.AddMember("value", sub_json.Move(), doc.GetAllocator());
+                    return succeed;
+                        }, obj));
+                    return std::move(json);
+                }
+            };
+
+            template<typename T, reference::ReferenceCategory cat, CharType CharT>
+                requires SerializableToJson<T, CharT>
+            struct ToJsonValue<ValOrRef<T, cat>, CharT>
+            {
+                inline Result<rapidjson::Value> operator()(const ValOrRef<T, cat>& obj, rapidjson::Document& doc, const std::optional<NameTransfer<CharT>>& transfer) const noexcept
+                {
+                    static const ToJsonValue<OriginType<T>, CharT> serializer{};
+                    return serializer(*obj, doc, transfer);
+                }
+            };
+
+            template<typename T, usize len, CharType CharT>
+                requires SerializableToJson<T, CharT>
+            struct ToJsonValue<std::array<T, len>, CharT>
+            {
+                inline Result<rapidjson::Value> operator()(const std::array<T, len>& objs, rapidjson::Document& doc, const std::optional<NameTransfer<CharT>>& transfer) const noexcept
+                {
+                    rapidjson::Value json{ rapidjson::kArrayType };
+                    static const ToJsonValue<OriginType<T>, CharT> serializer{};
+                    for (const auto& obj : objs)
+                    {
+                        OSPF_TRY_GET(sub_json, serializer(obj, doc, transfer));
+                        json.PushBack(sub_json.Move(), doc.GetAllocator());
+                    }
+                    return std::move(json);
+                }
+            };
+
+            template<typename T, CharType CharT>
+                requires SerializableToJson<T, CharT>
+            struct ToJsonValue<std::vector<T>, CharT>
+            {
+                inline Result<rapidjson::Value> operator()(const std::vector<T>& objs, rapidjson::Document& doc, const std::optional<NameTransfer<CharT>>& transfer) const noexcept
+                {
+                    rapidjson::Value json{ rapidjson::kArrayType };
+                    static const ToJsonValue<OriginType<T>, CharT> serializer{};
+                    for (const auto& obj : objs)
+                    {
+                        OSPF_TRY_GET(sub_json, serializer(obj, doc, transfer));
+                        json.PushBack(sub_json.Move(), doc.GetAllocator());
+                    }
+                    return std::move(json);
+                }
+            };
+
+            template<typename T, CharType CharT>
+                requires SerializableToJson<T, CharT>
+            struct ToJsonValue<std::deque<T>, CharT>
+            {
+                inline Result<rapidjson::Value> operator()(const std::deque<T>& objs, rapidjson::Document& doc, const std::optional<NameTransfer<CharT>>& transfer) const noexcept
+                {
+                    rapidjson::Value json{ rapidjson::kArrayType };
+                    static const ToJsonValue<OriginType<T>, CharT> serializer{};
+                    for (const auto& obj : objs)
+                    {
+                        OSPF_TRY_GET(sub_json, serializer(obj, doc, transfer));
+                        json.PushBack(sub_json.Move(), doc.GetAllocator());
+                    }
+                    return std::move(json);
+                }
+            };
+
+            template<typename T, usize len, CharType CharT>
+                requires SerializableToJson<T, CharT>
+            struct ToJsonValue<std::span<T, len>, CharT>
+            {
+                inline Result<rapidjson::Value> operator()(const std::span<T, len>& objs, rapidjson::Document& doc, const std::optional<NameTransfer<CharT>>& transfer) const noexcept
+                {
+                    rapidjson::Value json{ rapidjson::kArrayType };
+                    static const ToJsonValue<OriginType<T>, CharT> serializer{};
+                    for (const auto& obj : objs)
+                    {
+                        OSPF_TRY_GET(sub_json, serializer(obj, doc, transfer));
+                        json.PushBack(sub_json.Move(), doc.GetAllocator());
+                    }
+                    return std::move(json);
+                }
+            };
+
+            template<
+                typename T,
+                usize len,
+                template<typename, usize> class C,
+                CharType CharT
+            >
+                requires SerializableToJson<T, CharT>
+            struct ToJsonValue<optional_array::StaticOptionalArray<T, len, C>, CharT>
+            {
+                inline Result<rapidjson::Value> operator()(const optional_array::StaticOptionalArray<T, len, C>& objs, rapidjson::Document& doc, const std::optional<NameTransfer<CharT>>& transfer) const noexcept
+                {
+                    rapidjson::Value json{ rapidjson::kArrayType };
+                    static const ToJsonValue<OriginType<T>, CharT> serializer{};
+                    for (const auto& obj : objs)
+                    {
+                        if (obj.has_value())
+                        {
+                            OSPF_TRY_GET(sub_json, serializer(*obj, doc, transfer));
+                            json.PushBack(sub_json.Move(), doc.GetAllocator());
+                        }
+                        else
+                        {
+                            json.PushBack(rapidjson::Value{ rapidjson::kNullType }, doc.GetAllocator());
+                        }
+                    }
+                    return std::move(json);
+                }
+            };
+
+            template<
+                typename T,
+                template<typename> class C,
+                CharType CharT
+            >
+                requires SerializableToJson<T, CharT>
+            struct ToJsonValue<optional_array::DynamicOptionalArray<T, C>, CharT>
+            {
+                inline Result<rapidjson::Value> operator()(const optional_array::DynamicOptionalArray<T, C>& objs, rapidjson::Document& doc, const std::optional<NameTransfer<CharT>>& transfer) const noexcept
+                {
+                    rapidjson::Value json{ rapidjson::kArrayType };
+                    static const ToJsonValue<OriginType<T>, CharT> serializer{};
+                    for (const auto& obj : objs)
+                    {
+                        if (obj.has_value())
+                        {
+                            OSPF_TRY_GET(sub_json, serializer(*obj, doc, transfer));
+                            json.PushBack(sub_json.Move(), doc.GetAllocator());
+                        }
+                        else
+                        {
+                            json.PushBack(rapidjson::Value{ rapidjson::kNullType }, doc.GetAllocator());
+                        }
+                    }
+                    return std::move(json);
+                }
+            };
+
+            template<
+                typename T,
+                usize len,
+                pointer::PointerCategory cat,
+                template<typename, usize> class C,
+                CharType CharT
+            >
+                requires SerializableToJson<T, CharT>
+            struct ToJsonValue<pointer_array::StaticPointerArray<T, len, cat, C>, CharT>
+            {
+                inline Result<rapidjson::Value> operator()(const pointer_array::StaticPointerArray<T, len, cat, C>& objs, rapidjson::Document& doc, const std::optional<NameTransfer<CharT>>& transfer) const noexcept
+                {
+                    rapidjson::Value json{ rapidjson::kArrayType };
+                    static const ToJsonValue<OriginType<T>, CharT> serializer{};
+                    for (const auto& obj : objs)
+                    {
+                        if (obj != nullptr)
+                        {
+                            OSPF_TRY_GET(sub_json, serializer(*obj, doc, transfer));
+                            json.PushBack(sub_json.Move(), doc.GetAllocator());
+                        }
+                        else
+                        {
+                            json.PushBack(rapidjson::Value{ rapidjson::kNullType }, doc.GetAllocator());
+                        }
+                    }
+                    return std::move(json);
+                }
+            };
+
+            template<
+                typename T,
+                pointer::PointerCategory cat,
+                template<typename> class C,
+                CharType CharT
+            >
+                requires SerializableToJson<T, CharT>
+            struct ToJsonValue<pointer_array::DynamicPointerArray<T, cat, C>, CharT>
+            {
+                inline Result<rapidjson::Value> operator()(const pointer_array::DynamicPointerArray<T, cat, C>& objs, rapidjson::Document& doc, const std::optional<NameTransfer<CharT>>& transfer) const noexcept
+                {
+                    rapidjson::Value json{ rapidjson::kArrayType };
+                    static const ToJsonValue<OriginType<T>, CharT> serializer{};
+                    for (const auto& obj : objs)
+                    {
+                        if (obj != nullptr)
+                        {
+                            OSPF_TRY_GET(sub_json, serializer(*obj, doc, transfer));
+                            json.PushBack(sub_json.Move(), doc.GetAllocator());
+                        }
+                        else
+                        {
+                            json.PushBack(rapidjson::Value{ rapidjson::kNullType }, doc.GetAllocator());
+                        }
+                    }
+                    return std::move(json);
+                }
+            };
+
+            template<
+                typename T,
+                usize len,
+                reference::ReferenceCategory cat,
+                template<typename, usize> class C,
+                CharType CharT
+            >
+                requires SerializableToJson<T, CharT>
+            struct ToJsonValue<reference_array::StaticReferenceArray<T, len, cat, C>, CharT>
+            {
+                inline Result<rapidjson::Value> operator()(const reference_array::StaticReferenceArray<T, len, cat, C>& objs, rapidjson::Document& doc, const std::optional<NameTransfer<CharT>>& transfer) const noexcept
+                {
+                    rapidjson::Value json{ rapidjson::kArrayType };
+                    static const ToJsonValue<OriginType<T>, CharT> serializer{};
+                    for (const auto& obj : objs)
+                    {
+                        OSPF_TRY_GET(sub_json, serializer(obj, doc, transfer));
+                        json.PushBack(sub_json.Move(), doc.GetAllocator());
+                    }
+                    return std::move(json);
+                }
+            };
+
+            template<
+                typename T,
+                reference::ReferenceCategory cat,
+                template<typename> class C,
+                CharType CharT
+            >
+                requires SerializableToJson<T, CharT>
+            struct ToJsonValue<reference_array::DynamicReferenceArray<T, cat, C>, CharT>
+            {
+                inline Result<rapidjson::Value> operator()(const reference_array::DynamicReferenceArray<T, cat, C>& objs, rapidjson::Document& doc, const std::optional<NameTransfer<CharT>>& transfer) const noexcept
+                {
+                    rapidjson::Value json{ rapidjson::kArrayType };
+                    static const ToJsonValue<OriginType<T>, CharT> serializer{};
+                    for (const auto& obj : objs)
+                    {
+                        OSPF_TRY_GET(sub_json, serializer(obj, doc, transfer));
+                        json.PushBack(sub_json.Move(), doc.GetAllocator());
+                    }
+                    return std::move(json);
+                }
+            };
+
+            template<
+                typename T,
+                template<typename> class E,
+                template<typename, typename> class C,
+                CharType CharT
+            >
+                requires SerializableToJson<T, CharT>
+            struct ToJsonValue<tagged_map::TaggedMap<T, E, C>, CharT>
+            {
+                inline Result<rapidjson::Value> operator()(const tagged_map::TaggedMap<T, E, C>& objs, rapidjson::Document& doc, const std::optional<NameTransfer<CharT>>& transfer) const noexcept
+                {
+                    rapidjson::Value json{ rapidjson::kArrayType };
+                    static const ToJsonValue<OriginType<T>, CharT> serializer{};
+                    for (const auto& obj : objs)
+                    {
+                        OSPF_TRY_GET(sub_json, serializer(obj, doc, transfer));
+                        json.PushBack(sub_json.Move(), doc.GetAllocator());
+                    }
+                    return std::move(json);
+                }
+            };
+
+            template<
+                typename T,
+                usize len,
+                reference::ReferenceCategory cat,
+                template<typename, usize> class C,
+                CharType CharT
+            >
+                requires SerializableToJson<T, CharT>
+            struct ToJsonValue<value_or_reference_array::StaticValueOrReferenceArray<T, len, cat, C>, CharT>
+            {
+                inline Result<rapidjson::Value> operator()(const value_or_reference_array::StaticValueOrReferenceArray<T, len, cat, C>& objs, rapidjson::Document& doc, const std::optional<NameTransfer<CharT>>& transfer) const noexcept
+                {
+                    rapidjson::Value json{ rapidjson::kArrayType };
+                    static const ToJsonValue<OriginType<T>, CharT> serializer{};
+                    for (const auto& obj : objs)
+                    {
+                        OSPF_TRY_GET(sub_json, serializer(obj, doc, transfer));
+                        json.PushBack(sub_json.Move(), doc.GetAllocator());
+                    }
+                    return std::move(json);
+                }
+            };
+
+            template<
+                typename T,
+                reference::ReferenceCategory cat,
+                template<typename> class C,
+                CharType CharT
+            >
+                requires SerializableToJson<T, CharT>
+            struct ToJsonValue<value_or_reference_array::DynamicValueOrReferenceArray<T, cat, C>, CharT>
+            {
+                inline Result<rapidjson::Value> operator()(const value_or_reference_array::DynamicValueOrReferenceArray<T, cat, C>& objs, rapidjson::Document& doc, const std::optional<NameTransfer<CharT>>& transfer) const noexcept
+                {
+                    rapidjson::Value json{ rapidjson::kArrayType };
+                    static const ToJsonValue<OriginType<T>, CharT> serializer{};
+                    for (const auto& obj : objs)
+                    {
+                        OSPF_TRY_GET(sub_json, serializer(obj, doc, transfer));
+                        json.PushBack(sub_json.Move(), doc.GetAllocator());
+                    }
+                    return std::move(json);
+                }
+            };
 
             template<>
             struct ToJsonValue<bool, char>

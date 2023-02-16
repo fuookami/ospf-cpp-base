@@ -22,16 +22,16 @@ namespace ospf
 
             template<
                 typename T,
-                template<typename V> class E,
-                template<typename K, typename V> class C
+                template<typename> class E,
+                template<typename, typename> class C
             >
                 requires NotSameAs<T, void> && NotSameAs<std::invoke_result_t<E<T>, T>, void>
             class TaggedMap;
 
             template<
                 typename T,
-                template<typename V> class E,
-                template<typename K, typename V> class C
+                template<typename> class E,
+                template<typename, typename> class C
             >
                 requires NotSameAs<std::invoke_result_t<E<T>, T>, void>
             class TaggedMapConstIterator
@@ -80,8 +80,8 @@ namespace ospf
 
             template<
                 typename T,
-                template<typename V> class E,
-                template<typename K, typename V> class C
+                template<typename> class E,
+                template<typename, typename> class C
             >
                 requires NotSameAs<std::invoke_result_t<E<T>, T>, void>
             class TaggedMapIterator
@@ -121,8 +121,8 @@ namespace ospf
 
             template<
                 typename T,
-                template<typename V> class E,
-                template<typename K, typename V> class C
+                template<typename> class E,
+                template<typename, typename> class C
             >
                 requires NotSameAs<std::invoke_result_t<E<T>, T>, void>
             class TaggedMapEntry
@@ -230,8 +230,8 @@ namespace ospf
 
             template<
                 typename T,
-                template<typename V> class E,
-                template<typename K, typename V> class C
+                template<typename> class E,
+                template<typename, typename> class C
             >
                 requires NotSameAs<T, void> && NotSameAs<std::invoke_result_t<E<T>, T>, void>
             class TaggedMap
@@ -597,15 +597,15 @@ namespace ospf
 
         template<
             typename T, 
-            template<typename V> class E = tagged_map::DefaultTagExtractor,
-            template<typename K, typename V> class C = std::unordered_map
+            template<typename> class E = tagged_map::DefaultTagExtractor,
+            template<typename, typename> class C = std::unordered_map
         >
         using TaggedMap = tagged_map::TaggedMap<OriginType<T>, E, C>;
 
         template<
             typename T,
-            template<typename V> class E = tagged_map::DefaultTagExtractor,
-            template<typename K, typename V> class C = std::unordered_multimap
+            template<typename> class E = tagged_map::DefaultTagExtractor,
+            template<typename, typename> class C = std::unordered_multimap
         >
         using TaggedMultiMap = tagged_map::TaggedMap<OriginType<T>, E, C>;
     };
@@ -615,8 +615,8 @@ namespace std
 {
     template<
         typename T, 
-        template<typename V> class E, 
-        template<typename K, typename V> class C
+        template<typename> class E, 
+        template<typename, typename> class C
     >
     inline void swap(ospf::TaggedMap<T, E, C>& lhs, ospf::TaggedMap<T, E, C>& rhs) noexcept
     {
