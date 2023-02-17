@@ -32,18 +32,18 @@ namespace ospf
             public:
                 template<typename = void>
                     requires WithMetaInfo<ValueType>
-                inline Result<rapidjson::Document> operator()(const ValueType& obj) const noexcept
+                inline Result<Document<CharT>> operator()(const ValueType& obj) const noexcept
                 {
-                    rapidjson::Document doc;
+                    Document<CharT> doc;
                     doc.SetObject();
                     OSPF_TRY_EXEC(serialize(doc, obj, doc));
                     return std::move(doc);
                 }
 
                 template<usize len>
-                inline Result<rapidjson::Document> operator()(const std::span<const ValueType, len> objs) const noexcept
+                inline Result<Document<CharT>> operator()(const std::span<const ValueType, len> objs) const noexcept
                 {
-                    rapidjson::Document doc;
+                    Document<CharT> doc;
                     doc.SetArray();
                     for (const auto& obj : objs)
                     {
@@ -53,17 +53,17 @@ namespace ospf
                     return std::move(doc);
                 }
 
-                inline Result<rapidjson::Value> operator()(const ValueType& obj, rapidjson::Document& doc) const noexcept
+                inline Result<Json<CharT>> operator()(const ValueType& obj, Document<CharT>& doc) const noexcept
                 {
-                    const ToJsonValue<ValueType, CharT> serializer{};
+                    static const ToJsonValue<ValueType, CharT> serializer{};
                     return serializer(obj, doc, _transfer);
                 }
 
                 template<usize len>
-                inline Result<rapidjson::Value> operator()(const std::span<const ValueType, len> objs, rapidjson::Document& doc) const noexcept
+                inline Result<Json<CharT>> operator()(const std::span<const ValueType, len> objs, Document<CharT>& doc) const noexcept
                 {
-                    rapidjson::Value json{ rapidjson::kArrayType };
-                    const ToJsonValue<ValueType, CharT> serializer{};
+                    Json<CharT> json{ rapidjson::kArrayType };
+                    static const ToJsonValue<ValueType, CharT> serializer{};
                     for (const auto& obj : objs)
                     {
                         OSPF_TRY_GET(sub_json, serializer(obj, doc, _transfer));
@@ -75,7 +75,7 @@ namespace ospf
             private:
                 template<typename = void>
                     requires WithMetaInfo<ValueType>
-                inline Try<> serialize(rapidjson::Value& json, const ValueType& obj, rapidjson::Document& doc) const noexcept
+                inline Try<> serialize(Json<CharT>& json, const ValueType& obj, Document<CharT>& doc) const noexcept
                 {
                     static constexpr const meta_info::MetaInfo<ValueType> info{};
                     json.SetObject();
@@ -91,7 +91,7 @@ namespace ospf
                             }
 
                             const auto key = this->_transfer.has_value() ? (*this->_transfer)(field.key()) : field.key();
-                            const ToJsonValue<FieldValueType, CharT> serializer{};
+                            static const ToJsonValue<FieldValueType, CharT> serializer{};
                             auto sub_json = serializer(field.value(obj));
                             if (sub_json.is_failed())
                             {
@@ -198,10 +198,10 @@ namespace ospf
             }
 
             template<typename T, CharType CharT = char>
-            inline Result<rapidjson::Value> to_value
+            inline Result<Json<CharT>> to_value
             (
                 const T& obj,
-                rapidjson::Document& doc,
+                Document<CharT>& doc,
                 std::optional<NameTransfer<CharT>> transfer = meta_programming::NameTransfer<NamingSystem::Underscore, NamingSystem::Camelcase, CharT>{}
             )
             {
@@ -210,10 +210,10 @@ namespace ospf
             }
 
             template<typename T, usize len, CharType CharT = char>
-            inline Result<rapidjson::Value> to_value
+            inline Result<Json<CharT>> to_value
             (
                 const std::span<const T, len> objs,
-                rapidjson::Document& doc,
+                Document<CharT>& doc,
                 std::optional<NameTransfer<CharT>> transfer = meta_programming::NameTransfer<NamingSystem::Underscore, NamingSystem::Camelcase, CharT>{}
             )
             {

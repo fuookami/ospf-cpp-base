@@ -74,7 +74,7 @@ namespace ospf
                             }
 
                             const auto key = this->_transfer.has_value() ? (*this->_transfer)(field.key()) : field.key();
-                            const ToCSVValue<FieldValueType, CharT> serializer{};
+                            static const ToCSVValue<FieldValueType, CharT> serializer{};
                             auto value = serializer(field.value(obj));
                             if (value.is_failed())
                             {

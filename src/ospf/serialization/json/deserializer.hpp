@@ -32,29 +32,29 @@ namespace ospf
             public:
                 template<typename = void>
                     requires WithMetaInfo<ValueType> && std::default_initializable<ValueType>
-                inline Result<ValueType> operator()(const rapidjson::Value& json) const noexcept
+                inline Result<ValueType> operator()(const Json<CharT>& json) const noexcept
                 {
                     assert(value.IsObject());
-                    const FromJsonValue<ValueType, CharT> deserializer{};
+                    static const FromJsonValue<ValueType, CharT> deserializer{};
                     return deserializer(json, _transfer);
                 }
 
                 template<typename = void>
                     requires WithMetaInfo<ValueType>
-                inline Try<> operator()(const rapidjson::Value& json, ValueType& obj) const noexcept
+                inline Try<> operator()(const Json<CharT>& json, ValueType& obj) const noexcept
                 {
                     assert(value.IsObject());
-                    const FromJsonValue<ValueType, CharT> deserializer{};
+                    static const FromJsonValue<ValueType, CharT> deserializer{};
                     return deserializer(json, obj, _transfer);
                 }
 
                 template<typename = void>
                     requires std::default_initializable<ValueType>
-                inline Result<std::vector<ValueType>> parse_array(const rapidjson::Value& json) const noexcept
+                inline Result<std::vector<ValueType>> parse_array(const Json<CharT>& json) const noexcept
                 {
                     assert(value.IsArray());
                     std::vector<ValueType> ret;
-                    const FromJsonValue<ValueType, CharT> deserializer{};
+                    static const FromJsonValue<ValueType, CharT> deserializer{};
                     for (const auto& sub_json : json.GetArray())
                     {
                         OSPF_TRY_GET(obj, deserializer(sub_json, _transfer));
@@ -65,11 +65,11 @@ namespace ospf
 
                 template<typename = void>
                     requires std::copy_constructible<ValueType>
-                inline Result<std::vector<ValueType>> parse_array(const rapidjson::Value& json, ValueType& origin_obj) const noexcept
+                inline Result<std::vector<ValueType>> parse_array(const Json<CharT>& json, ValueType& origin_obj) const noexcept
                 {
                     assert(value.IsArray());
                     std::vector<ValueType> ret;
-                    const FromJsonValue<ValueType, CharT> deserializer{};
+                    static const FromJsonValue<ValueType, CharT> deserializer{};
                     for (const auto& sub_json : json.GetArray())
                     {
                         ValueType obj{ origin_obj };
@@ -259,7 +259,7 @@ namespace ospf
                 requires WithMetaInfo<T> && std::default_initializable<T>
             inline Result<T> from_json
             (
-                const rapidjson::Value& json,
+                const Json<CharT>& json,
                 std::optional<NameTransfer<CharT>> transfer = meta_programming::NameTransfer<NamingSystem::Camelcase, NamingSystem::Underscore, CharT>{}
             ) noexcept
             {
@@ -272,7 +272,7 @@ namespace ospf
                 requires WithMetaInfo<T>
             inline Try<T> from_json
             (
-                const rapidjson::Value& json,
+                const Json<CharT>& json,
                 T& obj,
                 std::optional<NameTransfer<CharT>> transfer = meta_programming::NameTransfer<NamingSystem::Camelcase, NamingSystem::Underscore, CharT>{}
             ) noexcept
@@ -286,7 +286,7 @@ namespace ospf
                 requires std::default_initializable<T>
             inline Result<std::vector<T>> from_json_array
             (
-                const rapidjson::Value& json,
+                const Json<CharT>& json,
                 std::optional<NameTransfer<CharT>> transfer = meta_programming::NameTransfer<NamingSystem::Camelcase, NamingSystem::Underscore, CharT>{}
             ) noexcept
             {
@@ -299,7 +299,7 @@ namespace ospf
                 requires std::copy_constructible<T>
             inline Result<std::vector<T>> from_json_array
             (
-                const rapidjson::Value& json,
+                const Json<CharT>& json,
                 std::vector<T>& origin_obj,
                 std::optional<NameTransfer<CharT>> transfer = meta_programming::NameTransfer<NamingSystem::Camelcase, NamingSystem::Underscore, CharT>{}
             ) noexcept

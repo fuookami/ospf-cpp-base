@@ -8,9 +8,8 @@ namespace ospf
     inline namespace meta_programming
     {
         template<typename T>
-        concept FlagType = requires (T value)
+        concept FlagType = EnumType<T> && requires (T value)
         {
-            requires (std::is_enum_v<T>);
             { T::On } -> DecaySameAs<T>;
             { T::Off } -> DecaySameAs<T>;
         };
@@ -48,7 +47,7 @@ namespace ospf
                 constexpr OffArgType& operator=(OffArgType&& rhs) noexcept = default;
                 constexpr ~OffArgType(void) noexcept = default;
 
-                template<TernaryFlagType T>
+                template<FlagType T>
                 inline constexpr operator T(void) const noexcept
                 {
                     return T::Off;
@@ -78,47 +77,21 @@ namespace ospf
     };
 };
 
-#ifndef OSPF_NAMED_FLAG_IMPL_TEMPLATE
-#define OSPF_NAMED_FLAG_IMPL_TEMPLATE(Name) \
-template<>\
-inline constexpr ::ospf::meta_programming::named_flag::OnArgType::operator Name(void) const noexcept\
-{\
-return Name::On; \
-}\
-template<>\
-inline constexpr ::ospf::meta_programming::named_flag::OffArgType::operator Name(void) const noexcept\
-{\
-return Name::Off; \
-}
-#endif
-
-#ifndef OSPF_NAMED_TERNARY_FLAG_IMPL_TEMPLATE
-#define OSPF_NAMED_TERNARY_FLAG_IMPL_TEMPLATE(Name) \
-OSPF_NAMED_FLAG_IMPL_TEMPLATE(Name)\
-template<>\
-inline constexpr ::ospf::meta_programming::named_flag::HalfArgType::operator Name(void) const noexcept\
-{\
-return Name::Half; \
-}
-#endif
-
-#ifndef OSPF_NAMED_FLAG_TEMPLATE
-#define OSPF_NAMED_FLAG_TEMPLATE(Name) enum class Name\
+#ifndef OSPF_NAMED_FLAG
+#define OSPF_NAMED_FLAG(Name) enum class Name\
 {\
     Off,\
     On\
-};\
-OSPF_NAMED_FLAG_IMPL_TEMPLATE(Name)
+};
 #endif
 
-#ifndef OSPF_NAMED_TERNARY_FLAG_TEMPLATE
-#define OSPF_NAMED_TERNARY_FLAG_TEMPLATE(Name) enum class Name\
+#ifndef OSPF_NAMED_TERNARY_FLAG
+#define OSPF_NAMED_TERNARY_FLAG(Name) enum class Name\
 {\
     Off,\
     Half,\
     On\
-};\
-OSPF_NAMED_TERNARY_FLAG_IMPL_TEMPLATE(Name)
+};
 #endif
 
 template<ospf::FlagType T>

@@ -7,7 +7,13 @@ namespace ospf
 {
     inline namespace functional
     {
-        template<typename T, reference::ReferenceCategory cat = reference::ReferenceCategory::Reference>
+        OSPF_NAMED_FLAG(CopyOnWrite);
+
+        template<
+            typename T, 
+            reference::ReferenceCategory cat = reference::ReferenceCategory::Reference,
+            CopyOnWrite cow = off
+        >
         class ValOrRef
         {
         public:
@@ -136,6 +142,17 @@ namespace ospf
             inline constexpr operator CRefType(void) const noexcept
             {
                 return deref();
+            }
+
+        public:
+            template<typename = void>
+                requires std::copy_constructible<ValueType>
+            inline constexpr void copy_if_reference(void) noexcept
+            {
+                if (_either.is_right())
+                {
+                    _either = Either::left(*_either.right());
+                }
             }
 
         public:
@@ -319,6 +336,10 @@ namespace ospf
         private:
             inline constexpr RefType deref(void) noexcept
             {
+                if constexpr (cow == on)
+                {
+                    copy_if_reference();
+                }
                 return const_cast<RefType>(const_cast<const ValOrRef&>(*this).deref());
             }
 
@@ -346,9 +367,13 @@ namespace ospf
             Either _either;
         };
 
-        template<typename T, reference::ReferenceCategory cat>
+        template<
+            typename T, 
+            reference::ReferenceCategory cat,
+            CopyOnWrite cow
+        >
             requires CopyFaster<T>
-        class ValOrRef<T, cat>
+        class ValOrRef<T, cat, cow>
         {
         public:
             using ValueType = OriginType<T>;
@@ -428,6 +453,12 @@ namespace ospf
             inline constexpr operator CRefType(void) const noexcept
             {
                 return _value;
+            }
+
+        public:
+            inline constexpr void copy_if_reference(void) noexcept
+            {
+                // nothing to do
             }
 
         public:
@@ -612,6 +643,12 @@ namespace ospf
             ValueType _value;
         };
     };
+
+    template<
+        typename T,
+        reference::ReferenceCategory cat = reference::ReferenceCategory::Reference
+    >
+    using COW = ValOrRef<T, cat, CopyOnWrite::On>;
 };
 
 template<typename T, typename U, ospf::reference::ReferenceCategory cat1, ospf::reference::ReferenceCategory cat2>

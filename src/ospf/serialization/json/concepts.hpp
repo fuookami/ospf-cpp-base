@@ -14,9 +14,18 @@ namespace ospf
     {
         namespace json
         {
-            using Object = rapidjson::Value;
-            using Array = rapidjson::GenericArray<true, rapidjson::Value>;
-            using String = const char*;
+            template<CharType CharT>
+            using Json = rapidjson::GenericValue<rapidjson::UTF8<CharT>>;
+
+            template<CharType CharT>
+            using Array = rapidjson::GenericArray<false, Json<CharT>>;
+
+            template<CharType CharT>
+            using ArrayView = rapidjson::GenericArray<true, Json<CharT>>;
+
+            template<CharType CharT>
+            using Document = rapidjson::GenericDocument<rapidjson::UTF8<CharT>>;
+
             template<CharType CharT>
             using NameTransfer = std::function<const std::basic_string_view<CharT>(const std::basic_string_view<CharT>)>;
         };
@@ -26,15 +35,15 @@ namespace ospf
 namespace std
 {
     template<ospf::CharType CharT>
-    struct formatter<rapidjson::Value, CharT>
+    struct formatter<ospf::serialization::json::Json<CharT>, CharT>
         : public formatter<basic_string_view<CharT>, CharT>
     {
         template<typename FormatContext>
-        inline decltype(auto) format(const rapidjson::Value& value, FormatContext& fc)
+        inline decltype(auto) format(const ospf::serialization::json::Json<CharT>& value, FormatContext& fc)
         {
             std::basic_ostringstream<CharT> sout;
-            rapidjson::BasicOStreamWrapper osw{ sout };
-            rapidjson::Writer writer{ osw };
+            rapidjson::BasicOStreamWrapper<decltype(sout)> osw{sout};
+            rapidjson::Writer<decltype(osw)> writer{ osw };
 
             if (!value.Accept(writer))
             {

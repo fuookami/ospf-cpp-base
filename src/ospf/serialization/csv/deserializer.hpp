@@ -22,8 +22,8 @@ namespace ospf
             public:
                 using ColumnMap = StringHashMap<std::basic_string_view<CharT>, usize>;
                 using ValueType = OriginType<T>;
-                using RowType = ORMRowType<ValueType>;
-                using RowViewType = ORMRowViewType<ValueType>;
+                using RowType = ORMRowType<ValueType, CharT>;
+                using RowViewType = ORMRowViewType<ValueType, CharT>;
 
             public:
                 Deserializer(void) = default;
@@ -234,7 +234,7 @@ namespace ospf
                                     }
                                 }
                                 
-                                const FromCSVValue<FieldValueType, CharT> deserializer{};
+                                static const FromCSVValue<FieldValueType, CharT> deserializer{};
                                 auto value = deserializer(*row[*it]);
                                 if constexpr (!serialization_nullable<FieldValueType>)
                                 {
@@ -292,7 +292,7 @@ namespace ospf
                                     }
                                 }
 
-                                const FromCSVValue<FieldValueType, CharT> deserializer{};
+                                static const FromCSVValue<FieldValueType, CharT> deserializer{};
                                 auto value = deserializer(row[*it]);
                                 if constexpr (!serialization_nullable<FieldValueType>)
                                 {

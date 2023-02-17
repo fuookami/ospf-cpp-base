@@ -16,10 +16,10 @@ namespace ospf
         namespace json
         {
             template<CharType CharT>
-            inline Try<> write(std::basic_ostream<CharT>& os, const rapidjson::Document& doc) noexcept
+            inline Try<> write(std::basic_ostream<CharT>& os, const Document<CharT>& doc) noexcept
             {
-                rapidjson::BasicOStreamWrapper osw{ sout };
-                rapidjson::Writer writer{ osw };
+                rapidjson::BasicOStreamWrapper<decltype(os)> osw{ os };
+                rapidjson::Writer<decltype(osw)> writer{ osw };
 
                 if (!doc.Accept(writer))
                 {
@@ -29,10 +29,10 @@ namespace ospf
             }
 
             template<CharType CharT>
-            inline Result<rapidjson::Document> read(std::basic_istream<CharT>& is) noexcept
+            inline Result<Document<CharT>> read(std::basic_istream<CharT>& is) noexcept
             {
-                rapidjson::Document doc;
-                rapidjson::BasicIStreamWrapper isw{ is };
+                Document<CharT> doc;
+                rapidjson::BasicIStreamWrapper<decltype(is)> isw{is};
                 rapidjson::ParseResult ok = doc.ParseStream(isw);
                 if (!ok)
                 {

@@ -39,48 +39,48 @@ namespace ospf
             template<typename T, typename CharT>
             concept SerializableToJson = CharType<CharT> && requires (const ToJsonValue<OriginType<T>, CharT> serializer)
             {
-                { serializer(std::declval<T>(), std::declval<rapidjson::Document>(), std::declval<std::optional<NameTransfer<CharT>>>()) } -> DecaySameAs<Result<rapidjson::Value>>;
+                { serializer(std::declval<T>(), std::declval<Document<CharT>>(), std::declval<std::optional<NameTransfer<CharT>>>()) } -> DecaySameAs<Result<Json<CharT>>>;
             };
 
-            template<EnumType T>
-            struct ToJsonValue<T, char>
+            template<EnumType T, CharType CharT>
+            struct ToJsonValue<T, CharT>
             {
-                inline Result<rapidjson::Value> operator()(const T value, rapidjson::Document& doc, const std::optional<NameTransfer<char>>& transfer) const noexcept
+                inline Result<Json<CharT>> operator()(const T value, Document<CharT>& doc, const std::optional<NameTransfer<CharT>>& transfer) const noexcept
                 {
-                    return rapidjson::Value{ to_string(value).data(), doc.GetAllocator() };
+                    return Json<CharT>{ to_string<T, CharT>(value).data(), doc.GetAllocator() };
                 }
             };
 
-            template<WithMetaInfo T>
-            struct ToJsonValue<T, char>
+            template<WithMetaInfo T, CharType CharT>
+            struct ToJsonValue<T, CharT>
             {
-                inline Result<rapidjson::Value> operator()(const T& obj, rapidjson::Document& doc, const std::optional<NameTransfer<char>>& transfer) const noexcept
+                inline Result<Json<CharT>> operator()(const T& obj, Document<CharT>& doc, const std::optional<NameTransfer<CharT>>& transfer) const noexcept
                 {
                     static constexpr const meta_info::MetaInfo<T> info{};
-                    rapidjson::Value json{ rapidjson::kObjectType };
+                    Json<CharT> json{ rapidjson::kObjectType };
                     std::optional<OSPFError> err;
                     info.for_each(obj, [&json, &err, &doc, &transfer](const auto& obj, const auto& field)
                         {
                             using FieldValueType = OriginType<decltype(field.value(obj))>;
-                    static_assert(SerializableToJson<FieldValueType>);
+                            static_assert(SerializableToJson<FieldValueType>);
 
-                    if (err.has_value())
-                    {
-                        return;
-                    }
+                            if (err.has_value())
+                            {
+                                return;
+                            }
 
-                    const auto key = transfer.has_value() ? (*transfer)(field.key()) : field.key();
-                    const ToJsonValue<FieldValueType, char> serializer{};
-                    auto sub_json = serializer(field.value(obj), doc, transfer);
-                    if (sub_json.is_failed())
-                    {
-                        err = OSPFError{ OSPFErrCode::SerializationFail, std::format("failed serializing field \"{}\" for type\"{}\", {}", field.key(), TypeInfo<T>::name(), sub_json.err().message()) };
-                        return;
-                    }
-                    else
-                    {
-                        json.AddMember(rapidjson::StringRef(key.data()), sub_json.unwrap().Move(), doc.GetAllocator());
-                    }
+                            const auto key = transfer.has_value() ? (*transfer)(field.key()) : field.key();
+                            static const ToJsonValue<FieldValueType, CharT> serializer{};
+                            auto sub_json = serializer(field.value(obj), doc, transfer);
+                            if (sub_json.is_failed())
+                            {
+                                err = OSPFError{ OSPFErrCode::SerializationFail, std::format("failed serializing field \"{}\" for type\"{}\", {}", field.key(), TypeInfo<T>::name(), sub_json.err().message()) };
+                                return;
+                            }
+                            else
+                            {
+                                json.AddMember(rapidjson::StringRef(key.data()), sub_json.unwrap().Move(), doc.GetAllocator());
+                            }
                         });
                     if (err.has_value())
                     {
@@ -97,7 +97,7 @@ namespace ospf
                 requires SerializableToJson<T, CharT>
             struct ToJsonValue<std::optional<T>, CharT>
             {
-                inline Result<rapidjson::Value> operator()(const std::optional<T>& obj, rapidjson::Document& doc, const std::optional<NameTransfer<CharT>>& transfer) const noexcept
+                inline Result<Json<CharT>> operator()(const std::optional<T>& obj, Document<CharT>& doc, const std::optional<NameTransfer<CharT>>& transfer) const noexcept
                 {
                     static const ToJsonValue<OriginType<T>, CharT> serializer{};
                     if (obj.has_value())
@@ -106,7 +106,7 @@ namespace ospf
                     }
                     else
                     {
-                        return rapidjson::Value{ rapidjson::kNullType };
+                        return Json<CharT>{ rapidjson::kNullType };
                     }
                 }
             };
@@ -115,7 +115,7 @@ namespace ospf
                 requires SerializableToJson<T, CharT>
             struct ToJsonValue<pointer::Ptr<T, cat>, CharT>
             {
-                inline Result<rapidjson::Value> operator()(const pointer::Ptr<T, cat>& obj, rapidjson::Document& doc, const std::optional<NameTransfer<CharT>>& transfer) const noexcept
+                inline Result<Json<CharT>> operator()(const pointer::Ptr<T, cat>& obj, Document<CharT>& doc, const std::optional<NameTransfer<CharT>>& transfer) const noexcept
                 {
                     static const ToJsonValue<OriginType<T>, CharT> serializer{};
                     if (obj != nullptr)
@@ -124,7 +124,7 @@ namespace ospf
                     }
                     else
                     {
-                        return rapidjson::Value{ rapidjson::kNullType };
+                        return Json<CharT>{ rapidjson::kNullType };
                     }
                 }
             };
@@ -133,7 +133,7 @@ namespace ospf
                 requires SerializableToJson<T, CharT>
             struct ToJsonValue<reference::Ref<T, cat>, CharT>
             {
-                inline Result<rapidjson::Value> operator()(const reference::Ref<T, cat>& obj, rapidjson::Document& doc, const std::optional<NameTransfer<CharT>>& transfer) const noexcept
+                inline Result<Json<CharT>> operator()(const reference::Ref<T, cat>& obj, Document<CharT>& doc, const std::optional<NameTransfer<CharT>>& transfer) const noexcept
                 {
                     static const ToJsonValue<OriginType<T>, CharT> serializer{};
                     return serializer(*obj, doc, transfer);
@@ -144,9 +144,9 @@ namespace ospf
                 requires SerializableToJson<T, CharT>&& SerializableToJson<U, CharT>
             struct ToJsonValue<std::pair<T, U>, CharT>
             {
-                inline Result<rapidjson::Value> operator()(const std::pair<T, U>& obj, rapidjson::Document& doc, const std::optional<NameTransfer<CharT>>& transfer) const noexcept
+                inline Result<Json<CharT>> operator()(const std::pair<T, U>& obj, Document<CharT>& doc, const std::optional<NameTransfer<CharT>>& transfer) const noexcept
                 {
-                    rapidjson::Value json{ rapidjson::kArrayType };
+                    Json<CharT> json{ rapidjson::kArrayType };
                     static const ToJsonValue<OriginType<T>, CharT> serializer1{};
                     OSPF_TRY_GET(sub_json1, serializer1(obj.first, doc, transfer));
                     json.PushBack(sub_json1.Move(), doc.GetAllocator());
@@ -160,15 +160,15 @@ namespace ospf
             template<typename... Ts, CharType CharT>
             struct ToJsonValue<std::tuple<Ts...>, CharT>
             {
-                inline Result<rapidjson::Value> operator()(const std::tuple<Ts...>& obj, rapidjson::Document& doc, const std::optional<NameTransfer<CharT>>& transfer) const noexcept
+                inline Result<Json<CharT>> operator()(const std::tuple<Ts...>& obj, Document<CharT>& doc, const std::optional<NameTransfer<CharT>>& transfer) const noexcept
                 {
-                    rapidjson::Value json{ rapidjson::kArrayType };
+                    Json<CharT> json{ rapidjson::kArrayType };
                     OSPF_TRY_EXEC(serialize<0_uz>(json, obj, doc, transfer));
                     return std::move(json);
                 }
 
                 template<usize i>
-                inline static Try<> serialize(rapidjson::Value& json, const std::tuple<Ts...>& obj, rapidjson::Document& doc, const std::optional<NameTransfer<CharT>>& transfer) noexcept
+                inline static Try<> serialize(Json<CharT>& json, const std::tuple<Ts...>& obj, Document<CharT>& doc, const std::optional<NameTransfer<CharT>>& transfer) noexcept
                 {
                     if constexpr (i == VariableTypeList<Ts...>::length)
                     {
@@ -189,18 +189,18 @@ namespace ospf
             template<typename... Ts, CharType CharT>
             struct ToJsonValue<std::variant<Ts...>, CharT>
             {
-                inline Result<rapidjson::Value> operator()(const std::variant<Ts...>& obj, rapidjson::Document& doc, const std::optional<NameTransfer<CharT>>& transfer) const noexcept
+                inline Result<Json<CharT>> operator()(const std::variant<Ts...>& obj, Document<CharT>& doc, const std::optional<NameTransfer<CharT>>& transfer) const noexcept
                 {
-                    rapidjson::Value json{ rapidjson::kObjectType };
-                    json.AddMember("index", rapidjson::Value{ obj.index() }, doc.GetAllocator());
+                    Json<CharT> json{ rapidjson::kObjectType };
+                    json.AddMember(transfer("index"), Json<CharT>{ obj.index() }, doc.GetAllocator());
                     OSPF_TRY_EXEC(std::visit([&json, &doc, &transfer](const auto& this_value)
                         {
                             using ValueType = OriginType<decltype(this_value)>;
-                    static_assert(SerializableToJson<ValueType, CharT>);
-                    static const ToJsonValue<ValueType, CharT> serializer{};
-                    OSPF_TRY_GET(sub_json, serializer(this_value, doc, transfer));
-                    json.AddMember("value", sub_json.Move(), doc.GetAllocator());
-                    return succeed;
+                            static_assert(SerializableToJson<ValueType, CharT>);
+                            static const ToJsonValue<ValueType, CharT> serializer{};
+                            OSPF_TRY_GET(sub_json, serializer(this_value, doc, transfer));
+                            json.AddMember(transfer("value"), sub_json.Move(), doc.GetAllocator());
+                            return succeed;
                         }, obj));
                     return std::move(json);
                 }
@@ -210,17 +210,17 @@ namespace ospf
                 requires SerializableToJson<T, CharT>&& SerializableToJson<U, CharT>
             struct ToJsonValue<Either<T, U>, CharT>
             {
-                inline Result<rapidjson::Value> operator()(const Either<T, U>& obj, rapidjson::Document& doc, const std::optional<NameTransfer<CharT>>& transfer) const noexcept
+                inline Result<Json<CharT>> operator()(const Either<T, U>& obj, Document<CharT>& doc, const std::optional<NameTransfer<CharT>>& transfer) const noexcept
                 {
-                    rapidjson::Value json{ rapidjson::kObjectType };
-                    json.AddMember("index", rapidjson::Value{ obj.is_left() ? 0_uz : 1_uz }, doc.GetAllocator());
+                    Json<CharT> json{ rapidjson::kObjectType };
+                    json.AddMember(transfer("index"), Json<CharT>{ obj.is_left() ? 0_uz : 1_uz }, doc.GetAllocator());
                     OSPF_TRY_EXEC(std::visit([&json, &doc, &transfer](const auto& this_value)
                         {
                             using ValueType = OriginType<decltype(this_value)>;
-                    static const ToJsonValue<ValueType, CharT> serializer{};
-                    OSPF_TRY_GET(sub_json, serializer(this_value, doc, transfer));
-                    json.AddMember("value", sub_json.Move(), doc.GetAllocator());
-                    return succeed;
+                            static const ToJsonValue<ValueType, CharT> serializer{};
+                            OSPF_TRY_GET(sub_json, serializer(this_value, doc, transfer));
+                            json.AddMember(transfer("value"), sub_json.Move(), doc.GetAllocator());
+                            return succeed;
                         }, obj));
                     return std::move(json);
                 }
@@ -230,7 +230,7 @@ namespace ospf
                 requires SerializableToJson<T, CharT>
             struct ToJsonValue<ValOrRef<T, cat>, CharT>
             {
-                inline Result<rapidjson::Value> operator()(const ValOrRef<T, cat>& obj, rapidjson::Document& doc, const std::optional<NameTransfer<CharT>>& transfer) const noexcept
+                inline Result<Json<CharT>> operator()(const ValOrRef<T, cat>& obj, Document<CharT>& doc, const std::optional<NameTransfer<CharT>>& transfer) const noexcept
                 {
                     static const ToJsonValue<OriginType<T>, CharT> serializer{};
                     return serializer(*obj, doc, transfer);
@@ -241,9 +241,9 @@ namespace ospf
                 requires SerializableToJson<T, CharT>
             struct ToJsonValue<std::array<T, len>, CharT>
             {
-                inline Result<rapidjson::Value> operator()(const std::array<T, len>& objs, rapidjson::Document& doc, const std::optional<NameTransfer<CharT>>& transfer) const noexcept
+                inline Result<Json<CharT>> operator()(const std::array<T, len>& objs, Document<CharT>& doc, const std::optional<NameTransfer<CharT>>& transfer) const noexcept
                 {
-                    rapidjson::Value json{ rapidjson::kArrayType };
+                    Json<CharT> json{ rapidjson::kArrayType };
                     static const ToJsonValue<OriginType<T>, CharT> serializer{};
                     for (const auto& obj : objs)
                     {
@@ -258,9 +258,9 @@ namespace ospf
                 requires SerializableToJson<T, CharT>
             struct ToJsonValue<std::vector<T>, CharT>
             {
-                inline Result<rapidjson::Value> operator()(const std::vector<T>& objs, rapidjson::Document& doc, const std::optional<NameTransfer<CharT>>& transfer) const noexcept
+                inline Result<Json<CharT>> operator()(const std::vector<T>& objs, Document<CharT>& doc, const std::optional<NameTransfer<CharT>>& transfer) const noexcept
                 {
-                    rapidjson::Value json{ rapidjson::kArrayType };
+                    Json<CharT> json{ rapidjson::kArrayType };
                     static const ToJsonValue<OriginType<T>, CharT> serializer{};
                     for (const auto& obj : objs)
                     {
@@ -275,9 +275,9 @@ namespace ospf
                 requires SerializableToJson<T, CharT>
             struct ToJsonValue<std::deque<T>, CharT>
             {
-                inline Result<rapidjson::Value> operator()(const std::deque<T>& objs, rapidjson::Document& doc, const std::optional<NameTransfer<CharT>>& transfer) const noexcept
+                inline Result<Json<CharT>> operator()(const std::deque<T>& objs, Document<CharT>& doc, const std::optional<NameTransfer<CharT>>& transfer) const noexcept
                 {
-                    rapidjson::Value json{ rapidjson::kArrayType };
+                    Json<CharT> json{ rapidjson::kArrayType };
                     static const ToJsonValue<OriginType<T>, CharT> serializer{};
                     for (const auto& obj : objs)
                     {
@@ -292,9 +292,9 @@ namespace ospf
                 requires SerializableToJson<T, CharT>
             struct ToJsonValue<std::span<T, len>, CharT>
             {
-                inline Result<rapidjson::Value> operator()(const std::span<T, len>& objs, rapidjson::Document& doc, const std::optional<NameTransfer<CharT>>& transfer) const noexcept
+                inline Result<Json<CharT>> operator()(const std::span<T, len>& objs, Document<CharT>& doc, const std::optional<NameTransfer<CharT>>& transfer) const noexcept
                 {
-                    rapidjson::Value json{ rapidjson::kArrayType };
+                    Json<CharT> json{ rapidjson::kArrayType };
                     static const ToJsonValue<OriginType<T>, CharT> serializer{};
                     for (const auto& obj : objs)
                     {
@@ -314,9 +314,9 @@ namespace ospf
                 requires SerializableToJson<T, CharT>
             struct ToJsonValue<optional_array::StaticOptionalArray<T, len, C>, CharT>
             {
-                inline Result<rapidjson::Value> operator()(const optional_array::StaticOptionalArray<T, len, C>& objs, rapidjson::Document& doc, const std::optional<NameTransfer<CharT>>& transfer) const noexcept
+                inline Result<Json<CharT>> operator()(const optional_array::StaticOptionalArray<T, len, C>& objs, Document<CharT>& doc, const std::optional<NameTransfer<CharT>>& transfer) const noexcept
                 {
-                    rapidjson::Value json{ rapidjson::kArrayType };
+                    Json<CharT> json{ rapidjson::kArrayType };
                     static const ToJsonValue<OriginType<T>, CharT> serializer{};
                     for (const auto& obj : objs)
                     {
@@ -327,7 +327,7 @@ namespace ospf
                         }
                         else
                         {
-                            json.PushBack(rapidjson::Value{ rapidjson::kNullType }, doc.GetAllocator());
+                            json.PushBack(Json<CharT>{ rapidjson::kNullType }, doc.GetAllocator());
                         }
                     }
                     return std::move(json);
@@ -342,9 +342,9 @@ namespace ospf
                 requires SerializableToJson<T, CharT>
             struct ToJsonValue<optional_array::DynamicOptionalArray<T, C>, CharT>
             {
-                inline Result<rapidjson::Value> operator()(const optional_array::DynamicOptionalArray<T, C>& objs, rapidjson::Document& doc, const std::optional<NameTransfer<CharT>>& transfer) const noexcept
+                inline Result<Json<CharT>> operator()(const optional_array::DynamicOptionalArray<T, C>& objs, Document<CharT>& doc, const std::optional<NameTransfer<CharT>>& transfer) const noexcept
                 {
-                    rapidjson::Value json{ rapidjson::kArrayType };
+                    Json<CharT> json{ rapidjson::kArrayType };
                     static const ToJsonValue<OriginType<T>, CharT> serializer{};
                     for (const auto& obj : objs)
                     {
@@ -355,7 +355,7 @@ namespace ospf
                         }
                         else
                         {
-                            json.PushBack(rapidjson::Value{ rapidjson::kNullType }, doc.GetAllocator());
+                            json.PushBack(Json<CharT>{ rapidjson::kNullType }, doc.GetAllocator());
                         }
                     }
                     return std::move(json);
@@ -372,9 +372,9 @@ namespace ospf
                 requires SerializableToJson<T, CharT>
             struct ToJsonValue<pointer_array::StaticPointerArray<T, len, cat, C>, CharT>
             {
-                inline Result<rapidjson::Value> operator()(const pointer_array::StaticPointerArray<T, len, cat, C>& objs, rapidjson::Document& doc, const std::optional<NameTransfer<CharT>>& transfer) const noexcept
+                inline Result<Json<CharT>> operator()(const pointer_array::StaticPointerArray<T, len, cat, C>& objs, Document<CharT>& doc, const std::optional<NameTransfer<CharT>>& transfer) const noexcept
                 {
-                    rapidjson::Value json{ rapidjson::kArrayType };
+                    Json<CharT> json{ rapidjson::kArrayType };
                     static const ToJsonValue<OriginType<T>, CharT> serializer{};
                     for (const auto& obj : objs)
                     {
@@ -385,7 +385,7 @@ namespace ospf
                         }
                         else
                         {
-                            json.PushBack(rapidjson::Value{ rapidjson::kNullType }, doc.GetAllocator());
+                            json.PushBack(Json<CharT>{ rapidjson::kNullType }, doc.GetAllocator());
                         }
                     }
                     return std::move(json);
@@ -401,9 +401,9 @@ namespace ospf
                 requires SerializableToJson<T, CharT>
             struct ToJsonValue<pointer_array::DynamicPointerArray<T, cat, C>, CharT>
             {
-                inline Result<rapidjson::Value> operator()(const pointer_array::DynamicPointerArray<T, cat, C>& objs, rapidjson::Document& doc, const std::optional<NameTransfer<CharT>>& transfer) const noexcept
+                inline Result<Json<CharT>> operator()(const pointer_array::DynamicPointerArray<T, cat, C>& objs, Document<CharT>& doc, const std::optional<NameTransfer<CharT>>& transfer) const noexcept
                 {
-                    rapidjson::Value json{ rapidjson::kArrayType };
+                    Json<CharT> json{ rapidjson::kArrayType };
                     static const ToJsonValue<OriginType<T>, CharT> serializer{};
                     for (const auto& obj : objs)
                     {
@@ -414,7 +414,7 @@ namespace ospf
                         }
                         else
                         {
-                            json.PushBack(rapidjson::Value{ rapidjson::kNullType }, doc.GetAllocator());
+                            json.PushBack(Json<CharT>{ rapidjson::kNullType }, doc.GetAllocator());
                         }
                     }
                     return std::move(json);
@@ -431,9 +431,9 @@ namespace ospf
                 requires SerializableToJson<T, CharT>
             struct ToJsonValue<reference_array::StaticReferenceArray<T, len, cat, C>, CharT>
             {
-                inline Result<rapidjson::Value> operator()(const reference_array::StaticReferenceArray<T, len, cat, C>& objs, rapidjson::Document& doc, const std::optional<NameTransfer<CharT>>& transfer) const noexcept
+                inline Result<Json<CharT>> operator()(const reference_array::StaticReferenceArray<T, len, cat, C>& objs, Document<CharT>& doc, const std::optional<NameTransfer<CharT>>& transfer) const noexcept
                 {
-                    rapidjson::Value json{ rapidjson::kArrayType };
+                    Json<CharT> json{ rapidjson::kArrayType };
                     static const ToJsonValue<OriginType<T>, CharT> serializer{};
                     for (const auto& obj : objs)
                     {
@@ -453,9 +453,9 @@ namespace ospf
                 requires SerializableToJson<T, CharT>
             struct ToJsonValue<reference_array::DynamicReferenceArray<T, cat, C>, CharT>
             {
-                inline Result<rapidjson::Value> operator()(const reference_array::DynamicReferenceArray<T, cat, C>& objs, rapidjson::Document& doc, const std::optional<NameTransfer<CharT>>& transfer) const noexcept
+                inline Result<Json<CharT>> operator()(const reference_array::DynamicReferenceArray<T, cat, C>& objs, Document<CharT>& doc, const std::optional<NameTransfer<CharT>>& transfer) const noexcept
                 {
-                    rapidjson::Value json{ rapidjson::kArrayType };
+                    Json<CharT> json{ rapidjson::kArrayType };
                     static const ToJsonValue<OriginType<T>, CharT> serializer{};
                     for (const auto& obj : objs)
                     {
@@ -475,9 +475,9 @@ namespace ospf
                 requires SerializableToJson<T, CharT>
             struct ToJsonValue<tagged_map::TaggedMap<T, E, C>, CharT>
             {
-                inline Result<rapidjson::Value> operator()(const tagged_map::TaggedMap<T, E, C>& objs, rapidjson::Document& doc, const std::optional<NameTransfer<CharT>>& transfer) const noexcept
+                inline Result<Json<CharT>> operator()(const tagged_map::TaggedMap<T, E, C>& objs, Document<CharT>& doc, const std::optional<NameTransfer<CharT>>& transfer) const noexcept
                 {
-                    rapidjson::Value json{ rapidjson::kArrayType };
+                    Json<CharT> json{ rapidjson::kArrayType };
                     static const ToJsonValue<OriginType<T>, CharT> serializer{};
                     for (const auto& obj : objs)
                     {
@@ -498,9 +498,9 @@ namespace ospf
                 requires SerializableToJson<T, CharT>
             struct ToJsonValue<value_or_reference_array::StaticValueOrReferenceArray<T, len, cat, C>, CharT>
             {
-                inline Result<rapidjson::Value> operator()(const value_or_reference_array::StaticValueOrReferenceArray<T, len, cat, C>& objs, rapidjson::Document& doc, const std::optional<NameTransfer<CharT>>& transfer) const noexcept
+                inline Result<Json<CharT>> operator()(const value_or_reference_array::StaticValueOrReferenceArray<T, len, cat, C>& objs, Document<CharT>& doc, const std::optional<NameTransfer<CharT>>& transfer) const noexcept
                 {
-                    rapidjson::Value json{ rapidjson::kArrayType };
+                    Json<CharT> json{ rapidjson::kArrayType };
                     static const ToJsonValue<OriginType<T>, CharT> serializer{};
                     for (const auto& obj : objs)
                     {
@@ -520,9 +520,9 @@ namespace ospf
                 requires SerializableToJson<T, CharT>
             struct ToJsonValue<value_or_reference_array::DynamicValueOrReferenceArray<T, cat, C>, CharT>
             {
-                inline Result<rapidjson::Value> operator()(const value_or_reference_array::DynamicValueOrReferenceArray<T, cat, C>& objs, rapidjson::Document& doc, const std::optional<NameTransfer<CharT>>& transfer) const noexcept
+                inline Result<Json<CharT>> operator()(const value_or_reference_array::DynamicValueOrReferenceArray<T, cat, C>& objs, Document<CharT>& doc, const std::optional<NameTransfer<CharT>>& transfer) const noexcept
                 {
-                    rapidjson::Value json{ rapidjson::kArrayType };
+                    Json<CharT> json{ rapidjson::kArrayType };
                     static const ToJsonValue<OriginType<T>, CharT> serializer{};
                     for (const auto& obj : objs)
                     {
