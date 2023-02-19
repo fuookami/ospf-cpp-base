@@ -37,7 +37,7 @@ namespace ospf
 
             public:
                 template<typename = void>
-                    requires std::default_initializable<ValueType>
+                    requires WithDefault<ValueType>
                 inline Result<std::vector<ValueType>> operator()(const CSVTable<CharT>& table) const noexcept
                 {
                     static constexpr const meta_info::MetaInfo<ValueType> info{};
@@ -45,7 +45,7 @@ namespace ospf
                     std::vector<ValueType> ret;
                     for (const auto& row : table.rows())
                     {
-                        ValueType obj{};
+                        ValueType obj = DefaultValue<ValueType>::value();
                         OSPF_TRY_EXEC(deserialize(obj, info, row, column_map));
                         ret.push_back(std::move(obj));
                     }
@@ -69,7 +69,7 @@ namespace ospf
                 }
 
                 template<typename = void>
-                    requires std::default_initializable<ValueType>
+                    requires WithDefault<ValueType>
                 inline Result<std::vector<ValueType>> operator()(const CSVViewTable<CharT>& table) const noexcept
                 {
                     static constexpr const meta_info::MetaInfo<ValueType> info{};
@@ -77,7 +77,7 @@ namespace ospf
                     std::vector<ValueType> ret;
                     for (const auto& row : table.rows())
                     {
-                        ValueType obj{};
+                        ValueType obj = DefaultValue<ValueType>::value();
                         OSPF_TRY_EXEC(deserialize(obj, info, row, column_map));
                         ret.push_back(std::move(obj));
                     }
@@ -101,7 +101,7 @@ namespace ospf
                 }
 
                 template<typename = void>
-                    requires std::default_initializable<ValueType>
+                    requires WithDefault<ValueType>
                 inline Result<std::vector<ValueType>> operator()(const ORMTableType<ValueType, CharT>& table) const noexcept
                 {
                     static constexpr const meta_info::MetaInfo<ValueType> info{};
@@ -109,7 +109,7 @@ namespace ospf
                     std::vector<ValueType> ret;
                     for (const auto& row : table.rows())
                     {
-                        ValueType obj{};
+                        ValueType obj = DefaultValue<ValueType>::value();
                         OSPF_TRY_EXEC(deserialize(obj, info, row, column_map));
                         ret.push_back(std::move(obj));
                     }
@@ -133,7 +133,7 @@ namespace ospf
                 }
 
                 template<typename = void>
-                    requires std::default_initializable<ValueType>
+                    requires WithDefault<ValueType>
                 inline Result<std::vector<ValueType>> operator()(const ORMViewTableType<ValueType, CharT>& table) const noexcept
                 {
                     static constexpr const meta_info::MetaInfo<ValueType> info{};
@@ -141,7 +141,7 @@ namespace ospf
                     std::vector<ValueType> ret;
                     for (const auto& row : table.rows())
                     {
-                        ValueType obj{};
+                        ValueType obj = DefaultValue<ValueType>::value();
                         OSPF_TRY_EXEC(deserialize(obj, info, row, column_map));
                         ret.push_back(std::move(obj));
                     }
@@ -323,7 +323,7 @@ namespace ospf
             };
 
             template<typename T, CharType CharT = char>
-                requires std::default_initializable<T>
+                requires WithDefault<T>
             inline Try<std::vector<T>> from_file(
                 const std::filesystem::path& path, 
                 std::optional<NameTransfer<CharT>> transfer = meta_programming::NameTransfer<NamingSystem::UpperUnderscore, NamingSystem::Underscore, CharT>{},
@@ -340,7 +340,7 @@ namespace ospf
                 }
 
                 std::basic_ifstream<CharT> fin{ path };
-                OSPF_TRY_GET(table, read<ORMCSVTrait<T>::col>(fin, seperator));
+                OSPF_TRY_GET(table, read<csv::ORMCSVTrait<T, CharT>::col>(fin, seperator));
 
                 auto deserializer = transfer.has_value() ? Deserializer<T, CharT>{ std::move(transfer).value() } : Deserializer<T, CharT>{};
                 OSPF_TRY_GET(objs, deserializer(table));
@@ -366,7 +366,7 @@ namespace ospf
                 }
 
                 std::basic_ifstream<CharT> fin{ path };
-                OSPF_TRY_GET(table, read<ORMCSVTrait<T>::col>(fin, seperator));
+                OSPF_TRY_GET(table, read<csv::ORMCSVTrait<T, CharT>::col>(fin, seperator));
 
                 auto deserializer = transfer.has_value() ? Deserializer<T, CharT>{ std::move(transfer).value() } : Deserializer<T, CharT>{};
                 OSPF_TRY_GET(objs, deserializer(table, origin_obj));
@@ -374,7 +374,7 @@ namespace ospf
             }
 
             template<typename T, CharType CharT = char>
-                requires std::default_initializable<T>
+                requires WithDefault<T>
             inline Try<std::vector<T>> from_file_soft(
                 const std::filesystem::path& path, 
                 std::optional<NameTransfer<CharT>> transfer = meta_programming::NameTransfer<NamingSystem::UpperUnderscore, NamingSystem::Underscore, CharT>{},
@@ -425,7 +425,7 @@ namespace ospf
             }
 
             template<typename T, CharType CharT = char>
-                requires std::default_initializable<T>
+                requires WithDefault<T>
             inline Try<std::vector<T>> from_string(
                 const std::basic_string_view<CharT> str,
                 std::optional<NameTransfer<CharT>> transfer = meta_programming::NameTransfer<NamingSystem::UpperUnderscore, NamingSystem::Underscore, CharT>{},
@@ -433,7 +433,7 @@ namespace ospf
             ) noexcept
             {
                 std::basic_istringstream<CharT> sin{ str };
-                OSPF_TRY_GET(table, read<ORMCSVTrait<T>::col>(sin, seperator));
+                OSPF_TRY_GET(table, read<csv::ORMCSVTrait<T, CharT>::col>(sin, seperator));
 
                 auto deserializer = transfer.has_value() ? Deserializer<T, CharT>{ std::move(transfer).value() } : Deserializer<T, CharT>{};
                 OSPF_TRY_GET(objs, deserializer(table));
@@ -450,7 +450,7 @@ namespace ospf
             ) noexcept
             {
                 std::basic_istringstream<CharT> sin{ str };
-                OSPF_TRY_GET(table, read<ORMCSVTrait<T>::col>(sin, seperator));
+                OSPF_TRY_GET(table, read<csv::ORMCSVTrait<T, CharT>::col>(sin, seperator));
 
                 auto deserializer = transfer.has_value() ? Deserializer<T, CharT>{ std::move(transfer).value() } : Deserializer<T, CharT>{};
                 OSPF_TRY_GET(objs, deserializer(table, origin_obj));
@@ -458,7 +458,7 @@ namespace ospf
             }
 
             template<typename T, CharType CharT = char>
-                requires std::default_initializable<T>
+                requires WithDefault<T>
             inline Try<std::vector<T>> from_string_soft(
                 const std::basic_string_view<CharT> str,
                 std::optional<NameTransfer<CharT>> transfer = meta_programming::NameTransfer<NamingSystem::UpperUnderscore, NamingSystem::Underscore, CharT>{},

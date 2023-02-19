@@ -54,6 +54,9 @@ namespace ospf
     template<>
     struct DefaultValue<OSPFErrCode>
     {
-        static constexpr const OSPFErrCode value = OSPFErrCode::None;
+        inline static constexpr const OSPFErrCode value(void) noexcept
+        {
+            return OSPFErrCode::None;
+        }
     };
 };

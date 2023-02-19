@@ -33,7 +33,7 @@ namespace ospf
                 constexpr MultiArray(ArgRRefType<ShapeType> shape)
                     : _shape(move<ShapeType>(shape))
                 {
-                    _container.assign(_shape.size(), DefaultValue<ValueType>::value);
+                    _container.assign(_shape.size(), DefaultValue<ValueType>::value());
                 }
 
                 constexpr MultiArray(ArgRRefType<ShapeType> shape, ArgCLRefType<ValueType> value)

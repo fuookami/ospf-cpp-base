@@ -69,6 +69,9 @@ namespace ospf::concepts
     template<>
     struct DefaultValue<LogLevel>
     {
-        static constexpr const LogLevel value = default_log_level;
+        inline static constexpr const LogLevel value(void) noexcept
+        {
+            return default_log_level;
+        }
     };
 };

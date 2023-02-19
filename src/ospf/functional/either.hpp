@@ -22,6 +22,21 @@ namespace ospf
             using RightType = OriginType<U>;
             using VariantType = std::variant<LeftType, RightType>;
 
+        private:
+            template<typename = void>
+                requires AnyWithDefault<LeftType, RightType>
+            inline static VariantType defalt_value(void) noexcept
+            {
+                if constexpr (WithDefault<LeftType>)
+                {
+                    return VariantType{ DefaultValue<LeftType>::value() };
+                }
+                else if constexpr (WithDefault<RightType>)
+                {
+                    return VariantType{ DefaultValue<RightType>::value() };
+                }
+            }
+
         public:
             inline static constexpr Either left(ArgCLRefType<LeftType> left_value)
             {
@@ -48,6 +63,11 @@ namespace ospf
             }
 
         public:
+            template<typename = void>
+                requires AnyWithDefault<LeftType, RightType>
+            constexpr Either(void)
+                : _variant(defalt_value()) {}
+
             constexpr Either(ArgCLRefType<LeftType> left_value)
                 : _variant(left_value) {}
 
@@ -270,7 +290,7 @@ namespace ospf
                 }
                 else
                 {
-                    return DefaultValue<LeftType>::value;
+                    return DefaultValue<LeftType>::value();
                 }
             }
 
@@ -284,7 +304,7 @@ namespace ospf
                 }
                 else
                 {
-                    return DefaultValue<LeftType>::value;
+                    return DefaultValue<LeftType>::value();
                 }
             }
 
@@ -462,7 +482,7 @@ namespace ospf
                 }
                 else
                 {
-                    return DefaultValue<RightType>::value;
+                    return DefaultValue<RightType>::value();
                 }
             }
 
@@ -476,7 +496,7 @@ namespace ospf
                 }
                 else
                 {
-                    return DefaultValue<RightType>::value;
+                    return DefaultValue<RightType>::value();
                 }
             }
 
@@ -679,13 +699,23 @@ namespace ospf
     {
         using Type = typename TagValue<T>::Type;
 
-        inline RetType<Type> operator()(ArgCLRefType<ospf::Either<T, U>> either) const noexcept
+        inline constexpr RetType<Type> operator()(ArgCLRefType<ospf::Either<T, U>> either) const noexcept
         {
             return either.visit([](const auto& ele)
                 {
                     static constexpr const auto extractor = TagValue<OriginType<decltype(ele)>>{ };
                     return extractor(ele);
                 });
+        }
+    };
+
+    template<typename T, typename U>
+        requires AnyWithDefault<T, U>
+    struct DefaultValue<Either<T, U>>
+    {
+        inline static constexpr Either<T, U> value(void) noexcept
+        {
+            return Either<T, U>{};
         }
     };
 };

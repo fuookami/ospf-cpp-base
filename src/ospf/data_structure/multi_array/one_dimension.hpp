@@ -31,7 +31,7 @@ namespace ospf
                 constexpr MultiArray(ArgRRefType<Shape1> shape)
                     : _shape(move<Shape1>(shape))
                 {
-                    _container.assign(_shape.size(), DefaultValue<ValueType>::value);
+                    _container.assign(_shape.size(), DefaultValue<ValueType>::value());
                 }
 
                 constexpr MultiArray(ArgRRefType<Shape1> shape, ArgCLRefType<ValueType> value)
@@ -137,7 +137,7 @@ namespace ospf
                 template<typename = void>
                     requires WithDefault<ValueType>
                 constexpr MultiArray(void)
-                    : _container(DefaultValue<ValueType>::value) {}
+                    : _container(DefaultValue<ValueType>::value()) {}
 
                 constexpr MultiArray(ArgRRefType<ValueType> value)
                     : _container(move<ValueType>(value)) {}

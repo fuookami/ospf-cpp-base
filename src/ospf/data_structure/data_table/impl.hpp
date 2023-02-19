@@ -1288,7 +1288,7 @@ namespace ospf
                     requires WithDefault<CellType>
                 inline const usize insert_row(const usize pos)
                 {
-                    return insert_row(pos, DefaultValue<CellType>::value);
+                    return insert_row(pos, DefaultValue<CellType>::value());
                 }
 
                 inline const usize insert_row(const usize pos, ArgCLRefType<CellType> value)

@@ -28,7 +28,7 @@ namespace ospf
         };
 
         template<typename T, pointer::PointerCategory cat>
-            requires std::default_initializable<pointer::Ptr<T, cat>>
+            requires WithDefault<pointer::Ptr<T, cat>>
         struct SerializationNullableTrait<pointer::Ptr<T, cat>>
         {
             static constexpr const bool value = true;

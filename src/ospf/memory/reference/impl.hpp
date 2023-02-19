@@ -400,7 +400,7 @@ namespace ospf
         using Type = typename TagValue<T>::Type;
         using RefType = reference::RefImpl<T, Ref>;
 
-        inline RetType<Type> value(ArgCLRefType<RefType> ref) const noexcept
+        inline constexpr RetType<Type> value(ArgCLRefType<RefType> ref) const noexcept
         {
             static constexpr const auto extractor = TagValue<T>{};
             return extractor(*ref);

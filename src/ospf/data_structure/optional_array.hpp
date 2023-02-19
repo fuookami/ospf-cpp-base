@@ -1368,6 +1368,11 @@ namespace ospf
                     : _container(length) {}
 
                 template<typename = void>
+                    requires (!std::default_initializable<OptType> && WithDefault<OptType> && std::copy_constructible<OptType>)
+                constexpr explicit DynamicOptionalArray(const usize length)
+                    : _container(length, DefaultValue<OptType>::value()) {}
+
+                template<typename = void>
                     requires std::copy_constructible<OptType>
                 constexpr DynamicOptionalArray(const usize length, ArgCLRefType<ValueType> value)
                     : _container(length, OptType{ value }) {}
@@ -2306,6 +2311,13 @@ namespace ospf
                 inline constexpr void resize(const usize length)
                 {
                     _container.resize(length);
+                }
+
+                template<typename = void>
+                    requires (!std::default_initializable<OptType> && WithDefault<OptType> && std::copy_constructible<OptType>)
+                inline constexpr void resize(const usize length)
+                {
+                    _container.resize(length, DefaultValue<OptType>::value());
                 }
 
                 template<typename = void>

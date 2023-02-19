@@ -128,7 +128,7 @@ namespace ospf
                     requires WithDefault<CellType>
                 inline const usize insert_column(const usize pos, ArgRRefType<DataTableHeader<CharT>> header)
                 {
-                    return insert_column(pos, move<DataTableHeader<CharT>>(header), DefaultValue<CellType>::value);
+                    return insert_column(pos, move<DataTableHeader<CharT>>(header), DefaultValue<CellType>::value());
                 }
 
                 inline const usize insert_column(const usize pos, ArgRRefType<DataTableHeader<CharT>> header, ArgCLRefType<CellType> value)
@@ -219,7 +219,7 @@ namespace ospf
                     requires WithDefault<CellType>
                 inline RetType<ColumnIterType> insert_column(ArgCLRefType<ColumnIterType> pos, ArgRRefType<DataTableHeader<CharT>> header)
                 {
-                    return insert_column(pos, move<DataTableHeader<CharT>>(header), DefaultValue<CellType>::value);
+                    return insert_column(pos, move<DataTableHeader<CharT>>(header), DefaultValue<CellType>::value());
                 }
 
                 inline RetType<ColumnIterType> insert_column(ArgCLRefType<ColumnIterType> pos, ArgRRefType<DataTableHeader<CharT>> header, ArgCLRefType<CellType> value)
@@ -473,7 +473,7 @@ namespace ospf
                     requires WithDefault<CellType>
                 inline const usize insert_column(const usize pos, ArgRRefType<DataTableHeader<CharT>> header)
                 {
-                    return insert_row(pos, move<DataTableHeader<CharT>>(header), DefaultValue<CellType>::value);
+                    return insert_row(pos, move<DataTableHeader<CharT>>(header), DefaultValue<CellType>::value());
                 }
 
                 inline const usize insert_column(const usize pos, ArgRRefType<DataTableHeader<CharT>> header, ArgCLRefType<CellType> value)
@@ -555,7 +555,7 @@ namespace ospf
                     requires WithDefault<CellType>
                 inline RetType<ColumnIterType> insert_column(ArgCLRefType<ColumnIterType> pos, ArgRRefType<DataTableHeader<CharT>> header)
                 {
-                    return insert_column(pos, move<DataTableHeader<CharT>>(header), DefaultValue<CellType>::value);
+                    return insert_column(pos, move<DataTableHeader<CharT>>(header), DefaultValue<CellType>::value());
                 }
 
                 inline RetType<ColumnIterType> insert_column(ArgCLRefType<ColumnIterType> pos, ArgRRefType<DataTableHeader<CharT>> header, ArgCLRefType<CellType> value)

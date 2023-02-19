@@ -36,7 +36,7 @@ namespace ospf
                 {
                     { deserializer(std::declval<Json<CharT>>(), std::declval<T>(), std::declval<std::optional<NameTransfer<CharT>>>()) } -> DecaySameAs<Try<>>;
                 }) 
-                && (!std::default_initializable<T> || requires (const FromJsonValue<T, CharT>& deserializer)
+                && (!WithDefault<T> || requires (const FromJsonValue<T, CharT>& deserializer)
                 {
                     { deserializer(std::declval<Json<CharT>>(), std::declval<std::optional<NameTransfer<CharT>>>()) } -> DecaySameAs<Result<T>>;
                 });
@@ -130,17 +130,17 @@ namespace ospf
                 }
 
                 template<typename = void>
-                    requires std::default_initializable<T>
+                    requires WithDefault<T>
                 inline Result<T> operator()(const Json<CharT>& json, const std::optional<NameTransfer<CharT>>& transfer) const noexcept
                 {
-                    T obj{};
+                    T obj = DefaultValue<T>::value();
                     OSPF_TRY_EXEC(this->operator()(json, obj, transfer));
                     return std::move(obj);
                 }
             };
 
             template<typename T, CharType CharT>
-                requires DeserializableFromJson<T, CharT> && std::default_initializable<T>
+                requires DeserializableFromJson<T, CharT> && WithDefault<T>
             struct FromJsonValue<std::optional<T>, CharT>
             {
                 inline Try<> operator()(const Json<CharT>& json, std::optional<T>& obj, const std::optional<NameTransfer<CharT>>& transfer) const noexcept
@@ -185,10 +185,10 @@ namespace ospf
                 }
 
                 template<typename = void>
-                    requires std::default_initializable<pointer::Ptr<T, cat>>
+                    requires WithDefault<pointer::Ptr<T, cat>>
                 inline Result<pointer::Ptr<T, cat>> operator()(const Json<CharT>& json, const std::optional<NameTransfer<CharT>>& transfer) const noexcept
                 {
-                    pointer::Ptr<T, cat> obj{};
+                    pointer::Ptr<T, cat> obj = DefaultValue<pointer::Ptr<T, cat>>::value();
                     OSPF_TRY_EXEC(json, obj, transfer);
                     return std::move(obj);
                 }
@@ -211,10 +211,10 @@ namespace ospf
                 }
 
                 template<typename = void>
-                    requires std::default_initializable<T> && std::default_initializable<U>
+                    requires AllWithDefault<T, U>
                 inline Result<std::pair<T, U>> operator()(const Json<CharT>& json, const std::optional<NameTransfer<CharT>>& transfer) const noexcept
                 {
-                    std::pair<T, U> obj{ std::make_pair(T{}, U{}) };
+                    std::pair<T, U> obj = DefaultValue<std::pair<T, U>>::value();
                     OSPF_TRY_EXEC(this->operator()(json, obj, transfer));
                     return std::move(obj);
                 }
@@ -256,9 +256,11 @@ namespace ospf
                     }
                 }
 
+                template<typename = void>
+                    requires AllWithDefault<Ts...>
                 inline Result<std::tuple<Ts...>> operator()(const Json<CharT>& json, const std::optional<NameTransfer<CharT>>& transfer) const noexcept
                 {
-                    std::tuple<Ts...> obj{ std::make_tuple(Ts{}...) };
+                    std::tuple<Ts...> obj = DefaultValue<std::tuple<Ts...>>::value();
                     OSPF_TRY_EXEC(this->operator()(json, obj, transfer));
                     return std::move(obj);
                 }
@@ -273,6 +275,7 @@ namespace ospf
                     else
                     {
                         using ValueType = OriginType<decltype(std::get<i>(obj))>;
+                        static_assert(DeserializableFromJson<ValueType, CharT>);
                         static const FromJsonValue<ValueType, CharT> deserializer{};
                         OSPF_TRY_EXEC(deserializer(json[i], std::get<i>(obj), transfer));
                         return deserialize<i + 1_uz>(json, obj, transfer);
@@ -299,10 +302,19 @@ namespace ospf
                         }
                         else
                         {
-                            OSPF_TRY_EXEC(deserialize<0_uz>(json, obj, index, transfer));
+                            OSPF_TRY_EXEC(deserialize<0_uz>(json[key], obj, index, transfer));
                             return succeed;
                         }
                     }
+                }
+
+                template<typename = void>
+                    requires AnyWithDefault<Ts...>
+                inline Result<std::variant<Ts...>> operator()(const Json<CharT>& json, const std::optional<NameTransfer<CharT>>& transfer) const noexcept
+                {
+                    std::variant<Ts...> obj = DefaultValue<std::variant<Ts...>>::value();
+                    OSPF_TRY_EXEC(this->operator()(json, obj, transfer));
+                    return std::move(obj);
                 }
 
                 inline static Result<usize> get_index(const Json<CharT>& json, const std::optional<NameTransfer<CharT>>& transfer) const noexcept
@@ -336,6 +348,7 @@ namespace ospf
                     else if (i == index)
                     {
                         using ValueType = OriginType<decltype(std::get<i>(obj))>;
+                        static_assert(DeserializableFromJson<ValueType, CharT>);
                         static const FromJsonValue<ValueType, CharT> deserializer{};
                         OSPF_TRY_EXEC(deserializer(json[i], std::get<i>(obj), transfer));
                         return succeed;
@@ -347,7 +360,97 @@ namespace ospf
                 }
             };
 
-            // todo: either, val/ref, array, vector, deque 
+            template<typename T, typename U, CharType CharT>
+                requires DeserializableFromJson<T, CharT> && DeserializableFromJson<U, CharT>
+            struct FromJsonValue<Either<T, U>, CharT>
+            {
+                inline Try<> operator()(const Json<CharT>& json, Either<T, U>& obj, const std::optional<NameTransfer<CharT>>& transfer) const noexcept
+                {
+                    if (!json.IsObject())
+                    {
+                        return OSPFError{ OSPFErrCode::DeserializationFail, std::format("invalid json \"{}\" for \"{}\"", json, TypeInfo<Either<T, U>>::name()) };
+                    }
+                    else
+                    {
+                        OSPF_TRY_GET(index, get_index(json, transfer));
+                        static const auto key = transfer("value");
+                        if (!json.HasMember(key))
+                        {
+                            return OSPFError{ OSPFErrCode::DeserializationFail, std::format("lost field \"value\" for \"{}\"", TypeInfo<std::variant<Ts...>>::name()) };
+                        }
+                        else
+                        {
+                            if (index == 0_uz)
+                            {
+                                static const FromJsonValue<T, CharT> deserializer{};
+                                OSPF_TRY_SET(obj, deserializer(json[key], transfer));
+                            }
+                            else
+                            {
+                                static const FromJsonValue<U, CharT> deserializer{};
+                                OSPF_TRY_SET(obj, deserializer(json[key], transfer));
+                            }
+                            return succeed;
+                        }
+                    }
+                }
+
+                template<typename = void>
+                    requires AnyWithDefault<T, U>
+                inline Result<Either<T, U>> operator()(const Json<CharT>& json, const std::optional<NameTransfer<CharT>>& transfer) const noexcept
+                {
+                    Either<T, U> obj = DefaultValue<Either<T, U>>::value();
+                    OSPF_TRY_EXEC(this->operator()(json, obj, transfer));
+                    return std::move(obj);
+                }
+
+                inline static Result<usize> get_index(const Json<CharT>& json, const std::optional<NameTransfer<CharT>>& transfer) const noexcept
+                {
+                    static const auto key = transfer("index");
+                    if (!json.HasMember(key))
+                    {
+                        return OSPFError{ OSPFErrCode::DeserializationFail, std::format("lost field \"index\" for \"{}\"", TypeInfo<Either<T, U>>::name()) };
+                    }
+                    else
+                    {
+                        const auto value = static_cast<usize>(to_u64(json[key]));
+                        if (value.has_value())
+                        {
+                            return value;
+                        }
+                        else
+                        {
+                            return OSPFError{ OSPFErrCode::DeserializationFail, std::format("invalid json \"{}\" for \"{}\"", json, TypeInfo<Either<T, U>>::name()) };
+                        }
+                    }
+                }
+            };
+
+            template<typename T, reference::ReferenceCategory cat, CharType CharT>
+                requires DeserializableFromJson<T, CharT>
+            struct FromJsonValue<ValOrRef<T, cat>, CharT>
+            {
+                inline Try<> operator()(const Json<CharT>& json, ValOrRef<T, cat>& obj, const std::optional<NameTransfer<CharT>>& transfer) const noexcept
+                {
+                    static const FromJsonValue<T> deserializer{};
+                    OSPF_TRY_GET(value, deserializer(json, transfer));
+                    obj = ValOrRef<T, cat>::value(std::move(value));
+                    return succeed;
+                }
+
+                template<typename = void>
+                    requires WithDefault<T>
+                inline Result<ValOrRef<T, cat>> operator()(const Json<CharT>& json, const std::optional<NameTransfer<CharT>>& transfer) const noexcept
+                {
+                    ValOrRef<T, cat> obj = DefaultValue<ValOrRef<T, cat>>::value();
+                    OSPF_TRY_EXEC(this->operator()(json, obj, transfer));
+                    return std::move(obj);
+                }
+            };
+
+
+
+            // todo: array, vector, deque 
 
             template<>
             struct FromJsonValue<u8, char>

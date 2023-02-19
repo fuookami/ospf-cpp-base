@@ -1172,7 +1172,7 @@ namespace ospf
                 public:
                     constexpr StaticPointerArray(void) = default;
 
-                    constexpr StaticPointerArray(ContainerType container)
+                    constexpr StaticPointerArray(ArgRRefType<ContainerType> container)
                         : _container(move<ContainerType>(container)) {}
 
                     constexpr StaticPointerArray(std::initializer_list<PtrType<ValueType>> ptrs)
@@ -1353,6 +1353,11 @@ namespace ospf
                         requires std::default_initializable<PointerType>
                     constexpr explicit DynamicPointerArray(const usize length)
                         : _container(length) {}
+
+                    template<typename = void>
+                        requires (!std::default_initializable<PointerType> && WithDefault<PointerType> && std::copy_constructible<PointerType>)
+                    constexpr explicit DynamicPointerArray(const usize length)
+                        : _container(length, DefaultValue<PointerType>::value()) {}
 
                     template<typename = void>
                         requires std::copy_constructible<PointerType>
@@ -2337,6 +2342,13 @@ namespace ospf
                         _container.resize(length);
                     }
 
+                    template<typename = void>
+                        requires (!std::default_initializable<PointerType> && WithDefault<PointerType> && std::copy_constructible<PointerType>)
+                    inline constexpr void resize(const usize length)
+                    {
+                        _container.resize(length, DefaultValue<PointerType>::value());
+                    }
+                    
                     template<typename = void>
                         requires std::copy_constructible<PointerType>
                     inline constexpr void resize(const usize length, const PtrType<ValueType> ptr)

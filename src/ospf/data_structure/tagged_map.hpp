@@ -14,7 +14,7 @@ namespace ospf
                 requires WithTag<T>
             struct DefaultTagExtractor
             {
-                inline decltype(auto) operator()(CLRefType<T> ele) const noexcept
+                inline constexpr decltype(auto) operator()(CLRefType<T> ele) const noexcept
                 {
                     return TagValue<T>::value(ele);
                 }

@@ -61,7 +61,7 @@ namespace ospf
             template<typename = void>
                 requires WithDefault<ValueType>
             constexpr ValOrRef(void)
-                : _either(EitherType::left(DefaultValue<ValueType>::value)) {}
+                : _either(EitherType::left(DefaultValue<ValueType>::value())) {}
 
             template<typename U>
                 requires std::copy_constructible<ReferenceType> && std::convertible_to<U, ValueType> && std::convertible_to<ospf::PtrType<U>, PtrType>
@@ -410,7 +410,7 @@ namespace ospf
             template<typename = void>
                 requires WithDefault<ValueType>
             constexpr ValOrRef(void)
-                : _value(DefaultValue<ValueType>::value) {}
+                : _value(DefaultValue<ValueType>::value()) {}
 
         private:
             constexpr ValOrRef(ArgCLRefType<ValueType> value)
@@ -842,17 +842,27 @@ namespace std
 
 namespace ospf
 {
-    template<typename T, ospf::reference::ReferenceCategory cat>
+    template<typename T, reference::ReferenceCategory cat>
         requires WithTag<T>
     struct TagValue<ValOrRef<T, cat>>
     {
         using Type = typename TagValue<T>::Type;
         using ValueType = ValOrRef<T, cat>;
 
-        inline RetType<Type> value(ArgCLRefType<ValueType> value) const noexcept
+        inline constexpr RetType<Type> value(ArgCLRefType<ValueType> value) const noexcept
         {
             static constexpr const auto extractor = TagValue<T>{};
             return extractor(*value);
+        }
+    };
+
+    template<typename T, reference::ReferenceCategory cat>
+        requires WithDefault<T>
+    struct DefaultValue<ValOrRef<T, cat>>
+    {
+        inline static constexpr ValOrRef<T, cat> value(void) noexcept
+        {
+            return ValOrRef<T, cat>{};
         }
     };
 };

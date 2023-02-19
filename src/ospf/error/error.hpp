@@ -37,7 +37,7 @@ namespace ospf
             template<typename = void>
                 requires WithDefault<C>
             constexpr Error(void)
-                : Error(DefaultValue<C>::value) {}
+                : Error(DefaultValue<C>::value()) {}
 
             constexpr Error(CodeType code)
                 : _code(code), _msg(to_string<CodeType, CharT>(code)) {}
@@ -137,13 +137,19 @@ namespace ospf::concepts
         requires WithDefault<C>
     struct DefaultValue<Error<C, CharT>>
     {
-        static constexpr const Error<C, CharT> value = Error<C, CharT>{};
+        inline static constexpr Error<C, CharT> value(void) noexcept
+        {
+            return Error<C, CharT>{};
+        }
     };
 
     template<EnumType C, NotVoidType T, CharType CharT>
         requires WithDefault<C>
     struct DefaultValue<ExError<C, T, CharT>>
     {
-        static constexpr const ExError<C, T, CharT> value = ExError<C, T, CharT>{};
+        inline static constexpr ExError<C, T, CharT> value(void) noexcept
+        {
+            return ExError<C, T, CharT>{};
+        }
     };
 };

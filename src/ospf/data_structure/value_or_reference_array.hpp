@@ -600,8 +600,13 @@ namespace ospf
 
             public:
                 template<typename = void>
-                    requires std::default_initializable<ValueType>
+                    requires std::default_initializable<ValueOrReferenceType>
                 constexpr StaticValueOrReferenceArray(void) = default;
+
+                template<typename = void>
+                    requires (!std::default_initializable<ValueOrReferenceType> && WithDefault<ValueOrReferenceType> && std::copy_constructible<ValueOrReferenceType>)
+                constexpr StaticValueOrReferenceArray(void)
+                    : _container(make_array<ValueOrReferenceType, len>(DefaultValue<ValueOrReferenceType>::value())) {}
 
                 constexpr StaticValueOrReferenceArray(ArgRRefType<ContainerType> container)
                     : _container(move<ContainerType>(container)) {}
@@ -753,6 +758,11 @@ namespace ospf
                     : _container(length) {}
 
                 template<typename = void>
+                    requires (!std::default_initializable<ValueOrReferenceType> && WithDefault<ValueOrReferenceType> && std::copy_constructible<ValueOrReferenceType>)
+                constexpr DynamicValueOrReferenceArray(const usize length)
+                    : _container(length, DefaultValue<ValueOrReferenceType>::value()) {}
+
+                template<typename = void>
                     requires std::copy_constructible<ValueOrReferenceType>
                 constexpr DynamicValueOrReferenceArray(const usize length, ArgCLRefType<ValueOrReferenceType> value)
                     : _container(length, value) {}
@@ -797,6 +807,13 @@ namespace ospf
                             _container.push_back(ValueOrReferenceType{});
                         }
                     }
+                }
+
+                template<typename = void>
+                    requires (!std::default_initializable<ValueOrReferenceType> && WithDefault<ValueOrReferenceType> && std::copy_constructible<ValueOrReferenceType>)
+                inline constexpr void assign(const usize length)
+                {
+                    _container.assign(length, DefaultValue<ValueOrReferenceType>::value());
                 }
 
                 template<typename = void>
@@ -1546,6 +1563,13 @@ namespace ospf
                 inline constexpr void resize(const usize length)
                 {
                     _container.resize(length);
+                }
+
+                template<typename = void>
+                    requires (!std::default_initializable<ValueOrReferenceType> && WithDefault<ValueOrReferenceType> && std::copy_constructible<ValueOrReferenceType>)
+                inline constexpr void resize(const usize length)
+                {
+                    _container.resize(length, DefaultValue<ValueOrReferenceType>::value());
                 }
 
                 template<typename = void>

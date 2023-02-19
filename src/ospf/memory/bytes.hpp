@@ -1,6 +1,7 @@
 #pragma once
 
 #include <ospf/basic_definition.hpp>
+#include <ospf/concepts/with_default.hpp>
 #include <ospf/literal_constant.hpp>
 #include <ospf/system_info.hpp>
 #include <ospf/type_family.hpp>
@@ -57,10 +58,10 @@ namespace ospf
         }
 
         template<typename T>
-            requires std::default_initializable<T> && std::copyable<T> && std::is_trivially_copyable_v<T>
+            requires WithDefault<T> && std::copyable<T> && std::is_trivially_copyable_v<T>
         inline T from_bytes(const Bytes<sizeof(T)>& bytes, const Endian endian = local_endian) noexcept
         {
-            T value{};
+            T value = DefaultValue<T>::value();
             from_bytes(bytes, value, endian);
             return value;
         }
@@ -81,14 +82,14 @@ namespace ospf
         }
 
         template<typename T, typename It>
-            requires std::default_initializable<T> && std::copyable<T> && std::is_trivially_copyable_v<T> && std::input_iterator<It>
+            requires WithDefault<T> && std::copyable<T> && std::is_trivially_copyable_v<T> && std::input_iterator<It>
                 && requires (const It& it)
                 {
                     { *it } -> DecaySameAs<ubyte>;
                 }
         inline T from_bytes(It& it, const Endian endian = local_endian) noexcept
         {
-            T value{};
+            T value = DefaultValue<T>::value();
             from_bytes(it, value, endian);
             return value;
         }

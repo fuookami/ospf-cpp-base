@@ -31,7 +31,7 @@ namespace ospf
 
             public:
                 template<typename = void>
-                    requires WithMetaInfo<ValueType> && std::default_initializable<ValueType>
+                    requires WithMetaInfo<ValueType> && WithDefault<ValueType>
                 inline Result<ValueType> operator()(const Json<CharT>& json) const noexcept
                 {
                     assert(value.IsObject());
@@ -49,7 +49,7 @@ namespace ospf
                 }
 
                 template<typename = void>
-                    requires std::default_initializable<ValueType>
+                    requires WithDefault<ValueType>
                 inline Result<std::vector<ValueType>> parse_array(const Json<CharT>& json) const noexcept
                 {
                     assert(value.IsArray());
@@ -84,7 +84,7 @@ namespace ospf
             };
 
             template<typename T, CharType CharT = char>
-                requires WithMetaInfo<T> && std::default_initializable<T>
+                requires WithMetaInfo<T> && WithDefault<T>
             inline Result<T> from_file
             (
                 const std::filesystem::path& path,
@@ -135,7 +135,7 @@ namespace ospf
             }
 
             template<typename T, CharType CharT = char>
-                requires std::default_initializable<T>
+                requires WithDefault<T>
             inline Result<std::vector<T>> from_file_array
             (
                 const std::filesystem::path& path,
@@ -188,7 +188,7 @@ namespace ospf
             }
 
             template<typename T, CharType CharT = char>
-                requires WithMetaInfo<T> && std::default_initializable<T>
+                requires WithMetaInfo<T> && WithDefault<T>
             inline Result<T> from_string
             (
                 const std::basic_string_view<CharT> str,
@@ -221,7 +221,7 @@ namespace ospf
             }
 
             template<typename T, CharType CharT = char>
-                requires std::default_initializable<T>
+                requires WithDefault<T>
             inline Result<std::vector<T>> from_string_array
             (
                 const std::basic_string_view<CharT> str,
@@ -256,7 +256,7 @@ namespace ospf
             }
 
             template<typename T, CharType CharT = char>
-                requires WithMetaInfo<T> && std::default_initializable<T>
+                requires WithMetaInfo<T> && WithDefault<T>
             inline Result<T> from_json
             (
                 const Json<CharT>& json,
@@ -283,7 +283,7 @@ namespace ospf
             }
 
             template<typename T, CharType CharT = char>
-                requires std::default_initializable<T>
+                requires WithDefault<T>
             inline Result<std::vector<T>> from_json_array
             (
                 const Json<CharT>& json,

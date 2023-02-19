@@ -81,7 +81,7 @@ namespace ospf
         template<typename = void>
             requires WithDefault<ErrType>
         constexpr Exception(void)
-            : Exception(DefaultValue<ErrType>::value) {}
+            : Exception(DefaultValue<ErrType>::value()) {}
 
         constexpr Exception(ArgRRefType<ErrType> error)
             : _error(move<ErrType>(error)) {}
@@ -126,7 +126,7 @@ namespace ospf
         template<typename = void>
             requires WithDefault<ErrType>
         constexpr ExException(void)
-            : ExException(DefaultValue<ErrType>::value) {}
+            : ExException(DefaultValue<ErrType>::value()) {}
 
         constexpr ExException(ArgRRefType<ErrType> error)
             : _error(move<ErrType>(error)) {}
@@ -183,13 +183,19 @@ namespace ospf::concepts
         requires WithDefault<E>
     struct DefaultValue<Exception<E>>
     {
-        static constexpr const Exception<E> value = Exception<E>{};
+        inline static constexpr Exception<E> value(void) noexcept
+        {
+            return Exception<E>{};
+        }
     };
 
     template<ExErrorType E>
         requires WithDefault<E>
     struct DefaultValue<Exception<E>>
     {
-        static constexpr const ExException<E> value = ExException<E>{};
+        inline static constexpr ExException<E> value(void) noexcept
+        {
+            return ExException<E>{};
+        }
     };
 };

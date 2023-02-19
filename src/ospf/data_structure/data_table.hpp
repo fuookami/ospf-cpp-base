@@ -5,8 +5,8 @@
 #include <ospf/data_structure/data_table/single_type.hpp>
 #include <ospf/meta_programming/named_flag.hpp>
 
-OSPF_NAMED_TERNARY_FLAG_TEMPLATE(DataTableNullable);
-OSPF_NAMED_TERNARY_FLAG_TEMPLATE(DataTableMultiType);
+OSPF_NAMED_TERNARY_FLAG(DataTableNullable);
+OSPF_NAMED_TERNARY_FLAG(DataTableMultiType);
 
 namespace ospf
 {

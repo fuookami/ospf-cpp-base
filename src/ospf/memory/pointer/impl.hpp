@@ -315,7 +315,7 @@ namespace ospf
         using Type = typename TagValue<T>::Type;
         using PtrType = pointer::PtrImpl<T, Ptr>;
 
-        inline RetType<Type> value(ospf::ArgCLRefType<PtrType> ptr) const
+        inline constexpr RetType<Type> value(ospf::ArgCLRefType<PtrType> ptr) const
         {
             static constexpr const auto extractor = TagValue<T>{};
             return extractor(*ptr);
