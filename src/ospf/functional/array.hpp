@@ -1,6 +1,7 @@
 ﻿#pragma once
 
 #include <ospf/basic_definition.hpp>
+#include <ospf/functional/result.hpp>
 #include <ospf/type_family.hpp>
 
 namespace ospf
@@ -9,6 +10,20 @@ namespace ospf
     {
         namespace array_detail
         {
+            template<typename T, usize i, usize len, typename... Args>
+            inline constexpr Result<std::array<T, len>> try_make_array_impl(const std::function<Result<T>(const usize)>& constructor, Args&&... args) noexcept
+            {
+                if constexpr (i == len)
+                {
+                    return std::array<T, len>{ std::forward<Args>(args)... };
+                }
+                else
+                {
+                    OSPF_TRY_GET(this_arg, constructor(i));
+                    return try_make_array_impl<T, i + 1_uz, len>(constructor, std::forward<Args>(args)..., std::move(this_arg));
+                }
+            }
+
             template<typename T, usize i, usize len, typename... Args>
             inline constexpr std::array<T, len> make_array_impl(const std::function<T(const usize)>& constructor, Args&&... args) noexcept
             {
@@ -23,10 +38,36 @@ namespace ospf
             }
         };
 
+        template<typename T, usize len, std::input_iterator It>
+            requires requires (const It& it) { { *it } -> DecaySameAs<T>; }
+        inline constexpr std::array<T, len> make_array(It&& it) noexcept
+        {
+            return array_detail::make_array_impl<T, 0_uz, len>([&it](const usize _)
+                {
+                    return *it;
+                });
+        }
+
+        template<typename T, usize len, std::input_iterator It>
+            requires requires (const It& it) { { *it } -> DecaySameAs<Result<T>>; }
+        inline constexpr Result<std::array<T, len>> make_array(It&& it) noexcept
+        {
+            return array_detail::try_make_array_impl<T, 0_uz, len>([&it](const usize _)
+                {
+                    return *it;
+                });
+        }
+
         template<typename T, usize len>
         inline constexpr std::array<T, len> make_array(const std::function<T(const usize)>& constructor) noexcept
         {
             return array_detail::make_array_impl<T, 0_uz, len>(constructor);
+        }
+
+        template<typename T, usize len>
+        inline constexpr Result<std::array<T, len>> make_array(const std::function<Result<T>(const usize)>& constructor) noexcept
+        {
+            return array_detail::try_make_array_impl<T, 0_uz, len>(constructor);
         }
 
         template<typename T, usize len>

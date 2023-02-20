@@ -483,6 +483,9 @@
     <ClInclude Include="src\ospf\memory\bytes.hpp">
       <Filter>src\ospf\memory</Filter>
     </ClInclude>
+    <ClInclude Include="src\ospf\serialization\writable.hpp">
+      <Filter>src\ospf\serialization</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\ospf\system_info.cpp">

@@ -6,6 +6,7 @@
 #include <ospf/memory/pointer/category.hpp>
 #include <ospf/ospf_base_api.hpp>
 #include <deque>
+#include <span>
 
 namespace ospf
 {
@@ -150,11 +151,12 @@ namespace ospf
                         using ValueType = OriginType<decltype(std::get<i>(value))>;
                         static_assert(SerializableToCSV<ValueType, CharT>);
                         static const ToCSVValue<ValueType, CharT> serializer{};
-                        OSPF_TRY_GET(this_value, serializer(std::get<i>(value)));
+                        std::basic_ostringstream<CharT> sout;
+                        OSPF_TRY_GET(this_value, serializer(sout, std::get<i>(value)));
                         sout << std::move(this_value);
                         if constexpr (i != (VariableTypeList<Ts...>::length - 1_uz))
                         {
-                            soout << CharT{ ';' };
+                            sout << CharT{ ';' };
                         }
                         return serialize<i + 1_uz>(os, value);
                     }
@@ -191,11 +193,11 @@ namespace ospf
                 }
             };
 
-            template<typename T, reference::ReferenceCategory cat, CharType CharT>
+            template<typename T, reference::ReferenceCategory cat, CopyOnWrite cow, CharType CharT>
                 requires SerializableToCSV<T, CharT>
-            struct ToCSVValue<ValOrRef<T, cat>, CharT>
+            struct ToCSVValue<ValOrRef<T, cat, cow>, CharT>
             {
-                inline Result<std::basic_string<CharT>> operator()(const ValOrRef<T, cat>& value) const noexcept
+                inline Result<std::basic_string<CharT>> operator()(const ValOrRef<T, cat, cow>& value) const noexcept
                 {
                     static const ToCSVValue<OriginType<T>, CharT> serializer{};
                     return serializer(*value);

@@ -148,6 +148,7 @@
     <ClInclude Include="src\ospf\serialization\json\serializer.hpp" />
     <ClInclude Include="src\ospf\serialization\json\to_value.hpp" />
     <ClInclude Include="src\ospf\serialization\nullable.hpp" />
+    <ClInclude Include="src\ospf\serialization\writable.hpp" />
     <ClInclude Include="src\ospf\string.hpp" />
     <ClInclude Include="src\ospf\string\hasher.hpp" />
     <ClInclude Include="src\ospf\string\regex.hpp" />
@@ -211,7 +212,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v143</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">

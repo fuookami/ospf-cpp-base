@@ -28,9 +28,9 @@ namespace ospf
             >
             class DynamicReferenceArray;
 
-            template<typename T, reference::ReferenceCategory cat, typename C>
+            template<typename T, typename C>
             class ReferenceArrayConstIterator
-                : public RandomIteratorImpl<ConstType<T>, typename OriginType<C>::const_iterator, ReferenceArrayConstIterator<T, cat, C>>
+                : public RandomIteratorImpl<ConstType<T>, typename OriginType<C>::const_iterator, ReferenceArrayConstIterator<T, C>>
             {
                 template<
                     typename T,
@@ -53,7 +53,7 @@ namespace ospf
                 using IterType = typename ContainerType::const_iterator;
 
             private:
-                using Impl = RandomIteratorImpl<ConstType<ValueType>, IterType, ReferenceArrayConstIterator<T, cat, C>>;
+                using Impl = RandomIteratorImpl<ConstType<ValueType>, IterType, ReferenceArrayConstIterator<T, C>>;
 
             public:
                 constexpr ReferenceArrayConstIterator(ArgCLRefType<IterType> iter)
@@ -76,9 +76,9 @@ namespace ospf
                 }
             };
 
-            template<typename T, reference::ReferenceCategory cat, typename C>
+            template<typename T, typename C>
             class ReferenceArrayIterator
-                : public RandomIteratorImpl<OriginType<T>, typename OriginType<C>::iterator, ReferenceArrayIterator<T, cat, C>>
+                : public RandomIteratorImpl<OriginType<T>, typename OriginType<C>::iterator, ReferenceArrayIterator<T, C>>
             {
                 template<
                     typename T,
@@ -101,7 +101,7 @@ namespace ospf
                 using IterType = typename ContainerType::iterator;
 
             private:
-                using Impl = RandomIteratorImpl<ValueType, IterType, ReferenceArrayIterator<T, cat, C>>;
+                using Impl = RandomIteratorImpl<ValueType, IterType, ReferenceArrayIterator<T, C>>;
 
             public:
                 constexpr ReferenceArrayIterator(ArgCLRefType<IterType> iter)
@@ -113,9 +113,9 @@ namespace ospf
                 constexpr ~ReferenceArrayIterator(void) noexcept = default;
 
             public:
-                inline constexpr operator const ReferenceArrayConstIterator<T, cat, C>(void) const noexcept
+                inline constexpr operator const ReferenceArrayConstIterator<T, C>(void) const noexcept
                 {
-                    return ReferenceArrayConstIterator<T, cat, C>{ this->_iter };
+                    return ReferenceArrayConstIterator<T, C>{ this->_iter };
                 }
 
             OSPF_CRTP_PERMISSION:
@@ -130,9 +130,9 @@ namespace ospf
                 }
             };
 
-            template<typename T, reference::ReferenceCategory cat, typename C>
+            template<typename T, typename C>
             class ReferenceArrayConstReverseIterator
-                : public RandomIteratorImpl<ConstType<T>, typename OriginType<C>::const_reverse_iterator, ReferenceArrayConstReverseIterator<T, cat, C>>
+                : public RandomIteratorImpl<ConstType<T>, typename OriginType<C>::const_reverse_iterator, ReferenceArrayConstReverseIterator<T, C>>
             {
                 template<
                     typename T,
@@ -155,7 +155,7 @@ namespace ospf
                 using IterType = typename ContainerType::const_reverse_iterator;
 
             private:
-                using Impl = RandomIteratorImpl<ConstType<ValueType>, IterType, ReferenceArrayConstReverseIterator<T, cat, C>>;
+                using Impl = RandomIteratorImpl<ConstType<ValueType>, IterType, ReferenceArrayConstReverseIterator<T, C>>;
 
             public:
                 constexpr ReferenceArrayConstReverseIterator(ArgCLRefType<IterType> iter)
@@ -178,9 +178,9 @@ namespace ospf
                 }
             };
 
-            template<typename T, reference::ReferenceCategory cat, typename C>
+            template<typename T, typename C>
             class ReferenceArrayReverseIterator
-                : public RandomIteratorImpl<OriginType<T>, typename OriginType<C>::reverse_iterator, ReferenceArrayReverseIterator<T, cat, C>>
+                : public RandomIteratorImpl<OriginType<T>, typename OriginType<C>::reverse_iterator, ReferenceArrayReverseIterator<T, C>>
             {
                 template<
                     typename T,
@@ -203,7 +203,7 @@ namespace ospf
                 using IterType = typename ContainerType::reverse_iterator;
 
             private:
-                using Impl = RandomIteratorImpl<ValueType, IterType, ReferenceArrayReverseIterator<T, cat, C>>;
+                using Impl = RandomIteratorImpl<ValueType, IterType, ReferenceArrayReverseIterator<T, C>>;
 
             public:
                 constexpr ReferenceArrayReverseIterator(ArgCLRefType<IterType> iter)
@@ -233,7 +233,7 @@ namespace ospf
                 typename T,
                 usize len,
                 reference::ReferenceCategory cat,
-                template<typename U, usize l> class C
+                template<typename, usize> class C
             >
             struct ReferenceArrayAccessPolicy<T, C<reference::Ref<OriginType<T>, cat>, len>>
             {
@@ -241,10 +241,10 @@ namespace ospf
                 using ValueType = OriginType<T>;
                 using ReferenceType = reference::Ref<ValueType, cat>;
                 using ContainerType = C<ReferenceType, len>;
-                using IterType = ReferenceArrayIterator<ValueType, cat, ContainerType>;
-                using ConstIterType = ReferenceArrayConstIterator<ValueType, cat, ContainerType>;
-                using ReverseIterType = ReferenceArrayReverseIterator<ValueType, cat, ContainerType>;
-                using ConstReverseIterType = ReferenceArrayConstReverseIterator<ValueType, cat, ContainerType>;
+                using IterType = ReferenceArrayIterator<ValueType, ContainerType>;
+                using ConstIterType = ReferenceArrayConstIterator<ValueType, ContainerType>;
+                using ReverseIterType = ReferenceArrayReverseIterator<ValueType, ContainerType>;
+                using ConstReverseIterType = ReferenceArrayConstReverseIterator<ValueType, ContainerType>;
 
             public:
                 inline static constexpr const usize size(CLRefType<ContainerType> array) noexcept
@@ -320,19 +320,18 @@ namespace ospf
             template<
                 typename T,
                 reference::ReferenceCategory cat,
-                typename A,
-                template<typename U, typename A> class C
+                template<typename> class C
             >
-            struct ReferenceArrayAccessPolicy<T, C<reference::Ref<OriginType<T>, cat>, A>>
+            struct ReferenceArrayAccessPolicy<T, C<reference::Ref<OriginType<T>, cat>>>
             {
             public:
                 using ValueType = OriginType<T>;
                 using ReferenceType = reference::Ref<ValueType, cat>;
-                using ContainerType = C<ReferenceType, A>;
-                using IterType = ReferenceArrayIterator<ValueType, cat, ContainerType>;
-                using ConstIterType = ReferenceArrayConstIterator<ValueType, cat, ContainerType>;
-                using ReverseIterType = ReferenceArrayReverseIterator<ValueType, cat, ContainerType>;
-                using ConstReverseIterType = ReferenceArrayConstReverseIterator<ValueType, cat, ContainerType>;
+                using ContainerType = C<ReferenceType>;
+                using IterType = ReferenceArrayIterator<ValueType, ContainerType>;
+                using ConstIterType = ReferenceArrayConstIterator<ValueType, ContainerType>;
+                using ReverseIterType = ReferenceArrayReverseIterator<ValueType, ContainerType>;
+                using ConstReverseIterType = ReferenceArrayConstReverseIterator<ValueType, ContainerType>;
 
             public:
                 inline static constexpr const usize size(CLRefType<ContainerType> array) noexcept

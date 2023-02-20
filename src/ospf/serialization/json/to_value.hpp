@@ -9,7 +9,8 @@
 #include <ospf/meta_programming/meta_info.hpp>
 #include <ospf/ospf_base_api.hpp>
 #include <ospf/serialization/json/concepts.hpp>
-#include <rapidjson/document.h>
+#include <deque>
+#include <span>
 
 namespace ospf
 {
@@ -172,7 +173,7 @@ namespace ospf
                 {
                     if constexpr (i == VariableTypeList<Ts...>::length)
                     {
-                        return suceed;
+                        return succeed;
                     }
                     else
                     {
@@ -226,11 +227,11 @@ namespace ospf
                 }
             };
 
-            template<typename T, reference::ReferenceCategory cat, CharType CharT>
+            template<typename T, reference::ReferenceCategory cat, CopyOnWrite cow, CharType CharT>
                 requires SerializableToJson<T, CharT>
-            struct ToJsonValue<ValOrRef<T, cat>, CharT>
+            struct ToJsonValue<ValOrRef<T, cat, cow>, CharT>
             {
-                inline Result<Json<CharT>> operator()(const ValOrRef<T, cat>& obj, Document<CharT>& doc, const std::optional<NameTransfer<CharT>>& transfer) const noexcept
+                inline Result<Json<CharT>> operator()(const ValOrRef<T, cat, cow>& obj, Document<CharT>& doc, const std::optional<NameTransfer<CharT>>& transfer) const noexcept
                 {
                     static const ToJsonValue<OriginType<T>, CharT> serializer{};
                     return serializer(*obj, doc, transfer);
@@ -492,13 +493,14 @@ namespace ospf
                 typename T,
                 usize len,
                 reference::ReferenceCategory cat,
+                CopyOnWrite cow, 
                 template<typename, usize> class C,
                 CharType CharT
             >
                 requires SerializableToJson<T, CharT>
-            struct ToJsonValue<value_or_reference_array::StaticValueOrReferenceArray<T, len, cat, C>, CharT>
+            struct ToJsonValue<value_or_reference_array::StaticValueOrReferenceArray<T, len, cat, cow, C>, CharT>
             {
-                inline Result<Json<CharT>> operator()(const value_or_reference_array::StaticValueOrReferenceArray<T, len, cat, C>& objs, Document<CharT>& doc, const std::optional<NameTransfer<CharT>>& transfer) const noexcept
+                inline Result<Json<CharT>> operator()(const value_or_reference_array::StaticValueOrReferenceArray<T, len, cat, cow, C>& objs, Document<CharT>& doc, const std::optional<NameTransfer<CharT>>& transfer) const noexcept
                 {
                     Json<CharT> json{ rapidjson::kArrayType };
                     static const ToJsonValue<OriginType<T>, CharT> serializer{};
@@ -514,13 +516,14 @@ namespace ospf
             template<
                 typename T,
                 reference::ReferenceCategory cat,
+                CopyOnWrite cow,
                 template<typename> class C,
                 CharType CharT
             >
                 requires SerializableToJson<T, CharT>
-            struct ToJsonValue<value_or_reference_array::DynamicValueOrReferenceArray<T, cat, C>, CharT>
+            struct ToJsonValue<value_or_reference_array::DynamicValueOrReferenceArray<T, cat, cow, C>, CharT>
             {
-                inline Result<Json<CharT>> operator()(const value_or_reference_array::DynamicValueOrReferenceArray<T, cat, C>& objs, Document<CharT>& doc, const std::optional<NameTransfer<CharT>>& transfer) const noexcept
+                inline Result<Json<CharT>> operator()(const value_or_reference_array::DynamicValueOrReferenceArray<T, cat, cow, C>& objs, Document<CharT>& doc, const std::optional<NameTransfer<CharT>>& transfer) const noexcept
                 {
                     Json<CharT> json{ rapidjson::kArrayType };
                     static const ToJsonValue<OriginType<T>, CharT> serializer{};

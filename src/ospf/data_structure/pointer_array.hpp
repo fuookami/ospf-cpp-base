@@ -191,7 +191,7 @@ namespace ospf
                     return *iter;
                 }
 
-                inline static constexpr const const PointerArrayConstReverseIterator OSPF_CRTP_FUNCTION(construct)(ArgCLRefType<IterType> iter) noexcept
+                inline static constexpr const PointerArrayConstReverseIterator OSPF_CRTP_FUNCTION(construct)(ArgCLRefType<IterType> iter) noexcept
                 {
                     return PointerArrayConstReverseIterator{ iter };
                 }
@@ -1177,7 +1177,7 @@ namespace ospf
 
                     constexpr StaticPointerArray(std::initializer_list<PtrType<ValueType>> ptrs)
                     {
-                        for (auto i{ 0_uz }, j{ (std::min)(l, ptrs.size) }; i != j; ++i)
+                        for (auto i{ 0_uz }, j{ (std::min)(len, ptrs.size) }; i != j; ++i)
                         {
                             _container[i] = PointerType{ move<ValueType>(ptrs[i]) };
                         }
@@ -1185,7 +1185,7 @@ namespace ospf
 
                     constexpr StaticPointerArray(std::initializer_list<CPtrType<ValueType>> ptrs)
                     {
-                        for (auto i{ 0_uz }, j{ (std::min)(l, ptrs.size) }; i != j; ++i)
+                        for (auto i{ 0_uz }, j{ (std::min)(len, ptrs.size) }; i != j; ++i)
                         {
                             _container[i] = PointerType{ move<ValueType>(ptrs[i]) };
                         }
@@ -1378,16 +1378,16 @@ namespace ospf
                         requires requires (const It it) { { *it } -> DecaySameAs<PtrType<ValueType>>; }
                     constexpr DynamicPointerArray(It&& first, It&& last)
                         : _container(
-                            boost::make_transform_iterator(std::forward<It>(first), [](const PtrType<ValueType> ptr) { PointerType{ptr} }),
-                            boost::make_transform_iterator(std::forward<It>(last), [](const PtrType<ValueType> ptr) { PointerType{ptr} })
+                            boost::make_transform_iterator(std::forward<It>(first), [](const PtrType<ValueType> ptr) { return PointerType{ ptr }; }),
+                            boost::make_transform_iterator(std::forward<It>(last), [](const PtrType<ValueType> ptr) { return PointerType{ ptr }; })
                         ) {}
 
                     template<std::input_iterator It>
                         requires requires (const It it) { { *it } -> DecaySameAs<CPtrType<ValueType>>; }
                     constexpr DynamicPointerArray(It&& first, It&& last)
                         : _container(
-                            boost::make_transform_iterator(std::forward<It>(first), [](const CPtrType<ValueType> ptr) { PointerType{ ptr } }),
-                            boost::make_transform_iterator(std::forward<It>(last), [](const CPtrType<ValueType> ptr) { PointerType{ ptr } })
+                            boost::make_transform_iterator(std::forward<It>(first), [](const CPtrType<ValueType> ptr) { return PointerType{ ptr }; }),
+                            boost::make_transform_iterator(std::forward<It>(last), [](const CPtrType<ValueType> ptr) { return PointerType{ ptr }; })
                         ) {}
 
                     template<std::input_iterator It>
@@ -1466,8 +1466,8 @@ namespace ospf
                     inline constexpr void assign(It&& first, It&& last)
                     {
                         _container.assign(
-                            boost::make_transform_iterator(std::forward<It>(first), [](const PtrType<ValueType> ptr) { PointerType{ptr} }),
-                            boost::make_transform_iterator(std::forward<It>(last), [](const PtrType<ValueType> ptr) { PointerType{ptr} })
+                            boost::make_transform_iterator(std::forward<It>(first), [](const PtrType<ValueType> ptr) { return PointerType{ ptr }; }),
+                            boost::make_transform_iterator(std::forward<It>(last), [](const PtrType<ValueType> ptr) { return PointerType{ ptr }; })
                         );
                     }
 
@@ -1476,8 +1476,8 @@ namespace ospf
                     inline constexpr void assign(It&& first, It&& last)
                     {
                         _container.assign(
-                            boost::make_transform_iterator(std::forward<It>(first), [](const CPtrType<ValueType> ptr) { PointerType{ptr} }),
-                            boost::make_transform_iterator(std::forward<It>(last), [](const CPtrType<ValueType> ptr) { PointerType{ptr} })
+                            boost::make_transform_iterator(std::forward<It>(first), [](const CPtrType<ValueType> ptr) { return PointerType{ ptr }; }),
+                            boost::make_transform_iterator(std::forward<It>(last), [](const CPtrType<ValueType> ptr) { return PointerType{ ptr }; })
                         );
                     }
 
@@ -1527,7 +1527,7 @@ namespace ospf
                     >
                     inline constexpr void assign(StaticPointerArray<ValueType, len, cat, C1>&& ptrs)
                     {
-                        _contaienr.clear();
+                        _container.clear();
                         std::move(ptrs._container.begin(), ptrs._container.end(), std::back_inserter(_container));
                     }
 
@@ -1569,7 +1569,7 @@ namespace ospf
                     template<template<typename> class C1>
                     inline constexpr void assign(DynamicPointerArray<ValueType, cat, C1>&& ptrs)
                     {
-                        _contaienr.clear();
+                        _container.clear();
                         std::move(ptrs._container.begin(), ptrs._container.end(), std::back_inserter(_container));
                     }
 
@@ -1697,8 +1697,8 @@ namespace ospf
                     inline constexpr RetType<IterType> insert(ArgCLRefType<ConstIterType> pos, It&& first, It&& last)
                     {
                         return IterType{ _container.insert(pos._iter,
-                            boost::make_transform_iterator(std::forward<It>(first), [](const PtrType<ValueType> ptr) { PointerType{ptr} }),
-                            boost::make_transform_iterator(std::forward<It>(last), [](const PtrType<ValueType> ptr) { PointerType{ ptr } })
+                            boost::make_transform_iterator(std::forward<It>(first), [](const PtrType<ValueType> ptr) { return PointerType{ ptr }; }),
+                            boost::make_transform_iterator(std::forward<It>(last), [](const PtrType<ValueType> ptr) { return PointerType{ ptr }; })
                         ) };
                     }
 
@@ -1707,8 +1707,8 @@ namespace ospf
                     inline constexpr RetType<IterType> insert(ArgCLRefType<ConstIterType> pos, It&& first, It&& last)
                     {
                         return IterType{ _container.insert(pos._iter,
-                            boost::make_transform_iterator(std::forward<It>(first), [](const CPtrType<ValueType> ptr) { PointerType{ ptr } }),
-                            boost::make_transform_iterator(std::forward<It>(last), [](const CPtrType<ValueType> ptr) { PointerType{ ptr } })
+                            boost::make_transform_iterator(std::forward<It>(first), [](const CPtrType<ValueType> ptr) { return PointerType{ ptr }; }),
+                            boost::make_transform_iterator(std::forward<It>(last), [](const CPtrType<ValueType> ptr) { return PointerType{ ptr }; })
                         ) };
                     }
 
@@ -1724,8 +1724,8 @@ namespace ospf
                     inline constexpr RetType<ConstUncheckedIterType> insert(ArgCLRefType<ConstUncheckedIterType> pos, It&& first, It&& last)
                     {
                         return ConstUncheckedIterType{ _container.insert(pos._iter,
-                            boost::make_transform_iterator(std::forward<It>(first), [](const PtrType<ValueType> ptr) { PointerType{ ptr } }),
-                            boost::make_transform_iterator(std::forward<It>(last), [](const PtrType<ValueType> ptr) { PointerType{ ptr } })
+                            boost::make_transform_iterator(std::forward<It>(first), [](const PtrType<ValueType> ptr) { return PointerType{ ptr }; }),
+                            boost::make_transform_iterator(std::forward<It>(last), [](const PtrType<ValueType> ptr) { return PointerType{ ptr }; })
                         ) };
                     }
 
@@ -1734,8 +1734,8 @@ namespace ospf
                     inline constexpr RetType<ConstUncheckedIterType> insert(ArgCLRefType<ConstUncheckedIterType> pos, It&& first, It&& last)
                     {
                         return ConstUncheckedIterType{ _container.insert(pos._iter,
-                            boost::make_transform_iterator(std::forward<It>(first), [](const CPtrType<ValueType> ptr) { PointerType{ ptr } }),
-                            boost::make_transform_iterator(std::forward<It>(last), [](const CPtrType<ValueType> ptr) { PointerType{ ptr } })
+                            boost::make_transform_iterator(std::forward<It>(first), [](const CPtrType<ValueType> ptr) { return PointerType{ ptr }; }),
+                            boost::make_transform_iterator(std::forward<It>(last), [](const CPtrType<ValueType> ptr) { return PointerType{ ptr }; })
                         ) };
                     }
 

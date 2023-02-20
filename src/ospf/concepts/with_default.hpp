@@ -3,6 +3,7 @@
 #include <ospf/concepts/base.hpp>
 #include <ospf/meta_programming/variable_type_list.hpp>
 #include <ospf/type_family.hpp>
+#include <variant>
 
 namespace ospf
 {
@@ -78,7 +79,7 @@ namespace ospf
         {
             inline static constexpr std::pair<T, U> value(void) noexcept
             {
-                return std::pair<T, U>{ DefaultValue<T>::value, DefaultValue<U>::value }
+                return std::pair<T, U>{ DefaultValue<T>::value, DefaultValue<U>::value };
             }
         };
 

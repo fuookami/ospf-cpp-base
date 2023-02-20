@@ -4,9 +4,11 @@
 #include <ospf/concepts/with_default.hpp>
 #include <ospf/literal_constant.hpp>
 #include <ospf/memory/reference.hpp>
-#include <ospf/functional/iterator.hpp>d
+#include <ospf/functional/iterator.hpp>
 #include <ospf/functional/optional.hpp>
 #include <boost/iterator/transform_iterator.hpp>
+#include <vector>
+#include <array>
 
 namespace ospf
 {
@@ -38,12 +40,14 @@ namespace ospf
                     usize len,
                     template<typename, usize> class C
                 >
+                    requires NotSameAs<T, void>
                 friend class StaticOptionalArray;
 
                 template<
                     typename T,
                     template<typename> class C
                 >
+                    requires NotSameAs<T, void>
                 friend class DynamicOptionalArray;
 
             public:
@@ -90,12 +94,14 @@ namespace ospf
                     usize len,
                     template<typename, usize> class C
                 >
+                    requires NotSameAs<T, void>
                 friend class StaticOptionalArray;
 
                 template<
                     typename T,
                     template<typename> class C
                 >
+                    requires NotSameAs<T, void>
                 friend class DynamicOptionalArray;
 
             public:
@@ -148,12 +154,14 @@ namespace ospf
                     usize len,
                     template<typename, usize> class C
                 >
+                    requires NotSameAs<T, void>
                 friend class StaticOptionalArray;
 
                 template<
                     typename T,
                     template<typename> class C
                 >
+                    requires NotSameAs<T, void>
                 friend class DynamicOptionalArray;
 
             public:
@@ -200,12 +208,14 @@ namespace ospf
                     usize len,
                     template<typename, usize> class C
                 >
+                    requires NotSameAs<T, void>
                 friend class StaticOptionalArray;
 
                 template<
                     typename T,
                     template<typename> class C
                 >
+                    requires NotSameAs<T, void>
                 friend class DynamicOptionalArray;
 
             public:
@@ -252,12 +262,14 @@ namespace ospf
                     usize len,
                     template<typename, usize> class C
                 >
+                    requires NotSameAs<T, void>
                 friend class StaticOptionalArray;
 
                 template<
                     typename T,
                     template<typename> class C
                 >
+                    requires NotSameAs<T, void>
                 friend class DynamicOptionalArray;
 
             public:
@@ -304,12 +316,14 @@ namespace ospf
                     usize len,
                     template<typename, usize> class C
                 >
+                    requires NotSameAs<T, void>
                 friend class StaticOptionalArray;
 
                 template<
                     typename T,
                     template<typename> class C
                 >
+                    requires NotSameAs<T, void>
                 friend class DynamicOptionalArray;
 
             public:
@@ -362,12 +376,14 @@ namespace ospf
                     usize len,
                     template<typename, usize> class C
                 >
+                    requires NotSameAs<T, void>
                 friend class StaticOptionalArray;
 
                 template<
                     typename T,
                     template<typename> class C
                 >
+                    requires NotSameAs<T, void>
                 friend class DynamicOptionalArray;
 
             public:
@@ -414,12 +430,14 @@ namespace ospf
                     usize len,
                     template<typename, usize> class C
                 >
+                    requires NotSameAs<T, void>
                 friend class StaticOptionalArray;
 
                 template<
                     typename T,
                     template<typename> class C
                 >
+                    requires NotSameAs<T, void>
                 friend class DynamicOptionalArray;
 
             public:
@@ -1175,6 +1193,7 @@ namespace ospf
                     typename T,
                     template<typename> class C
                 >
+                    requires NotSameAs<T, void>
                 friend class DynamicOptionalArray;
 
             public:
@@ -1391,7 +1410,7 @@ namespace ospf
                     requires requires (const It it) { { *it } -> DecaySameAs<ValueType>; }
                 constexpr DynamicOptionalArray(It&& first, It&& last)
                 {
-                    if constexpr (std::is_same_v<decltype(*it), CLRefType<ValueType>>)
+                    if constexpr (std::is_same_v<decltype(*first), CLRefType<ValueType>>)
                     {
                         _container.assign(
                             boost::make_transform_iterator(std::forward<It>(first), [](ArgCLRefType<ValueType> value) { return OptType{ value }; }),
@@ -1473,7 +1492,7 @@ namespace ospf
                     requires requires (const It it) { { *it } -> DecaySameAs<ValueType>; }
                 inline constexpr void assign(It&& first, It&& last)
                 {
-                    if constexpr (std::is_same_v<decltype(*it), CLRefType<ValueType>>)
+                    if constexpr (std::is_same_v<decltype(*first), CLRefType<ValueType>>)
                     {
                         _container.assign(
                             boost::make_transform_iterator(std::forward<It>(first), [](ArgCLRefType<ValueType> value) { return OptType{ value }; }),
@@ -1713,7 +1732,7 @@ namespace ospf
                     requires requires (const It it) { { *it } -> DecaySameAs<ValueType>; }
                 inline constexpr RetType<IterType> insert(ArgCLRefType<ConstIterType> pos, It&& first, It&& last)
                 {
-                    if constexpr (std::is_same_v<decltype(*it), CLRefType<ValueType>>)
+                    if constexpr (std::is_same_v<decltype(*first), CLRefType<ValueType>>)
                     {
                         return IterType{ _container.insert(pos._iter,
                             boost::make_transform_iterator(std::forward<It>(first), [](ArgCLRefType<ValueType> value) { return OptType{ value }; }),
@@ -1740,7 +1759,7 @@ namespace ospf
                     requires requires (const It it) { { *it } -> DecaySameAs<ValueType>; }
                 inline constexpr RetType<UncheckedIterType> insert(ArgCLRefType<ConstUncheckedIterType> pos, It&& first, It&& last)
                 {
-                    if constexpr (std::is_same_v<decltype(*it), CLRefType<ValueType>>)
+                    if constexpr (std::is_same_v<decltype(*first), CLRefType<ValueType>>)
                     {
                         return UncheckedIterType{ _container.insert(pos._iter,
                             boost::make_transform_iterator(std::forward<It>(first), [](ArgCLRefType<ValueType> value) { return OptType{ value }; }),
@@ -1970,7 +1989,7 @@ namespace ospf
                     requires std::constructible_from<ValueType, Args...>
                 inline constexpr RetType<IterType> emplace(ArgCLRefType<ConstIterType> pos, Args&&... args)
                 {
-                    return IterType{ _container.emplace(pos._iter, ValueType{ std::forward<Args>(args)...) } };
+                    return IterType{ _container.emplace(pos._iter, ValueType{ std::forward<Args>(args)... }) };
                 }
 
                 inline constexpr RetType<UncheckedIterType> emplace(ArgCLRefType<ConstUncheckedIterType> pos, const std::nullopt_t _)
@@ -1982,7 +2001,7 @@ namespace ospf
                     requires std::constructible_from<ValueType, Args...>
                 inline constexpr RetType<UncheckedIterType> emplace(ArgCLRefType<ConstUncheckedIterType> pos, Args&&... args)
                 {
-                    return UncheckedIterType{ _container.emplace(pos._iter, ValueType{ std::forward<Args>(args)...) } };
+                    return UncheckedIterType{ _container.emplace(pos._iter, ValueType{ std::forward<Args>(args)... }) };
                 }
 
                 inline constexpr RetType<IterType> erase(ArgCLRefType<ConstIterType> pos)

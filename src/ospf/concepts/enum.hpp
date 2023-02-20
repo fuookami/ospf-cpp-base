@@ -35,7 +35,7 @@ namespace ospf
         {
             if constexpr (SameAs<CharT, char>)
             {
-                return magic_enum::enum_cast<T>(value);
+                return magic_enum::enum_cast<T>(str);
             }
             else
             {

@@ -3,6 +3,7 @@
 #include <ospf/serialization/csv/io.hpp>
 #include <ospf/serialization/csv/from_value.hpp>
 #include <ospf/serialization/nullable.hpp>
+#include <ospf/serialization/writable.hpp>
 #include <ospf/meta_programming/name_transfer.hpp>
 #include <ospf/meta_programming/type_info.hpp>
 #include <ospf/string/hasher.hpp>
@@ -172,6 +173,7 @@ namespace ospf
                     std::optional<OSPFError> err;
                     info.for_each([this, header, &column_map, &err](const auto& field) 
                         {
+                            using FieldValueType = OriginType<decltype(field.value(obj))>;
                             if (err.has_value())
                             {
                                 return;
@@ -182,9 +184,9 @@ namespace ospf
                                 {
                                     return header.name() == key;
                                 });
-                            if (it == header.end() && !serialization_nullable<ValueType>)
+                            if (it == header.end() && !serialization_nullable<FieldValueType>)
                             {
-                                err = OSPFError{ OSPFErrCode::DeserializationFail, std::format("lost non-nullable column \"{}\" for type \"{}\"", field.key(), TypeInfo<ValueType>::name()) };
+                                err = OSPFError{ OSPFErrCode::DeserializationFail, std::format("lost non-nullable column \"{}\" for type \"{}\"", field.key(), TypeInfo<FieldValueType>::name()) };
                                 return
                             }
                             else
@@ -208,14 +210,14 @@ namespace ospf
                     std::optional<OSPFError> err;
                     info.for_each(obj, [this, row, &column_map, err](auto& obj, const auto& field)
                         {
-                            if constexpr (!field.writable())
+                            using FieldValueType = OriginType<decltype(field.value(obj))>;
+                            if constexpr (!field.writable() || !serialization_writable<FieldValueType>)
                             {
                                 return;
                             }
                             else
                             {
                                 // todo: impl concept refer to a type that all fileds are plane
-                                using FieldValueType = OriginType<decltype(field.value(obj))>;
                                 static_assert(field.plane());
                                 static_assert(DeserializableFromCSV<FieldValueType, CharT>);
 
@@ -226,7 +228,7 @@ namespace ospf
 
                                 const auto key = this->_tansfer.has_value() ? (*this->_transfer)(field.key()) : field.key();
                                 const auto it = column_map.find(key);
-                                if constexpr (serialization_nullable<ValueType>)
+                                if constexpr (serialization_nullable<FieldValueType>)
                                 {
                                     if (it == column_map.end())
                                     {
@@ -266,14 +268,14 @@ namespace ospf
                     std::optional<OSPFError> err;
                     info.for_each(obj, [this, row, &column_map, err](auto& obj, const auto& field)
                         {
-                            if constexpr (!field.writable())
+                            using FieldValueType = OriginType<decltype(field.value(obj))>;
+                            if constexpr (!field.writable() || !serialization_writable<FieldValueType>)
                             {
                                 return;
                             }
                             else
                             {
                                 // todo: impl concept refer to a type that all fileds are plane
-                                using FieldValueType = OriginType<decltype(field.value(obj))>;
                                 static_assert(field.plane());
                                 static_assert(DeserializableFromCSV<FieldValueType, CharT>);
 

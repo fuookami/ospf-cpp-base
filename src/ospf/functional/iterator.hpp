@@ -2,6 +2,7 @@
 
 #include <ospf/type_family.hpp>
 #include <ospf/meta_programming/crtp.hpp>
+#include <iterator>
 
 namespace ospf
 {

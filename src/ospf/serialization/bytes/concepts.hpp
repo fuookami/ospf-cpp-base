@@ -2,6 +2,7 @@
 
 #include <ospf/concepts/base.hpp>
 #include <ospf/basic_definition.hpp>
+#include <iterator>
 
 namespace ospf
 {

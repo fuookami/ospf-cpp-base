@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-#include <ospf/concepts/base.hpp>
+#include <ospf/concepts/enum.hpp>
 #include <type_traits>
 
 namespace ospf
@@ -78,7 +78,7 @@ namespace ospf
 };
 
 #ifndef OSPF_NAMED_FLAG
-#define OSPF_NAMED_FLAG(Name) enum class Name\
+#define OSPF_NAMED_FLAG(Name) enum class Name : ::ospf::u8\
 {\
     Off,\
     On\
@@ -86,7 +86,7 @@ namespace ospf
 #endif
 
 #ifndef OSPF_NAMED_TERNARY_FLAG
-#define OSPF_NAMED_TERNARY_FLAG(Name) enum class Name\
+#define OSPF_NAMED_TERNARY_FLAG(Name) enum class Name : ::ospf::u8\
 {\
     Off,\
     Half,\

@@ -92,7 +92,7 @@ namespace ospf
                 using Base = TaggedMapConstIterator<T, E, C>;
 
             public:
-                using typename Base::KeyExtratorType = E<T>;
+                using typename Base::KeyExtratorType;
                 using typename Base::KeyType;
                 using typename Base::ValueType;
                 using typename Base::MapType;
@@ -113,7 +113,7 @@ namespace ospf
                     return const_cast<ValueType&>(Base::operator*());
                 }
 
-                inline const PtrType<ValueType> const operator->(void) const noexcept
+                inline const PtrType<ValueType> operator->(void) const noexcept
                 {
                     return &const_cast<ValueType&>(Base::operator*());
                 }
@@ -151,7 +151,7 @@ namespace ospf
                     return _iter.value()->second;
                 }
 
-                inline const PtrType<ValueType> const operator->(void) noexcept
+                inline const PtrType<ValueType> operator->(void) noexcept
                 {
                     return &_iter.value()->second;
                 }
@@ -161,7 +161,7 @@ namespace ospf
                     return _iter.value()->second;
                 }
 
-                inline const CPtrType<ValueType> const operator->(void) const noexcept
+                inline const CPtrType<ValueType> operator->(void) const noexcept
                 {
                     return &_iter.value()->second;
                 }

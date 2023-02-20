@@ -2,6 +2,7 @@
 
 #include <ospf/functional/either.hpp>
 #include <ospf/memory/reference.hpp>
+#include <ospf/meta_programming/named_flag.hpp>
 
 namespace ospf
 {
@@ -61,7 +62,7 @@ namespace ospf
             template<typename = void>
                 requires WithDefault<ValueType>
             constexpr ValOrRef(void)
-                : _either(EitherType::left(DefaultValue<ValueType>::value())) {}
+                : _either(Either::left(DefaultValue<ValueType>::value())) {}
 
             template<typename U>
                 requires std::copy_constructible<ReferenceType> && std::convertible_to<U, ValueType> && std::convertible_to<ospf::PtrType<U>, PtrType>
@@ -171,13 +172,13 @@ namespace ospf
             template<typename U, reference::ReferenceCategory c>
             inline constexpr const bool operator==(const reference::Ref<U, c>& rhs) const noexcept
             {
-                return _value == *rhs;
+                return deref() == *rhs;
             }
 
             template<typename U, reference::ReferenceCategory c>
             inline constexpr const bool operator!=(const reference::Ref<U, c>& rhs) const noexcept
             {
-                return _value != *rhs;
+                return deref() != *rhs;
             }
 
             template<typename U>
@@ -475,13 +476,13 @@ namespace ospf
             }
 
             template<typename U, reference::ReferenceCategory c>
-            inline constexpr const bool operator==(const reference::RefImpl<U, c>& rhs) const noexcept
+            inline constexpr const bool operator==(const reference::Ref<U, c>& rhs) const noexcept
             {
                 return _value == *rhs;
             }
 
             template<typename U, reference::ReferenceCategory c>
-            inline constexpr const bool operator!=(const reference::RefImpl<U, c>& rhs) const noexcept
+            inline constexpr const bool operator!=(const reference::Ref<U, c>& rhs) const noexcept
             {
                 return _value != *rhs;
             }
