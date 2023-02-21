@@ -1,8 +1,12 @@
 ﻿#pragma once
 
 #include <ospf/basic_definition.hpp>
+#include <ospf/data_structure/optional_array.hpp>
+#include <ospf/data_structure/pointer_array.hpp>
+#include <ospf/data_structure/reference_array.hpp>
+#include <ospf/data_structure/tagged_map.hpp>
+#include <ospf/data_structure/value_or_reference_array.hpp>
 #include <ospf/functional/result.hpp>
-#include <ospf/functional/value_or_reference.hpp>
 #include <ospf/memory/pointer/category.hpp>
 #include <ospf/ospf_base_api.hpp>
 #include <deque>
@@ -36,6 +40,7 @@ namespace ospf
             concept SerializableToCSV = CharType<CharT> && requires (const ToCSVValue<OriginType<T>, CharT>& serializer)
             {
                 { serializer(std::declval<T>()) } -> DecaySameAs<Result<std::basic_string<CharT>>>;
+                { serializer(std::declval<std::basic_ostringstream<CharT>>(), std::declval<T>()) } -> DecaySameAs<Try<>>;
             };
 
             template<EnumType T, CharType CharT>
@@ -44,6 +49,12 @@ namespace ospf
                 inline Result<std::basic_string<CharT>> operator()(const T value) const noexcept
                 {
                     return to_string<T, CharT>(value);
+                }
+
+                inline Try<> operator()(std::basic_ostringstream<CharT>& os, const T value) const noexcept
+                {
+                    os << to_string<T, CharT>(value);
+                    return succeed;
                 }
             };
 
@@ -62,6 +73,19 @@ namespace ospf
                         return static_cast<std::basic_string<CharT>>(value);
                     }
                 }
+
+                inline Try<> operator()(std::basic_ostringstream<CharT>& os, ArgCLRefType<T> value) const noexcept
+                {
+                    if constexpr (std::convertible_to<T, std::basic_string_view<CharT>>)
+                    {
+                        os << static_cast<std::basic_string_view<CharT>>(value);
+                    }
+                    else
+                    {
+                        os << static_cast<std::basic_string<CharT>>(value);
+                    }
+                    return succeed;
+                }
             };
 
             template<typename T, CharType CharT>
@@ -78,6 +102,19 @@ namespace ospf
                     else
                     {
                         return std::basic_string<CharT>{};
+                    }
+                }
+
+                inline Try<> operator()(std::basic_ostringstream<CharT>& os, const std::optional<T>& value) const noexcept
+                {
+                    static const ToCSVValue<OriginType<T>, CharT> serializer{};
+                    if (value.has_value())
+                    {
+                        return serializer(os, *value);
+                    }
+                    else
+                    {
+                        return succeed;
                     }
                 }
             };
@@ -98,6 +135,19 @@ namespace ospf
                         return std::basic_string<CharT>{};
                     }
                 }
+
+                inline Try<> operator()(std::basic_ostringstream<CharT>& os, const pointer::Ptr<T, cat>& value) const noexcept
+                {
+                    static const ToCSVValue<OriginType<T>, CharT> serializer{};
+                    if (value != nullptr)
+                    {
+                        return serializer(os, *value);
+                    }
+                    else
+                    {
+                        return succeed;
+                    }
+                }
             };
 
             template<typename T, reference::ReferenceCategory cat, CharType CharT>
@@ -108,6 +158,12 @@ namespace ospf
                 {
                     static const ToCSVValue<OriginType<T>, CharT> serializer{};
                     return serializer(*value);
+                }
+
+                inline Try<> operator()(std::basic_ostringstream<CharT>& os, const reference::Ref<T, cat>& value) const noexcept
+                {
+                    static const ToCSVValue<OriginType<T>, CharT> serializer{};
+                    return serializer(os, *value);
                 }
             };
 
@@ -127,6 +183,18 @@ namespace ospf
                     sout << std::move(value2);
                     return sout.str();
                 }
+
+                inline Try<> operator()(std::basic_ostringstream<CharT>& os, const std::pair<T, U>& value) const noexcept
+                {
+                    static const ToCSVValue<OriginType<T>, CharT> serializer1{};
+                    OSPF_TRY_GET(value1, serializer1(value.first));
+                    os << std::move(value1);
+                    os << CharT{ ';' };
+                    static const ToCSVValue<OriginType<U>, CharT> serializer2{};
+                    OSPF_TRY_GET(value2, serializer2(value.second));
+                    os << std::move(value2);
+                    return succeed;
+                }
             };
 
             template<typename... Ts, CharType CharT>
@@ -137,6 +205,11 @@ namespace ospf
                     std::basic_ostringstream<CharT> sout;
                     OSPF_TRY_EXEC(serialize<0_uz>(sout, value));
                     return sout.str();
+                }
+
+                inline Try<> operator()(std::basic_ostringstream<CharT>& os, const std::tuple<Ts...>& value) noexcept
+                {
+                    return serialize<0_uz>(os, value);
                 }
 
                 template<usize i>
@@ -176,6 +249,17 @@ namespace ospf
                             return serializer(this_value);
                         }, value);
                 }
+
+                inline Try<> operator()(std::basic_ostringstream<CharT>& os, const std::variant<Ts...>& value) const noexcept
+                {
+                    return std::visit([&os](const auto& this_value)
+                        {
+                            using ValueType = OriginType<decltype(this_value)>;
+                            static_assert(SerializableToCSV<ValueType, CharT>);
+                            static const ToCSVValue<ValueType, CharT> serializer{};
+                            return serializer(os, this_value);
+                        }, value);
+                }
             };
 
             template<typename T, typename U, CharType CharT>
@@ -187,8 +271,20 @@ namespace ospf
                     return std::visit([](const auto& this_value)
                         {
                             using ValueType = OriginType<decltype(this_value)>;
+                            static_assert(SerializableToCSV<ValueType, CharT>);
                             static const ToCSVValue<ValueType, CharT> serializer{};
                             return serializer(this_value);
+                        }, value);
+                }
+
+                inline Try<> operator()(std::basic_ostringstream<CharT>& os, const Either<T, U>& value) const noexcept
+                {
+                    return std::visit([&os](const auto& this_value)
+                        {
+                            using ValueType = OriginType<decltype(this_value)>;
+                            static_assert(SerializableToCSV<ValueType, CharT>);
+                            static const ToCSVValue<ValueType, CharT> serializer{};
+                            return serializer(os, this_value);
                         }, value);
                 }
             };
@@ -202,26 +298,37 @@ namespace ospf
                     static const ToCSVValue<OriginType<T>, CharT> serializer{};
                     return serializer(*value);
                 }
+
+                inline Try<> operator()(std::basic_ostringstream<CharT>& os, const ValOrRef<T, cat, cow>& value) const noexcept
+                {
+                    static const ToCSVValue<OriginType<T>, CharT> serializer{};
+                    return serializer(os, *value);
+                }
             };
 
             template<typename T, usize len, CharType CharT>
                 requires SerializableToCSV<T, CharT>
             struct ToCSVValue<std::array<T, len>, CharT>
             {
-                inline Result<std::basic_string<CharT>> operator()(const std::array<T, len> values) const noexcept
+                inline Result<std::basic_string<CharT>> operator()(const std::array<T, len>& values) const noexcept
                 {
                     std::basic_ostringstream<CharT> sout;
+                    OSPF_TRY_EXEC(this->operator()(sout, values));
+                    return sout.str();
+                }
+
+                inline Try<> operator()(std::basic_ostringstream<CharT>& os, const std::array<T, len>& values) const noexcept
+                {
                     static const ToCSVValue<OriginType<T>, CharT> serializer{};
                     for (usize i{ 0_uz }; i != values.size(); ++i)
                     {
-                        OSPF_TRY_GET(this_value, serializer(values[i]));
-                        sout << std::move(this_value);
-                        if (i != (values.size() - 1_uz); ++i)
+                        OSPF_TRY_EXEC(serializer(os, values[i]));
+                        if (i != (values.size() - 1_uz))
                         {
-                            sout << CharT{ ',' };
+                            os << CharT{ ',' };
                         }
                     }
-                    return sout.str();
+                    return succeed;
                 }
             };
 
@@ -232,17 +339,22 @@ namespace ospf
                 inline Result<std::basic_string<CharT>> operator()(const std::vector<T>& values) const noexcept
                 {
                     std::basic_ostringstream<CharT> sout;
+                    OSPF_TRY_EXEC(this->operator()(sout, values));
+                    return sout.str();
+                }
+
+                inline Try<> operator()(std::basic_ostringstream<CharT>& os, const std::vector<T>& values) const noexcept
+                {
                     static const ToCSVValue<OriginType<T>, CharT> serializer{};
                     for (usize i{ 0_uz }; i != values.size(); ++i)
                     {
-                        OSPF_TRY_GET(this_value, serializer(values[i]));
-                        sout << std::move(this_value);
-                        if (i != (values.size() - 1_uz); ++i)
+                        OSPF_TRY_EXEC(serializer(os, values[i]));
+                        if (i != (values.size() - 1_uz))
                         {
-                            sout << CharT{ ',' };
+                            os << CharT{ ',' };
                         }
                     }
-                    return sout.str();
+                    return succeed;
                 }
             };
 
@@ -253,17 +365,22 @@ namespace ospf
                 inline Result<std::basic_string<CharT>> operator()(const std::deque<T>& values) const noexcept
                 {
                     std::basic_ostringstream<CharT> sout;
+                    OSPF_TRY_EXEC(this->operator()(sout, values));
+                    return sout.str();
+                }
+
+                inline Try<> operator()(std::basic_ostringstream<CharT>& os, const std::deque<T>& values) const noexcept
+                {
                     static const ToCSVValue<OriginType<T>, CharT> serializer{};
                     for (usize i{ 0_uz }; i != values.size(); ++i)
                     {
-                        OSPF_TRY_GET(this_value, serializer(values[i]));
-                        sout << std::move(this_value);
-                        if (i != (values.size() - 1_uz); ++i)
+                        OSPF_TRY_EXEC(serializer(os, values[i]));
+                        if (i != (values.size() - 1_uz))
                         {
-                            sout << CharT{ ',' };
+                            os << CharT{ ',' };
                         }
                     }
-                    return sout.str();
+                    return succeed;
                 }
             };
 
@@ -274,21 +391,309 @@ namespace ospf
                 inline Result<std::basic_string<CharT>> operator()(const std::span<T, len> values) const noexcept
                 {
                     std::basic_ostringstream<CharT> sout;
+                    OSPF_TRY_EXEC(this->operator()(sout, values));
+                    return sout.str();
+                }
+
+                inline Try<> operator()(std::basic_ostringstream<CharT>& os, const std::span<T, len> values) const noexcept
+                {
                     static const ToCSVValue<OriginType<T>, CharT> serializer{};
                     for (usize i{ 0_uz }; i != values.size(); ++i)
                     {
-                        OSPF_TRY_GET(this_value, serializer(values[i]));
-                        sout << std::move(this_value);
-                        if (i != (values.size() - 1_uz); ++i)
+                        OSPF_TRY_EXEC(serializer(os, values[i]));
+                        if (i != (values.size() - 1_uz))
                         {
-                            sout << CharT{ ',' };
+                            os << CharT{ ',' };
                         }
                     }
-                    return sout.str();
+                    return succeed;
                 }
             };
 
-            // todo: optional_array, pointer_array, reference_array, tagged_map, value_or_reference_array
+            template<
+                typename T,
+                usize len,
+                template<typename, usize> class C,
+                CharType CharT
+            >
+                requires SerializableToCSV<std::optional<T>, CharT>
+            struct ToCSVValue<optional_array::StaticOptionalArray<T, len, C>, CharT>
+            {
+                inline Result<std::basic_string<CharT>> operator()(const optional_array::StaticOptionalArray<T, len, C>& values) const noexcept
+                {
+                    std::basic_ostringstream<CharT> sout;
+                    OSPF_TRY_EXEC(this->operator()(sout, values));
+                    return sout.str();
+                }
+
+                inline Try<> operator()(std::basic_ostringstream<CharT>& os, const optional_array::StaticOptionalArray<T, len, C>& values) const noexcept
+                {
+                    static const ToCSVValue<std::optional<T>, CharT> serializer{};
+                    for (usize i{ 0_uz }; i != values.size(); ++i)
+                    {
+                        OSPF_TRY_EXEC(serializer(os, values[i]));
+                        if (i != (values.size() - 1_uz))
+                        {
+                            os << CharT{ ',' };
+                        }
+                    }
+                    return succeed;
+                }
+            };
+
+            template<
+                typename T,
+                template<typename> class C,
+                CharType CharT
+            >
+                requires SerializableToCSV<std::optional<T>, CharT>
+            struct ToCSVValue<optional_array::DynamicOptionalArray<T, C>, CharT>
+            {
+                inline Result<std::basic_string<CharT>> operator()(const optional_array::DynamicOptionalArray<T, C>& values) const noexcept
+                {
+                    std::basic_ostringstream<CharT> sout;
+                    OSPF_TRY_EXEC(this->operator()(sout, values));
+                    return sout.str();
+                }
+
+                inline Try<> operator()(std::basic_ostringstream<CharT>& os, const optional_array::DynamicOptionalArray<T, C>& values) const noexcept
+                {
+                    static const ToCSVValue<std::optional<T>, CharT> serializer{};
+                    for (usize i{ 0_uz }; i != values.size(); ++i)
+                    {
+                        OSPF_TRY_EXEC(serializer(os, values[i]));
+                        if (i != (values.size() - 1_uz))
+                        {
+                            os << CharT{ ',' };
+                        }
+                    }
+                    return succeed;
+                }
+            };
+
+            template<
+                typename T,
+                usize len,
+                pointer::PointerCategory cat,
+                template<typename, usize> class C,
+                CharType CharT
+            >
+                requires SerializableToCSV<pointer::Ptr<T, cat>, CharT>
+            struct ToCSVValue<pointer_array::StaticPointerArray<T, len, cat, C>, CharT>
+            {
+                inline Result<std::basic_string<CharT>> operator()(const pointer_array::StaticPointerArray<T, len, cat, C>& values) const noexcept
+                {
+                    std::basic_ostringstream<CharT> sout;
+                    OSPF_TRY_EXEC(this->operator()(sout, values));
+                    return sout.str();
+                }
+
+                inline Try<> operator()(std::basic_ostringstream<CharT>& os, const pointer_array::StaticPointerArray<T, len, cat, C>& values) const noexcept
+                {
+                    static const ToCSVValue<pointer::Ptr<T, cat>, CharT> serializer{};
+                    for (usize i{ 0_uz }; i != values.size(); ++i)
+                    {
+                        OSPF_TRY_EXEC(serializer(os, values[i]));
+                        if (i != (values.size() - 1_uz))
+                        {
+                            os << CharT{ ',' };
+                        }
+                    }
+                    return succeed;
+                }
+            };
+
+            template<
+                typename T,
+                pointer::PointerCategory cat,
+                template<typename> class C,
+                CharType CharT
+            >
+                requires SerializableToCSV<pointer::Ptr<T, cat>, CharT>
+            struct ToCSVValue<pointer_array::DynamicPointerArray<T, cat, C>, CharT>
+            {
+                inline Result<std::basic_string<CharT>> operator()(const pointer_array::DynamicPointerArray<T, cat, C>& values) const noexcept
+                {
+                    std::basic_ostringstream<CharT> sout;
+                    OSPF_TRY_EXEC(this->operator()(sout, values));
+                    return sout.str();
+                }
+
+                inline Try<> operator()(std::basic_ostringstream<CharT>& os, const pointer_array::DynamicPointerArray<T, cat, C>& values) const noexcept
+                {
+                    static const ToCSVValue<pointer::Ptr<T, cat>, CharT> serializer{};
+                    for (usize i{ 0_uz }; i != values.size(); ++i)
+                    {
+                        OSPF_TRY_EXEC(serializer(os, values[i]));
+                        if (i != (values.size() - 1_uz))
+                        {
+                            os << CharT{ ',' };
+                        }
+                    }
+                    return succeed;
+                }
+            };
+
+            template<
+                typename T,
+                usize len,
+                reference::ReferenceCategory cat,
+                template<typename, usize> class C,
+                CharType CharT
+            >
+                requires SerializableToCSV<T, CharT>
+            struct ToCSVValue<reference_array::StaticReferenceArray<T, len, cat, C>, CharT>
+            {
+                inline Result<std::basic_string<CharT>> operator()(const reference_array::StaticReferenceArray<T, len, cat, C>& values) const noexcept
+                {
+                    std::basic_ostringstream<CharT> sout;
+                    OSPF_TRY_EXEC(this->operator()(sout, values));
+                    return sout.str();
+                }
+
+                inline Try<> operator()(std::basic_ostringstream<CharT>& os, const reference_array::StaticReferenceArray<T, len, cat, C>& values) const noexcept
+                {
+                    static const ToCSVValue<OriginType<T>, CharT> serializer{};
+                    for (usize i{ 0_uz }; i != values.size(); ++i)
+                    {
+                        OSPF_TRY_EXEC(serializer(os, *values[i]));
+                        if (i != (values.size() - 1_uz))
+                        {
+                            os << CharT{ ',' };
+                        }
+                    }
+                    return succeed;
+                }
+            };
+
+            template<
+                typename T,
+                reference::ReferenceCategory cat,
+                template<typename> class C,
+                CharType CharT
+            >
+                requires SerializableToCSV<T, CharT>
+            struct ToCSVValue<reference_array::DynamicReferenceArray<T, cat, C>, CharT>
+            {
+                inline Result<std::basic_string<CharT>> operator()(const reference_array::DynamicReferenceArray<T, cat, C>& values) const noexcept
+                {
+                    std::basic_ostringstream<CharT> sout;
+                    OSPF_TRY_EXEC(this->operator()(sout, values));
+                    return sout.str();
+                }
+
+                inline Try<> operator()(std::basic_ostringstream<CharT>& os, const reference_array::DynamicReferenceArray<T, cat, C>& values) const noexcept
+                {
+                    static const ToCSVValue<OriginType<T>, CharT> serializer{};
+                    for (usize i{ 0_uz }; i != values.size(); ++i)
+                    {
+                        OSPF_TRY_EXEC(serializer(os, *values[i]));
+                        if (i != (values.size() - 1_uz))
+                        {
+                            os << CharT{ ',' };
+                        }
+                    }
+                    return succeed;
+                }
+            };
+
+            template<
+                typename T,
+                template<typename> class E,
+                template<typename, typename> class C,
+                CharType CharT
+            >
+                requires SerializableToCSV<T, CharT>
+            struct ToCSVValue<tagged_map::TaggedMap<T, E, C>, CharT>
+            {
+                inline Result<std::basic_string<CharT>> operator()(const tagged_map::TaggedMap<T, E, C>& values) const noexcept
+                {
+                    std::basic_ostringstream<CharT> sout;
+                    OSPF_TRY_EXEC(this->operator()(sout, values));
+                    return sout.str();
+                }
+
+                inline Try<> operator()(std::basic_ostringstream<CharT>& os, const tagged_map::TaggedMap<T, E, C>& values) const noexcept
+                {
+                    static const ToCSVValue<OriginType<T>, CharT> serializer{};
+                    usize i{ 0_uz };
+                    for (const auto& value : values)
+                    {
+                        OSPF_TRY_EXEC(serializer(os, *value));
+                        if (i != (values.size() - 1_uz))
+                        {
+                            os << CharT{ ',' };
+                        }
+                        ++i;
+                    }
+                    return succeed;
+                }
+            };
+
+            template<
+                typename T,
+                usize len,
+                reference::ReferenceCategory cat,
+                CopyOnWrite cow,
+                template<typename, usize> class C,
+                CharType CharT
+            >
+                requires SerializableToCSV<T, CharT>
+            struct ToCSVValue<value_or_reference_array::StaticValueOrReferenceArray<T, len, cat, cow, C>, CharT>
+            {
+                inline Result<std::basic_string<CharT>> operator()(const value_or_reference_array::StaticValueOrReferenceArray<T, len, cat, cow, C>& values) const noexcept
+                {
+                    std::basic_ostringstream<CharT> sout;
+                    OSPF_TRY_EXEC(this->operator()(sout, values));
+                    return sout.str();
+                }
+
+                inline Try<> operator()(std::basic_ostringstream<CharT>& os, const value_or_reference_array::StaticValueOrReferenceArray<T, len, cat, cow, C>& values) const noexcept
+                {
+                    static const ToCSVValue<OriginType<T>, CharT> serializer{};
+                    for (usize i{ 0_uz }; i != values.size(); ++i)
+                    {
+                        OSPF_TRY_EXEC(serializer(os, *values[i]));
+                        if (i != (values.size() - 1_uz))
+                        {
+                            os << CharT{ ',' };
+                        }
+                    }
+                    return succeed;
+                }
+            };
+
+            template<
+                typename T,
+                reference::ReferenceCategory cat,
+                CopyOnWrite cow,
+                template<typename> class C,
+                CharType CharT
+            >
+                requires SerializableToCSV<T, CharT>
+            struct ToCSVValue<value_or_reference_array::DynamicValueOrReferenceArray<T, cat, cow, C>, CharT>
+            {
+                inline Result<std::basic_string<CharT>> operator()(const value_or_reference_array::DynamicValueOrReferenceArray<T, cat, cow, C>& values) const noexcept
+                {
+                    std::basic_ostringstream<CharT> sout;
+                    OSPF_TRY_EXEC(this->operator()(sout, values));
+                    return sout.str();
+                }
+
+                inline Try<> operator()(std::basic_ostringstream<CharT>& os, const value_or_reference_array::DynamicValueOrReferenceArray<T, cat, cow, C>& values) const noexcept
+                {
+                    static const ToCSVValue<OriginType<T>, CharT> serializer{};
+                    for (usize i{ 0_uz }; i != values.size(); ++i)
+                    {
+                        OSPF_TRY_EXEC(serializer(os, *values[i]));
+                        if (i != (values.size() - 1_uz))
+                        {
+                            os << CharT{ ',' };
+                        }
+                    }
+                    return succeed;
+                }
+            };
 
             template<>
             struct ToCSVValue<bool, char>
@@ -296,6 +701,12 @@ namespace ospf
                 inline Result<std::string> operator()(const bool value) const noexcept
                 {
                     return from_bool(value);
+                }
+
+                inline Try<> operator()(std::ostringstream& os, const bool value) const noexcept
+                {
+                    os << (value ? "true" : "false");
+                    return succeed;
                 }
             };
 
@@ -306,6 +717,12 @@ namespace ospf
                 {
                     return from_u8(value);
                 }
+
+                inline Try<> operator()(std::ostringstream& os, const u8 value) const noexcept
+                {
+                    os << value;
+                    return succeed;
+                }
             };
 
             template<>
@@ -314,6 +731,12 @@ namespace ospf
                 inline Result<std::string> operator()(const i8 value) const noexcept
                 {
                     return from_i8(value);
+                }
+
+                inline Try<> operator()(std::ostringstream& os, const i8 value) const noexcept
+                {
+                    os << value;
+                    return succeed;
                 }
             };
 
@@ -324,6 +747,12 @@ namespace ospf
                 {
                     return from_u16(value);
                 }
+
+                inline Try<> operator()(std::ostringstream& os, const u16 value) const noexcept
+                {
+                    os << value;
+                    return succeed;
+                }
             };
 
             template<>
@@ -332,6 +761,12 @@ namespace ospf
                 inline Result<std::string> operator()(const i16 value) const noexcept
                 {
                     return from_i16(value);
+                }
+
+                inline Try<> operator()(std::ostringstream& os, const i16 value) const noexcept
+                {
+                    os << value;
+                    return succeed;
                 }
             };
 
@@ -342,6 +777,12 @@ namespace ospf
                 {
                     return from_u32(value);
                 }
+
+                inline Try<> operator()(std::ostringstream& os, const u32 value) const noexcept
+                {
+                    os << value;
+                    return succeed;
+                }
             };
 
             template<>
@@ -350,6 +791,12 @@ namespace ospf
                 inline Result<std::string> operator()(const i32 value) const noexcept
                 {
                     return from_i32(value);
+                }
+
+                inline Try<> operator()(std::ostringstream& os, const i32 value) const noexcept
+                {
+                    os << value;
+                    return succeed;
                 }
             };
 
@@ -360,6 +807,12 @@ namespace ospf
                 {
                     return from_u64(value);
                 }
+
+                inline Try<> operator()(std::ostringstream& os, const u64 value) const noexcept
+                {
+                    os << value;
+                    return succeed;
+                }
             };
 
             template<>
@@ -368,6 +821,12 @@ namespace ospf
                 inline Result<std::string> operator()(const i64 value) const noexcept
                 {
                     return from_i64(value);
+                }
+
+                inline Try<> operator()(std::ostringstream& os, const i16 value) const noexcept
+                {
+                    os << value;
+                    return succeed;
                 }
             };
 
@@ -378,6 +837,12 @@ namespace ospf
                 {
                     return from_f32(value);
                 }
+
+                inline Try<> operator()(std::ostringstream& os, const f32 value) const noexcept
+                {
+                    os << value;
+                    return succeed;
+                }
             };
 
             template<>
@@ -386,6 +851,12 @@ namespace ospf
                 inline Result<std::string> operator()(const f64 value) const noexcept
                 {
                     return from_f64(value);
+                }
+
+                inline Try<> operator()(std::ostringstream& os, const f64 value) const noexcept
+                {
+                    os << value;
+                    return succeed;
                 }
             };
 
@@ -396,6 +867,12 @@ namespace ospf
                 {
                     return value;
                 }
+
+                inline Try<> operator()(std::ostringstream& os, const std::string& value) const noexcept
+                {
+                    os << value;
+                    return succeed;
+                }
             };
 
             template<>
@@ -404,6 +881,12 @@ namespace ospf
                 inline Result<std::string> operator()(const std::string_view value) const noexcept
                 {
                     return std::string{ value };
+                }
+
+                inline Try<> operator()(std::ostringstream& os, const std::string_view value) const noexcept
+                {
+                    os << value;
+                    return succeed;
                 }
             };
         };

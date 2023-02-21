@@ -142,7 +142,7 @@ namespace ospf
             };
 
             template<typename T, typename U, CharType CharT>
-                requires SerializableToJson<T, CharT>&& SerializableToJson<U, CharT>
+                requires SerializableToJson<T, CharT> && SerializableToJson<U, CharT>
             struct ToJsonValue<std::pair<T, U>, CharT>
             {
                 inline Result<Json<CharT>> operator()(const std::pair<T, U>& obj, Document<CharT>& doc, const std::optional<NameTransfer<CharT>>& transfer) const noexcept
