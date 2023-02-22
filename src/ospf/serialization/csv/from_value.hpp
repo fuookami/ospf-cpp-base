@@ -33,10 +33,11 @@ namespace ospf
             struct FromCSVValue;
 
             template<typename T, typename CharT>
-            concept DeserializableFromCSV = CharType<CharT> && requires (const FromCSVValue<T, CharT>& deserializer)
-            {
-                { deserializer(std::declval<std::basic_string_view<CharT>>()) } -> DecaySameAs<Result<T>>;
-            };
+            concept DeserializableFromCSV = CharType<CharT>
+                && requires (const FromCSVValue<OriginType<T>, CharT>& deserializer)
+                {
+                    { deserializer(std::declval<std::basic_string_view<CharT>>()) } -> DecaySameAs<Result<T>>;
+                };
 
             template<EnumType T, CharType CharT>
             struct FromCSVValue<T, CharT>
@@ -78,7 +79,464 @@ namespace ospf
                 }
             };
 
-            // todo: optional, ptr, variant, either, val/ref
+            template<typename T, CharType CharT>
+                requires DeserializableFromCSV<T, CharT>
+            struct FromCSVValue<std::optional<T>, CharT>
+            {
+                inline Result<std::optional<T>> operator()(const std::basic_string_view<CharT> value) const noexcept
+                {
+                    static const FromCSVValue<OriginType<T>, CharT> deserializer{};
+                    const auto obj = deserializer(value);
+                    if (obj.is_failed())
+                    {
+                        if (value.empty())
+                        {
+                            return std::optional<T>{};
+                        }
+                        else
+                        {
+                            return std::move(obj).err();
+                        }
+                    }
+                    else
+                    {
+                        return std::optional<T>{ std::move(obj).unwrap() };
+                    }
+                }
+            };
+
+            template<typename T, pointer::PointerCategory cat, CharType CharT>
+                requires DeserializableFromCSV<T, CharT>
+            struct FromCSVValue<pointer::Ptr<T, cat>, CharT>
+            {
+                inline Result<pointer::Ptr<T, cat>> operator()(const std::basic_string_view<CharT> value) const noexcept
+                {
+                    static const FromCSVValue<OriginType<T>, CharT> deserializer{};
+                    const auto obj = deserializer(value);
+                    if (obj.is_failed())
+                    {
+                        if (value.empty())
+                        {
+                            return pointer::Ptr<T, cat>{};
+                        }
+                        else
+                        {
+                            return std::move(obj).err();
+                        }
+                    }
+                    else
+                    {
+                        return pointer::Ptr<T, cat>{ new T{ std::move(obj).unwrap() } };
+                    }
+                }
+            };
+
+            template<typename T, typename U, CharType CharT>
+                requires DeserializableFromCSV<T, CharT> && DeserializableFromCSV<U, CharT>
+            struct FromCSVValue<std::pair<T, U>, CharT>
+            {
+                inline Result<std::pair<T, U>> operator()(const std::basic_string_view<CharT> value) const noexcept
+                {
+                    const auto strs = split(value, CharTrait<CharT>::default_sub_seperator);
+                    if (strs.size() != 2_uz)
+                    {
+                        return OSPFError{ OSPFErrCode::DeserializationFail, std::format("invalid value \"{}\" for \"{}\"", value, TypeInfo<std::pair<T, U>>::name()) };
+                    }
+                    else
+                    {
+                        static const FromCSVValue<OriginType<T>, CharT> deserializer1{};
+                        static const FromCSVValue<OriginType<U>, CharT> deserializer2{};
+                        OSPF_TRY_GET(value1, deserializer1(strs[0_uz]));
+                        OSPF_TRY_GET(value2, deserializer2(strs[1_uz]));
+                        return std::make_pair(std::move(value1), std::move(value2));
+                    }
+                }
+            };
+
+            template<typename... Ts, CharType CharT>
+            struct FromCSVValue<std::tuple<Ts...>, CharT>
+            {
+                inline Result<std::tuple<Ts...>> operator()(const std::basic_string_view<CharT> value) const noexcept
+                {
+                    const auto strs = split(value, CharTrait<CharT>::default_sub_seperator);
+                    if (strs.size() != VariableTypeList<Ts...>::length)
+                    {
+                        return OSPFError{ OSPFErrCode::DeserializationFail, std::format("invalid value \"{}\" for \"{}\"", value, TypeInfo<std::tuple<Ts...>>::name()) };
+                    }
+                    else
+                    {
+                        return deserialize<0_uz>(strs);
+                    }
+                }
+
+                template<usize i, usize len, typename... Args>
+                inline static Result<std::tuple<Ts...>> deserialize(const std::span<std::basic_string_view<CharT>, len> strs, Args&&... args) noexcept
+                {
+                    if constexpr (i == VariableTypeList<Ts...>::length)
+                    {
+                        return std::tuple{ std::forward<Args>(args)... };
+                    }
+                    else
+                    {
+                        using ValueType = OriginType<TypeAt<i, Ts...>>;
+                        static_assert(DeserializableFromCSV<ValueType, CharT>);
+                        static const FromCSVValue<ValueType, CharT> deserializer{};
+                        return deserialize<i + 1_uz>(strs, std::forward<Args>(args)..., deserializer(strs[i]));
+                    }
+                }
+            };
+
+            template<typename... Ts, CharType CharT>
+            struct FromCSVValue<std::variant<Ts...>, CharT>
+            {
+                inline Result<std::variant<Ts...>> operator()(const std::basic_string_view<CharT> value) const noexcept
+                {
+                    const auto strs = split(value, CharTrait<CharT>::default_sub_seperator);
+                    if (strs.size() != 2_uz)
+                    {
+                        return OSPFError{ OSPFErrCode::DeserializationFail, std::format("invalid value \"{}\" for \"{}\"", value, TypeInfo<std::variant<Ts...>>::name()) };
+                    }
+                    else
+                    {
+                        const auto index = to_u64(strs[0_uz]);
+                        if (!index.has_value() || *index != VariableTypeList<Ts...>::length)
+                        {
+                            return OSPFError{ OSPFErrCode::DeserializationFail, std::format("invalid value \"{}\" for \"{}\"", value, TypeInfo<std::variant<Ts...>>::name()) };
+                        }
+                        else
+                        {
+                            return deserialize<0_uz>(index, strs[1_uz]);
+                        }
+                    }
+                }
+
+                template<usize i>
+                inline static Result<std::variant<Ts...>> deserialize(const usize index, const std::basic_string_view<CharT> value) const noexcept
+                {
+                    if constexpr (i == index)
+                    {
+                        using ValueType = OriginType<TypeAt<i, Ts...>>;
+                        static_assert(DeserializableFromCSV<ValueType, CharT>);
+                        static const FromCSVValue<ValueType, CharT> deserializer{};
+                        OSPF_TRY_GET(obj, Deserializer(value));
+                        return std::variant<Ts...>{ std::move(obj) };
+                    }
+                    else
+                    {
+                        return deserialize<i + 1_uz>(index, value);
+                    }
+                }
+            };
+
+            template<typename T, typename U, CharType CharT>
+                requires DeserializableFromCSV<T, CharT> && DeserializableFromCSV<U, CharT>
+            struct FromCSVValue<Either<T, U>, CharT>
+            {
+                inline Result<Either<T, U>> operator()(const std::basic_string_view<CharT> value) const noexcept
+                {
+                    const auto strs = split(value, CharTrait<CharT>::default_sub_seperator);
+                    if (strs.size() != 2_uz)
+                    {
+                        return OSPFError{ OSPFErrCode::DeserializationFail, std::format("invalid value \"{}\" for \"{}\"", value, TypeInfo<Either<T, U>>::name()) };
+                    }
+                    else
+                    {
+                        const auto index = to_u64(strs[0_uz]);
+                        if (!index.has_value())
+                        {
+                            return OSPFError{ OSPFErrCode::DeserializationFail, std::format("invalid value \"{}\" for \"{}\"", value, TypeInfo<Either<T, U>>::name()) };
+                        }
+                        else
+                        {
+                            switch (*index)
+                            {
+                            case 0_uz:
+                            {
+                                static const FromCSVValue<OriginType<T>, CharT> deserializer{};
+                                OSPF_TRY_GET(obj, deserializer(strs[1_uz]));
+                                return Either<T, U>::left(std::move(obj));
+                            }
+                            case 1_uz:
+                            {
+                                static const FromCSVValue<OriginType<U>, CharT> deserializer{};
+                                OSPF_TRY_GET(obj, deserializer(strs[1_uz]));
+                                return Either<T, U>::right(std::move(obj));
+                            }
+                            default:
+                                break;
+                            }
+                            return OSPFError{ OSPFErrCode::DeserializationFail, std::format("invalid value \"{}\" for \"{}\"", value, TypeInfo<Either<T, U>>::name()) };
+                        }
+                    }
+                }
+            };
+
+            template<typename T, reference::ReferenceCategory cat, CopyOnWrite cow, CharType CharT>
+                requires DeserializableFromCSV<T, CharT>
+            struct FromCSVValue<ValOrRef<T, cat, cow>, CharT>
+            {
+                inline Result<ValOrRef<T, cat, cow>> operator()(const std::basic_string_view<CharT> value) const noexcept
+                {
+                    static const FromCSVValue<OriginType<T>, CharT> deserializer{};
+                    OSPF_TRY_GET(obj, deserializer(value));
+                    return ValOrRef<T, cat, cow>::value(std::move(obj));
+                }
+            };
+
+            template<typename T, usize len, CharType CharT>
+                requires DeserializableFromCSV<T, CharT>
+            struct FromCSVValue<std::array<T, len>, CharT>
+            {
+                inline Result<std::array<T, len>> operator()(const std::basic_string_view<CharT> value) const noexcept
+                {
+                    const auto strs = split(value, CharTrait<CharT>::default_seperator);
+                    if (strs.size() != len)
+                    {
+                        return OSPFError{ OSPFErrCode::DeserializationFail, std::format("invalid value \"{}\" for \"{}\"", value, TypeInfo<std::array<T, len>>::name()) };
+                    }
+                    else
+                    {
+                        return make_array<T, len>([&strs](const usize i) -> Result<T>
+                            {
+                                static const FromCSVValue<OriginType<T>, CharT> deserializer{};
+                                return deserializer(strs[i]);
+                            });
+                    }
+                }
+            };
+
+            template<typename T, CharType CharT>
+                requires DeserializableFromCSV<T, CharT>
+            struct FromCSVValue<std::vector<T>, CharT>
+            {
+                inline Result<std::vector<T>> operator()(const std::basic_string_view<CharT> value) const noexcept
+                {
+                    const auto strs = split(value, CharTrait<CharT>::default_seperator);
+                    std::vector<T> objs;
+                    objs.reserve(strs.size());
+                    for (const auto str : strs)
+                    {
+                        static const FromCSVValue<OriginType<T>, CharT> deserializer{};
+                        OSPF_TRY_GET(obj, deserializer(str));
+                        objs.push_back(std::move(obj));
+                    }
+                    return std::move(objs);
+                }
+            };
+
+            template<typename T, CharType CharT>
+                requires DeserializableFromCSV<T, CharT>
+            struct FromCSVValue<std::deque<T>, CharT>
+            {
+                inline Result<std::deque<T>> operator()(const std::basic_string_view<CharT> value) const noexcept
+                {
+                    const auto strs = split(value, CharTrait<CharT>::default_seperator);
+                    std::deque<T> objs;
+                    for (const auto str : strs)
+                    {
+                        static const FromCSVValue<OriginType<T>, CharT> deserializer{};
+                        OSPF_TRY_GET(obj, deserializer(str));
+                        objs.push_back(std::move(obj));
+                    }
+                    return std::move(objs);
+                }
+            };
+
+            template<
+                typename T,
+                usize len,
+                template<typename, usize> class C,
+                CharType CharT
+            >
+                requires DeserializableFromCSV<std::optional<T>, CharT>
+            struct FromCSVValue<optional_array::StaticOptionalArray<T, len, C>, CharT>
+            {
+                using ArrayType = optional_array::StaticOptionalArray<T, len, C>;
+
+                inline Result<ArrayType> operator()(const std::basic_string_view<CharT> value) const noexcept
+                {
+                    const auto strs = split(value, CharTrait<CharT>::default_seperator);
+                    if (strs.size() != len)
+                    {
+                        return OSPFError{ OSPFErrCode::DeserializationFail, std::format("invalid value \"{}\" for \"{}\"", value, TypeInfo<ArrayType>::name()) };
+                    }
+                    OSPF_TRY_GET(objs, (make_array<std::optional<T>, len>([&strs](const usize i) -> Result<std::optional<T>>
+                        {
+                            static const FromCSVValue<std::optional<T>, CharT> deserializer{};
+                            return deserializer(strs[i]);
+                        })));
+                    return ArrayType{ std::move(objs) };
+                }
+            };
+
+            template<
+                typename T,
+                template<typename> class C,
+                CharType CharT
+            >
+                requires DeserializableFromCSV<std::optional<T>, CharT>
+            struct FromCSVValue<optional_array::DynamicOptionalArray<T, C>, CharT>
+            {
+                using ArrayType = optional_array::DynamicOptionalArray<T, C>;
+
+                inline Result<ArrayType> operator()(const std::basic_string_view<CharT> value) const noexcept
+                {
+                    const auto strs = split(value, CharTrait<CharT>::default_seperator);
+                    ArrayType objs;
+                    if constexpr (Reservable<ArrayType>)
+                    {
+                        objs.reserve(strs.size());
+                    }
+                    for (const auto str : strs)
+                    {
+                        static const FromCSVValue<std::optional<T>, CharT> deserializer{};
+                        OSPF_TRY_GET(obj, deserializer(str));
+                        objs.push_back(std::move(obj));
+                    }
+                    return std::move(objs);
+                }
+            };
+
+            template<
+                typename T,
+                usize len,
+                pointer::PointerCategory cat,
+                template<typename, usize> class C,
+                CharType CharT
+            >
+                requires DeserializableFromCSV<pointer::Ptr<T, cat>, CharT>
+            struct FromCSVValue<pointer_array::StaticPointerArray<T, len, cat, C>, CharT>
+            {
+                using ArrayType = pointer_array::StaticPointerArray<T, len, cat, C>;
+
+                inline Result<ArrayType> operator()(const std::basic_string_view<CharT> value) const noexcept
+                {
+                    const auto strs = split(value, CharTrait<CharT>::default_seperator);
+                    if (strs.size() != len)
+                    {
+                        return OSPFError{ OSPFErrCode::DeserializationFail, std::format("invalid value \"{}\" for \"{}\"", value, TypeInfo<ArrayType>::name()) };
+                    }
+                    OSPF_TRY_GET(objs, (make_array<pointer::Ptr<T, cat>, len>([&strs](const usize i) -> Result<pointer::Ptr<T, cat>>
+                        {
+                            static const FromCSVValue<pointer::Ptr<T, cat>, CharT> deserializer{};
+                            return deserializer(strs[i]);
+                        })));
+                    return ArrayType{ std::move(objs) };
+                }
+            };
+
+            template<
+                typename T,
+                pointer::PointerCategory cat,
+                template<typename> class C,
+                CharType CharT
+            >
+                requires DeserializableFromCSV<pointer::Ptr<T, cat>, CharT>
+            struct FromCSVValue<pointer_array::DynamicPointerArray<T, cat, C>, CharT>
+            {
+                using ArrayType = pointer_array::DynamicPointerArray<T, cat, C>;
+
+                inline Result<ArrayType> operator()(const std::basic_string_view<CharT> value) const noexcept
+                {
+                    const auto strs = split(value, CharTrait<CharT>::default_seperator);
+                    ArrayType objs;
+                    if constexpr (Reservable<ArrayType>)
+                    {
+                        objs.reserve(strs.size());
+                    }
+                    for (const auto str : strs)
+                    {
+                        static const FromCSVValue<pointer::Ptr<T, cat>, CharT> deserializer{};
+                        OSPF_TRY_GET(obj, deserializer(str));
+                        objs.push_back(std::move(obj));
+                    }
+                    return std::move(objs);
+                }
+            };
+
+            template<
+                typename T,
+                template<typename> class E,
+                template<typename, typename> class C,
+                CharType CharT
+            >
+                requires DeserializableFromCSV<T, CharT>
+            struct FromCSVValue<tagged_map::TaggedMap<T, E, C>, CharT>
+            {
+                using ArrayType = tagged_map::TaggedMap<T, E, C>;
+
+                inline Result<ArrayType> operator()(const std::basic_string_view<CharT> value) const noexcept
+                {
+                    const auto strs = split(value, CharTrait<CharT>::default_seperator);
+                    ArrayType objs;
+                    for (const auto str : strs)
+                    {
+                        static const FromCSVValue<OriginType<T>, CharT> deserializer{};
+                        OSPF_TRY_GET(obj, deserializer(str));
+                        objs.insert(std::move(obj));
+                    }
+                    return std::move(objs);
+                }
+            };
+
+            template<
+                typename T,
+                usize len,
+                reference::ReferenceCategory cat,
+                CopyOnWrite cow,
+                template<typename, usize> class C,
+                CharType CharT
+            >
+                requires DeserializableFromCSV<T, CharT>
+            struct FromCSVValue<value_or_reference_array::StaticValueOrReferenceArray<T, len, cat, cow, C>, CharT>
+            {
+                using ArrayType = value_or_reference_array::StaticValueOrReferenceArray<T, len, cat, cow, C>;
+
+                inline Result<ArrayType> operator()(const std::basic_string_view<CharT> value) const noexcept
+                {
+                    const auto strs = split(value, CharTrait<CharT>::default_seperator);
+                    if (strs.size() != len)
+                    {
+                        return OSPFError{ OSPFErrCode::DeserializationFail, std::format("invalid value \"{}\" for \"{}\"", value, TypeInfo<ArrayType>::name()) };
+                    }
+                    OSPF_TRY_GET(objs, (make_array<ValOrRef<T, cat, cow>, len>([&strs](const usize i) -> Result<ValOrRef<T, cat, cow>>
+                        {
+                            static const FromCSVValue<OriginType<T>, CharT> deserializer{};
+                            OSPF_TRY_GET(obj, deserializer(strs[i]));
+                            return ValOrRef<T, cat, cow>::value(std::move(obj));
+                        })));
+                }
+            };
+
+            template<
+                typename T,
+                reference::ReferenceCategory cat,
+                CopyOnWrite cow,
+                template<typename> class C,
+                CharType CharT
+            >
+                requires DeserializableFromCSV<T, CharT>
+            struct FromCSVValue<value_or_reference_array::DynamicValueOrReferenceArray<T, cat, cow, C>, CharT>
+            {
+                using ArrayType = value_or_reference_array::DynamicValueOrReferenceArray<T, cat, cow, C>;
+
+                inline Result<ArrayType> operator()(const std::basic_string_view<CharT> value) const noexcept
+                {
+                    const auto strs = split(value, CharTrait<CharT>::default_seperator);
+                    ArrayType objs;
+                    if constexpr (Reservable<ArrayType>)
+                    {
+                        objs.reserve(strs.size());
+                    }
+                    for (const auto str : strs)
+                    {
+                        static const FromCSVValue<OriginType<T>, CharT> deserializer{};
+                        OSPF_TRY_GET(obj, deserializer(strs[i]));
+                        objs.push_back(ValOrRef<T, cat, cow>::value(std::move(obj)));
+                    }
+                    return std::move(objs);
+                }
+            };
 
             template<>
             struct FromCSVValue<bool, char>

@@ -237,7 +237,7 @@ namespace ospf
                                 }
                                 
                                 static const FromCSVValue<FieldValueType, CharT> deserializer{};
-                                auto value = deserializer(*row[*it]);
+                                auto value = deserializer(*row[it->second]);
                                 if constexpr (!serialization_nullable<FieldValueType>)
                                 {
                                     if (value.is_failed())

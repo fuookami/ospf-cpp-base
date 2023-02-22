@@ -22,9 +22,6 @@ namespace ospf
 
         namespace csv
         {
-            template<CharType CharT>
-            using NameTransfer = std::function<const std::basic_string_view<CharT>(const std::basic_string_view<CharT>)>;
-
             template<WithMetaInfo T, CharType CharT>
             struct ORMCSVTrait
             {

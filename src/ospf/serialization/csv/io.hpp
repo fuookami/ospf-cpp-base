@@ -1,9 +1,8 @@
 ﻿#pragma once
 
 #include <ospf/functional/result.hpp>
+#include <ospf/serialization/csv/concepts.hpp>
 #include <ospf/serialization/csv/table.hpp>
-#include <istream>
-#include <ostream>
 
 namespace ospf
 {
@@ -11,37 +10,6 @@ namespace ospf
     {
         namespace csv
         {
-            template<CharType CharT>
-            struct CharTrait;
-
-            template<>
-            struct CharTrait<char>
-            {
-                static constexpr const std::string_view default_seperator{ "," };
-                static constexpr const std::string_view line_breaker{ "\n" };
-
-                OSPF_BASE_API static std::string catch_regex(const std::string_view seperator) noexcept;
-                OSPF_BASE_API static std::ostream& write(std::ostream& os, const std::string& cell, const std::string_view seperator) noexcept;
-                OSPF_BASE_API static std::ostream& write(std::ostream& os, const std::optional<std::string>& cell, const std::string_view seperator) noexcept;
-                OSPF_BASE_API static std::ostream& write(std::ostream& os, const std::string_view cell, const std::string_view seperator) noexcept;
-                OSPF_BASE_API static std::ostream& write(std::ostream& os, const std::optional<std::string_view> cell, const std::string_view seperator) noexcept;
-            };
-
-            template<>
-            struct CharTrait<wchar>
-            {
-                static constexpr const std::wstring_view default_seperator{ L"," };
-                static constexpr const std::wstring_view line_breaker{ L"\n" };
-
-                OSPF_BASE_API static std::wstring catch_regex(const std::wstring_view seperator) noexcept;
-                OSPF_BASE_API static std::wostream& write(std::wostream& os, const std::wstring& cell, const std::wstring_view seperator) noexcept;
-                OSPF_BASE_API static std::wostream& write(std::wostream& os, const std::optional<std::wstring>& cell, const std::wstring_view seperator) noexcept;
-                OSPF_BASE_API static std::wostream& write(std::wostream& os, const std::wstring_view cell, const std::wstring_view seperator) noexcept;
-                OSPF_BASE_API static std::wostream& write(std::wostream& os, const std::optional<std::wstring_view> cell, const std::wstring_view seperator) noexcept;
-            };
-
-            // todo: impl for different character
-
             template<typename T, CharType CharT>
             inline Try<> write(std::basic_ostream<CharT>& os, const T& table, const std::basic_string_view<CharT> seperator = CharTrait<CharT>::default_seperator) noexcept
             {

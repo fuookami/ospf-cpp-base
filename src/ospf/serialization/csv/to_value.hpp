@@ -9,6 +9,7 @@
 #include <ospf/functional/result.hpp>
 #include <ospf/memory/pointer/category.hpp>
 #include <ospf/ospf_base_api.hpp>
+#include <ospf/serialization/csv/concepts.hpp>
 #include <deque>
 #include <span>
 
@@ -37,11 +38,12 @@ namespace ospf
             struct ToCSVValue;
 
             template<typename T, typename CharT>
-            concept SerializableToCSV = CharType<CharT> && requires (const ToCSVValue<OriginType<T>, CharT>& serializer)
-            {
-                { serializer(std::declval<T>()) } -> DecaySameAs<Result<std::basic_string<CharT>>>;
-                { serializer(std::declval<std::basic_ostringstream<CharT>>(), std::declval<T>()) } -> DecaySameAs<Try<>>;
-            };
+            concept SerializableToCSV = CharType<CharT> 
+                && requires (const ToCSVValue<OriginType<T>, CharT>& serializer)
+                {
+                    { serializer(std::declval<T>()) } -> DecaySameAs<Result<std::basic_string<CharT>>>;
+                    { serializer(std::declval<std::basic_ostringstream<CharT>>(), std::declval<T>()) } -> DecaySameAs<Try<>>;
+                };
 
             template<EnumType T, CharType CharT>
             struct ToCSVValue<T, CharT>
@@ -177,7 +179,7 @@ namespace ospf
                     static const ToCSVValue<OriginType<T>, CharT> serializer1{};
                     OSPF_TRY_GET(value1, serializer1(value.first));
                     sout << std::move(value1);
-                    sout << CharT{ ';' };
+                    sout << CharTrait<CharT>::default_sub_seperator;
                     static const ToCSVValue<OriginType<U>, CharT> serializer2{};
                     OSPF_TRY_GET(value2, serializer2(value.second));
                     sout << std::move(value2);
@@ -189,7 +191,7 @@ namespace ospf
                     static const ToCSVValue<OriginType<T>, CharT> serializer1{};
                     OSPF_TRY_GET(value1, serializer1(value.first));
                     os << std::move(value1);
-                    os << CharT{ ';' };
+                    os << CharTrait<CharT>::default_sub_seperator;
                     static const ToCSVValue<OriginType<U>, CharT> serializer2{};
                     OSPF_TRY_GET(value2, serializer2(value.second));
                     os << std::move(value2);
@@ -229,7 +231,7 @@ namespace ospf
                         sout << std::move(this_value);
                         if constexpr (i != (VariableTypeList<Ts...>::length - 1_uz))
                         {
-                            sout << CharT{ ';' };
+                            sout << CharTrait<CharT>::default_sub_seperator;
                         }
                         return serialize<i + 1_uz>(os, value);
                     }
@@ -241,24 +243,23 @@ namespace ospf
             {
                 inline Result<std::basic_string<CharT>> operator()(const std::variant<Ts...>& value) const noexcept
                 {
-                    return std::visit([](const auto& this_value)
-                        {
-                            using ValueType = OriginType<decltype(this_value)>;
-                            static_assert(SerializableToCSV<ValueType, CharT>);
-                            static const ToCSVValue<ValueType, CharT> serializer{};
-                            return serializer(this_value);
-                        }, value);
+                    std::basic_ostringstream sout;
+                    OSPF_TRY_EXEC(this->operator()(sout, value));
+                    return sout.str();
                 }
 
                 inline Try<> operator()(std::basic_ostringstream<CharT>& os, const std::variant<Ts...>& value) const noexcept
                 {
-                    return std::visit([&os](const auto& this_value)
+                    os << value.index();
+                    os << CharTrait<CharT>::default_sub_seperator;
+                    OSPF_TRY_EXEC(std::visit([&os](const auto& this_value)
                         {
                             using ValueType = OriginType<decltype(this_value)>;
                             static_assert(SerializableToCSV<ValueType, CharT>);
                             static const ToCSVValue<ValueType, CharT> serializer{};
                             return serializer(os, this_value);
-                        }, value);
+                        }, value));
+                    return succeed;
                 }
             };
 
@@ -268,24 +269,23 @@ namespace ospf
             {
                 inline Result<std::basic_string<CharT>> operator()(const Either<T, U>& value) const noexcept
                 {
-                    return std::visit([](const auto& this_value)
-                        {
-                            using ValueType = OriginType<decltype(this_value)>;
-                            static_assert(SerializableToCSV<ValueType, CharT>);
-                            static const ToCSVValue<ValueType, CharT> serializer{};
-                            return serializer(this_value);
-                        }, value);
+                    std::basic_ostringstream sout;
+                    OSPF_TRY_EXEC(this->operator()(sout, value));
+                    return sout.str();
                 }
 
                 inline Try<> operator()(std::basic_ostringstream<CharT>& os, const Either<T, U>& value) const noexcept
                 {
-                    return std::visit([&os](const auto& this_value)
+                    os << value.is_left() ? 0_uz : 1_uz;
+                    os << CharTrait<CharT>::default_sub_seperator;
+                    OSPF_TRY_EXEC(std::visit([&os](const auto& this_value)
                         {
                             using ValueType = OriginType<decltype(this_value)>;
                             static_assert(SerializableToCSV<ValueType, CharT>);
                             static const ToCSVValue<ValueType, CharT> serializer{};
                             return serializer(os, this_value);
-                        }, value);
+                        }, value));
+                    return succeed;
                 }
             };
 
@@ -325,7 +325,7 @@ namespace ospf
                         OSPF_TRY_EXEC(serializer(os, values[i]));
                         if (i != (values.size() - 1_uz))
                         {
-                            os << CharT{ ',' };
+                            os << CharTrait<CharT>::default_seperator;
                         }
                     }
                     return succeed;
@@ -351,7 +351,7 @@ namespace ospf
                         OSPF_TRY_EXEC(serializer(os, values[i]));
                         if (i != (values.size() - 1_uz))
                         {
-                            os << CharT{ ',' };
+                            os << CharTrait<CharT>::default_seperator;
                         }
                     }
                     return succeed;
@@ -377,7 +377,7 @@ namespace ospf
                         OSPF_TRY_EXEC(serializer(os, values[i]));
                         if (i != (values.size() - 1_uz))
                         {
-                            os << CharT{ ',' };
+                            os << CharTrait<CharT>::default_seperator;
                         }
                     }
                     return succeed;
@@ -403,7 +403,7 @@ namespace ospf
                         OSPF_TRY_EXEC(serializer(os, values[i]));
                         if (i != (values.size() - 1_uz))
                         {
-                            os << CharT{ ',' };
+                            os << CharTrait<CharT>::default_seperator;
                         }
                     }
                     return succeed;
@@ -434,7 +434,7 @@ namespace ospf
                         OSPF_TRY_EXEC(serializer(os, values[i]));
                         if (i != (values.size() - 1_uz))
                         {
-                            os << CharT{ ',' };
+                            os << CharTrait<CharT>::default_seperator;
                         }
                     }
                     return succeed;
@@ -464,7 +464,7 @@ namespace ospf
                         OSPF_TRY_EXEC(serializer(os, values[i]));
                         if (i != (values.size() - 1_uz))
                         {
-                            os << CharT{ ',' };
+                            os << CharTrait<CharT>::default_seperator;
                         }
                     }
                     return succeed;
@@ -496,7 +496,7 @@ namespace ospf
                         OSPF_TRY_EXEC(serializer(os, values[i]));
                         if (i != (values.size() - 1_uz))
                         {
-                            os << CharT{ ',' };
+                            os << CharTrait<CharT>::default_seperator;
                         }
                     }
                     return succeed;
@@ -527,7 +527,7 @@ namespace ospf
                         OSPF_TRY_EXEC(serializer(os, values[i]));
                         if (i != (values.size() - 1_uz))
                         {
-                            os << CharT{ ',' };
+                            os << CharTrait<CharT>::default_seperator;
                         }
                     }
                     return succeed;
@@ -559,7 +559,7 @@ namespace ospf
                         OSPF_TRY_EXEC(serializer(os, *values[i]));
                         if (i != (values.size() - 1_uz))
                         {
-                            os << CharT{ ',' };
+                            os << CharTrait<CharT>::default_seperator;
                         }
                     }
                     return succeed;
@@ -590,7 +590,7 @@ namespace ospf
                         OSPF_TRY_EXEC(serializer(os, *values[i]));
                         if (i != (values.size() - 1_uz))
                         {
-                            os << CharT{ ',' };
+                            os << CharTrait<CharT>::default_seperator;
                         }
                     }
                     return succeed;
@@ -622,7 +622,7 @@ namespace ospf
                         OSPF_TRY_EXEC(serializer(os, *value));
                         if (i != (values.size() - 1_uz))
                         {
-                            os << CharT{ ',' };
+                            os << CharTrait<CharT>::default_seperator;
                         }
                         ++i;
                     }
@@ -656,7 +656,7 @@ namespace ospf
                         OSPF_TRY_EXEC(serializer(os, *values[i]));
                         if (i != (values.size() - 1_uz))
                         {
-                            os << CharT{ ',' };
+                            os << CharTrait<CharT>::default_seperator;
                         }
                     }
                     return succeed;
@@ -688,7 +688,7 @@ namespace ospf
                         OSPF_TRY_EXEC(serializer(os, *values[i]));
                         if (i != (values.size() - 1_uz))
                         {
-                            os << CharT{ ',' };
+                            os << CharTrait<CharT>::default_seperator;
                         }
                     }
                     return succeed;

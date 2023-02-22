@@ -38,10 +38,11 @@ namespace ospf
             struct ToJsonValue;
 
             template<typename T, typename CharT>
-            concept SerializableToJson = CharType<CharT> && requires (const ToJsonValue<OriginType<T>, CharT> serializer)
-            {
-                { serializer(std::declval<T>(), std::declval<Document<CharT>>(), std::declval<std::optional<NameTransfer<CharT>>>()) } -> DecaySameAs<Result<Json<CharT>>>;
-            };
+            concept SerializableToJson = CharType<CharT> 
+                && requires (const ToJsonValue<OriginType<T>, CharT> serializer)
+                {
+                    { serializer(std::declval<T>(), std::declval<Document<CharT>>(), std::declval<std::optional<NameTransfer<CharT>>>()) } -> DecaySameAs<Result<Json<CharT>>>;
+                };
 
             template<EnumType T, CharType CharT>
             struct ToJsonValue<T, CharT>

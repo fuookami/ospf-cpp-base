@@ -37,17 +37,18 @@ namespace ospf
             struct FromJsonValue;
 
             template<typename T, typename CharT>
-            concept DeserializableFromJson = CharType<CharT> && (requires (const FromJsonValue<T, CharT>& deserializer)
+            concept DeserializableFromJson = CharType<CharT> 
+                && (requires (const FromJsonValue<OriginType<T>, CharT>& deserializer)
                 {
                     { deserializer(std::declval<Json<CharT>>(), std::declval<T>(), std::declval<std::optional<NameTransfer<CharT>>>()) } -> DecaySameAs<Try<>>;
                 }) 
-                && (!WithDefault<T> || requires (const FromJsonValue<T, CharT>& deserializer)
+                && (!WithDefault<T> || requires (const FromJsonValue<OriginType<T>, CharT>& deserializer)
                 {
                     { deserializer(std::declval<Json<CharT>>(), std::declval<std::optional<NameTransfer<CharT>>>()) } -> DecaySameAs<Result<T>>;
                 });
 
             template<EnumType T, CharType CharT>
-            struct FromJsonValue<T, CharT>
+            struct FromJsonValue<OriginType<T>, CharT>
             {
                 inline Try<> operator()(const Json<CharT>& json, T& value, const std::optional<NameTransfer<CharT>>& transfer) const noexcept
                 {
@@ -78,7 +79,7 @@ namespace ospf
             };
 
             template<WithMetaInfo T, CharType CharT>
-            struct FromJsonValue<T, CharT>
+            struct FromJsonValue<OriginType<T>, CharT>
             {
                 inline Try<> operator()(const Json<CharT>& json, T& obj, const std::optional<NameTransfer<CharT>>& transfer) const noexcept
                 {
@@ -387,7 +388,7 @@ namespace ospf
                         {
                             if (index == 0_uz)
                             {
-                                static const FromJsonValue<T, CharT> deserializer{};
+                                static const FromJsonValue<OriginType<T>, CharT> deserializer{};
                                 OSPF_TRY_SET(obj, deserializer(json[key], transfer));
                             }
                             else
@@ -437,9 +438,9 @@ namespace ospf
             {
                 inline Try<> operator()(const Json<CharT>& json, ValOrRef<T, cat, cow>& obj, const std::optional<NameTransfer<CharT>>& transfer) const noexcept
                 {
-                    static const FromJsonValue<T> deserializer{};
+                    static const FromJsonValue<OriginType<T>> deserializer{};
                     OSPF_TRY_GET(value, deserializer(json, transfer));
-                    obj = ValOrRef<T, cat>::value(std::move(value));
+                    obj = ValOrRef<T, cat, cow>::value(std::move(value));
                     return succeed;
                 }
 
@@ -447,7 +448,7 @@ namespace ospf
                     requires WithDefault<T>
                 inline Result<ValOrRef<T, cat, cow>> operator()(const Json<CharT>& json, const std::optional<NameTransfer<CharT>>& transfer) const noexcept
                 {
-                    ValOrRef<T, cat> obj = DefaultValue<ValOrRef<T, cat, cow>>::value();
+                    ValOrRef<T, cat, cow> obj = DefaultValue<ValOrRef<T, cat, cow>>::value();
                     OSPF_TRY_EXEC(this->operator()(json, obj, transfer));
                     return std::move(obj);
                 }
@@ -457,7 +458,7 @@ namespace ospf
                 requires DeserializableFromJson<T, CharT> && WithDefault<T>
             struct FromJsonValue<std::array<T, len>, CharT>
             {
-                inline Try<> operator()(const Json<CharT>& json, std::array<T, len>& objs, const std::optional<NameTransfer<CharT>>& transfer) const noexcept
+                inline Try<> operator()(const Json<CharT>& json, std::array<T, len>& objs, const std::optional<NameTransfer<CharT>>& transfer) const noexceptFromJsonValue<OriginType<T>
                 {
                     if (!json.IsArray())
                     {
@@ -468,7 +469,7 @@ namespace ospf
                         usize i{ 0_uz };
                         for (const Json<CharT>& sub_json : json.GetArray())
                         {
-                            static const FromJsonValue<T, CharT> deserializer{};
+                            static const FromJsonValue<OriginType<T>, CharT> deserializer{};
                             OSPF_TRY_GET(obj, deserializer(sub_json, transfer));
                             objs[i] = std::move(obj);
                             ++i;
@@ -495,12 +496,14 @@ namespace ospf
                         {
                             return OSPFError{ OSPFErrCode::DeserializationFail, std::format("invalid array length \"{}\" for \"{}\"", json_array.Size(), TypeInfo<std::array<T, len>>::name()) };
                         }
-                        OSPF_TRY_GET(objs, make_array(boost::make_transform_iterator(json_array.Begin(), [&transfer](const Json<CharT>& sub_json)
-                            {
-                                static const FromJsonValue<T, CharT> deserializer{};
-                                return deserializer(sub_json, transfer);
-                            })));
-                        return std::move(objs);
+                        else
+                        {
+                            return make_array(boost::make_transform_iterator(json_array.Begin(), [&transfer](const Json<CharT>& sub_json) -> Result<T>
+                                {
+                                    static const FromJsonValue<OriginType<T>, CharT> deserializer{};
+                                    return deserializer(sub_json, transfer);
+                                }));
+                        }
                     }
                 }
             };
@@ -521,7 +524,7 @@ namespace ospf
                         objs.reserve(objs.size(), json_array.Size());
                         for (const Json<CharT>& sub_json : json_array)
                         {
-                            static const FromJsonValue<T, CharT> deserializer{};
+                            static const FromJsonValue<OriginType<T>, CharT> deserializer{};
                             OSPF_TRY_GET(obj, deserializer(sub_json, transfer));
                             objs.push_back(std::move(obj));
                         }
@@ -552,7 +555,7 @@ namespace ospf
                         const ArrayView<CharT>& json_array = json.GetArray();
                         for (const Json<CharT>& sub_json : json_array)
                         {
-                            static const FromJsonValue<T, CharT> deserializer{};
+                            static const FromJsonValue<OriginType<T>, CharT> deserializer{};
                             OSPF_TRY_GET(obj, deserializer(sub_json, transfer));
                             objs.push_back(std::move(obj));
                         }
@@ -618,11 +621,11 @@ namespace ospf
                         {
                             return OSPFError{ OSPFErrCode::DeserializationFail, std::format("invalid array length \"{}\" for \"{}\"", json_array.Size(), TypeInfo<ArrayType>::name()) };
                         }
-                        OSPF_TRY_GET(objs, make_array(boost::make_transform_iterator(json_array.Begin(), [&transfer](const Json<CharT>& sub_json)
+                        OSPF_TRY_GET(objs, (make_array<std::optional<T>, len>(boost::make_transform_iterator(json_array.Begin(), [&transfer](const Json<CharT>& sub_json) -> Result<std::optional<T>>
                             {
                                 static const FromJsonValue<std::optional<T>, CharT> deserializer{};
                                 return deserializer(sub_json, transfer);
-                            })));
+                            }))));
                         return ArrayType{ std::move(objs) };
                     }
                 }
@@ -720,11 +723,11 @@ namespace ospf
                         {
                             return OSPFError{ OSPFErrCode::DeserializationFail, std::format("invalid array length \"{}\" for \"{}\"", json_array.Size(), TypeInfo<ArrayType>::name()) };
                         }
-                        OSPF_TRY_GET(objs, make_array(boost::make_transform_iterator(json_array.Begin(), [&transfer](const Json<CharT>& sub_json)
+                        OSPF_TRY_GET(objs, (make_array<pointer::Ptr<T, cat>, len>(boost::make_transform_iterator(json_array.Begin(), [&transfer](const Json<CharT>& sub_json) -> Result<pointer::Ptr<T, cat>>
                             {
                                 static const FromJsonValue<pointer::Ptr<T, cat>, CharT> deserializer{};
                                 return deserializer(sub_json, transfer);
-                            })));
+                            }))));
                         return ArrayType{ std::move(objs) };
                     }
                 }
@@ -778,7 +781,7 @@ namespace ospf
                 template<typename, typename> class C,
                 CharType CharT
             >
-                requires SerializableToJson<T, CharT>
+                requires DeserializableFromJson<T, CharT>
             struct FromJsonValue<tagged_map::TaggedMap<T, E, C>, CharT>
             {
                 using ArrayType = tagged_map::TaggedMap<T, E, C>;
@@ -794,7 +797,7 @@ namespace ospf
                         const ArrayView<CharT>& json_array = json.GetArray();
                         for (const auto& sub_json : json_array)
                         {
-                            static const FromJsonValue<T, CharT> deserializer{};
+                            static const FromJsonValue<OriginType<T>, CharT> deserializer{};
                             OSPF_TRY_GET(obj, deserializer(sub_json, transfer));
                             objs.insert(std::move(obj));
                         }
@@ -818,7 +821,7 @@ namespace ospf
                 template<typename, usize> class C,
                 CharType CharT
             >
-                requires SerializableToJson<T, CharT>
+                requires DeserializableFromJson<T, CharT>
             struct FromJsonValue<value_or_reference_array::StaticValueOrReferenceArray<T, len, cat, cow, C>, CharT>
             {
                 using ArrayType = value_or_reference_array::StaticValueOrReferenceArray<T, len, cat, cow, C>;
@@ -835,9 +838,9 @@ namespace ospf
                         usize i{ 0_uz };
                         for (const Json<CharT>& sub_json : json_array)
                         {
-                            static const FromJsonValue<T, CharT> deserializer{};
+                            static const FromJsonValue<OriginType<T>, CharT> deserializer{};
                             OSPF_TRY_GET(obj, deserializer(sub_json, transfer));
-                            objs[i] = ValOrRef<T, cat>::value(std::move(obj));
+                            objs[i] = ValOrRef<T, cat, cow>::value(std::move(obj));
                             ++i;
 
                             if (i == len)
@@ -862,12 +865,12 @@ namespace ospf
                         {
                             return OSPFError{ OSPFErrCode::DeserializationFail, std::format("invalid array length \"{}\" for \"{}\"", json_array.Size(), TypeInfo<ArrayType>::name()) };
                         }
-                        OSPF_TRY_GET(objs, make_array(boost::make_transform_iterator(json_array.Begin(), [&transfer](const Json<CharT>& sub_json)
+                        OSPF_TRY_GET(objs, (make_array<ValOrRef<T, cat, cow>, len>(boost::make_transform_iterator(json_array.Begin(), [&transfer](const Json<CharT>& sub_json) -> Result<ValOrRef<T, cat, cow>>
                             {
-                                static const FromJsonValue<T, CharT> deserializer{};
+                                static const FromJsonValue<OriginType<T>, CharT> deserializer{};
                                 OSPF_TRY_GET(obj, deserializer(sub_json, transfer));
-                                return ValOrRef<T, cat>::value(std::move(obj));
-                            })));
+                                return ValOrRef<T, cat, cow>::value(std::move(obj));
+                            }))));
                         return ArrayType{ std::move(objs) };
                     }
                 }
@@ -880,7 +883,7 @@ namespace ospf
                 template<typename> class C,
                 CharType CharT
             >
-                requires SerializableToJson<T, CharT>
+                requires DeserializableFromJson<T, CharT>
             struct FromJsonValue<value_or_reference_array::DynamicValueOrReferenceArray<T, cat, cow, C>, CharT>
             {
                 using ArrayType = value_or_reference_array::DynamicValueOrReferenceArray<T, cat, cow, C>;
@@ -900,7 +903,7 @@ namespace ospf
                         }
                         for (const auto& sub_json : json_array)
                         {
-                            static const FromJsonValue<T, CharT> deserializer{};
+                            static const FromJsonValue<OriginType<T>, CharT> deserializer{};
                             OSPF_TRY_GET(obj, deserializer(sub_json, transfer));
                             objs.push_back(ValOrRef<T, cat>::value(std::move(obj)));
                         }

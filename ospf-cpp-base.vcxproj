@@ -133,6 +133,7 @@
     <ClInclude Include="src\ospf\serialization\bytes\serializer.hpp" />
     <ClInclude Include="src\ospf\serialization\bytes\to_value.hpp" />
     <ClInclude Include="src\ospf\serialization\csv.hpp" />
+    <ClInclude Include="src\ospf\serialization\csv\concepts.hpp" />
     <ClInclude Include="src\ospf\serialization\csv\deserializer.hpp" />
     <ClInclude Include="src\ospf\serialization\csv\from_value.hpp" />
     <ClInclude Include="src\ospf\serialization\csv\io.hpp" />
@@ -178,7 +179,7 @@
     <ClCompile Include="src\ospf\serialization\bytes\io_bytes.cpp" />
     <ClCompile Include="src\ospf\serialization\bytes\to_value_bytes.cpp" />
     <ClCompile Include="src\ospf\serialization\csv\from_value_csv.cpp" />
-    <ClCompile Include="src\ospf\serialization\csv\io_csv.cpp" />
+    <ClCompile Include="src\ospf\serialization\csv\concepts.cpp" />
     <ClCompile Include="src\ospf\serialization\csv\to_value_csv.cpp" />
     <ClCompile Include="src\ospf\serialization\csv\table.cpp" />
     <ClCompile Include="src\ospf\serialization\json\from_value_json.cpp" />
