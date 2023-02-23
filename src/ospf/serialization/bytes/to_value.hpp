@@ -879,7 +879,7 @@ namespace ospf
                 }
             };
 
-            // todo: big int, decimal and chrono
+            // todo: array<bool>, vector<bool>, deque<bool>, span<bool>, big int, decimal and chrono
         };
     };
 };

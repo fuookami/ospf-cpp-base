@@ -3,7 +3,7 @@
 namespace ospf::data_structure::multi_array::dummy_index
 {
     constexpr DummyIndexEnumerator::DummyIndexEnumerator(ArgRRefType<Continuous1> first, ArgRRefType<Continuous1> last)
-        : _next(npos), _has_next(true), _curr(move<Continuous1>(first)), _end(move<Continuous1>(last))
+        : _next(npos), _has_next(true), _curr(std::in_place_index<0_uz>, move<Continuous1>(first)), _end(std::in_place_index<0_uz>, move<Continuous1>(last))
     {
         if (_curr == _end)
         {
@@ -13,7 +13,7 @@ namespace ospf::data_structure::multi_array::dummy_index
     }
 
     constexpr DummyIndexEnumerator::DummyIndexEnumerator(ArgRRefType<Continuous2> first, ArgRRefType<Continuous2> last, ArgRRefType<Transformer> transformer)
-        : _next(npos), _has_next(true), _curr(move<Continuous2>(first)), _end(move<Continuous2>(last)), _transformer(move<Transformer>(transformer))
+        : _next(npos), _has_next(true), _curr(std::in_place_index<1_uz>, move<Continuous2>(first)), _end(std::in_place_index<1_uz>, move<Continuous2>(last)), _transformer(move<Transformer>(transformer))
     {
         if (_curr == _end)
         {
@@ -36,7 +36,7 @@ namespace ospf::data_structure::multi_array::dummy_index
     }
 
     constexpr DummyIndexEnumerator::DummyIndexEnumerator(ArgRRefType<Discrete1> first, ArgRRefType<Discrete1> last)
-        : _next(npos), _has_next(true), _curr(move<Discrete1>(first)), _end(move<Discrete1>(last))
+        : _next(npos), _has_next(true), _curr(std::in_place_index<2_uz>, move<Discrete1>(first)), _end(std::in_place_index<2_uz>, move<Discrete1>(last))
     {
         if (_curr == _end)
         {
@@ -46,7 +46,7 @@ namespace ospf::data_structure::multi_array::dummy_index
     }
 
     constexpr DummyIndexEnumerator::DummyIndexEnumerator(ArgRRefType<Discrete2> first, ArgRRefType<Discrete2> last, ArgRRefType<Transformer> transformer)
-        : _next(npos), _has_next(true), _curr(move<Discrete2>(first)), _end(move<Discrete2>(last)), _transformer(move<Transformer>(transformer))
+        : _next(npos), _has_next(true), _curr(std::in_place_index<3_uz>, move<Discrete2>(first)), _end(std::in_place_index<3_uz>, move<Discrete2>(last)), _transformer(move<Transformer>(transformer))
     {
         if (_curr == _end)
         {

@@ -219,17 +219,24 @@ namespace ospf
                 template<usize i>
                 inline static Result<std::variant<Ts...>> deserialize(const usize index, const std::basic_string_view<CharT> value) const noexcept
                 {
-                    if constexpr (i == index)
+                    if constexpr (i == VariableTypeList<Ts...>::length)
                     {
-                        using ValueType = OriginType<TypeAt<i, Ts...>>;
-                        static_assert(DeserializableFromCSV<ValueType, CharT>);
-                        static const FromCSVValue<ValueType, CharT> deserializer{};
-                        OSPF_TRY_GET(obj, Deserializer(value));
-                        return std::variant<Ts...>{ std::move(obj) };
+                        return OSPFError{ OSPFErrCode::DeserializationFail, std::format("invalid value \"{}\" for \"{}\"", value, TypeInfo<std::variant<Ts...>>::name()) };
                     }
                     else
                     {
-                        return deserialize<i + 1_uz>(index, value);
+                        if (i == index)
+                        {
+                            using ValueType = OriginType<TypeAt<i, Ts...>>;
+                            static_assert(DeserializableFromCSV<ValueType, CharT>);
+                            static const FromCSVValue<ValueType, CharT> deserializer{};
+                            OSPF_TRY_GET(obj, Deserializer(value));
+                            return std::variant<Ts...>{ std::in_place_index<i>, std::move(obj) };
+                        }
+                        else
+                        {
+                            return deserialize<i + 1_uz>(index, value);
+                        }
                     }
                 }
             };

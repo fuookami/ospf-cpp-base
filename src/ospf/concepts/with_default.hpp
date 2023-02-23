@@ -122,7 +122,7 @@ namespace ospf
                 using ValueType = OriginType<TypeAt<i, Ts...>>;
                 if constexpr (WithDefault<ValueType>)
                 {
-                    return std::variant<Ts...>{ DefaultValue<ValueType>::value };
+                    return std::variant<Ts...>{ std::in_place_index<i>, DefaultValue<ValueType>::value };
                 }
                 else
                 {

@@ -29,11 +29,11 @@ namespace ospf
             {
                 if constexpr (WithDefault<LeftType>)
                 {
-                    return VariantType{ DefaultValue<LeftType>::value() };
+                    return VariantType{ std::in_place_index<0_uz>, DefaultValue<LeftType>::value() };
                 }
                 else if constexpr (WithDefault<RightType>)
                 {
-                    return VariantType{ DefaultValue<RightType>::value() };
+                    return VariantType{ std::in_place_index<1_uz>, DefaultValue<RightType>::value() };
                 }
             }
 
@@ -69,20 +69,20 @@ namespace ospf
                 : _variant(defalt_value()) {}
 
             constexpr Either(ArgCLRefType<LeftType> left_value)
-                : _variant(left_value) {}
+                : _variant(std::in_place_index<0_uz>, left_value) {}
 
             template<typename = void>
                 requires ReferenceFaster<LeftType> && std::movable<LeftType>
             constexpr Either(ArgRRefType<LeftType> left_value)
-                : _variant(move<LeftType>(left_value)) {}
+                : _variant(std::in_place_index<0_uz>, move<LeftType>(left_value)) {}
 
             constexpr Either(ArgCLRefType<RightType> right_value)
-                : _variant(right_value) {}
+                : _variant(std::in_place_index<1_uz>, right_value) {}
 
             template<typename = void>
                 requires ReferenceFaster<LeftType> && std::movable<LeftType>
             constexpr Either(ArgRRefType<RightType> right_value)
-                : _variant(move<RightType>(right_value)) {}
+                : _variant(std::in_place_index<1_uz>, move<RightType>(right_value)) {}
 
             constexpr Either(const Either& ano) = default;
             constexpr Either(Either&& ano) noexcept = default;

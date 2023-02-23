@@ -133,6 +133,10 @@ namespace ospf
                                 }
                             }
                         });
+                    if (err.has_value())
+                    {
+
+                    }
                     return succeed;
                 }
 
@@ -349,23 +353,27 @@ namespace ospf
                 }
 
                 template<usize i>
-                inline static Try<> deserialize(const ArrayView<CharT>& json, std::variant<Ts...>& obj, const usize index, const std::optional<NameTransfer<CharT>>& transfer) noexcept
+                inline static Try<> deserialize(const Json<CharT>& json, std::variant<Ts...>& obj, const usize index, const std::optional<NameTransfer<CharT>>& transfer) noexcept
                 {
                     if constexpr (i == VariableTypeList<Ts...>::length)
                     {
-                        return succeed;
-                    }
-                    else if (i == index)
-                    {
-                        using ValueType = OriginType<decltype(std::get<i>(obj))>;
-                        static_assert(DeserializableFromJson<ValueType, CharT>);
-                        static const FromJsonValue<ValueType, CharT> deserializer{};
-                        OSPF_TRY_EXEC(deserializer(json[i], std::get<i>(obj), transfer));
-                        return succeed;
+                        return OSPFError{ OSPFErrCode::DeserializationFail, std::format("invalid json \"{}\" for \"{}\"", json, TypeInfo<std::variant<Ts...>>::name()) };
                     }
                     else
                     {
-                        return deserialize<i + 1_uz>(json, obj, index, transfer);
+                        if (i == index)
+                        {
+                            using ValueType = OriginType<decltype(std::get<i>(obj))>;
+                            static_assert(DeserializableFromJson<ValueType, CharT>);
+                            static const FromJsonValue<ValueType, CharT> deserializer{};
+                            OSPF_TRY_GET(value, deserializer(json[i], transfer));
+                            obj = std::variant<Ts...>{ std::in_place_index<i>, std::move(value) };
+                            return succeed;
+                        }
+                        else
+                        {
+                            return deserialize<i + 1_uz>(json, obj, index, transfer);
+                        }
                     }
                 }
             };

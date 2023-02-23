@@ -19,6 +19,12 @@ namespace ospf
         template<typename T>
         concept SerializationWritable = serialization_writable<T>;
 
+        template<CharType CharT>
+        struct SerializationWritableTrait<std::basic_string_view<CharT>>
+        {
+            static constexpr const bool value = false;
+        };
+
         template<typename T, reference::ReferenceCategory cat>
         struct SerializationWritableTrait<reference::Ref<T, cat>>
         {

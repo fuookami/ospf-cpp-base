@@ -176,24 +176,31 @@ namespace ospf
                     info.for_each([this, header, &column_map, &err](const auto& field) 
                         {
                             using FieldValueType = OriginType<decltype(field.value(obj))>;
-                            if (err.has_value())
+                            if constexpr (!field.writable() || !serialization_writable<FieldValueType>)
                             {
                                 return;
                             }
-
-                            const auto key = this->_tansfer.has_value() ? (*this->_transfer)(field.key()) : field.key();
-                            const auto it = std::find_if(header.begin(), header.end(), [key](const data_table::DataTableHeader& header)
-                                {
-                                    return header.name() == key;
-                                });
-                            if (it == header.end() && !serialization_nullable<FieldValueType>)
-                            {
-                                err = OSPFError{ OSPFErrCode::DeserializationFail, std::format("lost non-nullable column \"{}\" for type \"{}\"", field.key(), TypeInfo<FieldValueType>::name()) };
-                                return
-                            }
                             else
                             {
-                                column_map.insert({ field.key(), it - header.begin() });
+                                if (err.has_value())
+                                {
+                                    return;
+                                }
+
+                                const auto key = this->_tansfer.has_value() ? (*this->_transfer)(field.key()) : field.key();
+                                const auto it = std::find_if(header.begin(), header.end(), [key](const data_table::DataTableHeader& header)
+                                    {
+                                        return header.name() == key;
+                                    });
+                                if (it == header.end() && !serialization_nullable<FieldValueType>)
+                                {
+                                    err = OSPFError{ OSPFErrCode::DeserializationFail, std::format("lost non-nullable column \"{}\" for type \"{}\"", field.key(), TypeInfo<FieldValueType>::name()) };
+                                    return
+                                }
+                                else
+                                {
+                                    column_map.insert({ field.key(), it - header.begin() });
+                                }
                             }
                         });
                     if (err.has_value())
