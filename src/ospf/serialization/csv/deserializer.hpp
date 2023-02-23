@@ -17,6 +17,8 @@ namespace ospf
     {
         namespace csv
         {
+            // todo: impl multi-thread optimization
+
             template<WithMetaInfo T, CharType CharT = char>
             class Deserializer
             {

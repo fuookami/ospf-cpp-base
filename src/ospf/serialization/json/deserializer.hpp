@@ -12,6 +12,8 @@ namespace ospf
     {
         namespace json
         {
+            // todo: impl multi-thread optimization
+
             template<typename T, CharType CharT = char>
                 requires DeserializableFromJson<T, CharT>
             class Deserializer

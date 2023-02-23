@@ -1,3 +1,12 @@
 ﻿#pragma once
 
-// todo
+namespace ospf
+{
+    inline namespace serialization
+    {
+        namespace bytes
+        {
+            // todo: impl multi-thread optimization
+        };
+    };
+};

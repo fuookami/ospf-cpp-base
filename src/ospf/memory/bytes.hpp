@@ -25,11 +25,11 @@ namespace ospf
             const auto ptr = reinterpret_cast<ubyte*>(&value);
             if (endian == local_endian)
             {
-                std::copy(ptr, ptr + sizeof(T) / address_length, bytes.begin());
+                std::copy(ptr, ptr + sizeof(T), bytes.begin());
             }
             else
             {
-                std::copy(ptr, ptr + sizeof(T) / address_length, bytes.rbegin());
+                std::copy(ptr, ptr + sizeof(T), bytes.rbegin());
             }
             return bytes;
         }
@@ -41,11 +41,11 @@ namespace ospf
             if (endian == local_endian)
             {
                 const auto ptr = reinterpret_cast<ubyte*>(&value);
-                std::copy(ptr, ptr + sizeof(T) / address_length, it);
+                std::copy(ptr, ptr + sizeof(T), it);
             }
             else
             {
-                const auto bytes = sizeof(T) / address_length;
+                const auto bytes = sizeof(T);
                 const auto ptr = reinterpret_cast<ubyte*>(&value) + bytes - 1_iz;
                 for (usize i{ 0_uz }; i != bytes; ++i)
                 {
@@ -102,7 +102,7 @@ namespace ospf
                 }
         inline void from_bytes(It& it, T& value, const Endian endian = local_endian) noexcept
         {
-            const auto bytes = sizeof(T) / address_length;
+            const auto bytes = sizeof(T);
             if (endian == local_endian)
             {
                 const auto ptr = reinterpret_cast<ubyte*>(&value);

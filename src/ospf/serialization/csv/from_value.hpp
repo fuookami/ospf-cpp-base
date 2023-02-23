@@ -1,12 +1,16 @@
 ﻿#pragma once
 
-#include <ospf/basic_definition.hpp>
+#include <ospf/data_structure/optional_array.hpp>
+#include <ospf/data_structure/pointer_array.hpp>
+#include <ospf/data_structure/tagged_map.hpp>
+#include <ospf/data_structure/value_or_reference_array.hpp>
 #include <ospf/functional/result.hpp>
 #include <ospf/meta_programming/type_info.hpp>
+#include <ospf/meta_programming/variable_type_list.hpp>
 #include <ospf/ospf_base_api.hpp>
 #include <ospf/serialization/nullable.hpp>
 #include <ospf/serialization/writable.hpp>
-#include <format>
+#include <deque>
 
 namespace ospf
 {
@@ -169,6 +173,7 @@ namespace ospf
                     }
                 }
 
+            private:
                 template<usize i, usize len, typename... Args>
                 inline static Result<std::tuple<Ts...>> deserialize(const std::span<std::basic_string_view<CharT>, len> strs, Args&&... args) noexcept
                 {
@@ -210,6 +215,7 @@ namespace ospf
                     }
                 }
 
+            private:
                 template<usize i>
                 inline static Result<std::variant<Ts...>> deserialize(const usize index, const std::basic_string_view<CharT> value) const noexcept
                 {

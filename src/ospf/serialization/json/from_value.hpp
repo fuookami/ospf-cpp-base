@@ -4,13 +4,14 @@
 #include <ospf/data_structure/pointer_array.hpp>
 #include <ospf/data_structure/tagged_map.hpp>
 #include <ospf/data_structure/value_or_reference_array.hpp>
-#include <ospf/ospf_base_api.hpp>
 #include <ospf/functional/result.hpp>
 #include <ospf/meta_programming/meta_info.hpp>
+#include <ospf/meta_programming/variable_type_list.hpp>
 #include <ospf/ospf_base_api.hpp>
 #include <ospf/serialization/json/concepts.hpp>
 #include <ospf/serialization/nullable.hpp>
 #include <ospf/serialization/writable.hpp>
+#include <deque>
 
 namespace ospf
 {
@@ -48,7 +49,7 @@ namespace ospf
                 });
 
             template<EnumType T, CharType CharT>
-            struct FromJsonValue<OriginType<T>, CharT>
+            struct FromJsonValue<T, CharT>
             {
                 inline Try<> operator()(const Json<CharT>& json, T& value, const std::optional<NameTransfer<CharT>>& transfer) const noexcept
                 {
@@ -79,7 +80,7 @@ namespace ospf
             };
 
             template<WithMetaInfo T, CharType CharT>
-            struct FromJsonValue<OriginType<T>, CharT>
+            struct FromJsonValue<T, CharT>
             {
                 inline Try<> operator()(const Json<CharT>& json, T& obj, const std::optional<NameTransfer<CharT>>& transfer) const noexcept
                 {
@@ -225,6 +226,7 @@ namespace ospf
                     return std::move(obj);
                 }
 
+            private:
                 template<usize i>
                 inline static Try<> deserialize(const ArrayView<CharT>& json, std::pair<T, U>& obj, const std::optional<NameTransfer<CharT>>& transfer) noexcept
                 {
@@ -271,6 +273,7 @@ namespace ospf
                     return std::move(obj);
                 }
 
+            private:
                 template<usize i>
                 inline static Try<> deserialize(const ArrayView<CharT>& json, std::tuple<Ts...>& obj, const std::optional<NameTransfer<CharT>>& transfer) noexcept
                 {
@@ -323,6 +326,7 @@ namespace ospf
                     return std::move(obj);
                 }
 
+            private:
                 inline static Result<usize> get_index(const Json<CharT>& json, const std::optional<NameTransfer<CharT>>& transfer) noexcept
                 {
                     static const auto key = transfer("index");
@@ -410,6 +414,7 @@ namespace ospf
                     return std::move(obj);
                 }
 
+            private:
                 inline static Result<usize> get_index(const Json<CharT>& json, const std::optional<NameTransfer<CharT>>& transfer) noexcept
                 {
                     static const auto key = transfer("index");

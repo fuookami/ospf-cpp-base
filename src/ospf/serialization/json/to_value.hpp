@@ -7,6 +7,7 @@
 #include <ospf/data_structure/value_or_reference_array.hpp>
 #include <ospf/functional/result.hpp>
 #include <ospf/meta_programming/meta_info.hpp>
+#include <ospf/meta_programming/variable_type_list.hpp>
 #include <ospf/ospf_base_api.hpp>
 #include <ospf/serialization/json/concepts.hpp>
 #include <deque>
@@ -169,6 +170,7 @@ namespace ospf
                     return std::move(json);
                 }
 
+            private:
                 template<usize i>
                 inline static Try<> serialize(Json<CharT>& json, const std::tuple<Ts...>& obj, Document<CharT>& doc, const std::optional<NameTransfer<CharT>>& transfer) noexcept
                 {

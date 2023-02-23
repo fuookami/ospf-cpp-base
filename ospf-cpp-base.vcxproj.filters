@@ -554,15 +554,6 @@
     <ClCompile Include="src\ospf\serialization\json\to_value_json.cpp">
       <Filter>src\ospf\serialization\json</Filter>
     </ClCompile>
-    <ClCompile Include="src\ospf\serialization\bytes\io_bytes.cpp">
-      <Filter>src\ospf\serialization\bytes</Filter>
-    </ClCompile>
-    <ClCompile Include="src\ospf\serialization\bytes\from_value_bytes.cpp">
-      <Filter>src\ospf\serialization\bytes</Filter>
-    </ClCompile>
-    <ClCompile Include="src\ospf\serialization\bytes\to_value_bytes.cpp">
-      <Filter>src\ospf\serialization\bytes</Filter>
-    </ClCompile>
     <ClCompile Include="src\ospf\log\record.cpp">
       <Filter>src\ospf\log</Filter>
     </ClCompile>

@@ -1,4 +1,4 @@
-﻿#pragma once
+﻿    #pragma once
 
 #include <ospf/serialization/csv/io.hpp>
 #include <ospf/serialization/csv/to_value.hpp>
@@ -13,6 +13,8 @@ namespace ospf
     {
         namespace csv
         {
+            // todo: impl multi-thread optimization
+
             template<WithMetaInfo T, CharType CharT = char>
             class Serializer
             {

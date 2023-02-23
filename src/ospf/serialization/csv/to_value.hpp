@@ -1,6 +1,5 @@
 ﻿#pragma once
 
-#include <ospf/basic_definition.hpp>
 #include <ospf/data_structure/optional_array.hpp>
 #include <ospf/data_structure/pointer_array.hpp>
 #include <ospf/data_structure/reference_array.hpp>
@@ -8,6 +7,7 @@
 #include <ospf/data_structure/value_or_reference_array.hpp>
 #include <ospf/functional/result.hpp>
 #include <ospf/memory/pointer/category.hpp>
+#include <ospf/meta_programming/variable_type_list.hpp>
 #include <ospf/ospf_base_api.hpp>
 #include <ospf/serialization/csv/concepts.hpp>
 #include <deque>
@@ -214,6 +214,7 @@ namespace ospf
                     return serialize<0_uz>(os, value);
                 }
 
+            private:
                 template<usize i>
                 inline static Try<> serialize(std::basic_ostringstream<CharT>& os, const std::tuple<Ts...>& value) noexcept
                 {
