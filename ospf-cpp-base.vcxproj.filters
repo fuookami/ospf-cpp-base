@@ -569,5 +569,8 @@
     <ClCompile Include="src\ospf\data_structure\data_table\header.cpp">
       <Filter>src\ospf\data-structure\data_table</Filter>
     </ClCompile>
+    <ClCompile Include="src\ospf\serialization\bytes\header.cpp">
+      <Filter>src\ospf\serialization\bytes</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

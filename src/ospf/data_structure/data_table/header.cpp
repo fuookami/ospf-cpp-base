@@ -76,4 +76,3 @@ namespace ospf::data_structure::data_table
         }
     }
 };
- 

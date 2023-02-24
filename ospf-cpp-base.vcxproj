@@ -175,6 +175,7 @@
     <ClCompile Include="src\ospf\meta_programming\name_transfer\frontend.cpp" />
     <ClCompile Include="src\ospf\parallelism\guard_thread.cpp" />
     <ClCompile Include="src\ospf\parallelism\thread_pool.cpp" />
+    <ClCompile Include="src\ospf\serialization\bytes\header.cpp" />
     <ClCompile Include="src\ospf\serialization\csv\from_value_csv.cpp" />
     <ClCompile Include="src\ospf\serialization\csv\concepts.cpp" />
     <ClCompile Include="src\ospf\serialization\csv\to_value_csv.cpp" />

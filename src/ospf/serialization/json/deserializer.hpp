@@ -1,7 +1,7 @@
 ﻿#pragma once
 
-#include <ospf/serialization/json/io.hpp>
 #include <ospf/serialization/json/from_value.hpp>
+#include <ospf/serialization/json/io.hpp>
 #include <filesystem>
 #include <fstream>
 #include <sstream>

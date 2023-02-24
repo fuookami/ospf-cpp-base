@@ -10,6 +10,7 @@
 #include <ospf/meta_programming/meta_info.hpp>
 #include <ospf/meta_programming/variable_type_list.hpp>
 #include <ospf/serialization/bytes/concepts.hpp>
+#include <ospf/serialization/writable.hpp>
 #include <deque>
 
 namespace ospf
