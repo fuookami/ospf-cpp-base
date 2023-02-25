@@ -84,7 +84,12 @@ namespace ospf
 
             public:
                 Header(const HeaderTag tag, const u8 address_length, const u64 size, std::array<u64, segement_size> segement, std::vector<Shared<SubHeader>> sub_headers, StringHashMap<std::string_view, Shared<SubHeader>> fields)
-                    : _root_tag(tag), _address_length(address_length), _size(size), _segement(std::move(segement)), _fields(std::move(fields)) {}
+                    : _root_tag(tag), _address_length(address_length), _size(size), _field_segement({ 0_uz }), _segement(std::move(segement)), _fields(std::move(fields)) {}
+
+                Header(const HeaderTag tag, const u8 address_length, const u64 size, std::array<usize, segement_size> field_segement, std::array<u64, segement_size> segement, std::vector<Shared<SubHeader>> sub_headers, StringHashMap<std::string_view, Shared<SubHeader>> fields)
+                    : _root_tag(tag), _address_length(address_length), _size(size), _field_segement(std::move(field_segement)), _segement(std::move(segement)), _fields(std::move(fields)) {}
+
+            public:
                 Header(const Header& ano) = default;
                 Header(Header&& ano) noexcept = default;
                 Header& operator=(const Header& rhs) = default;
@@ -107,7 +112,12 @@ namespace ospf
                     return _size;
                 }
 
-                inline const std::array<u64, segement_size>& segement(void) const noexcept
+                inline const std::span<const usize, segement_size> field_segement(void) const noexcept
+                {
+                    return _field_segement;
+                }
+
+                inline const std::span<const u64, segement_size> segement(void) const noexcept
                 {
                     return _segement;
                 }
@@ -163,6 +173,7 @@ namespace ospf
                 HeaderTag _root_tag;
                 u8 _address_length;
                 u64 _size;
+                std::array<usize, segement_size> _field_segement;
                 std::array<u64, segement_size> _segement;
                 std::vector<Shared<SubHeader>> _sub_headers;
                 StringHashMap<std::string_view, Shared<SubHeader>> _fields;

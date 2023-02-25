@@ -129,7 +129,6 @@
     <ClInclude Include="src\ospf\serialization\bytes\deserializer.hpp" />
     <ClInclude Include="src\ospf\serialization\bytes\from_value.hpp" />
     <ClInclude Include="src\ospf\serialization\bytes\header.hpp" />
-    <ClInclude Include="src\ospf\serialization\bytes\io.hpp" />
     <ClInclude Include="src\ospf\serialization\bytes\serializer.hpp" />
     <ClInclude Include="src\ospf\serialization\bytes\to_value.hpp" />
     <ClInclude Include="src\ospf\serialization\csv.hpp" />
