@@ -136,6 +136,16 @@ namespace ospf
                     return bases.empty();
                 }
 
+                inline constexpr const usize size(void) const noexcept
+                {
+                    usize ret{ 0_uz };
+                    for_each([&ret](const auto& field)
+                        {
+                            ++ret;
+                        });
+                    return ret;
+                }
+
                 inline constexpr decltype(auto) virtual_bases(void) const noexcept
                 {
                     return bases.accumulate(SequenceTuple{}, [](const auto& lhs, const auto& rhs)

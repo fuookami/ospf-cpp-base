@@ -18,8 +18,6 @@ namespace ospf
     {
         namespace bytes
         {
-            // todo: impl multi-thread optimization
-
             template<typename T>
                 requires SerializableToBytes<T>
             class Serializer
@@ -49,10 +47,10 @@ namespace ospf
                     to_bytes<usize>(objs.size(), ret.begin() + header_size, _endian);
 #ifdef OSPF_MULTI_THREAD
                     std::vector<std::future<Try<>>> futures;
-                    for (usize i{ 0_uz }; i != Header::segement_size; ++i)
+                    for (usize i{ 0_uz }; i != header.segement_size(); ++i)
                     {
                         const auto bg = header.field_segement()[i];
-                        const auto ed = (i != Header::segement_size - 1_uz) ? header.field_segement()[i + 1_uz] : objs.size();
+                        const auto ed = (i != header.segement_size() - 1_uz) ? header.field_segement()[i + 1_uz] : objs.size();
                         const auto offset = header.size() + address_length + header.segement()[i];
                         futures.push_back(std::async(std::launch::async, [this, bg, ed, offset, &ret, &objs](void) -> Try<>
                             {
@@ -97,16 +95,16 @@ namespace ospf
                     ret.resize(header_size + header.size(), 0_ub);
 #ifdef OSPF_MULTI_THREAD
                     std::vector<std::future<Try<>>> futures;
-                    for (usize i{ 0_uz }; i != Header::segement_size; ++i)
+                    for (usize i{ 0_uz }; i != header.segement_size(); ++i)
                     {
                         const auto bg = header.field_segement()[i];
-                        const auto ed = (i != Header::segement_size - 1_uz) ? header.field_segement()[i + 1_uz] : npos;
-                        const auto offset = header.size() + address_length + header.segement()[i];
+                        const auto ed = (i != header.segement_size() - 1_uz) ? header.field_segement()[i + 1_uz] : npos;
+                        const auto offset = header.size() + header.segement()[i];
                         futures.push_back(std::async(std::launch::async, [this, bg, ed, offset, &ret](void) -> Try<>
                             {
                                 static const meta_info::MetaInfo<ValueType> info{};
                                 std::optional<OSPFError> err;
-                                usize i{ bg };
+                                usize i{ 0_uz };
                                 usize this_offset{ offset };
                                 info.for_each(obj, [this, &i, ed, &this_offset, &ret, &err](const auto& obj, const auto& field)
                                     {
@@ -118,18 +116,21 @@ namespace ospf
                                             return;
                                         }
 
-                                        static const ToBytesValue<FieldValueType> serializer{};
-                                        const auto& value = field.value(obj);
-                                        const auto ret = serializer(value, ret.begin() + this_offset, this->_endian);
-                                        if (ret.is_failed())
+                                        if (i >= bg)
                                         {
-                                            err = std::move(ret).err();
+                                            static const ToBytesValue<FieldValueType> serializer{};
+                                            const auto& value = field.value(obj);
+                                            const auto ret = serializer(value, ret.begin() + this_offset, this->_endian);
+                                            if (ret.is_failed())
+                                            {
+                                                err = std::move(ret).err();
+                                            }
+                                            else
+                                            {
+                                                this_offset += serializer.size(value);
+                                            }
                                         }
-                                        else
-                                        {
-                                            ++i;
-                                            this_offset += serializer.size(value);
-                                        }
+                                        ++i;
                                     });
                                 if (err.has_value())
                                 {
@@ -146,7 +147,7 @@ namespace ospf
                         OSPF_TRY_EXEC(future.get());
                     }
 #else
-                    static const ToBytesValue<std::span<const ValueType, len>> serializer{};
+                    static const ToBytesValue<ValueType> serializer{};
                     serializer(objs, ret.begin() + header_size, _endian);
 #endif
                     return std::move(ret);
@@ -159,7 +160,7 @@ namespace ospf
                     const auto header = make_header(obj);
                     static const ToBytesValue<Header> header_serializer{};
                     header_serializer(header, it, _endian);
-                    static const ToBytesValue<std::span<const ValueType, len>> serializer{};
+                    static const ToBytesValue<ValueType> serializer{};
                     serializer(obj, it, _endian);
                     return succeed;
                 }

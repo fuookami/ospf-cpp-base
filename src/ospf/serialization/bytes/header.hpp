@@ -57,7 +57,7 @@ namespace ospf
             class Header
             {
             public:
-                static constexpr const usize segement_size = 4_uz;
+                static constexpr const usize local_segement_size = 4_uz;
 
             public:
                 template<WithMetaInfo T>
@@ -83,11 +83,11 @@ namespace ospf
                 }
 
             public:
-                Header(const HeaderTag tag, const u8 address_length, const u64 size, std::array<u64, segement_size> segement, std::vector<Shared<SubHeader>> sub_headers, StringHashMap<std::string_view, Shared<SubHeader>> fields)
-                    : _root_tag(tag), _address_length(address_length), _size(size), _field_segement({ 0_uz }), _segement(std::move(segement)), _fields(std::move(fields)) {}
-
-                Header(const HeaderTag tag, const u8 address_length, const u64 size, std::array<usize, segement_size> field_segement, std::array<u64, segement_size> segement, std::vector<Shared<SubHeader>> sub_headers, StringHashMap<std::string_view, Shared<SubHeader>> fields)
-                    : _root_tag(tag), _address_length(address_length), _size(size), _field_segement(std::move(field_segement)), _segement(std::move(segement)), _fields(std::move(fields)) {}
+                Header(const HeaderTag tag, const u8 address_length, const Endian endian, const u64 size, std::vector<usize> field_segement, std::vector<u64> segement, std::vector<Shared<SubHeader>> sub_headers, StringHashMap<std::string_view, Shared<SubHeader>> fields)
+                    : _root_tag(tag), _address_length(address_length), _endian(endian), _size(size), _field_segement(std::move(field_segement)), _segement(std::move(segement)), _fields(std::move(fields)) 
+                {
+                    assert(_field_segement.size() == _segement.size());
+                }
 
             public:
                 Header(const Header& ano) = default;
@@ -107,17 +107,27 @@ namespace ospf
                     return _address_length;
                 }
 
+                inline const Endian endian(void) const noexcept
+                {
+                    return _endian;
+                }
+
                 inline const u64 size(void) const noexcept
                 {
                     return _size;
                 }
 
-                inline const std::span<const usize, segement_size> field_segement(void) const noexcept
+                inline const usize segement_size(void) const noexcept
+                {
+                    return _segement.size();
+                }
+
+                inline const std::span<const u64> field_segement(void) const noexcept
                 {
                     return _field_segement;
                 }
 
-                inline const std::span<const u64, segement_size> segement(void) const noexcept
+                inline const std::span<const u64> segement(void) const noexcept
                 {
                     return _segement;
                 }
@@ -172,9 +182,10 @@ namespace ospf
             private:
                 HeaderTag _root_tag;
                 u8 _address_length;
+                Endian _endian;
                 u64 _size;
-                std::array<usize, segement_size> _field_segement;
-                std::array<u64, segement_size> _segement;
+                std::vector<usize> _field_segement;
+                std::vector<u64> _segement;
                 std::vector<Shared<SubHeader>> _sub_headers;
                 StringHashMap<std::string_view, Shared<SubHeader>> _fields;
             };

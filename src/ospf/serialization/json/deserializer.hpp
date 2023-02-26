@@ -67,7 +67,7 @@ namespace ospf
 
                 template<typename = void>
                     requires std::copy_constructible<ValueType>
-                inline Result<std::vector<ValueType>> parse_array(const Json<CharT>& json, ValueType& origin_obj) const noexcept
+                inline Result<std::vector<ValueType>> parse_array(const Json<CharT>& json, const ValueType& origin_obj) const noexcept
                 {
                     assert(value.IsArray());
                     std::vector<ValueType> ret;
