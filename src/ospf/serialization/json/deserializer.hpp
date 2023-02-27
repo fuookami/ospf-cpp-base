@@ -36,7 +36,6 @@ namespace ospf
                     requires WithMetaInfo<ValueType> && WithDefault<ValueType>
                 inline Result<ValueType> operator()(const Json<CharT>& json) const noexcept
                 {
-                    assert(value.IsObject());
                     static const FromJsonValue<ValueType, CharT> deserializer{};
                     return deserializer(json, _transfer);
                 }
@@ -45,7 +44,6 @@ namespace ospf
                     requires WithMetaInfo<ValueType>
                 inline Try<> operator()(const Json<CharT>& json, ValueType& obj) const noexcept
                 {
-                    assert(value.IsObject());
                     static const FromJsonValue<ValueType, CharT> deserializer{};
                     return deserializer(json, obj, _transfer);
                 }
@@ -54,7 +52,6 @@ namespace ospf
                     requires WithDefault<ValueType>
                 inline Result<std::vector<ValueType>> parse_array(const Json<CharT>& json) const noexcept
                 {
-                    assert(value.IsArray());
                     std::vector<ValueType> ret;
                     static const FromJsonValue<ValueType, CharT> deserializer{};
                     for (const auto& sub_json : json.GetArray())
@@ -69,7 +66,6 @@ namespace ospf
                     requires std::copy_constructible<ValueType>
                 inline Result<std::vector<ValueType>> parse_array(const Json<CharT>& json, const ValueType& origin_obj) const noexcept
                 {
-                    assert(value.IsArray());
                     std::vector<ValueType> ret;
                     static const FromJsonValue<ValueType, CharT> deserializer{};
                     for (const auto& sub_json : json.GetArray())

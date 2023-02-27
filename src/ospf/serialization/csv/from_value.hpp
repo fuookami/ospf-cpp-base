@@ -175,7 +175,7 @@ namespace ospf
 
             private:
                 template<usize i, usize len, typename... Args>
-                inline static Result<std::tuple<Ts...>> deserialize(const std::span<std::basic_string_view<CharT>, len> strs, Args&&... args) noexcept
+                inline static Result<std::tuple<Ts...>> deserialize(const std::span<const std::basic_string_view<CharT>, len> strs, Args&&... args) noexcept
                 {
                     if constexpr (i == VariableTypeList<Ts...>::length)
                     {

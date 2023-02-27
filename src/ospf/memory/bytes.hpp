@@ -54,7 +54,6 @@ namespace ospf
                     --ptr;
                 }
             }
-            return bytes;
         }
 
         template<typename T>

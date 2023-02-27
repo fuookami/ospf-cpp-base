@@ -14,24 +14,34 @@ namespace ospf
         public:
             TypeInfo(void) = delete;
 
-            inline static decltype(auto) info(void)
+            inline static decltype(auto) info(void) noexcept
             {
                 static const auto& ret = typeid(T);
                 return ret;
             }
 
-            inline static decltype(auto) index(void)
+            inline static decltype(auto) index(void) noexcept
             {
                 static const auto ret = std::type_index(info());
                 return ret;
             }
 
-            inline static const std::string_view full_name(void)
+            inline static const ptraddr code(void) noexcept
+            {
+                return reinterpret_cast<const ptraddr>(&info());
+            }
+
+            inline static const usize hash_code(void) noexcept
+            {
+                return info().has_code();
+            }
+
+            inline static const std::string_view full_name(void) noexcept
             {
                 return info().name();
             }
 
-            inline static const std::string_view name(void)
+            inline static const std::string_view name(void) noexcept
             {
                 static const std::string ret = name(index());
                 return ret;

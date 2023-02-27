@@ -32,7 +32,7 @@ namespace ospf
         };
 
         template<typename T, usize len>
-        struct SerializationWritableTrait<std::span<T, len>>
+        struct SerializationWritableTrait<std::span<const T, len>>
         {
             static constexpr const bool value = false;
         };

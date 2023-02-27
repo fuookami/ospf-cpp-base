@@ -387,16 +387,16 @@ namespace ospf
 
             template<typename T, usize len, CharType CharT>
                 requires SerializableToCSV<T, CharT>
-            struct ToCSVValue<std::span<T, len>, CharT>
+            struct ToCSVValue<std::span<const T, len>, CharT>
             {
-                inline Result<std::basic_string<CharT>> operator()(const std::span<T, len> values) const noexcept
+                inline Result<std::basic_string<CharT>> operator()(const std::span<const T, len> values) const noexcept
                 {
                     std::basic_ostringstream<CharT> sout;
                     OSPF_TRY_EXEC(this->operator()(sout, values));
                     return sout.str();
                 }
 
-                inline Try<> operator()(std::basic_ostringstream<CharT>& os, const std::span<T, len> values) const noexcept
+                inline Try<> operator()(std::basic_ostringstream<CharT>& os, const std::span<const T, len> values) const noexcept
                 {
                     static const ToCSVValue<OriginType<T>, CharT> serializer{};
                     for (usize i{ 0_uz }; i != values.size(); ++i)

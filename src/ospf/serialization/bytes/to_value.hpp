@@ -211,7 +211,7 @@ namespace ospf
                 }
 
                 template<usize i, ToValueIter It>
-                inline static Try<> serialize(const std::tuple<Ts...>& value, It& it, const Endian endian) const noexcept
+                inline static Try<> serialize(const std::tuple<Ts...>& value, It& it, const Endian endian) noexcept
                 {
                     if constexpr (i == VariableTypeList<Ts...>::length)
                     {
@@ -382,9 +382,9 @@ namespace ospf
 
             template<typename T, usize len>
                 requires SerializableToBytes<T>
-            struct ToBytesValue<std::span<T, len>>
+            struct ToBytesValue<std::span<const T, len>>
             {
-                inline const usize size(const std::span<T, len>& values) const noexcept
+                inline const usize size(const std::span<const T, len>& values) const noexcept
                 {
                     return address_length + std::accumulate(values.begin(), values.end(), 0_uz, [](const usize lhs, const auto& rhs)
                         {
@@ -394,7 +394,7 @@ namespace ospf
                 }
 
                 template<ToValueIter It>
-                inline Try<> operator()(const std::span<T, len>& values, It& it, const Endian endian) const noexcept
+                inline Try<> operator()(const std::span<const T, len>& values, It& it, const Endian endian) const noexcept
                 {
                     to_bytes<usize>(values.size(), it, endian);
                     for (const auto& value : values)
@@ -575,7 +575,7 @@ namespace ospf
                 requires SerializableToBytes<T>
             struct ToBytesValue<reference_array::DynamicReferenceArray<T, cat, C>>
             {
-                using ArrayType = reference_array::DynamicReferenceArray<T, len, C>;
+                using ArrayType = reference_array::DynamicReferenceArray<T, cat, C>;
 
                 inline const usize size(const ArrayType& values) const noexcept
                 {

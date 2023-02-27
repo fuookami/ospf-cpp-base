@@ -52,9 +52,9 @@ namespace ospf
                     it = _cache1.find(name);
                     if (it == _cache1.cend())
                     {
-                        std::string str{ name };
+                        std::string str{name};
                         const auto il = transfer_frontend(boost::locale::conv::to_utf<CharT>(str, std::locale{}));
-                        it = _cache1.insert(std::make_pair(std::move(str), transfer_backend(std::span{il}))).first;
+                        it = _cache1.insert(std::make_pair(std::move(str), transfer_backend(std::span<const std::string_view>{ il }))).first;
                     }
                     const auto& ret = it->second;
                     _mutex.unlock();
@@ -71,7 +71,7 @@ namespace ospf
                 {
                     std::string str{ name };
                     const auto il = transfer_frontend(boost::locale::conv::to_utf<CharT>(str, std::locale{}));
-                    it = _cache1.insert(std::makie_pair(std::move(str), transfer_backend(std::span{ il }))).first;
+                    it = _cache1.insert(std::makie_pair(std::move(str), transfer_backend(std::span<const std::string_view>{ il }))).first;
                 }
                 return it->second;
 #endif
@@ -93,7 +93,7 @@ namespace ospf
                     if (it == _cache2.cend())
                     {
                         const auto il = transfer_frontend(name);
-                        it = _cache2.insert(std::make_pair(StringType{ name }, transfer_backend(std::span{ il }))).first;
+                        it = _cache2.insert(std::make_pair(StringType{ name }, transfer_backend(std::span<const StringViewType>{ il }))).first;
                     }
                     const auto& ret = it->second;
                     _mutex.unlock();
@@ -109,7 +109,7 @@ namespace ospf
                 if (it == _cache2.cend())
                 {
                     const auto il = transfer_frontend(name);
-                    it = _cache2.insert(std::make_pair(StringType{ name }, transfer_backend(std::span{ il }))).first;
+                    it = _cache2.insert(std::make_pair(StringType{ name }, transfer_backend(std::span<const StringViewType>{ il }))).first;
                 }
                 return it->second;
 #endif
@@ -178,7 +178,7 @@ namespace ospf
                     if (it == _cache.cend())
                     {
                         const auto il = transfer_frontend(name);
-                        it = _cache.insert(std::make_pair(StringType{ name }, transfer_backend(std::span{ il }))).first;
+                        it = _cache.insert(std::make_pair(StringType{ name }, transfer_backend(std::span<const StringViewType>{ il }))).first;
                     }
                     const auto& ret = it->second;
                     _mutex.unlock();
@@ -194,7 +194,7 @@ namespace ospf
                 if (it == _cache.cend())
                 {
                     const auto il = transfer_frontend(name);
-                    it = _cache.insert(std::make_pair(StringType{ name }, transfer_backend(std::span{ il }))).first;
+                    it = _cache.insert(std::make_pair(StringType{ name }, transfer_backend(std::span<const StringViewType>{ il }))).first;
                 }
                 return it->second;
 #endif

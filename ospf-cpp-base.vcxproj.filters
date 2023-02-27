@@ -563,10 +563,10 @@
     <ClCompile Include="src\ospf\meta_programming\name_transfer\backend.cpp">
       <Filter>src\ospf\meta-programming\name_transfer</Filter>
     </ClCompile>
-    <ClCompile Include="src\ospf\data_structure\data_table\header.cpp">
+    <ClCompile Include="src\ospf\data_structure\data_table\data_table_header.cpp">
       <Filter>src\ospf\data-structure\data_table</Filter>
     </ClCompile>
-    <ClCompile Include="src\ospf\serialization\bytes\header.cpp">
+    <ClCompile Include="src\ospf\serialization\bytes\bytes_header.cpp">
       <Filter>src\ospf\serialization\bytes</Filter>
     </ClCompile>
   </ItemGroup>

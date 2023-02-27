@@ -261,7 +261,7 @@ namespace ospf
                     static constexpr const auto dim = ShapeType::dim;
 
                 public:
-                    constexpr DummyAccessEnumerator(const ShapeType& shape, const std::span<DummyIndex, dim> dummy_vector)
+                    constexpr DummyAccessEnumerator(const ShapeType& shape, const std::span<const DummyIndex, dim> dummy_vector)
                         : _has_next(true), _shape(shape), _dummy_vector(dummy_vector), _next(shape.zero())
                     {
                         if constexpr (ShapeType::dim == dynamic_dimension)
@@ -362,7 +362,7 @@ namespace ospf
                 private:
                     bool _has_next;
                     Ref<ShapeType> _shape;
-                    std::span<DummyIndex, dim> _dummy_vector;
+                    std::span<const DummyIndex, dim> _dummy_vector;
                     std::vector<DummyIndexEnumerator> _enumerators;
                     VectorType _next;
                 };

@@ -17,9 +17,9 @@ namespace ospf
             { A::dim } -> DecaySameAs<usize>;
             { array.shape() } -> multi_array::ShapeType;
             { array.get(std::declval<typename A::VectorViewType>()) } -> DecaySameAs<typename A::ValueType>;
-            { array.get(std::declval<std::span<multi_array::dummy_index::DummyIndex, A::dim>>()) } -> DecaySameAs<typename A::ValueType>;
+            { array.get(std::declval<std::span<const multi_array::dummy_index::DummyIndex, A::dim>>()) } -> DecaySameAs<typename A::ValueType>;
             { array[std::declval<typename A::VectorViewType>()] } -> DecaySameAs<typename A::ValueType>;
-            { array[std::declval<std::span<multi_array::dummy_index::DummyIndex, A::dim>>()] } -> DecaySameAs<typename A::ValueType>;
+            { array[std::declval<std::span<const multi_array::dummy_index::DummyIndex, A::dim>>()] } -> DecaySameAs<typename A::ValueType>;
             { array.begin() } -> std::forward_iterator;
             { array.end() } -> std::forward_iterator;
             { array.rbegin() } -> std::forward_iterator;
@@ -89,7 +89,7 @@ namespace ospf
 
                 static constexpr const auto dim = ShapeType::dim;
                 using DummyVectorType = std::conditional_t<dim == dynamic_dimension, std::vector<DummyIndex>, std::array<DummyIndex, dim>>;
-                using DummyVectorViewType = std::span<DummyIndex, dim>;
+                using DummyVectorViewType = std::span<const DummyIndex, dim>;
 
             protected:
                 constexpr MultiArrayImpl(void) = default;

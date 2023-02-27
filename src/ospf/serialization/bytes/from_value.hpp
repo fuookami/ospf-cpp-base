@@ -174,8 +174,8 @@ namespace ospf
                 {
                     static const FromBytesValue<T> deserializer1{};
                     static const FromBytesValue<U> deserializer1{};
-                    OSPF_TRY_EXEC(value1, deserializer1(it, address_length, endian));
-                    OSPF_TRY_EXEC(value2, deserializer2(it, address_length, endian));
+                    OSPF_TRY_GET(value1, deserializer1(it, address_length, endian));
+                    OSPF_TRY_GET(value2, deserializer2(it, address_length, endian));
                     return std::pair<T, U>{ std::move(value1), std::move(value2) };
                 }
             };
@@ -195,7 +195,7 @@ namespace ospf
                 {
                     if (i == VariableTypeList<Ts...>::length)
                     {
-                        return std::tuple<Ts...>{ std::foward<Args>(args)... };
+                        return std::tuple<Ts...>{ std::forward<Args>(args)... };
                     }
                     else
                     {
@@ -468,7 +468,7 @@ namespace ospf
                     ArrayType objs;
                     for (const auto _ : 0_uz To size)
                     {
-                        static const FromBytesValue<pointer::Ptr<T, cat>> deserializer{};
+                        static const FromBytesValue<OriginType<T>> deserializer{};
                         OSPF_TRY_GET(obj, deserializer(it, address_length, endian));
                         objs.insert(std::move(obj));
                     }
@@ -498,7 +498,7 @@ namespace ospf
                     }
                     OSPF_TRY_GET(objs, (make_array<ValOrRef<T, cat, cow>, len>([&it, address_length, endian](const usize _) -> Result<ValOrRef<T, cat, cow>>
                         {
-                            static const FromBytesValue<T> deserializer{};
+                            static const FromBytesValue<OriginType<T>> deserializer{};
                             OSPF_TRY_GET(obj, deserializer(it, address_length, endian));
                             return ValOrRef<T, cat, cow>::value(std::move(obj));
                         })));
@@ -528,9 +528,9 @@ namespace ospf
                     }
                     for (const auto _ : 0_uz To size)
                     {
-                        static const FromBytesValue<T> deserializer{};
+                        static const FromBytesValue<OriginType<T>> deserializer{};
                         OSPF_TRY_GET(obj, deserializer(it, address_length, endian));
-                        objs.push_back(ValOrRef<T, cat, cow>::value(std::move(obk)));
+                        objs.push_back(ValOrRef<T, cat, cow>::value(std::move(obj)));
                     }
                     return std::move(objs);
                 }

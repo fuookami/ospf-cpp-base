@@ -294,9 +294,9 @@ namespace ospf
 
             template<typename T, usize len, CharType CharT>
                 requires SerializableToJson<T, CharT>
-            struct ToJsonValue<std::span<T, len>, CharT>
+            struct ToJsonValue<std::span<const T, len>, CharT>
             {
-                inline Result<Json<CharT>> operator()(const std::span<T, len>& objs, Document<CharT>& doc, const std::optional<NameTransfer<CharT>>& transfer) const noexcept
+                inline Result<Json<CharT>> operator()(const std::span<const T, len>& objs, Document<CharT>& doc, const std::optional<NameTransfer<CharT>>& transfer) const noexcept
                 {
                     Json<CharT> json{ rapidjson::kArrayType };
                     static const ToJsonValue<OriginType<T>, CharT> serializer{};

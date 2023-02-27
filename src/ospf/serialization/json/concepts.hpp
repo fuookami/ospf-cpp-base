@@ -19,6 +19,12 @@ namespace ospf
             using Json = rapidjson::GenericValue<rapidjson::UTF8<CharT>>;
 
             template<CharType CharT>
+            using Object = rapidjson::GenericObject<false, Json<CharT>>;
+
+            template<CharType CharT>
+            using ObjectView = rapidjson::GenericObject<true, Json<CharT>>;
+
+            template<CharType CharT>
             using Array = rapidjson::GenericArray<false, Json<CharT>>;
 
             template<CharType CharT>

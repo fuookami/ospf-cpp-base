@@ -358,7 +358,7 @@ namespace ospf
                 using VectorType = typename ShapeType::VectorType;
                 using VectorViewType = typename ShapeType::VectorViewType;
                 using DummyVectorType = std::vector<DummyIndex>;
-                using DummyVectorViewType = std::span<DummyIndex>;
+                using DummyVectorViewType = std::span<const DummyIndex>;
 
                 using IterType = MultiArrayViewIterator<MultiArrayView>;
                 using ConstIterType = MultiArrayViewConstIterator<MultiArrayView>;
