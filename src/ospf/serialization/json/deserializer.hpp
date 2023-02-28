@@ -52,6 +52,15 @@ namespace ospf
                     requires WithDefault<ValueType>
                 inline Result<std::vector<ValueType>> parse_array(const Json<CharT>& json) const noexcept
                 {
+                    if (json.IsNull())
+                    {
+                        return std::vector<ValueType>{};
+                    }
+                    if (!json.IsArray())
+                    {
+
+                    }
+
                     std::vector<ValueType> ret;
                     static const FromJsonValue<ValueType, CharT> deserializer{};
                     for (const auto& sub_json : json.GetArray())
@@ -66,6 +75,15 @@ namespace ospf
                     requires std::copy_constructible<ValueType>
                 inline Result<std::vector<ValueType>> parse_array(const Json<CharT>& json, const ValueType& origin_obj) const noexcept
                 {
+                    if (json.IsNull())
+                    {
+                        return std::vector<ValueType>{};
+                    }
+                    if (!json.IsArray())
+                    {
+
+                    }
+
                     std::vector<ValueType> ret;
                     static const FromJsonValue<ValueType, CharT> deserializer{};
                     for (const auto& sub_json : json.GetArray())

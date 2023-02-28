@@ -41,11 +41,11 @@ namespace ospf
             concept DeserializableFromJson = CharType<CharT> 
                 && (requires (const FromJsonValue<OriginType<T>, CharT>& deserializer)
                 {
-                    { deserializer(std::declval<Json<CharT>>(), std::declval<T>(), std::declval<std::optional<NameTransfer<CharT>>>()) } -> DecaySameAs<Try<>>;
+                    { deserializer(std::declval<Json<CharT>>(), std::declval<OriginType<T>>(), std::declval<std::optional<NameTransfer<CharT>>>()) } -> DecaySameAs<Try<>>;
                 }) 
-                && (!WithDefault<T> || requires (const FromJsonValue<OriginType<T>, CharT>& deserializer)
+                && (!WithDefault<OriginType<T>> || requires (const FromJsonValue<OriginType<T>, CharT>& deserializer)
                 {
-                    { deserializer(std::declval<Json<CharT>>(), std::declval<std::optional<NameTransfer<CharT>>>()) } -> DecaySameAs<Result<T>>;
+                    { deserializer(std::declval<Json<CharT>>(), std::declval<std::optional<NameTransfer<CharT>>>()) } -> DecaySameAs<Result<OriginType<T>>>;
                 });
 
             template<EnumType T, CharType CharT>
@@ -84,6 +84,22 @@ namespace ospf
             {
                 inline Try<> operator()(const Json<CharT>& json, T& obj, const std::optional<NameTransfer<CharT>>& transfer) const noexcept
                 {
+                    if (json.IsNull())
+                    {
+                        if constexpr (serialization_nullable<T>)
+                        {
+                            return succeed;
+                        }
+                        else
+                        {
+                            return OSPFError{ OSPFErrCode::DeserializationFail, std::format("invlid json for type {}", json, TypeInfo<T>::name()) };
+                        }
+                    }
+                    if (!json.IsObject())
+                    {
+                        return OSPFError{ OSPFErrCode::DeserializationFail, std::format("invlid json for type {}", json, TypeInfo<T>::name()) };
+                    }
+
                     static constexpr const meta_info::MetaInfo<T> info{};
                     std::optional<OSPFError> err;
                     info.for_each(obj, [&err, &json, &transfer](auto& obj, const auto& field)
@@ -135,9 +151,12 @@ namespace ospf
                         });
                     if (err.has_value())
                     {
-
+                        return std::move(err).value();
                     }
-                    return succeed;
+                    else
+                    {
+                        return succeed;
+                    }
                 }
 
                 template<typename = void>

@@ -40,7 +40,7 @@ namespace ospf
             concept DeserializableFromCSV = CharType<CharT>
                 && requires (const FromCSVValue<OriginType<T>, CharT>& deserializer)
                 {
-                    { deserializer(std::declval<std::basic_string_view<CharT>>()) } -> DecaySameAs<Result<T>>;
+                    { deserializer(std::declval<std::basic_string_view<CharT>>()) } -> DecaySameAs<Result<OriginType<T>>>;
                 };
 
             template<EnumType T, CharType CharT>

@@ -23,13 +23,14 @@ namespace ospf
             struct ToBytesValue;
 
             template<typename T>
-            concept SerializableToBytes = requires (const ToBytesValue<T> serializer)
+            concept SerializableToBytes = requires (const ToBytesValue<OriginType<T>> serializer, Bytes<>::iterator it)
             {
-                { serializer.size(std::declval<T>()) } -> DecaySameAs<usize>;
-                { serializer(std::declval<T>(), std::declval<std::vector<ubyte>::iterator>(), std::declval<Endian>()) } -> DecaySameAs<Try<>>;
+                { serializer.size(std::declval<OriginType<T>>()) } -> DecaySameAs<usize>;
+                { serializer(std::declval<OriginType<T>>(), it, std::declval<Endian>()) } -> DecaySameAs<Try<>>;
             };
 
             template<EnumType T>
+                requires SerializableToBytes<magic_enum::underlying_type_t<T>>
             struct ToBytesValue<T>
             {
                 using ValueType = magic_enum::underlying_type_t<T>;
@@ -42,7 +43,7 @@ namespace ospf
                 template<ToValueIter It>
                 inline Try<> operator()(const T value, It& it, const Endian endian) const noexcept
                 {
-                    static constexpr const ToBytesValue<ValueType> serializer{};
+                    static const ToBytesValue<ValueType> serializer{};
                     return serializer(static_cast<ValueType>(value, it, endian));
                 }
             };
@@ -384,7 +385,7 @@ namespace ospf
                 requires SerializableToBytes<T>
             struct ToBytesValue<std::span<const T, len>>
             {
-                inline const usize size(const std::span<const T, len>& values) const noexcept
+                inline const usize size(const std::span<const T, len> values) const noexcept
                 {
                     return address_length + std::accumulate(values.begin(), values.end(), 0_uz, [](const usize lhs, const auto& rhs)
                         {
@@ -394,7 +395,7 @@ namespace ospf
                 }
 
                 template<ToValueIter It>
-                inline Try<> operator()(const std::span<const T, len>& values, It& it, const Endian endian) const noexcept
+                inline Try<> operator()(const std::span<const T, len> values, It& it, const Endian endian) const noexcept
                 {
                     to_bytes<usize>(values.size(), it, endian);
                     for (const auto& value : values)

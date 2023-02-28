@@ -42,7 +42,7 @@ namespace ospf
             concept SerializableToJson = CharType<CharT> 
                 && requires (const ToJsonValue<OriginType<T>, CharT> serializer)
                 {
-                    { serializer(std::declval<T>(), std::declval<Document<CharT>>(), std::declval<std::optional<NameTransfer<CharT>>>()) } -> DecaySameAs<Result<Json<CharT>>>;
+                    { serializer(std::declval<OriginType<T>>(), std::declval<Document<CharT>>(), std::declval<std::optional<NameTransfer<CharT>>>()) } -> DecaySameAs<Result<Json<CharT>>>;
                 };
 
             template<EnumType T, CharType CharT>

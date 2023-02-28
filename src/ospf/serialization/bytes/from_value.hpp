@@ -23,9 +23,9 @@ namespace ospf
             struct FromBytesValue;
 
             template<typename T>
-            concept DeserializableFromBytes = requires (const ToBytesValue<T> deserializer)
+            concept DeserializableFromBytes = requires (const FromBytesValue<OriginType<T>> deserializer, Bytes<>::iterator it)
             {
-                { deserializer(std::declval<std::vector<ubyte>::iterator>(), std::declval<usize>, std::declval<Endian>()) } -> DecaySameAs<Result<T>>;
+                { deserializer(it, std::declval<usize>, std::declval<Endian>()) } -> DecaySameAs<Result<OriginType<T>>>;
             };
 
             template<FromValueIter It>
@@ -48,10 +48,10 @@ namespace ospf
             }
 
             template<EnumType T>
+                requires DeserializableFromBytes<magic_enum::underlying_type_t<T>>
             struct FromBytesValue<T>
             {
                 using ValueType = magic_enum::underlying_type_t<T>;
-                static_assert(DeserializableFromBytes<ValueType>);
 
                 template<FromValueIter It>
                 inline Result<T> operator()(It& it, const usize address_length, const Endian endian) const noexcept
