@@ -1,3 +1,7 @@
 ﻿#include <ospf/log/record.hpp>
 
-// todo
+namespace ospf::log
+{
+    template class LogRecord<char>;
+    template class LogRecord<wchar>;
+};

@@ -10,7 +10,7 @@ namespace ospf
 {
     inline namespace log
     {
-        enum LogLevel : u8
+        enum class LogLevel : u8
         {
             Trace = 0_u8,
             Debug = 1_u8,

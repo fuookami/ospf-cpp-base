@@ -441,7 +441,7 @@
     <ClInclude Include="src\ospf\log\record.hpp">
       <Filter>src\ospf\log</Filter>
     </ClInclude>
-    <ClInclude Include="src\ospf\log\impl.hpp">
+    <ClInclude Include="src\ospf\log\multi_thread_impl.hpp">
       <Filter>src\ospf\log</Filter>
     </ClInclude>
     <ClInclude Include="src\ospf\log\console.hpp">
@@ -486,6 +486,30 @@
     <ClInclude Include="src\ospf\serialization\csv\io.hpp">
       <Filter>src\ospf\serialization\csv</Filter>
     </ClInclude>
+    <ClInclude Include="src\ospf\parallelism\result.hpp">
+      <Filter>src\ospf\parallelism</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ospf\parallelism\async.hpp">
+      <Filter>src\ospf\parallelism</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ospf\memory\encryption.hpp">
+      <Filter>src\ospf\memory</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ospf\memory\encoding.hpp">
+      <Filter>src\ospf\memory</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ospf\string\decoding.hpp">
+      <Filter>src\ospf\string</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ospf\string\transcoding.hpp">
+      <Filter>src\ospf\string</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ospf\log\interface.hpp">
+      <Filter>src\ospf\log</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ospf\string\format.hpp">
+      <Filter>src\ospf\string</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\ospf\system_info.cpp">
@@ -513,9 +537,6 @@
       <Filter>src\ospf</Filter>
     </ClCompile>
     <ClCompile Include="src\ospf\parallelism\guard_thread.cpp">
-      <Filter>src\ospf\parallelism</Filter>
-    </ClCompile>
-    <ClCompile Include="src\ospf\parallelism\thread_pool.cpp">
       <Filter>src\ospf\parallelism</Filter>
     </ClCompile>
     <ClCompile Include="src\ospf\functional\result.cpp">
@@ -551,9 +572,6 @@
     <ClCompile Include="src\ospf\serialization\json\to_value_json.cpp">
       <Filter>src\ospf\serialization\json</Filter>
     </ClCompile>
-    <ClCompile Include="src\ospf\log\record.cpp">
-      <Filter>src\ospf\log</Filter>
-    </ClCompile>
     <ClCompile Include="src\ospf\string\regex.cpp">
       <Filter>src\ospf\string</Filter>
     </ClCompile>
@@ -568,6 +586,12 @@
     </ClCompile>
     <ClCompile Include="src\ospf\serialization\bytes\bytes_header.cpp">
       <Filter>src\ospf\serialization\bytes</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ospf\log\record.cpp">
+      <Filter>src\ospf\log</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ospf\log\multi_thread_impl.cpp">
+      <Filter>src\ospf\log</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

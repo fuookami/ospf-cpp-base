@@ -1,6 +1,7 @@
 ﻿#pragma once
 
 #include <ospf/functional/result.hpp>
+#include <ospf/string/format.hpp>
 #include <rapidjson/document.h>
 #include <rapidjson/istreamwrapper.h>
 #include <rapidjson/ostreamwrapper.h>
@@ -36,7 +37,8 @@ namespace ospf
                 rapidjson::ParseResult ok = doc.ParseStream(isw);
                 if (!ok)
                 {
-                    return OSPFError{ OSPFErrCode::DeserializationFail, std::format("{} at {}", rapidjson::GetParseError_En(ok.Code()), ok.Offset()) };
+                    static const auto fmt = boost::locale::conv::to_utf<CharT>("{} at {}", std::locale{});
+                    return OSPFError{ OSPFErrCode::DeserializationFail, std::vformat(fmt, make_format_args<CharT>(rapidjson::GetParseError_En(ok.Code()), ok.Offset())) };
                 }
                 else
                 {

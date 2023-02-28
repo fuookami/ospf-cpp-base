@@ -21,7 +21,7 @@ namespace ospf
             {
                 static StringHashMap<std::string_view, std::basic_string<CharT>> cache;
                 const auto str = magic_enum::enum_name<T>(value);
-                const auto it = cache.find(str);
+                auto it = cache.find(str);
                 if (it == cache.end())
                 {
                     it = cache.insert({ str, boost::locale::conv::to_utf<CharT>(std::string{ str }, std::locale{}) }).first;
@@ -40,11 +40,11 @@ namespace ospf
             else
             {
                 static StringHashMap<std::basic_string<CharT>, std::optional<T>> cache;
-                const auto it = cache.find(str);
+                auto it = cache.find(str);
                 if (it == cache.end())
                 {
                     const auto wstr = std::basic_string<CharT>{ str };
-                    const auto name = boost::locale::conv::to_utf<CharT>(wstr, std::locale{});
+                    const auto name = boost::locale::conv::from_utf(wstr, std::locale{});
                     const auto value = magic_enum::enum_cast<T>(name);
                     it = cache.insert({ std::move(wstr), value }).first;
                 }
