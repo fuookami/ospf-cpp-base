@@ -25,15 +25,31 @@ namespace ospf
             {
             case Encoding::BASE32:
             {
+                Base32Encoder encoder;
+                usize size = encoder.PutMessageEnd(reinterpret_cast<CryptoPP::byte*>(bytes.data()), bytes.size(), -1, true);
+                if (!encoder.AnyRetrievable())
+                {
+                    return OSPFError{ OSPFErrCode::ApplicationError, "failed to encoding by base32" };
+                }
+                const auto size = static_cast<usize>(encoder.MaxRetrievable());
                 std::string ret;
-                StringSource ss{ bytes.data(), bytes.size(), true, new Base32Encoder{ new StringSink{ ret } } };
-                return ret;
+                ret.resize(size, '\0');
+                encoder.Get((reinterpret_cast<CryptoPP::byte*>(ret.data())), size);
+                return std::move(ret);
             }
             case Encoding::BASE64:
             {
+                Base64Encoder encoder;
+                usize size = encoder.PutMessageEnd(reinterpret_cast<CryptoPP::byte*>(bytes.data()), bytes.size(), -1, true);
+                if (!encoder.AnyRetrievable())
+                {
+                    return OSPFError{ OSPFErrCode::ApplicationError, "failed to encoding by base64" };
+                }
+                const auto size = static_cast<usize>(encoder.MaxRetrievable());
                 std::string ret;
-                StringSource ss{ bytes.data(), bytes.size(), true, new Base64Encoder{ new StringSink{ ret } } };
-                return ret;
+                ret.resize(size, '\0');
+                encoder.Get((reinterpret_cast<CryptoPP::byte*>(ret.data())), size);
+                return std::move(ret);
             }
             default:
                 break;
@@ -59,7 +75,7 @@ namespace ospf
                 Bytes<> ret;
                 ret.resize(size, 0_ub);
                 decoder.Get((reinterpret_cast<CryptoPP::byte*>(ret.data())), size);
-                return ret;
+                return std::move(ret);
             }
             case Encoding::BASE64:
             {
@@ -73,7 +89,7 @@ namespace ospf
                 Bytes<> ret;
                 ret.resize(size, 0_ub);
                 decoder.Get((reinterpret_cast<CryptoPP::byte*>(ret.data())), size);
-                return ret;
+                return std::move(ret);
             }
             default:
                 break;

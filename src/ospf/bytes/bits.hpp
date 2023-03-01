@@ -7,7 +7,7 @@
 
 namespace ospf
 {
-    inline namespace memory
+    inline namespace bytes
     {
         namespace bits
         {

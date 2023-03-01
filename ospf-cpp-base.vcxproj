@@ -22,7 +22,7 @@
     <ClInclude Include="src\ospf\auto_link.hpp" />
     <ClInclude Include="src\ospf\basic_definition.hpp" />
     <ClInclude Include="src\ospf\bytes.hpp" />
-    <ClInclude Include="src\ospf\bytes\abstract.hpp" />
+    <ClInclude Include="src\ospf\bytes\abstraction.hpp" />
     <ClInclude Include="src\ospf\bytes\auto_link.hpp" />
     <ClInclude Include="src\ospf\bytes\bits.hpp" />
     <ClInclude Include="src\ospf\bytes\bytes.hpp" />
@@ -91,6 +91,7 @@
     <ClInclude Include="src\ospf\log\level.hpp" />
     <ClInclude Include="src\ospf\log\record.hpp" />
     <ClInclude Include="src\ospf\log\string.hpp" />
+    <ClInclude Include="src\ospf\mail.hpp" />
     <ClInclude Include="src\ospf\memory.hpp" />
     <ClInclude Include="src\ospf\memory\pointer.hpp" />
     <ClInclude Include="src\ospf\memory\pointer\category.hpp" />

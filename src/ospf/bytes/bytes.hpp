@@ -8,7 +8,7 @@
 
 namespace ospf
 {
-    inline namespace memory
+    inline namespace bytes
     {
         template<usize len = npos>
         using Bytes = std::conditional_t<
