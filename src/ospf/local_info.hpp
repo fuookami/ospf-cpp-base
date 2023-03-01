@@ -96,13 +96,13 @@ namespace ospf
         USA,
     };
 
-    enum Charset : u8
+    enum class Charset : u8
     {
         ASCII,
         GB2312,
         GBK,
-        Unicode,
-        UTF8
+        UTF8,
+        UTF16
     };
 
 #ifdef OSPF_LANG_EN
@@ -126,4 +126,28 @@ namespace ospf
 #elif defined(OSPF_COUNTRY_REGION_USA)
     static constexpr CountryRegion default_country_region = CountryRegion::USA;
 #endif
+
+    static constexpr Charset default_charset = Charset::UTF8;
+};
+
+namespace magic_enum::customize
+{
+    template<>
+    constexpr customize_t enum_name<ospf::Charset>(const ospf::Charset value) noexcept
+    {
+        switch (value) {
+        case ospf::Charset::ASCII:
+            return "ASCII";
+        case ospf::Charset::GB2312:
+            return "GB2312";
+        case ospf::Charset::GBK:
+            return "GBK";
+        case ospf::Charset::UTF8:
+            return "UTF-8";
+        case ospf::Charset::UTF16:
+            return "UTF-16";
+        default:
+            return default_tag;
+        }
+    }
 };
