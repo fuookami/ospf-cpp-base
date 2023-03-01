@@ -78,6 +78,7 @@
     <ClInclude Include="src\ospf\log\console.hpp" />
     <ClInclude Include="src\ospf\log\file.hpp" />
     <ClInclude Include="src\ospf\log\interface.hpp" />
+    <ClInclude Include="src\ospf\log\logger.hpp" />
     <ClInclude Include="src\ospf\log\multi_thread_impl.hpp" />
     <ClInclude Include="src\ospf\log\level.hpp" />
     <ClInclude Include="src\ospf\log\record.hpp" />
@@ -175,8 +176,11 @@
     <ClCompile Include="src\ospf\functional\range_bounds.cpp" />
     <ClCompile Include="src\ospf\functional\result.cpp" />
     <ClCompile Include="src\ospf\jni\jstring.cpp" />
+    <ClCompile Include="src\ospf\log\console_logger.cpp" />
+    <ClCompile Include="src\ospf\log\file_logger.cpp" />
     <ClCompile Include="src\ospf\log\multi_thread_impl.cpp" />
     <ClCompile Include="src\ospf\log\record.cpp" />
+    <ClCompile Include="src\ospf\log\string_logger.cpp" />
     <ClCompile Include="src\ospf\memory\bits.cpp" />
     <ClCompile Include="src\ospf\meta_programming\name_transfer.cpp" />
     <ClCompile Include="src\ospf\meta_programming\name_transfer\backend.cpp" />

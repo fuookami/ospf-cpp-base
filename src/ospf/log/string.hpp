@@ -12,12 +12,56 @@ namespace ospf
             LoggerMultiThread mt = OSPF_BASE_MULTI_THREAD,
             CharType CharT = char
         >
-        class StringLogger
-            : public log_detail::LoggerImpl<mt, CharT, FileLogger<mt, CharT>>
+        class DynStringLogger
+            : public log_detail::DynLoggerImpl<mt, CharT, DynStringLogger<mt, CharT>>
         {
+            using Impl = log_detail::DynLoggerImpl<mt, CharT, DynStringLogger<mt, CharT>>;
+
+        public:
+            using typename Impl::RecordType;
+            using typename Impl::StringType;
+            using typename Impl::StringViewType;
+
+        public:
+            DynStringLogger(const LogLevel lowest_level)
+                : Impl(lowest_level), _sout(), _writer(RecordType::default_writer(_sout)) {}
+            DynStringLogger(const LogLevel lowest_level, const RecordType::WriterGenerator& writer_generator)
+                : Impl(lowest_level), _sout(), _writer(writer_generator(_sout)) {}
+            DynStringLogger(const DynStringLogger& ano) = delete;
+            DynStringLogger(DynStringLogger&& ano) noexcept = default;
+            DynStringLogger& operator=(const DynStringLogger& rhs) = delete;
+            DynStringLogger& operator=(DynStringLogger&& rhs) = delete;
+            ~DynStringLogger(void) = default;
+
+        public:
+            inline StringType str(void) noexcept
+            {
+                return _sout.str();
+            }
+
+            inline void set_writer(const RecordType::WriterGenerator& writer_generator) noexcept
+            {
+                if constexpr (mt == on)
+                {
+                    this->flush();
+                }
+                _writer = writer_generator(_sout);
+            }
+
+        OSPF_CRTP_PERMISSION:
+            RecordType make_record(const LogLevel level, StringType message) const noexcept
+            {
+                return RecordType{ level, std::move(message), _writer };
+            }
+
+            void write_message(StringType message) noexcept
+            {
+                _sout << std::move(message);
+            }
+
         private:
             std::basic_ostringstream<CharT> _sout;
-            LogRecord::Writer _writer;
+            RecordType::Writer _writer;
         };
 
         template<
@@ -25,12 +69,91 @@ namespace ospf
             LoggerMultiThread mt = OSPF_BASE_MULTI_THREAD,
             CharType CharT = char
         >
-        class StaticStringLogger
-            : public log_detail::StaticLoggerImpl<lowest_level, mt, CharT, FileLogger<mt, CharT>>
+        class StringLogger
+            : public log_detail::LoggerImpl<lowest_level, mt, CharT, StringLogger<mt, CharT>>
         {
+            using Impl = log_detail::LoggerImpl<lowest_level, mt, CharT, StringLogger<mt, CharT>>;
+
+        public:
+            using typename Impl::RecordType;
+            using typename Impl::StringType;
+            using typename Impl::StringViewType;
+
+        public:
+            StringLogger(void)
+                : _sout(), _writer(RecordType::default_writer(_sout)) {}
+            StringLogger(const RecordType::WriterGenerator& writer_generator)
+                : _sout(), _writer(writer_generator(_sout)) {}
+            StringLogger(const StringLogger& ano) = delete;
+            StringLogger(StringLogger&& ano) noexcept = default;
+            StringLogger& operator=(const StringLogger& rhs) = delete;
+            StringLogger& operator=(StringLogger&& rhs) = delete;
+            ~StringLogger(void) = default;
+
+        public:
+            inline StringType str(void) noexcept
+            {
+                return _sout.str();
+            }
+
+            inline void set_writer(const RecordType::WriterGenerator& writer_generator) noexcept
+            {
+                if constexpr (mt == on)
+                {
+                    this->flush();
+                }
+                _writer = writer_generator(_sout);
+            }
+
+        OSPF_CRTP_PERMISSION:
+            RecordType make_record(const LogLevel level, StringType message) const noexcept
+            {
+                return RecordType{ level, std::move(message), _writer };
+            }
+
+            void write_message(StringType message) noexcept
+            {
+                _sout << std::move(message);
+            }
+
         private:
             std::basic_ostringstream<CharT> _sout;
-            LogRecord::Writer _writer;
+            RecordType::Writer _writer;
         };
+
+        extern template class DynStringLogger<on, char>;
+        extern template class DynStringLogger<off, char>;
+        extern template class DynStringLogger<on, wchar>;
+        extern template class DynStringLogger<off, wchar>;
+
+        extern template class StringLogger<LogLevel::Trace, on, char>;
+        extern template class StringLogger<LogLevel::Trace, off, char>;
+        extern template class StringLogger<LogLevel::Trace, on, wchar>;
+        extern template class StringLogger<LogLevel::Trace, off, wchar>;
+
+        extern template class StringLogger<LogLevel::Debug, on, char>;
+        extern template class StringLogger<LogLevel::Debug, off, char>;
+        extern template class StringLogger<LogLevel::Debug, on, wchar>;
+        extern template class StringLogger<LogLevel::Debug, off, wchar>;
+
+        extern template class StringLogger<LogLevel::Info, on, char>;
+        extern template class StringLogger<LogLevel::Info, off, char>;
+        extern template class StringLogger<LogLevel::Info, on, wchar>;
+        extern template class StringLogger<LogLevel::Info, off, wchar>;
+
+        extern template class StringLogger<LogLevel::Warn, on, char>;
+        extern template class StringLogger<LogLevel::Warn, off, char>;
+        extern template class StringLogger<LogLevel::Warn, on, wchar>;
+        extern template class StringLogger<LogLevel::Warn, off, wchar>;
+
+        extern template class StringLogger<LogLevel::Error, on, char>;
+        extern template class StringLogger<LogLevel::Error, off, char>;
+        extern template class StringLogger<LogLevel::Error, on, wchar>;
+        extern template class StringLogger<LogLevel::Error, off, wchar>;
+
+        extern template class StringLogger<LogLevel::Fatal, on, char>;
+        extern template class StringLogger<LogLevel::Fatal, off, char>;
+        extern template class StringLogger<LogLevel::Fatal, on, wchar>;
+        extern template class StringLogger<LogLevel::Fatal, off, wchar>;
     };
 };

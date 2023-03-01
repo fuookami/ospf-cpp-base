@@ -127,13 +127,18 @@ namespace ospf
                 std::optional<NameTransfer<CharT>> transfer = meta_programming::NameTransfer<NamingSystem::Underscore, NamingSystem::Camelcase, CharT>{}
             ) noexcept
             {
-                if (!std::filesystem::exists(path))
-                {
-                    return OSPFError{ OSPFErrCode::FileNotFound, std::format("\"{}\" not exist", path) };
-                }
                 if (std::filesystem::is_directory(path))
                 {
                     return OSPFError{ OSPFErrCode::NotAFile, std::format("\"{}\" is not a file", path) };
+                }
+
+                const auto parent_path = path.parent_path();
+                if (!std::filesystem::exists(parent_path))
+                {
+                    if (!std::filesystem::create_directories(parent_path))
+                    {
+                        return OSPFError{ OSPFErrCode::DirectoryUnusable, std::format("directory \"{}\" unusable", parent_path) };
+                    }
                 }
 
                 auto serializer = transfer.has_value() ? Serializer<T, CharT>{ std::move(transfer).value() } : Serializer<T, CharT>{};
@@ -152,13 +157,18 @@ namespace ospf
                 std::optional<NameTransfer<CharT>> transfer = meta_programming::NameTransfer<NamingSystem::Underscore, NamingSystem::Camelcase, CharT>{}
             ) noexcept
             {
-                if (!std::filesystem::exists(path))
-                {
-                    return OSPFError{ OSPFErrCode::FileNotFound, std::format("\"{}\" not exist", path) };
-                }
                 if (std::filesystem::is_directory(path))
                 {
                     return OSPFError{ OSPFErrCode::NotAFile, std::format("\"{}\" is not a file", path) };
+                }
+
+                const auto parent_path = path.parent_path();
+                if (!std::filesystem::exists(parent_path))
+                {
+                    if (!std::filesystem::create_directories(parent_path))
+                    {
+                        return OSPFError{ OSPFErrCode::DirectoryUnusable, std::format("directory \"{}\" unusable", parent_path) };
+                    }
                 }
 
                 auto serializer = transfer.has_value() ? Serializer<T, CharT>{ std::move(transfer).value() } : Serializer<T, CharT>{};

@@ -15,27 +15,32 @@ namespace ospf
         OSPF_NAMED_FLAG(LoggerMultiThread);
 
         template<CharType CharT = char>
-        class LoggerInterface
+        class DynLoggerInterface
         {
         public:
             using CharType = CharT;
-            using RecoredType = LogRecord<CharT>;
+            using RecordType = LogRecord<CharT>;
             using StringType = std::basic_string<CharT>;
             using StringViewType = std::basic_string_view<CharT>;
 
         public:
-            LoggerInterface(const LogLevel lowest_level)
+            DynLoggerInterface(const LogLevel lowest_level)
                 : _lowest_level(lowest_level) {}
-            LoggerInterface(const LoggerInterface& ano) = delete;
-            LoggerInterface(LoggerInterface&& ano) noexcept = default;
-            LoggerInterface& operator=(const LoggerInterface& rhs) = delete;
-            LoggerInterface& operator=(LoggerInterface&& rhs) = delete;
-            ~LoggerInterface(void) noexcept = default;
+            DynLoggerInterface(const DynLoggerInterface& ano) = delete;
+            DynLoggerInterface(DynLoggerInterface&& ano) noexcept = default;
+            DynLoggerInterface& operator=(const DynLoggerInterface& rhs) = delete;
+            DynLoggerInterface& operator=(DynLoggerInterface&& rhs) = delete;
+            ~DynLoggerInterface(void) noexcept = default;
 
         public:
             inline const LogLevel lowest_level(void) const noexcept
             {
                 return _lowest_level;
+            }
+
+            inline void set_lowest_level(const LogLevel new_level) noexcept
+            {
+                _lowest_level = new_level;
             }
 
         public:
@@ -95,14 +100,14 @@ namespace ospf
             }
 
         protected:
-            virtual void log(RecoredType record) noexcept
+            virtual void log(RecordType record) noexcept
             {
                 assert(record.level() >= _lowest_level);
                 record.write();
             }
 
         protected:
-            virtual RecoredType record(const LogLevel level, StringType message) noexcept = 0;
+            virtual RecordType record(const LogLevel level, StringType message) noexcept = 0;
             virtual void write(StringType message) noexcept = 0;
 
         private:
@@ -111,23 +116,23 @@ namespace ospf
 
         template<LogLevel _lowest_level, CharType CharT = char>
             requires (_lowest_level != LogLevel::Other)
-        class StaticLoggerInterface
+        class LoggerInterface
         {
         public:
             using CharType = CharT;
-            using RecoredType = LogRecord<CharT>;
+            using RecordType = LogRecord<CharT>;
             using StringType = std::basic_string<CharT>;
             using StringViewType = std::basic_string_view<CharT>;
 
             static constexpr const LogLevel lowest_log_level = _lowest_level;
 
         public:
-            StaticLoggerInterface(void) = default;
-            StaticLoggerInterface(const StaticLoggerInterface& ano) = delete;
-            StaticLoggerInterface(StaticLoggerInterface&& ano) noexcept = default;
-            StaticLoggerInterface& operator=(const StaticLoggerInterface& rhs) = delete;
-            StaticLoggerInterface& operator=(StaticLoggerInterface&& rhs) = delete;
-            ~StaticLoggerInterface(void) noexcept = default;
+            LoggerInterface(void) = default;
+            LoggerInterface(const LoggerInterface& ano) = delete;
+            LoggerInterface(LoggerInterface&& ano) noexcept = default;
+            LoggerInterface& operator=(const LoggerInterface& rhs) = delete;
+            LoggerInterface& operator=(LoggerInterface&& rhs) = delete;
+            ~LoggerInterface(void) noexcept = default;
 
         public:
             inline const LogLevel lowest_level(void) const noexcept
@@ -220,53 +225,53 @@ namespace ospf
             }
 
         protected:
-            virtual void log(RecoredType record) noexcept
+            virtual void log(RecordType record) noexcept
             {
                 assert(record.level() >= _lowest_level);
                 record.write();
             }
 
         protected:
-            virtual RecoredType record(const LogLevel level, StringType message) noexcept = 0;
+            virtual RecordType record(const LogLevel level, StringType message) const noexcept = 0;
             virtual void write(StringType message) noexcept = 0;
         };
 
         template<CharType CharT = char>
         using LoggerRefWrapper = std::variant<
-            Ref<LoggerInterface<CharT>>,
-            Ref<StaticLoggerInterface<LogLevel::Trace, CharT>>,
-            Ref<StaticLoggerInterface<LogLevel::Debug, CharT>>,
-            Ref<StaticLoggerInterface<LogLevel::Info, CharT>>,
-            Ref<StaticLoggerInterface<LogLevel::Warn, CharT>>,
-            Ref<StaticLoggerInterface<LogLevel::Error, CharT>>,
-            Ref<StaticLoggerInterface<LogLevel::Fatal, CharT>>
+            Ref<DynLoggerInterface<CharT>>,
+            Ref<LoggerInterface<LogLevel::Trace, CharT>>,
+            Ref<LoggerInterface<LogLevel::Debug, CharT>>,
+            Ref<LoggerInterface<LogLevel::Info, CharT>>,
+            Ref<LoggerInterface<LogLevel::Warn, CharT>>,
+            Ref<LoggerInterface<LogLevel::Error, CharT>>,
+            Ref<LoggerInterface<LogLevel::Fatal, CharT>>
         >;
 
         template<CharType CharT = char>
         using LoggerUniqueWrapper = std::variant<
-            Unique<LoggerInterface<CharT>>,
-            Unique<StaticLoggerInterface<LogLevel::Trace, CharT>>,
-            Unique<StaticLoggerInterface<LogLevel::Debug, CharT>>,
-            Unique<StaticLoggerInterface<LogLevel::Info, CharT>>,
-            Unique<StaticLoggerInterface<LogLevel::Warn, CharT>>,
-            Unique<StaticLoggerInterface<LogLevel::Error, CharT>>,
-            Unique<StaticLoggerInterface<LogLevel::Fatal, CharT>>
+            Unique<DynLoggerInterface<CharT>>,
+            Unique<LoggerInterface<LogLevel::Trace, CharT>>,
+            Unique<LoggerInterface<LogLevel::Debug, CharT>>,
+            Unique<LoggerInterface<LogLevel::Info, CharT>>,
+            Unique<LoggerInterface<LogLevel::Warn, CharT>>,
+            Unique<LoggerInterface<LogLevel::Error, CharT>>,
+            Unique<LoggerInterface<LogLevel::Fatal, CharT>>
         >;
 
         template<typename T, typename... Args>
-            requires std::convertible_to<PtrType<T>, PtrType<LoggerInterface<typename T::CharType>>>
+            requires std::convertible_to<PtrType<T>, PtrType<DynLoggerInterface<typename T::CharType>>>
         inline LoggerUniqueWrapper<typename T::CharType> make_logger(Args&&... args) noexcept
         {
             auto new_logger = new T{ std::forward<Args>(args)... };
-            return LoggerUniqueWrapper<typename T::CharType>{ Unique<LoggerInterface<typename T::CharType>>{ new_logger } };
+            return LoggerUniqueWrapper<typename T::CharType>{ Unique<DynLoggerInterface<typename T::CharType>>{ new_logger } };
         }
 
         template<typename T, typename... Args>
-            requires std::convertible_to<PtrType<T>, PtrType<StaticLoggerInterface<T::lowest_log_level, typename T::CharType>>>
+            requires std::convertible_to<PtrType<T>, PtrType<LoggerInterface<T::lowest_log_level, typename T::CharType>>>
         inline LoggerUniqueWrapper<typename T::CharType> make_logger(Args&&... args) noexcept
         {
             auto new_logger = new T{ std::forward<Args>(args)... };
-            return LoggerUniqueWrapper<typename T::CharType>{ Unique<StaticLoggerInterface<T::lowest_log_level, typename T::CharType>>{ new_logger } };
+            return LoggerUniqueWrapper<typename T::CharType>{ Unique<LoggerInterface<T::lowest_log_level, typename T::CharType>>{ new_logger } };
         }
 
         template<CharType CharT>
@@ -282,63 +287,236 @@ namespace ospf
         namespace log_detail
         {
             template<LoggerMultiThread mt, CharType CharT, typename Self>
-            class LoggerImpl;
+            class DynLoggerImpl;
 
             template<CharType CharT, typename Self>
-            class LoggerImpl<on, CharT, Self>
-                : public LoggerInterface<CharT>
+            class DynLoggerImpl<on, CharT, Self>
+                : public DynLoggerInterface<CharT>
             {
                 OSPF_CRTP_IMPL;
-                using Interface = LoggerInterface<CharT>;
+                using Interface = DynLoggerInterface<CharT>;
 
             public:
-                using typename Interface::RecoredType;
+                using typename Interface::RecordType;
                 using typename Interface::StringType;
                 using typename Interface::StringViewType;
 
+            public:
+                DynLoggerImpl(const LogLevel lowest_level, const bool with_buffer)
+                    : Interface(lowest_level), _impl(with_buffer) {}
+                DynLoggerImpl(const DynLoggerImpl& ano) = delete;
+                DynLoggerImpl(DynLoggerImpl&& ano) noexcept = default;
+                DynLoggerImpl& operator=(const DynLoggerImpl& rhs) = delete;
+                DynLoggerImpl& operator=(DynLoggerImpl&& rhs) = delete;
+                ~DynLoggerImpl(void) = default;
+
+            public:
+                inline void join(void) noexcept
+                {
+                    _impl.join();
+                }
+
+                inline void flush(void) noexcept
+                {
+                    _impl.flush();
+                }
+
             protected:
-                void log(RecoredType record) noexcept override
+                void log(RecordType record) noexcept override
                 {
                     assert(record.level() >= this->lowest_level());
                     _impl.add(std::move(record));
                 }
+
+                RecordType record(const LogLevel level, StringType message) const noexcept override
+                {
+                    assert(record.level() >= this->lowest_level());
+                    return Trait::make_record(self(), level, std::move(message));
+                }
+
+                void write(StringType message) noexcept override
+                {
+                    _impl.add(RecordType{ LogLevel::Other, std::move(message) });
+                }
+
+            private:
+                struct Trait : public Self
+                {
+                    inline static make_record(const Self& self, const LogLevel level, StringType message) noexcept
+                    {
+                        static const auto impl = &Self::OSPF_CRTP_FUNCTION(make_record);
+                        return (self.*impl)(level, std::move(message));
+                    }
+                };
 
             private:
                 MultiThreadImpl<CharT> _impl;
             };
 
             template<CharType CharT, typename Self>
-            class LoggerImpl<off, CharT, Self>
-                : public LoggerInterface<CharT>
+            class DynLoggerImpl<off, CharT, Self>
+                : public DynLoggerInterface<CharT>
             {
                 OSPF_CRTP_IMPL;
-            };
+                using Interface = DynLoggerInterface<CharT>;
 
-            template<LogLevel lowest_level, LoggerMultiThread mt, CharType CharT, typename Self>
-            class StaticLoggerImpl;
+            public:
+                using typename Interface::RecordType;
+                using typename Interface::StringType;
+                using typename Interface::StringViewType;
 
-            template<LogLevel lowest_level, CharType CharT, typename Self>
-            class StaticLoggerImpl<lowest_level, on, CharT, Self>
-                : public StaticLoggerInterface<lowest_level, CharT>
-            {
-                OSPF_CRTP_IMPL;
+            public:
+                DynLoggerImpl(const LogLevel lowest_level)
+                    : Interface(lowest_level) {}
+                DynLoggerImpl(const DynLoggerImpl& ano) = delete;
+                DynLoggerImpl(DynLoggerImpl&& ano) noexcept = default;
+                DynLoggerImpl& operator=(const DynLoggerImpl& rhs) = delete;
+                DynLoggerImpl& operator=(DynLoggerImpl&& rhs) = delete;
+                ~DynLoggerImpl(void) = default;
 
             protected:
-                void log(RecoredType record) noexcept override
+                RecordType record(const LogLevel level, StringType message) const noexcept override
                 {
                     assert(record.level() >= this->lowest_level());
+                    return Trait::make_record(self(), level, std::move(message));
+                }
+
+                void write(StringType message) noexcept override
+                {
+                    Trait::write_message(std::move(message));
+                }
+
+            private:
+                struct Trait : public Self
+                {
+                    inline static make_record(const Self& self, const LogLevel level, StringType message) noexcept
+                    {
+                        static const auto impl = &Self::OSPF_CRTP_FUNCTION(make_record);
+                        return (self.*impl)(level, std::move(message));
+                    }
+
+                    inline static write_message(Self& self, StringType message) noexcept
+                    {
+                        static const auto impl = &Self::OSPF_CRTP_FUNCTION(write_message);
+                        return (self.*impl)(std::move(message));
+                    }
+                };
+            };
+
+            template<LogLevel _lowest_level, LoggerMultiThread mt, CharType CharT, typename Self>
+            class LoggerImpl;
+
+            template<LogLevel _lowest_level, CharType CharT, typename Self>
+            class LoggerImpl<_lowest_level, on, CharT, Self>
+                : public LoggerInterface<_lowest_level, CharT>
+            {
+                OSPF_CRTP_IMPL;
+                using Interface = LoggerInterface<_lowest_level, CharT>;
+
+            public:
+                using typename Interface::RecordType;
+                using typename Interface::StringType;
+                using typename Interface::StringViewType;
+
+            public:
+                LoggerImpl(const bool with_buffer)
+                    : _impl(with_buffer) {}
+                LoggerImpl(const LoggerImpl& ano) = delete;
+                LoggerImpl(LoggerImpl&& rhs) noexcept = default;
+                LoggerImpl& operator=(const LoggerImpl& rhs) = delete;
+                LoggerImpl& operator=(LoggerImpl&& rhs) = delete;
+                ~LoggerImpl(void) = default;
+
+            public:
+                inline void join(void) noexcept
+                {
+                    _impl.join();
+                }
+
+                inline void flush(void) noexcept
+                {
+                    _impl.flush();
+                }
+
+            protected:
+                void log(RecordType record) noexcept override
+                {
+                    assert(record.level() >= _lowest_level);
                     _impl.add(std::move(record));
                 }
+
+                RecordType record(const LogLevel level, StringType message) const noexcept override
+                {
+                    assert(level >= _lowest_level);
+                    return Trait::make_record(self(), level, std::move(message));
+                }
+
+                void write(StringType message) noexcept override
+                {
+                    _impl.add(RecordType{ LogLevel::Other, std::move(message) });
+                }
+
+            private:
+                struct Trait : public Self
+                {
+                    inline static make_record(const Self& self, const LogLevel level, StringType message) noexcept
+                    {
+                        static const auto impl = &Self::OSPF_CRTP_FUNCTION(make_record);
+                        return (self.*impl)(level, std::move(message));
+                    }
+                };
 
             private:
                 MultiThreadImpl<CharT> _impl;
             };
 
-            template<LogLevel lowest_level, CharType CharT, typename Self>
-            class StaticLoggerImpl<lowest_level, off, CharT, Self>
-                : public StaticLoggerInterface<lowest_level, CharT>
+            template<LogLevel _lowest_level, CharType CharT, typename Self>
+            class LoggerImpl<_lowest_level, off, CharT, Self>
+                : public LoggerInterface<_lowest_level, CharT>
             {
                 OSPF_CRTP_IMPL;
+                using Interface = LoggerInterface<_lowest_level, CharT>;
+
+            public:
+                using typename Interface::RecordType;
+                using typename Interface::StringType;
+                using typename Interface::StringViewType;
+
+            public:
+                LoggerImpl(void) = default;
+                LoggerImpl(const LoggerImpl& ano) = delete;
+                LoggerImpl(LoggerImpl&& rhs) noexcept = default;
+                LoggerImpl& operator=(const LoggerImpl& rhs) = delete;
+                LoggerImpl& operator=(LoggerImpl&& rhs) = delete;
+                ~LoggerImpl(void) = default;
+
+            protected:
+                RecordType record(const LogLevel level, StringType message) const noexcept override
+                {
+                    assert(level >= _lowest_level);
+                    return Trait::make_record(self(), level, std::move(message));
+                }
+
+                void write(StringType message) noexcept override
+                {
+                    Trait::write_message(std::move(message));
+                }
+
+            private:
+                struct Trait : public Self
+                {
+                    inline static make_record(const Self& self, const LogLevel level, StringType message) noexcept
+                    {
+                        static const auto impl = &Self::OSPF_CRTP_FUNCTION(make_record);
+                        return (self.*impl)(level, std::move(message));
+                    }
+
+                    inline static write_message(Self& self, StringType message) noexcept
+                    {
+                        static const auto impl = &Self::OSPF_CRTP_FUNCTION(write_message);
+                        return (self.*impl)(std::move(message));
+                    }
+                };
             };
         };
     };

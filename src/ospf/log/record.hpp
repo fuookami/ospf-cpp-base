@@ -43,7 +43,7 @@ namespace ospf
             }
 
         public:
-            LogRecord(const LogLevel level, StringType message, const Ref<Writer> writer)
+            LogRecord(const LogLevel level, StringType message, const Writer& writer)
                 : _time(std::chrono::system_clock::now()), _level(level), _message(std::move(message)), _writer(writer) {}
             LogRecord(const LogRecord& ano) = delete;
             LogRecord(LogRecord&& ano) = default;

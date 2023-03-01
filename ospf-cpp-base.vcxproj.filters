@@ -510,6 +510,9 @@
     <ClInclude Include="src\ospf\string\format.hpp">
       <Filter>src\ospf\string</Filter>
     </ClInclude>
+    <ClInclude Include="src\ospf\log\logger.hpp">
+      <Filter>src\ospf\log</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\ospf\system_info.cpp">
@@ -591,6 +594,15 @@
       <Filter>src\ospf\log</Filter>
     </ClCompile>
     <ClCompile Include="src\ospf\log\multi_thread_impl.cpp">
+      <Filter>src\ospf\log</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ospf\log\console_logger.cpp">
+      <Filter>src\ospf\log</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ospf\log\string_logger.cpp">
+      <Filter>src\ospf\log</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ospf\log\file_logger.cpp">
       <Filter>src\ospf\log</Filter>
     </ClCompile>
   </ItemGroup>
