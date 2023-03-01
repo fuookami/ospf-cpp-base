@@ -73,6 +73,9 @@
     <Filter Include="src\ospf\meta-programming\meta_info">
       <UniqueIdentifier>{d961ff5a-f540-4b6a-82d2-e06a08a66ec1}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\ospf\bytes">
+      <UniqueIdentifier>{6453fc76-fa01-4198-ac12-5f8445eacd66}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\ospf\basic_definition.hpp">
@@ -221,9 +224,6 @@
     </ClInclude>
     <ClInclude Include="src\ospf\config.hpp">
       <Filter>src\ospf</Filter>
-    </ClInclude>
-    <ClInclude Include="src\ospf\memory\bits.hpp">
-      <Filter>src\ospf\memory</Filter>
     </ClInclude>
     <ClInclude Include="src\ospf\uuid.hpp">
       <Filter>src\ospf</Filter>
@@ -474,9 +474,6 @@
     <ClInclude Include="src\ospf\serialization\bytes\concepts.hpp">
       <Filter>src\ospf\serialization\bytes</Filter>
     </ClInclude>
-    <ClInclude Include="src\ospf\memory\bytes.hpp">
-      <Filter>src\ospf\memory</Filter>
-    </ClInclude>
     <ClInclude Include="src\ospf\serialization\writable.hpp">
       <Filter>src\ospf\serialization</Filter>
     </ClInclude>
@@ -492,15 +489,6 @@
     <ClInclude Include="src\ospf\parallelism\async.hpp">
       <Filter>src\ospf\parallelism</Filter>
     </ClInclude>
-    <ClInclude Include="src\ospf\memory\encryption.hpp">
-      <Filter>src\ospf\memory</Filter>
-    </ClInclude>
-    <ClInclude Include="src\ospf\memory\encoding.hpp">
-      <Filter>src\ospf\memory</Filter>
-    </ClInclude>
-    <ClInclude Include="src\ospf\string\decoding.hpp">
-      <Filter>src\ospf\string</Filter>
-    </ClInclude>
     <ClInclude Include="src\ospf\string\transcoding.hpp">
       <Filter>src\ospf\string</Filter>
     </ClInclude>
@@ -512,6 +500,30 @@
     </ClInclude>
     <ClInclude Include="src\ospf\log\logger.hpp">
       <Filter>src\ospf\log</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ospf\bytes\abstract.hpp">
+      <Filter>src\ospf\bytes</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ospf\bytes\encryption.hpp">
+      <Filter>src\ospf\bytes</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ospf\bytes\auto_link.hpp">
+      <Filter>src\ospf\bytes</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ospf\bytes\bits.hpp">
+      <Filter>src\ospf\bytes</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ospf\bytes\bytes.hpp">
+      <Filter>src\ospf\bytes</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ospf\bytes\encoding.hpp">
+      <Filter>src\ospf\bytes</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ospf\bytes.hpp">
+      <Filter>src\ospf</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ospf\bytes\compaction.hpp">
+      <Filter>src\ospf\bytes</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -532,9 +544,6 @@
     </ClCompile>
     <ClCompile Include="src\ospf\exception.cpp">
       <Filter>src\ospf</Filter>
-    </ClCompile>
-    <ClCompile Include="src\ospf\memory\bits.cpp">
-      <Filter>src\ospf\memory</Filter>
     </ClCompile>
     <ClCompile Include="src\ospf\uuid.cpp">
       <Filter>src\ospf</Filter>
@@ -604,6 +613,9 @@
     </ClCompile>
     <ClCompile Include="src\ospf\log\file_logger.cpp">
       <Filter>src\ospf\log</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ospf\bytes\bits.cpp">
+      <Filter>src\ospf\bytes</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

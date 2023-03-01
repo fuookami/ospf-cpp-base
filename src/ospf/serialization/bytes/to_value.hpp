@@ -6,7 +6,7 @@
 #include <ospf/data_structure/tagged_map.hpp>
 #include <ospf/data_structure/value_or_reference_array.hpp>
 #include <ospf/functional/result.hpp>
-#include <ospf/memory/bytes.hpp>
+#include <ospf/bytes/bytes.hpp>
 #include <ospf/meta_programming/meta_info.hpp>
 #include <ospf/meta_programming/variable_type_list.hpp>
 #include <ospf/serialization/bytes/concepts.hpp>

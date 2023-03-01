@@ -1,6 +1,6 @@
-﻿#include <ospf/memory/bits.hpp>
+﻿#include <ospf/bytes/bits.hpp>
 
-namespace ospf::memory::bits
+namespace ospf::bytes::bits
 {
     const u8 reverse_bits_u8(u8 value) noexcept
     {
