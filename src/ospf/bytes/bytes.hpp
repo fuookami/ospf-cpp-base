@@ -2,20 +2,26 @@
 
 #include <ospf/basic_definition.hpp>
 #include <ospf/concepts/with_default.hpp>
+#include <ospf/functional/array.hpp>
 #include <ospf/literal_constant.hpp>
+#include <ospf/random.hpp>
 #include <ospf/system_info.hpp>
 #include <ospf/type_family.hpp>
+#include <span>
 
 namespace ospf
 {
     inline namespace bytes
     {
-        template<usize len = npos>
+        template<usize len = dynamic_size>
         using Bytes = std::conditional_t<
-            len == npos,
+            len == dynamic_size,
             std::vector<ubyte>,
             std::array<ubyte, len>
         >;
+
+        template<usize len = dynamic_size>
+        using BytesView = std::span<const ubyte, len>;
 
         template<typename T>
             requires std::copyable<T> && std::is_trivially_copyable_v<T>
@@ -122,6 +128,31 @@ namespace ospf
                     --ptr;
                 }
             }
+        }
+
+        template<usize len>
+            requires (len != npos)
+        inline Bytes<len> random_block(void) noexcept
+        {
+            auto gen = random_generator<u8>();
+            std::uniform_int_distribution<> dis(0, 0xff);
+            return make_array<len>([&gen, &dis](const usize _)
+                {
+                    return static_cast<ubyte>(dis(gen));
+                });
+        }
+
+        inline Bytes<> random_block(const usize len = address_length) noexcept
+        {
+            auto gen = random_generator<u8>();
+            std::uniform_int_distribution<> dis(0, 0xff);
+            Bytes<> ret;
+            ret.resize(len, 0_ub);
+            for (usize i{ 0_uz }; i != len; ++i)
+            {
+                ret[i] = static_cast<ubyte>(dis(gen));
+            }
+            return ret;
         }
     };
 };

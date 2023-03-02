@@ -17,7 +17,7 @@ namespace ospf
         };
 
         template<usize len>
-        inline Result<Bytes<>> compact(const Bytes<len>& bytes, const Compaction compaction) noexcept
+        inline Result<Bytes<>> compact(const BytesView<len> bytes, const Compaction compaction) noexcept
         {
             using namespace CryptoPP;
 
@@ -58,7 +58,7 @@ namespace ospf
         }
 
         template<usize len>
-        inline Result<Bytes<>> decompact(const Bytes<len>& bytes, const Compaction compaction) noexcept
+        inline Result<Bytes<>> decompact(const BytesView<len> bytes, const Compaction compaction) noexcept
         {
             using namespace CryptoPP;
 

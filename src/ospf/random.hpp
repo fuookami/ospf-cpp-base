@@ -12,7 +12,7 @@ namespace ospf
         using RandomGenerator = boost::random::independent_bits_engine<std::mt19937_64, digits, T>;
 
         template<typename T, usize digits = address_length * sizeof(T)>
-        inline RandomGenerator<T> random_generator(void) noexcept
+        inline RandomGenerator<T, digits> random_generator(void) noexcept
         {
             static std::random_device device;
             std::seed_seq seq{ device(), device(), device(), device() };

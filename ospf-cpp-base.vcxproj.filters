@@ -76,7 +76,7 @@
     <Filter Include="src\ospf\bytes">
       <UniqueIdentifier>{6453fc76-fa01-4198-ac12-5f8445eacd66}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\ospf\bytes\rsa">
+    <Filter Include="src\ospf\bytes\encryption">
       <UniqueIdentifier>{f6ecf6f0-3a2f-4bb9-83dd-7aa4b70322c5}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
@@ -531,6 +531,9 @@
     <ClInclude Include="src\ospf\mail.hpp">
       <Filter>src\ospf</Filter>
     </ClInclude>
+    <ClInclude Include="src\ospf\bytes\encryption\rsa.hpp">
+      <Filter>src\ospf\bytes\encryption</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\ospf\system_info.cpp">
@@ -622,6 +625,9 @@
     </ClCompile>
     <ClCompile Include="src\ospf\bytes\bits.cpp">
       <Filter>src\ospf\bytes</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ospf\bytes\encryption\rsa.cpp">
+      <Filter>src\ospf\bytes\encryption</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

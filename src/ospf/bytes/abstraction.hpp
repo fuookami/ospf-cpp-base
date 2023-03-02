@@ -17,7 +17,7 @@ namespace ospf
         };
 
         template<usize len>
-        inline Result<Bytes<>> get_abstract(const Bytes<len>& bytes, const Abstraction abstraction) noexcept
+        inline Result<Bytes<>> get_abstract(const BytesView<len> bytes, const Abstraction abstraction) noexcept
         {
             using namespace CryptoPP;
 

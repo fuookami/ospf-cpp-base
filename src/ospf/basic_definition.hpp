@@ -56,5 +56,6 @@ namespace ospf
     using ptrdiff = std::ptrdiff_t;
     using ptraddr = std::intptr_t;
 
+    static constexpr const auto dynamic_size = static_cast<usize>(-1);
     static constexpr const auto npos = static_cast<usize>(-1);
 };

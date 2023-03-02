@@ -29,6 +29,7 @@
     <ClInclude Include="src\ospf\bytes\compaction.hpp" />
     <ClInclude Include="src\ospf\bytes\encoding.hpp" />
     <ClInclude Include="src\ospf\bytes\encryption.hpp" />
+    <ClInclude Include="src\ospf\bytes\encryption\rsa.hpp" />
     <ClInclude Include="src\ospf\concepts.hpp" />
     <ClInclude Include="src\ospf\concepts\container.hpp" />
     <ClInclude Include="src\ospf\concepts\copy_faster.hpp" />
@@ -172,6 +173,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\ospf\bytes\bits.cpp" />
+    <ClCompile Include="src\ospf\bytes\encryption\rsa.cpp" />
     <ClCompile Include="src\ospf\data_structure\data_table\data_table_header.cpp" />
     <ClCompile Include="src\ospf\data_structure\multi_array\dummy_index.cpp" />
     <ClCompile Include="src\ospf\data_structure\multi_array\shape.cpp" />
