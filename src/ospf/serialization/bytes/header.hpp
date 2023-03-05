@@ -18,6 +18,16 @@ namespace ospf
                 Array,
             };
 
+            inline constexpr const bool operator==(const HeaderTag lhs, const HeaderTag rhs) noexcept
+            {
+                return static_cast<u8>(lhs) == static_cast<u8>(rhs);
+            }
+
+            inline constexpr const bool operator!=(const HeaderTag lhs, const HeaderTag rhs) noexcept
+            {
+                return static_cast<u8>(lhs) != static_cast<u8>(rhs);
+            }
+
             class Header;
             class SubHeader;
             using Fields = StringHashMap<std::string_view, Shared<SubHeader>>;

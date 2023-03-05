@@ -18,6 +18,10 @@ namespace ospf
             {
                 return std::make_wformat_args(std::forward<Args>(args)...);
             }
+            //else
+            //{
+            //    static_assert(false, "unsupported char type.");
+            //}
         }
     };
 };

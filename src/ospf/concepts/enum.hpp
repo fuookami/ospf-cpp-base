@@ -2,6 +2,7 @@
 
 #include <ospf/concepts/base.hpp>
 #include <ospf/string/hasher.hpp>
+#include <magic_enum.hpp>
 
 namespace ospf
 {
@@ -53,6 +54,20 @@ namespace ospf
         }
     };
 };
+
+template<ospf::EnumType T>
+inline constexpr const bool operator==(const T lhs, const T rhs) noexcept
+{
+    using ValueType = magic_enum::underlying_type_t<T>;
+    return static_cast<ValueType>(lhs) == static_cast<ValueType>(rhs);
+}
+
+template<ospf::EnumType T>
+inline constexpr const bool operator!=(const T lhs, const T rhs) noexcept
+{
+    using ValueType = magic_enum::underlying_type_t<T>;
+    return static_cast<ValueType>(lhs) != static_cast<ValueType>(rhs);
+}
 
 namespace std
 {

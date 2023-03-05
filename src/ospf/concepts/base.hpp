@@ -1,7 +1,6 @@
 ﻿#pragma once
 
 #include <ospf/basic_definition.hpp>
-#include <magic_enum.hpp>
 #include <boost/locale.hpp>
 #include <type_traits>
 #include <format>

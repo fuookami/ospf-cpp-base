@@ -46,6 +46,16 @@ namespace ospf
             Other = ((std::numeric_limits<u64>::max)()) - 1,
             Unknown = ((std::numeric_limits<u64>::max)())
         };
+
+        inline constexpr const bool operator==(const OSPFErrCode lhs, const OSPFErrCode rhs) noexcept
+        {
+            return static_cast<u64>(lhs) == static_cast<u64>(rhs);
+        }
+
+        inline constexpr const bool operator!=(const OSPFErrCode lhs, const OSPFErrCode rhs) noexcept
+        {
+            return static_cast<u64>(lhs) != static_cast<u64>(rhs);
+        }
     };
 };
 
