@@ -3,6 +3,7 @@
 #include <ospf/concepts/base.hpp>
 #include <ospf/meta_programming/crtp.hpp>
 #include <ospf/meta_programming/function_trait.hpp>
+#include <ospf/meta_programming/named_type.hpp>
 #include <ospf/meta_programming/type_info.hpp>
 #include <ospf/type_family.hpp>
 
@@ -55,6 +56,18 @@ namespace ospf
                 inline decltype(auto) value(CLRefType<ParentType> obj) const noexcept
                 {
                     return Trait::get_const_value(self(), obj);
+                }
+
+                template<typename P>
+                inline decltype(auto) value(LRefType<NamedType<ParentType, P>> obj) noexcept
+                {
+                    return Trait::get_value(self(), obj.unwrap());
+                }
+
+                template<typename P>
+                inline decltype(auto) value(CLRefType<NamedType<ParentType, P>> obj) noexcept
+                {
+                    return Trait::get_const_value(self(), obj.unwrap());
                 }
 
             private:

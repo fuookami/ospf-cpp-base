@@ -120,6 +120,7 @@
     <ClInclude Include="src\ospf\meta_programming\meta_info\meta_info.hpp" />
     <ClInclude Include="src\ospf\meta_programming\meta_info\meta_item.hpp" />
     <ClInclude Include="src\ospf\meta_programming\named_flag.hpp" />
+    <ClInclude Include="src\ospf\meta_programming\named_type.hpp" />
     <ClInclude Include="src\ospf\meta_programming\name_transfer.hpp" />
     <ClInclude Include="src\ospf\meta_programming\name_transfer\backend.hpp" />
     <ClInclude Include="src\ospf\meta_programming\name_transfer\frontend.hpp" />

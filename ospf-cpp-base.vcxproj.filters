@@ -534,6 +534,9 @@
     <ClInclude Include="src\ospf\bytes\encryption\rsa.hpp">
       <Filter>src\ospf\bytes\encryption</Filter>
     </ClInclude>
+    <ClInclude Include="src\ospf\meta_programming\named_type.hpp">
+      <Filter>src\ospf\meta-programming</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\ospf\system_info.cpp">

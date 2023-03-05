@@ -6,7 +6,7 @@
 #include <ospf/data_structure/tagged_map.hpp>
 #include <ospf/data_structure/value_or_reference_array.hpp>
 #include <ospf/functional/result.hpp>
-#include <ospf/memory/pointer/category.hpp>
+#include <ospf/meta_programming/named_type.hpp>
 #include <ospf/meta_programming/variable_type_list.hpp>
 #include <ospf/ospf_base_api.hpp>
 #include <ospf/serialization/csv/concepts.hpp>
@@ -87,6 +87,23 @@ namespace ospf
                         os << static_cast<std::basic_string<CharT>>(value);
                     }
                     return succeed;
+                }
+            };
+
+            template<typename T, typename P, CharType CharT>
+                requires SerializableToCSV<T, CharT>
+            struct ToCSVValue<NamedType<T, P>, CharT>
+            {
+                inline Result<std::basic_string<CharT>> operator()(ArgCLRefType<NamedType<T, P>> value) const noexcept
+                {
+                    static const ToCSVValue<OriginType<T>, CharT> serializer{};
+                    return serializer(value.unwrap());
+                }
+
+                inline Try<> operator()(std::basic_ostringstream<CharT>& os, ArgCLRefType<NamedType<T, P>> value) const noexcept
+                {
+                    static const ToCSVValue<OriginType<T>, CharT> serializer{};
+                    return serializer(value.unwrap());
                 }
             };
 

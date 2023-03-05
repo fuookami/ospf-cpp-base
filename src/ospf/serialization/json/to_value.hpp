@@ -96,6 +96,17 @@ namespace ospf
                 }
             };
 
+            template<typename T, typename P, CharType CharT>
+                requires WithoutMetaInfo<T> && SerializableToJson<T, CharT>
+            struct ToJsonValue<NamedType<T, P>, CharT>
+            {
+                inline Result<Json<CharT>> operator()(const NamedType<T, P>& obj, Document<CharT>& doc, const std::optional<NameTransfer<CharT>>& transfer) const noexcept
+                {
+                    static const ToJsonValue<OriginType<T>, CharT> serializer{};
+                    return serializer(obj.unwrap(), doc, transfer);
+                }
+            };
+
             template<typename T, CharType CharT>
                 requires SerializableToJson<T, CharT>
             struct ToJsonValue<std::optional<T>, CharT>

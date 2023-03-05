@@ -169,6 +169,24 @@ namespace ospf
                 }
             };
 
+            template<typename T, typename P, CharType CharT>
+                requires WithoutMetaInfo<T> && DeserializableFromJson<T, CharT>
+            struct FromJsonValue<NamedType<T, P>, CharT>
+            {
+                inline Try<> operator()(const Json<CharT>& json, NamedType<T, P>& obj, const std::optional<NameTransfer<CharT>>& transfer) const noexcept
+                {
+                    static const FromJsonValue<OriginType<T>, CharT> deserializer{};
+                    return deserializer(json, obj.unwrap(), transfer);
+                }
+
+                inline Result<NamedType<T, P>> operator()(const Json<CharT>& json, const std::optional<NameTransfer<CharT>>& transfer) const noexcept
+                {
+                    NamedType<T, P> obj = DefaultValue<NamedType<T, P>>::value();
+                    OSPF_TRY_EXEC(this->operator()(json, obj, transfer));
+                    return std::move(obj);
+                }
+            };
+
             template<typename T, CharType CharT>
                 requires DeserializableFromJson<T, CharT> && WithDefault<T>
             struct FromJsonValue<std::optional<T>, CharT>
@@ -490,7 +508,7 @@ namespace ospf
                 requires DeserializableFromJson<T, CharT> && WithDefault<T>
             struct FromJsonValue<std::array<T, len>, CharT>
             {
-                inline Try<> operator()(const Json<CharT>& json, std::array<T, len>& objs, const std::optional<NameTransfer<CharT>>& transfer) const noexceptFromJsonValue<OriginType<T>
+                inline Try<> operator()(const Json<CharT>& json, std::array<T, len>& objs, const std::optional<NameTransfer<CharT>>& transfer) const noexcept
                 {
                     if (!json.IsArray())
                     {

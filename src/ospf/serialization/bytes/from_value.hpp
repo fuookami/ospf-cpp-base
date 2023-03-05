@@ -123,6 +123,19 @@ namespace ospf
                 }
             };
 
+            template<typename T, typename P>
+                requires DeserializableFromBytes<T>
+            struct FromBytesValue<NamedType<T, P>>
+            {
+                template<FromValueIter It>
+                inline Result<NamedType<T, P>> operator()(It& it, const usize address_length, const Endian endian) const noexcept
+                {
+                    static const FromBytesValue<OriginType<T>> deserializer{};
+                    OSPF_TRY_GET(value, deserializer(it, address_length, endian));
+                    return NamedType<T, P>{ std::move(value) };
+                }
+            };
+
             template<typename T>
                 requires DeserializableFromBytes<T>
             struct FromBytesValue<std::optional<T>>
@@ -133,7 +146,7 @@ namespace ospf
                     const bool has_value = from_bytes<bool>(it, endian);
                     if (has_value)
                     {
-                        static const FromBytesValue<T> deserializer{};
+                        static const FromBytesValue<OriginType<T>> deserializer{};
                         OSPF_TRY_GET(value, deserializer(it, address_length, endian));
                         return std::optional<T>{ std::move(value) };
                     }
@@ -154,7 +167,7 @@ namespace ospf
                     const bool not_null = from_bytes<bool>(it, endian);
                     if (not_null)
                     {
-                        static const FromBytesValue<T> deserializer{};
+                        static const FromBytesValue<OriginType<T>> deserializer{};
                         OSPF_TRY_GET(value, deserializer(it, address_length, endian));
                         return pointer::Ptr<T, cat>{ new T{ std::move(value) } };
                     }
@@ -172,7 +185,7 @@ namespace ospf
                 template<FromValueIter It>
                 inline Result<std::pair<T, U>> operator()(It& it, const usize address_length, const Endian endian) const noexcept
                 {
-                    static const FromBytesValue<T> deserializer1{};
+                    static const FromBytesValue<OriginType<T>> deserializer1{};
                     static const FromBytesValue<U> deserializer1{};
                     OSPF_TRY_GET(value1, deserializer1(it, address_length, endian));
                     OSPF_TRY_GET(value2, deserializer2(it, address_length, endian));
@@ -294,7 +307,7 @@ namespace ospf
                     }
                     return make_array<T, len>([&it, address_length, endian](const usize _) -> Result<T>
                         {
-                            static const FromBytesValue<T> deserializer{};
+                            static const FromBytesValue<OriginType<T>> deserializer{};
                             return deserializer(it, address_length, endian);
                         });
                 }

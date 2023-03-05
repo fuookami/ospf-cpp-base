@@ -5,6 +5,7 @@
 #include <ospf/data_structure/tagged_map.hpp>
 #include <ospf/data_structure/value_or_reference_array.hpp>
 #include <ospf/functional/result.hpp>
+#include <ospf/meta_programming/named_type.hpp>
 #include <ospf/meta_programming/type_info.hpp>
 #include <ospf/meta_programming/variable_type_list.hpp>
 #include <ospf/ospf_base_api.hpp>
@@ -80,6 +81,18 @@ namespace ospf
                     {
                         return static_cast<T>(std::basic_string<CharT>{ value });
                     }
+                }
+            };
+
+            template<typename T, typename P, CharType CharT>
+                requires DeserializableFromCSV<T, CharT>
+            struct FromCSVValue<NamedType<T, P>, CharT>
+            {
+                inline Result<NamedType<T, P>> operator()(const std::basic_string_view<CharT> value) const noexcept
+                {
+                    static const FromCSVValue<OriginType<T>, CharT> deserializer{};
+                    OSPF_TRY_GET(obj, deserializer(value));
+                    return NamedType<T, P>{ std::move(obj) };
                 }
             };
 
@@ -217,7 +230,7 @@ namespace ospf
 
             private:
                 template<usize i>
-                inline static Result<std::variant<Ts...>> deserialize(const usize index, const std::basic_string_view<CharT> value) const noexcept
+                inline static Result<std::variant<Ts...>> deserialize(const usize index, const std::basic_string_view<CharT> value) noexcept
                 {
                     if constexpr (i == VariableTypeList<Ts...>::length)
                     {
@@ -544,7 +557,7 @@ namespace ospf
                     for (const auto str : strs)
                     {
                         static const FromCSVValue<OriginType<T>, CharT> deserializer{};
-                        OSPF_TRY_GET(obj, deserializer(strs[i]));
+                        OSPF_TRY_GET(obj, deserializer(str));
                         objs.push_back(ValOrRef<T, cat, cow>::value(std::move(obj)));
                     }
                     return std::move(objs);

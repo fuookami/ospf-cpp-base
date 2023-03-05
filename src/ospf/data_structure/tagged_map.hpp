@@ -16,7 +16,8 @@ namespace ospf
             {
                 inline constexpr decltype(auto) operator()(CLRefType<T> ele) const noexcept
                 {
-                    return TagValue<T>::value(ele);
+                    static const TagValue<T> extractor{};
+                    return extractor.value(ele);
                 }
             };
 

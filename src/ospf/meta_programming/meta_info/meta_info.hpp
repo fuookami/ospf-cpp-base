@@ -11,14 +11,13 @@ namespace ospf
         {
             template<typename T>
             class MetaInfo;
-
         };
 
         template<typename T>
-        concept WithMetaInfo = requires
-        {
-            { meta_info::MetaInfo<T>{} } -> DecayNotSameAs<void>;
-        };
+        concept WithMetaInfo = std::default_initializable<meta_info::MetaInfo<T>>;
+
+        template<typename T>
+        concept WithoutMetaInfo = !std::default_initializable<meta_info::MetaInfo<T>>;
 
         namespace meta_info
         {
@@ -305,6 +304,19 @@ namespace ospf
                     }
                 };
             };
+        };
+    };
+};
+
+namespace ospf
+{
+    inline namespace meta_programming
+    {
+        namespace meta_info
+        {
+            template<typename T, typename P>
+            struct MetaInfo<NamedType<T, P>>
+                : public MetaInfo<T> {};
         };
     };
 };

@@ -80,6 +80,24 @@ namespace ospf
                 }
             };
 
+            template<typename T, typename P>
+                requires SerializableToBytes<T>
+            struct ToBytesValue<NamedType<T, P>>
+            {
+                inline const usize size(const NamedType<T, P>& value) const noexcept
+                {
+                    static const ToBytesValue<OriginType<T>> serializer{};
+                    return serializer.size(value.unwrap());
+                }
+
+                template<ToValueIter It>
+                inline Try<> operator()(const NamedType<T, P>& value, It& it, const Endian endian) const noexcept
+                {
+                    static const ToBytesValue<OriginType<T>> serializer{};
+                    return serializer(value.unwrap(), it, endian);
+                }
+            };
+
             template<typename T>
                 requires SerializableToBytes<T>
             struct ToBytesValue<std::optional<T>>
