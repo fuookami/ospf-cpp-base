@@ -57,6 +57,27 @@ namespace ospf
         template<typename T, typename... Args>
         concept DecayNotSameAs = !is_decay_same_as<T, Args...>;
 
+        template<typename T, typename... Args>
+        struct IsDecaySameAsOrConvertibleTo;
+
+        template<typename T, typename U>
+        struct IsDecaySameAsOrConvertibleTo<T, U>
+        {
+            static constexpr const bool value = std::is_same_v<std::decay_t<T>, std::decay_t<U>> || std::is_convertible_v<T, U>;
+        };
+
+        template<typename T, typename U, typename... Args>
+        struct IsDecaySameAsOrConvertibleTo<T, U, Args...>
+        {
+            static constexpr const bool value = IsDecaySameAsOrConvertibleTo<T, U>::value || IsDecaySameAsOrConvertibleTo<T, Args...>::value;
+        };
+
+        template<typename T, typename... Args>
+        static constexpr const bool is_decay_same_as_or_convertible_to = IsDecaySameAsOrConvertibleTo<T, Args...>::value;
+
+        template<typename T, typename... Args>
+        concept DecaySameAsOrConvertibleTo = is_decay_same_as_or_convertible_to<T, Args...>;
+
         template<typename T>
         concept NotVoidType = NotSameAs<T, void>;
 
