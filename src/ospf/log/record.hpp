@@ -32,8 +32,18 @@ namespace ospf
                 {
                     if (level != LogLevel::Other)
                     {
-                        static const auto fmt = boost::locale::conv::to_utf<CharT>("[{}] {0:%F}T{0:%T%z}: {}", std::locale{});
-                        os << std::vformat(fmt, make_format_args<CharT>(level, time, message)) << '\n';
+                        if constexpr (DecaySameAs<CharT, char>)
+                        {
+                            os << std::format("[{}] {0:%F}T{0:%T%z}: {}", level, time, message) << '\n';
+                        }
+                        else if constexpr (DecaySameAs<CharT, wchar>)
+                        {
+                            os << std::format(L"[{}] {0:%F}T{0:%T%z}: {}", level, time, message) << '\n';
+                        }
+                        else
+                        {
+                            static_assert(false, "unsupported character type");
+                        }
                     }
                     else
                     {

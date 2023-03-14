@@ -76,22 +76,32 @@ namespace ospf
             {
                 if (LogLevel::Error >= _lowest_level)
                 {
-                    static const auto fmt = boost::locale::conv::to_utf<CharT>("{}, {}", std::locale{});
-                    log(record(LogLevel::Error, std::vformat(fmt, make_format_args<CharT>(error.code(), error.message()))));
+                    if constexpr (DecaySameAs<CharT, char>)
+                    {
+                        log(record(LogLevel::Error, std::format("{}, {}", error.code(), error.message())));
+                    }
+                    else if constexpr (DecaySameAs<CharT, wchar>)
+                    {
+                        log(record(LogLevel::Error, std::format(L"{}, {}", error.code(), error.message())));
+                    }
+                    else
+                    {
+                        static_assert(false, "unsupported character type");
+                    }
                 }
             }
 
         public:
             template<typename... Args>
                 requires (VariableTypeList<Args_...>::length != 0_uz)
-            inline void log(const StringViewType format, Args&&... args) noexcept
+            inline void log(const StringViewType fmt, Args&&... args) noexcept
             {
                 write(std::vformat(fmt, make_format_args<CharT>(std::forward<Args>(args)...)));
             }
 
             template<typename... Args>
                 requires (VariableTypeList<Args_...>::length != 0_uz)
-            inline void log(const LogLevel level, const StringViewType format, Args&&... args) noexcept
+            inline void log(const LogLevel level, const StringViewType fmt, Args&&... args) noexcept
             {
                 if (level >= _lowest_level)
                 {
@@ -199,14 +209,14 @@ namespace ospf
         public:
             template<typename... Args>
                 requires (VariableTypeList<Args_...>::length != 0_uz)
-            inline void log(const StringViewType format, Args&&... args) noexcept
+            inline void log(const StringViewType fmt, Args&&... args) noexcept
             {
                 write(std::vformat(fmt, make_format_args<CharT>(std::forward<Args>(args)...)));
             }
 
             template<typename... Args>
                 requires (VariableTypeList<Args_...>::length != 0_uz)
-            inline void log(const LogLevel level, const StringViewType format, Args&&... args) noexcept
+            inline void log(const LogLevel level, const StringViewType fmt, Args&&... args) noexcept
             {
                 if (level >= _lowest_level)
                 {
@@ -216,7 +226,7 @@ namespace ospf
 
             template<LogLevel level, typename... Args>
                 requires (VariableTypeList<Args_...>::length != 0_uz)
-            inline void log(const StringViewType format, Args&&... args) noexcept
+            inline void log(const StringViewType fmt, Args&&... args) noexcept
             {
                 if constexpr (level >= _lowest_level)
                 {

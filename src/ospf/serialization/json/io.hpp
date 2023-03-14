@@ -37,8 +37,18 @@ namespace ospf
                 rapidjson::ParseResult ok = doc.ParseStream(isw);
                 if (!ok)
                 {
-                    static const auto fmt = boost::locale::conv::to_utf<CharT>("{} at {}", std::locale{});
-                    return OSPFError{ OSPFErrCode::DeserializationFail, std::vformat(fmt, make_format_args<CharT>(rapidjson::GetParseError_En(ok.Code()), ok.Offset())) };
+                    if constexpr (DecaySameAs<CharT, char>)
+                    {
+                        return OSPFError{ OSPFErrCode::DeserializationFail, std::format("{} at {}", rapidjson::GetParseError_En(ok.Code()), ok.Offset()) };
+                    }
+                    else if constexpr (DecaySameAs<CharT, wchar>)
+                    {
+                        return OSPFError{ OSPFErrCode::DeserializationFail, std::format(L"{} at {}", rapidjson::GetParseError_En(ok.Code()), ok.Offset()) };
+                    }
+                    else
+                    {
+                        static_assert(false, "unsupported character type");
+                    }
                 }
                 else
                 {
