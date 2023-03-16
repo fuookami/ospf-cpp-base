@@ -31,11 +31,11 @@ namespace ospf
 
     template<u64 bits = sizeof(void*) * 8>
         requires (bits != 0)
-    using intx = boost::multiprecision::number<boost::multiprecision::cpp_int_backend<bits, bits>>;
+    using intx = boost::multiprecision::number<boost::multiprecision::cpp_int_backend<bits, bits>, boost::multiprecision::expression_template_option::et_off>;
     template<u64 bits = sizeof(void*) * 8>
         requires (bits != 0)
-    using uintx = boost::multiprecision::number<boost::multiprecision::cpp_int_backend<bits, bits, boost::multiprecision::cpp_integer_type::unsigned_magnitude>>;
-    using bigint = boost::multiprecision::cpp_int;
+    using uintx = boost::multiprecision::number<boost::multiprecision::cpp_int_backend<bits, bits, boost::multiprecision::cpp_integer_type::unsigned_magnitude>, boost::multiprecision::expression_template_option::et_off>;
+    using bigint = boost::multiprecision::number<boost::multiprecision::cpp_int_backend<>, boost::multiprecision::expression_template_option::et_off>;
 
     using f32 = float;
     using f64 = double;
@@ -43,11 +43,11 @@ namespace ospf
     using f256 = boost::multiprecision::cpp_bin_float_quad;
     using f512 = boost::multiprecision::cpp_bin_float_oct;
 
-    using dec50 = boost::multiprecision::cpp_dec_float_50;
-    using dec100 = boost::multiprecision::cpp_dec_float_100;
+    using dec50 = boost::multiprecision::number<boost::multiprecision::cpp_dec_float<50>, boost::multiprecision::expression_template_option::et_off>;
+    using dec100 = boost::multiprecision::number<boost::multiprecision::cpp_dec_float<100>, boost::multiprecision::expression_template_option::et_off>;
     template<u64 digits>
         requires (digits != 0)
-    using dec = boost::multiprecision::number<boost::multiprecision::cpp_dec_float<digits, i32, std::allocator<u32>>>;
+    using dec = boost::multiprecision::number<boost::multiprecision::cpp_dec_float<digits, i32, std::allocator<u32>>, boost::multiprecision::expression_template_option::et_off>;
 
     using ubyte = std::byte;
     using ibyte = std::conditional_t<sizeof(ubyte) == 8, i64, i32>;
