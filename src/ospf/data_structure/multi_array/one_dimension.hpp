@@ -40,7 +40,9 @@ namespace ospf
                     _container.assign(_shape.size(), value);
                 }
 
-                constexpr MultiArray(ArgRRefType<Shape1> shape, const std::function<RetType<ValueType>(const usize)>& constructor)
+                template<typename F>
+                    requires requires (const F& fun, const usize i) { { fun(i) } -> DecaySameAs<ValueType>; }
+                constexpr MultiArray(ArgRRefType<Shape1> shape, const F& constructor)
                     : _shape(move<Shape1>(shape))
                 {
                     _container.reserve(_shape.size());
@@ -50,7 +52,9 @@ namespace ospf
                     }
                 }
 
-                constexpr MultiArray(ArgRRefType<Shape1> shape, const std::function<RetType<ValueType>(const VectorType&)>& constructor)
+                template<typename F>
+                    requires requires (const F& fun, const VectorType& vec) { { fun(vec) } -> DecaySameAs<ValueType>; }
+                constexpr MultiArray(ArgRRefType<Shape1> shape, const F& constructor)
                     : _shape(move<Shape1>(shape))
                 {
                     _container.reserve(_shape.size());

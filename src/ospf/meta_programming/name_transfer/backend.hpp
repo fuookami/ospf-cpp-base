@@ -109,7 +109,7 @@ namespace ospf
                 {
                     if (words.empty())
                     {
-                        return "";
+                        return StringType{};
                     }
 
                     StringType ret{};
@@ -145,7 +145,7 @@ namespace ospf
                 {
                     if (words.empty())
                     {
-                        return "";
+                        return StringType{};
                     }
 
                     StringType ret{};

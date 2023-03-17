@@ -56,11 +56,11 @@ namespace ospf
                 }
 
                 const auto regex_matcher = CharTrait<CharT>::catch_regex(seperator);
-                std::vector<std::string> header{};
-                auto headers = regex_split(line, regex_matcher);
+                std::vector<std::basic_string<CharT>> header{};
+                auto headers = regex_catch(line, regex_matcher);
                 for (usize j{ 0_uz }; j != headers.size(); ++j)
                 {
-                    header.push_back(std::move(headers[j]));
+                    header.push_back(CharTrait<CharT>::extract(headers[j], seperator));
                 }
 
                 CSVTable table{ std::move(header) };
@@ -71,10 +71,10 @@ namespace ospf
                         continue;
                     }
 
-                    auto this_row = regex_split(line, regex_matcher);
-                    table.insert_row(table.row(), [&this_row](const usize col)
+                    auto this_row = regex_catch(line, regex_matcher);
+                    table.insert_row(table.row(), [&this_row, seperator](const usize j)
                         {
-                            return std::move(this_row[col]);
+                            return CharTrait<CharT>::extract(this_row[j], seperator);
                         });
                 }
                 return std::move(table);
@@ -91,18 +91,18 @@ namespace ospf
                 }
 
                 const auto regex_matcher = CharTrait<CharT>::catch_regex(seperator);
-                std::array<std::string, col> header{};
-                auto headers = regex_split(line, regex_matcher);
+                std::array<std::basic_string<CharT>, col> header{};
+                auto headers = regex_catch(line, regex_matcher);
                 if (headers.size() != col)
                 {
                     return OSPFError{ OSPFErrCode::DeserializationFail, "unmatched header size" };
                 }
                 for (usize j{ 0_uz }; j != col; ++j)
                 {
-                    header[j] = std::move(headers[j]);
+                    header[j] = CharTrait<CharT>::extract(headers[j], seperator);
                 }
 
-                ORMCSVTable<col> table{ std::move(header) };
+                ORMCSVTable<col> table{ header };
                 while (std::getline(is, line))
                 {
                     if (line.empty())
@@ -110,15 +110,15 @@ namespace ospf
                         continue;
                     }
 
-                    auto this_row = regex_split(line, regex_matcher);
-                    table.insert_row(table.row(), [&this_row](const usize j)
+                    auto this_row = regex_catch(line, regex_matcher);
+                    table.insert_row(table.row(), [&this_row, seperator](const usize j)
                         {
-                            return std::move(this_row[j]);
+                            return CharTrait<CharT>::extract(this_row[j], seperator);
                         });
                 }
                 
                 return std::move(table);
             }
-};
+        };
     };
 };

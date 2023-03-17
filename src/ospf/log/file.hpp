@@ -25,8 +25,17 @@ namespace ospf
             using typename Impl::StringViewType;
 
         public:
-            DynFileLogger(const LogLevel lowest_level, std::basic_ofstream<CharT> fout, const RecordType::WriterGenerator& writer_generator)
+            template<typename = void>
+                requires (mt == off)
+            DynFileLogger(const LogLevel lowest_level, std::basic_ofstream<CharT> fout, const typename RecordType::WriterGenerator& writer_generator)
                 : Impl(lowest_level), _fout(std::move(fout)), _writer(writer_generator(_fout)) {}
+
+            template<typename = void>
+                requires (mt == on)
+            DynFileLogger(const LogLevel lowest_level, std::basic_ofstream<CharT> fout, const typename RecordType::WriterGenerator& writer_generator, const bool with_buffer = true)
+                : Impl(lowest_level, with_buffer), _fout(std::move(fout)), _writer(writer_generator(_fout)) {}
+
+        public:
             DynFileLogger(const DynFileLogger& ano) = delete;
             DynFileLogger(DynFileLogger&& ano) noexcept = default;
             DynFileLogger& operator=(const DynFileLogger& rhs) = delete;
@@ -34,13 +43,13 @@ namespace ospf
             ~DynFileLogger(void) = default;
 
         public:
-            inline void set_writer(const RecordType::WriterGenerator& writer_generator) noexcept
+            inline void set_writer(const typename RecordType::WriterGenerator& writer_generator) noexcept
             {
                 if constexpr (mt == on)
                 {
                     this->flush();
                 }
-                _writer = writer_generator(*_os);
+                _writer = writer_generator(_fout);
             }
 
         OSPF_CRTP_PERMISSION:
@@ -51,7 +60,7 @@ namespace ospf
 
             void write_message(StringType message) noexcept
             {
-                _os << std::move(message);
+                _fout << std::move(message);
             }
 
         private:
@@ -67,7 +76,7 @@ namespace ospf
         class FileLogger
             : public log_detail::LoggerImpl<lowest_level, mt, CharT, FileLogger<lowest_level, mt, CharT>>
         {
-            using Impl = log_detail::LoggerImpl<lowest_level, mt, CharT, FileLogger<mt, CharT>>;
+            using Impl = log_detail::LoggerImpl<lowest_level, mt, CharT, FileLogger<lowest_level, mt, CharT>>;
 
         public:
             using typename Impl::RecordType;
@@ -75,8 +84,17 @@ namespace ospf
             using typename Impl::StringViewType;
 
         public:
-            FileLogger(std::basic_ofstream<CharT> fout, const RecordType::WriterGenerator& writer_generator)
+            template<typename = void>
+                requires (mt == off)
+            FileLogger(std::basic_ofstream<CharT> fout, const typename RecordType::WriterGenerator& writer_generator)
                 : _fout(std::move(fout)), _writer(writer_generator(_fout)) {}
+
+            template<typename = void>
+                requires (mt == on)
+            FileLogger(std::basic_ofstream<CharT> fout, const typename RecordType::WriterGenerator& writer_generator, const bool with_buffer = true)
+                : Impl(with_buffer), _fout(std::move(fout)), _writer(writer_generator(_fout)) {}
+
+        public:
             FileLogger(const FileLogger& ano) = delete;
             FileLogger(FileLogger&& ano) noexcept = default;
             FileLogger& operator=(const FileLogger& rhs) = delete;
@@ -84,13 +102,13 @@ namespace ospf
             ~FileLogger(void) = default;
 
         public:
-            inline void set_writer(const RecordType::WriterGenerator& writer_generator) noexcept
+            inline void set_writer(const typename RecordType::WriterGenerator& writer_generator) noexcept
             {
                 if constexpr (mt == on)
                 {
                     this->flush();
                 }
-                _writer = writer_generator(*_os);
+                _writer = writer_generator(_fout);
             }
 
         OSPF_CRTP_PERMISSION:
@@ -101,7 +119,7 @@ namespace ospf
 
             void write_message(StringType message) noexcept
             {
-                _os << std::move(message);
+                _fout << std::move(message);
             }
 
         private:

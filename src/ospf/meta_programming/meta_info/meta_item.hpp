@@ -37,35 +37,19 @@ namespace ospf
                     return _key;
                 }
 
-                inline constexpr const bool writable(void) const noexcept
-                {
-                    return Trait::is_writable(self());
-                }
-
             public:
-                inline const std::type_index index(void) const noexcept
+                inline constexpr const std::type_index index(void) const noexcept
                 {
                     return TypeInfo<OriginType<decltype(value(std::declval<ParentType>()))>>::index();
                 }
 
-                inline decltype(auto) value(LRefType<ParentType> obj) noexcept
-                {
-                    return Trait::get_value(self(), obj);
-                }
-
-                inline decltype(auto) value(CLRefType<ParentType> obj) const noexcept
+                inline constexpr decltype(auto) value(CLRefType<ParentType> obj) const noexcept
                 {
                     return Trait::get_const_value(self(), obj);
                 }
 
                 template<typename P>
-                inline decltype(auto) value(LRefType<NamedType<ParentType, P>> obj) noexcept
-                {
-                    return Trait::get_value(self(), obj.unwrap());
-                }
-
-                template<typename P>
-                inline decltype(auto) value(CLRefType<NamedType<ParentType, P>> obj) noexcept
+                inline constexpr decltype(auto) value(CLRefType<NamedType<ParentType, P>> obj) const noexcept
                 {
                     return Trait::get_const_value(self(), obj.unwrap());
                 }
@@ -76,12 +60,6 @@ namespace ospf
                     inline static constexpr decltype(auto) is_writable(const Self& self, CLRefType<ParentType> obj) noexcept
                     {
                         static const auto get_impl = &Self::OSPF_CRTP_FUNCTION(is_writable);
-                        return (self.*get_impl)(obj);
-                    }
-
-                    inline static constexpr decltype(auto) get_value(const Self& self, LRefType<ParentType> obj) noexcept
-                    {
-                        static const auto get_impl = &Self::OSPF_CRTP_FUNCTION(get_value);
                         return (self.*get_impl)(obj);
                     }
 
@@ -120,17 +98,21 @@ namespace ospf
                 constexpr FieldItem& operator=(FieldItem&& rhs) noexcept = default;
                 constexpr ~FieldItem(void) noexcept = default;
 
-            OSPF_CRTP_PERMISSION:
-                inline constexpr const bool OSPF_CRTP_FUNCTION(is_writable)(void) noexcept
+            public:
+                inline static constexpr const bool writable(void) noexcept
                 {
                     return true;
                 }
 
-                inline constexpr decltype(auto) OSPF_CRTP_FUNCTION(get_value)(LRefType<ParentType> obj) const noexcept
+            public:
+                using Impl::value;
+
+                inline constexpr decltype(auto) value(LRefType<ParentType> obj) const noexcept
                 {
                     return obj.*_ptr;
                 }
 
+            OSPF_CRTP_PERMISSION:
                 inline constexpr decltype(auto) OSPF_CRTP_FUNCTION(get_const_value)(CLRefType<ParentType> obj) const noexcept
                 {
                     return obj.*_ptr;
@@ -164,17 +146,13 @@ namespace ospf
                 constexpr AttributeItem& operator=(AttributeItem&& rhs) noexcept = default;
                 constexpr ~AttributeItem(void) noexcept = default;
 
-            OSPF_CRTP_PERMISSION:
-                inline constexpr const bool OSPF_CRTP_FUNCTION(is_writable)(void) noexcept
+            public:
+                inline static constexpr const bool writable(void) noexcept
                 {
                     return false;
                 }
 
-                inline constexpr decltype(auto) OSPF_CRTP_FUNCTION(get_value)(LRefType<ParentType> obj) const noexcept
-                {
-                    return (obj.*_ptr)();
-                }
-
+            OSPF_CRTP_PERMISSION:
                 inline constexpr decltype(auto) OSPF_CRTP_FUNCTION(get_const_value)(CLRefType<ParentType> obj) const noexcept
                 {
                     return (obj.*_ptr)();

@@ -100,20 +100,20 @@ namespace ospf
             };
 
             template<typename T, CharType CharT = char>
-                requires WithMetaInfo<T> && WithDefault<T>
+                requires DeserializableFromJson<T, CharT> && WithDefault<T>
             inline Result<T> from_file
             (
                 const std::filesystem::path& path,
-                std::optional<NameTransfer<CharT>> transfer = meta_programming::NameTransfer<NamingSystem::Camelcase, NamingSystem::Underscore, CharT>{}
+                std::optional<NameTransfer<CharT>> transfer = NameTransfer<CharT>{ meta_programming::NameTransfer<NamingSystem::Underscore, NamingSystem::Camelcase, CharT>{} }
             ) noexcept
             {
                 if (!std::filesystem::exists(path))
                 {
-                    return OSPFError{ OSPFErrCode::FileNotFound, std::format("\"{}\" not exist", path) };
+                    return OSPFError{ OSPFErrCode::FileNotFound, std::format("\"{}\" not exist", path.string()) };
                 }
                 if (std::filesystem::is_directory(path))
                 {
-                    return OSPFError{ OSPFErrCode::NotAFile, std::format("\"{}\" is not a file", path) };
+                    return OSPFError{ OSPFErrCode::NotAFile, std::format("\"{}\" is not a file", path.string()) };
                 }
 
                 std::basic_ifstream<CharT> fin{ path };
@@ -125,21 +125,32 @@ namespace ospf
             }
 
             template<typename T, CharType CharT = char>
-                requires WithMetaInfo<T>
-            inline Try<T> from_file
+                requires DeserializableFromJson<T, CharT> && WithDefault<T>
+            inline Result<T> from_file
+            (
+                const std::filesystem::path& path,
+                NameTransfer<CharT> transfer
+            ) noexcept
+            {
+                return from_file<T>(path, std::optional<NameTransfer<CharT>>{ std::move(transfer) });
+            }
+
+            template<typename T, CharType CharT = char>
+                requires DeserializableFromJson<T, CharT>
+            inline Result<T> from_file
             (
                 const std::filesystem::path& path,
                 T& obj,
-                std::optional<NameTransfer<CharT>> transfer = meta_programming::NameTransfer<NamingSystem::Camelcase, NamingSystem::Underscore, CharT>{}
+                std::optional<NameTransfer<CharT>> transfer = NameTransfer<CharT>{ meta_programming::NameTransfer<NamingSystem::Underscore, NamingSystem::Camelcase, CharT>{} }
             ) noexcept
             {
                 if (!std::filesystem::exists(path))
                 {
-                    return OSPFError{ OSPFErrCode::FileNotFound, std::format("\"{}\" not exist", path) };
+                    return OSPFError{ OSPFErrCode::FileNotFound, std::format("\"{}\" not exist", path.string()) };
                 }
                 if (std::filesystem::is_directory(path))
                 {
-                    return OSPFError{ OSPFErrCode::NotAFile, std::format("\"{}\" is not a file", path) };
+                    return OSPFError{ OSPFErrCode::NotAFile, std::format("\"{}\" is not a file", path.string()) };
                 }
 
                 std::basic_ifstream<CharT> fin{ path };
@@ -151,20 +162,32 @@ namespace ospf
             }
 
             template<typename T, CharType CharT = char>
-                requires WithDefault<T>
+                requires DeserializableFromJson<T, CharT>
+            inline Result<T> from_file
+            (
+                const std::filesystem::path& path,
+                T& obj,
+                NameTransfer<CharT> transfer
+            ) noexcept
+            {
+                return from_file(path, obj, std::optional<NameTransfer<CharT>>{ std::move(transfer) });
+            }
+
+            template<typename T, CharType CharT = char>
+                requires DeserializableFromJson<T, CharT> && WithDefault<T>
             inline Result<std::vector<T>> from_file_array
             (
                 const std::filesystem::path& path,
-                std::optional<NameTransfer<CharT>> transfer = meta_programming::NameTransfer<NamingSystem::Camelcase, NamingSystem::Underscore, CharT>{}
+                std::optional<NameTransfer<CharT>> transfer = NameTransfer<CharT>{ meta_programming::NameTransfer<NamingSystem::Underscore, NamingSystem::Camelcase, CharT>{} }
             ) noexcept
             {
                 if (!std::filesystem::exists(path))
                 {
-                    return OSPFError{ OSPFErrCode::FileNotFound, std::format("\"{}\" not exist", path) };
+                    return OSPFError{ OSPFErrCode::FileNotFound, std::format("\"{}\" not exist", path.string()) };
                 }
                 if (std::filesystem::is_directory(path))
                 {
-                    return OSPFError{ OSPFErrCode::NotAFile, std::format("\"{}\" is not a file", path) };
+                    return OSPFError{ OSPFErrCode::NotAFile, std::format("\"{}\" is not a file", path.string()) };
                 }
 
                 std::basic_ifstream<CharT> fin{ path };
@@ -177,21 +200,32 @@ namespace ospf
             }
 
             template<typename T, CharType CharT = char>
-                requires std::copy_constructible<T>
+                requires DeserializableFromJson<T, CharT> && WithDefault<T>
             inline Result<std::vector<T>> from_file_array
             (
                 const std::filesystem::path& path,
-                std::vector<T>& origin_obj,
-                std::optional<NameTransfer<CharT>> transfer = meta_programming::NameTransfer<NamingSystem::Camelcase, NamingSystem::Underscore, CharT>{}
+                NameTransfer<CharT> transfer
+            ) noexcept
+            {
+                return from_file_array<T>(path, std::optional<NameTransfer<CharT>>{ std::move(transfer) });
+            }
+
+            template<typename T, CharType CharT = char>
+                requires DeserializableFromJson<T, CharT> && std::copy_constructible<T>
+            inline Result<std::vector<T>> from_file_array
+            (
+                const std::filesystem::path& path,
+                const T& origin_obj,
+                std::optional<NameTransfer<CharT>> transfer = NameTransfer<CharT>{ meta_programming::NameTransfer<NamingSystem::Underscore, NamingSystem::Camelcase, CharT>{} }
             ) noexcept
             {
                 if (!std::filesystem::exists(path))
                 {
-                    return OSPFError{ OSPFErrCode::FileNotFound, std::format("\"{}\" not exist", path) };
+                    return OSPFError{ OSPFErrCode::FileNotFound, std::format("\"{}\" not exist", path.string()) };
                 }
                 if (std::filesystem::is_directory(path))
                 {
-                    return OSPFError{ OSPFErrCode::NotAFile, std::format("\"{}\" is not a file", path) };
+                    return OSPFError{ OSPFErrCode::NotAFile, std::format("\"{}\" is not a file", path.string()) };
                 }
 
                 std::basic_ifstream<CharT> fin{ path };
@@ -204,11 +238,23 @@ namespace ospf
             }
 
             template<typename T, CharType CharT = char>
-                requires WithMetaInfo<T> && WithDefault<T>
+                requires DeserializableFromJson<T, CharT> && std::copy_constructible<T>
+            inline Result<std::vector<T>> from_file_array
+            (
+                const std::filesystem::path& path,
+                const T& origin_obj,
+                NameTransfer<CharT> transfer
+            ) noexcept
+            {
+                return from_file_array(path, origin_obj, std::optional<NameTransfer<CharT>>{ std::move(transfer) });
+            }
+
+            template<typename T, CharType CharT = char>
+                requires DeserializableFromJson<T, CharT> && WithDefault<T>
             inline Result<T> from_string
             (
                 const std::basic_string_view<CharT> str,
-                std::optional<NameTransfer<CharT>> transfer = meta_programming::NameTransfer<NamingSystem::Camelcase, NamingSystem::Underscore, CharT>{}
+                std::optional<NameTransfer<CharT>> transfer = NameTransfer<CharT>{ meta_programming::NameTransfer<NamingSystem::Underscore, NamingSystem::Camelcase, CharT>{} }
             ) noexcept
             {
                 std::basic_istringstream<CharT> sin{ str };
@@ -220,12 +266,23 @@ namespace ospf
             }
 
             template<typename T, CharType CharT = char>
-                requires WithMetaInfo<T>
+                requires DeserializableFromJson<T, CharT> && WithDefault<T>
+            inline Result<T> from_string
+            (
+                const std::basic_string_view<CharT> str,
+                NameTransfer<CharT> transfer
+            ) noexcept
+            {
+                return from_string<T>(str, std::optional<NameTransfer<CharT>>{ std::move(transfer) });
+            }
+
+            template<typename T, CharType CharT = char>
+                requires DeserializableFromJson<T, CharT>
             inline Try<T> from_string
             (
                 const std::basic_string_view<CharT> str,
                 T& obj,
-                std::optional<NameTransfer<CharT>> transfer = meta_programming::NameTransfer<NamingSystem::Camelcase, NamingSystem::Underscore, CharT>{}
+                std::optional<NameTransfer<CharT>> transfer = NameTransfer<CharT>{ meta_programming::NameTransfer<NamingSystem::Underscore, NamingSystem::Camelcase, CharT>{} }
             ) noexcept
             {
                 std::basic_istringstream<CharT> sin{ str };
@@ -237,11 +294,23 @@ namespace ospf
             }
 
             template<typename T, CharType CharT = char>
-                requires WithDefault<T>
+                requires DeserializableFromJson<T, CharT>
+            inline Try<T> from_string
+            (
+                const std::basic_string_view<CharT> str,
+                T& obj,
+                NameTransfer<CharT> transfer
+            ) noexcept
+            {
+                return from_string(str, obj, std::optional<NameTransfer<CharT>>{ std::move(transfer) });
+            }
+
+            template<typename T, CharType CharT = char>
+                requires DeserializableFromJson<T, CharT> && WithDefault<T>
             inline Result<std::vector<T>> from_string_array
             (
                 const std::basic_string_view<CharT> str,
-                std::optional<NameTransfer<CharT>> transfer = meta_programming::NameTransfer<NamingSystem::Camelcase, NamingSystem::Underscore, CharT>{}
+                std::optional<NameTransfer<CharT>> transfer = NameTransfer<CharT>{ meta_programming::NameTransfer<NamingSystem::Underscore, NamingSystem::Camelcase, CharT>{} }
             ) noexcept
             {
                 std::basic_istringstream<CharT> sin{ str };
@@ -254,12 +323,23 @@ namespace ospf
             }
 
             template<typename T, CharType CharT = char>
-                requires std::copy_constructible<T>
+                requires DeserializableFromJson<T, CharT> && WithDefault<T>
             inline Result<std::vector<T>> from_string_array
             (
                 const std::basic_string_view<CharT> str,
-                std::vector<T>& origin_obj,
-                std::optional<NameTransfer<CharT>> transfer = meta_programming::NameTransfer<NamingSystem::Camelcase, NamingSystem::Underscore, CharT>{}
+                NameTransfer<CharT> transfer
+            ) noexcept
+            {
+                return from_string_array<T>(str, std::optional<NameTransfer<CharT>>{ std::move(transfer) });
+            }
+
+            template<typename T, CharType CharT = char>
+                requires DeserializableFromJson<T, CharT> && std::copy_constructible<T>
+            inline Result<std::vector<T>> from_string_array
+            (
+                const std::basic_string_view<CharT> str,
+                const T& origin_obj,
+                std::optional<NameTransfer<CharT>> transfer = NameTransfer<CharT>{ meta_programming::NameTransfer<NamingSystem::Underscore, NamingSystem::Camelcase, CharT>{} }
             ) noexcept
             {
                 std::basic_istringstream<CharT> sin{ str };
@@ -272,11 +352,23 @@ namespace ospf
             }
 
             template<typename T, CharType CharT = char>
-                requires WithMetaInfo<T> && WithDefault<T>
+                requires DeserializableFromJson<T, CharT> && std::copy_constructible<T>
+            inline Result<std::vector<T>> from_string_array
+            (
+                const std::basic_string_view<CharT> str,
+                const T& origin_obj,
+                NameTransfer<CharT> transfer
+            ) noexcept
+            {
+                return from_string_array(str, origin_obj, std::optional<NameTransfer<CharT>>{ std::move(transfer) });
+            }
+
+            template<typename T, CharType CharT = char>
+                requires DeserializableFromJson<T, CharT> && WithDefault<T>
             inline Result<T> from_json
             (
                 const Json<CharT>& json,
-                std::optional<NameTransfer<CharT>> transfer = meta_programming::NameTransfer<NamingSystem::Camelcase, NamingSystem::Underscore, CharT>{}
+                std::optional<NameTransfer<CharT>> transfer = NameTransfer<CharT>{ meta_programming::NameTransfer<NamingSystem::Underscore, NamingSystem::Camelcase, CharT>{} }
             ) noexcept
             {
                 auto deserializer = transfer.has_value() ? Deserializer<T, CharT>{ std::move(transfer).value() } : Deserializer<T, CharT>{};
@@ -285,12 +377,23 @@ namespace ospf
             }
 
             template<typename T, CharType CharT = char>
-                requires WithMetaInfo<T>
-            inline Try<T> from_json
+                requires DeserializableFromJson<T, CharT> && WithDefault<T>
+            inline Result<T> from_json
+            (
+                const Json<CharT>& json,
+                NameTransfer<CharT> transfer
+            ) noexcept
+            {
+                return from_json<T>(json, std::optional<NameTransfer<CharT>>{ std::move(transfer) });
+            }
+
+            template<typename T, CharType CharT = char>
+                requires DeserializableFromJson<T, CharT>
+            inline Result<T> from_json
             (
                 const Json<CharT>& json,
                 T& obj,
-                std::optional<NameTransfer<CharT>> transfer = meta_programming::NameTransfer<NamingSystem::Camelcase, NamingSystem::Underscore, CharT>{}
+                std::optional<NameTransfer<CharT>> transfer = NameTransfer<CharT>{ meta_programming::NameTransfer<NamingSystem::Underscore, NamingSystem::Camelcase, CharT>{} }
             ) noexcept
             {
                 auto deserializer = transfer.has_value() ? Deserializer<T, CharT>{ std::move(transfer).value() } : Deserializer<T, CharT>{};
@@ -299,11 +402,23 @@ namespace ospf
             }
 
             template<typename T, CharType CharT = char>
-                requires WithDefault<T>
+                requires DeserializableFromJson<T, CharT>
+            inline Result<T> from_json
+            (
+                const Json<CharT>& json,
+                T& obj,
+                NameTransfer<CharT> transfer
+            ) noexcept
+            {
+                return from_json(json, obj, std::optional<NameTransfer<CharT>>{ std::move(transfer) });
+            }
+
+            template<typename T, CharType CharT = char>
+                requires DeserializableFromJson<T, CharT> && WithDefault<T>
             inline Result<std::vector<T>> from_json_array
             (
                 const Json<CharT>& json,
-                std::optional<NameTransfer<CharT>> transfer = meta_programming::NameTransfer<NamingSystem::Camelcase, NamingSystem::Underscore, CharT>{}
+                std::optional<NameTransfer<CharT>> transfer = NameTransfer<CharT>{ meta_programming::NameTransfer<NamingSystem::Underscore, NamingSystem::Camelcase, CharT>{} }
             ) noexcept
             {
                 auto deserializer = transfer.has_value() ? Deserializer<T, CharT>{ std::move(transfer).value() } : Deserializer<T, CharT>{};
@@ -312,17 +427,40 @@ namespace ospf
             }
 
             template<typename T, CharType CharT = char>
-                requires std::copy_constructible<T>
+                requires DeserializableFromJson<T, CharT> && WithDefault<T>
             inline Result<std::vector<T>> from_json_array
             (
                 const Json<CharT>& json,
-                std::vector<T>& origin_obj,
-                std::optional<NameTransfer<CharT>> transfer = meta_programming::NameTransfer<NamingSystem::Camelcase, NamingSystem::Underscore, CharT>{}
+                NameTransfer<CharT> transfer
+            ) noexcept
+            {
+                return from_json_array<T>(json, std::optional<NameTransfer<CharT>>{ std::move(transfer) });
+            }
+
+            template<typename T, CharType CharT = char>
+                requires DeserializableFromJson<T, CharT> && std::copy_constructible<T>
+            inline Result<std::vector<T>> from_json_array
+            (
+                const Json<CharT>& json,
+                const T& origin_obj,
+                std::optional<NameTransfer<CharT>> transfer = NameTransfer<CharT>{ meta_programming::NameTransfer<NamingSystem::Underscore, NamingSystem::Camelcase, CharT>{} }
             ) noexcept
             {
                 auto deserializer = transfer.has_value() ? Deserializer<T, CharT>{ std::move(transfer).value() } : Deserializer<T, CharT>{};
                 OSPF_TRY_GET(objs, deserializer.parse_array(json, origin_obj));
                 return std::move(objs);
+            }
+
+            template<typename T, CharType CharT = char>
+                requires DeserializableFromJson<T, CharT> && std::copy_constructible<T>
+            inline Result<std::vector<T>> from_json_array
+            (
+                const Json<CharT>& json,
+                const T& origin_obj,
+                NameTransfer<CharT> transfer
+            ) noexcept
+            {
+                return from_json_array(json, origin_obj, std::optional<NameTransfer<CharT>>{ std::move(transfer) });
             }
 
             // todo: from bytes

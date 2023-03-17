@@ -481,7 +481,7 @@ namespace ospf
             template<
                 typename T,
                 usize len,
-                template<typename U, usize l> class C
+                template<typename, usize> class C
             >
             struct OptionalArrayAccessPolicy<T, C<std::optional<OriginType<T>>, len>>
             {
@@ -611,14 +611,15 @@ namespace ospf
 
             template<
                 typename T,
-                template<typename U> class C
+                typename Alloc,
+                template<typename, typename> class C
             >
-            struct OptionalArrayAccessPolicy<T, C<std::optional<OriginType<T>>>>
+            struct OptionalArrayAccessPolicy<T, C<std::optional<OriginType<T>>, Alloc>>
             {
             public:
                 using ValueType = OriginType<T>;
                 using OptType = std::optional<ValueType>;
-                using ContainerType = C<OptType>;
+                using ContainerType = C<OptType, Alloc>;
                 using IterType = OptionalArrayIterator<ValueType, ContainerType>;
                 using ConstIterType = OptionalArrayConstIterator<ValueType, ContainerType>;
                 using ReverseIterType = OptionalArrayReverseIterator<ValueType, ContainerType>;

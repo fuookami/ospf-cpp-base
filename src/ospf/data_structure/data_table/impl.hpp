@@ -736,6 +736,13 @@ namespace ospf
                 Ref<TableType> _table;
             };
 
+            template<typename F, typename CellType, typename CharT>
+            concept RowConstructorType = CharType<CharT> 
+                && requires (const F& fun, const usize col, const DataTableHeader<CharT>& header)
+                {
+                    { fun(col, header) } -> DecaySameAs<CellType>;
+                };
+
             template<CharType CharT, typename C, typename T, typename RV>
             class DataTableRows
             {
@@ -823,12 +830,19 @@ namespace ospf
                     return _table->insert_row(pos, std::forward<U>(value));
                 }
 
-                inline const usize insert(const usize pos, const std::function<RetType<CellType>(const usize)>& constructor)
+                template<typename F>
+                    requires requires (const F& fun, const usize col) 
+                    { 
+                        { fun(col) } -> DecaySameAs<CellType>; 
+                    }
+                inline const usize insert(const usize pos, const F& constructor)
                 {
                     return _table->insert_row(pos, constructor);
                 }
 
-                inline const usize insert(const usize pos, const RowConstructor& constructor)
+                template<typename F>
+                    requires RowConstructorType<F, CellType, CharT>
+                inline const usize insert(const usize pos, const F& constructor)
                 {
                     return _table->insert_row(pos, constructor);
                 }
@@ -851,14 +865,21 @@ namespace ospf
                     return _table->insert_row(pos, std::forward<U>(value));
                 }
 
-                inline RetType<IterType> insert(ArgCLRefType<IterType> pos, const std::function<RetType<CellType>(const usize)>& constructor)
+                template<typename F>
+                    requires requires (const F& fun, const usize col)
+                    { 
+                        { fun(col) } -> DecaySameAs<CellType>; 
+                    }
+                inline RetType<IterType> insert(ArgCLRefType<IterType> pos, const F& constructor)
                 {
-                    return _table->insert(pos, constructor);
+                    return _table->insert_row(pos, constructor);
                 }
 
-                inline RetType<IterType> insert(ArgCLRefType<IterType> pos, const RowConstructor& constructor)
+                template<typename F>
+                    requires RowConstructorType<F, CellType, CharT>
+                inline RetType<IterType> insert(ArgCLRefType<IterType> pos, const F& constructor)
                 {
-                    return _table->insert(pos, constructor);
+                    return _table->insert_row(pos, constructor);
                 }
 
                 inline RetType<IterType> erase(const usize pos) noexcept
@@ -873,6 +894,12 @@ namespace ospf
 
             private:
                 Ref<TableType> _table;
+            };
+
+            template<typename F, typename CellType>
+            concept ColumnConstructorType = requires (const F& fun, const usize row)
+            {
+                { fun(row) } -> DecaySameAs<CellType>;
             };
 
             template<CharType CharT, typename C, typename T, typename CV>
@@ -945,70 +972,104 @@ namespace ospf
 
             public:
                 template<typename = void>
-                    requires WithDefault<CellType> && requires (TableType& table) { table.insert_column(std::declval<usize>(), std::declval<DataTableHeader<CharT>>()); }
+                    requires WithDefault<CellType> 
+                        && requires (TableType& table) 
+                        { 
+                            table.insert_column(std::declval<usize>(), std::declval<DataTableHeader<CharT>>());
+                        }
                 inline const usize insert(const usize pos, ArgRRefType<DataTableHeader<CharT>> header)
                 {
                     return _table->insert_column(pos, move<DataTableHeader<CharT>>(header));
                 }
 
                 template<typename = void>
-                    requires requires (TableType& table) { table.insert_column(std::declval<usize>(), std::declval<DataTableHeader<CharT>>(), std::declval<CellType>()); }
+                    requires requires (TableType& table) 
+                        { 
+                            table.insert_column(std::declval<usize>(), std::declval<DataTableHeader<CharT>>(), std::declval<CellType>()); 
+                        }
                 inline const usize insert(const usize pos, ArgRRefType<DataTableHeader<CharT>> header, ArgCLRefType<CellType> value)
                 {
                     return _table->insert_column(pos, move<DataTableHeader<CharT>>(header), value);
                 }
 
                 template<typename U>
-                    requires requires (TableType& table) { table.insert_column(std::declval<usize>(), std::declval<DataTableHeader<CharT>>(), std::declval<U>()); }
+                    requires requires (TableType& table) 
+                        { 
+                            table.insert_column(std::declval<usize>(), std::declval<DataTableHeader<CharT>>(), std::declval<U>()); 
+                        }
                 inline const usize insert(const usize pos, ArgRRefType<DataTableHeader<CharT>> header, U&& value)
                 {
                     return _table->insert_column(pos, move<DataTableHeader<CharT>>(header), std::forward<U>(value));
                 }
 
-                template<typename = void>
-                    requires requires (TableType& table) { table.insert_column(std::declval<usize>(), std::declval<DataTableHeader<CharT>>(), std::declval<ColumnConstructor>()); }
-                inline const usize insert(const usize pos, ArgRRefType<DataTableHeader<CharT>> header, const ColumnConstructor& constructor)
+                template<typename F>
+                    requires ColumnConstructorType<F, CellType>
+                        && requires (TableType& table) 
+                        { 
+                            table.insert_column(std::declval<usize>(), std::declval<DataTableHeader<CharT>>(), std::declval<F>());
+                        }
+                inline const usize insert(const usize pos, ArgRRefType<DataTableHeader<CharT>> header, const F& constructor)
                 {
                     return _table->insert_column(pos, move<DataTableHeader<CharT>>(header), constructor);
                 }
 
                 template<typename = void>
-                    requires WithDefault<CellType> && requires (TableType& table) { table.insert_column(std::declval<IterType>(), std::declval<DataTableHeader<CharT>>()); }
+                    requires WithDefault<CellType> 
+                        && requires (TableType& table) 
+                        { 
+                            table.insert_column(std::declval<IterType>(), std::declval<DataTableHeader<CharT>>());
+                        }
                 inline RetType<IterType> insert(ArgCLRefType<IterType> pos, ArgRRefType<DataTableHeader<CharT>> header)
                 {
                     return _table->insert_column(pos, move<DataTableHeader<CharT>>(header));
                 }
 
                 template<typename = void>
-                    requires requires (TableType& table) { table.insert_column(std::declval<IterType>(), std::declval<DataTableHeader<CharT>>(), std::declval<CellType>()); }
+                    requires requires (TableType& table) 
+                        { 
+                            table.insert_column(std::declval<IterType>(), std::declval<DataTableHeader<CharT>>(), std::declval<CellType>()); 
+                        }
                 inline RetType<IterType> insert(ArgCLRefType<IterType> pos, ArgRRefType<DataTableHeader<CharT>> header, ArgCLRefType<CellType> value)
                 {
                     return _table->insert_column(pos, move<DataTableHeader<CharT>>(header), value);
                 }
 
                 template<typename U>
-                    requires requires (TableType& table) { table.insert_column(std::declval<IterType>(), std::declval<DataTableHeader<CharT>>(), std::declval<U>()); }
+                    requires requires (TableType& table) 
+                        { 
+                            table.insert_column(std::declval<IterType>(), std::declval<DataTableHeader<CharT>>(), std::declval<U>()); 
+                        }
                 inline RetType<IterType> insert(ArgCLRefType<IterType> pos, ArgRRefType<DataTableHeader<CharT>> header, U&& value)
                 {
                     return _table->insert_column(pos, move<DataTableHeader<CharT>>(header), std::forward<U>(value));
                 }
 
-                template<typename = void>
-                    requires requires (TableType& table) { table.insert_column(std::declval<IterType>(), std::declval<DataTableHeader<CharT>>(), std::declval<ColumnConstructor>()); }
-                inline RetType<IterType> insert(ArgCLRefType<IterType> pos, ArgRRefType<DataTableHeader<CharT>> header, const ColumnConstructor& constructor)
+                template<typename F>
+                    requires ColumnConstructorType<F, CellType>
+                        && requires (TableType& table) 
+                        { 
+                            table.insert_column(std::declval<IterType>(), std::declval<DataTableHeader<CharT>>(), std::declval<F>());
+                        }
+                inline RetType<IterType> insert(ArgCLRefType<IterType> pos, ArgRRefType<DataTableHeader<CharT>> header, const F& constructor)
                 {
                     return _table->insert_column(pos, move<DataTableHeader<CharT>>(header), constructor);
                 }
 
                 template<typename = void>
-                    requires requires (TableType& table) { table.erase_column(std::declval<usize>()); }
+                    requires requires (TableType& table) 
+                        { 
+                            table.erase_column(std::declval<usize>()); 
+                        }
                 inline const usize erase(const usize pos) noexcept
                 {
                     return _table->erase_column(pos);
                 }
 
                 template<typename = void>
-                    requires requires (TableType& table) { table.erase_column(std::declval<IterType>()); }
+                    requires requires (TableType& table) 
+                        { 
+                            table.erase_column(std::declval<IterType>()); 
+                        }
                 inline RetType<IterType> erase(ArgCLRefType<IterType> pos) noexcept
                 {
                     return _table->erase_column(pos);
@@ -1298,23 +1359,31 @@ namespace ospf
                 }
 
                 template<typename U>
+                    requires std::convertible_to<U, CellType>
                 inline const usize insert_row(const usize pos, U&& value)
                 {
-                    return insert_row(pos, CellType{ std::forward<U>(value) });
+                    return insert_row(pos, static_cast<CellType>(std::forward<U>(value)));
                 }
-                
-                inline const usize insert_row(const usize pos, const std::function<RetType<CellType>(const usize)>& constructor)
+
+                template<typename F>
+                    requires requires (const F& fun, const usize j)
+                    {
+                        { fun(j) } -> DecaySameAs<CellType>;
+                    }
+                inline const usize insert_row(const usize pos, const F& constructor)
                 {
-                    return insert_row(pos, [&constructor](const usize i, const DataTableHeader& _)
+                    return insert_row(pos, [&constructor](const usize i, const DataTableHeader<CharT>& _)
                         {
                             return constructor(i);
                         });
                 }
 
-                inline const usize insert_row(const usize pos, const RowConstructor& constructor)
+                template<typename F>
+                    requires RowConstructorType<F, CellType, CharT>
+                inline const usize insert_row(const usize pos, const F& constructor)
                 {
-                    Trait::insert_row(self(), pos, constructor);
-                    return row + 1_uz;
+                    Trait::insert_row(self(), pos, RowConstructor{ constructor });
+                    return pos + 1_uz;
                 }
 
                 template<typename = void>
@@ -1337,13 +1406,20 @@ namespace ospf
                     return insert_row(pos, CellType{ std::forward<U>(value) });
                 }
 
-                inline RetType<RowIterType> insert_row(ArgCLRefType<RowIterType> pos, const std::function<RetType<CellType>(const usize)>& constructor)
+                template<typename F>
+                    requires requires (const F& fun, const usize j)
+                    {
+                        { fun(j) } -> DecaySameAs<CellType>;
+                    }
+                inline RetType<RowIterType> insert_row(ArgCLRefType<RowIterType> pos, const F& constructor)
                 {
                     insert_row(static_cast<const usize>(pos), constructor);
                     return pos + 1_iz;
                 }
 
-                inline RetType<RowIterType> insert_row(ArgCLRefType<RowIterType> pos, const RowConstructor& constructor)
+                template<typename F>
+                    requires RowConstructorType<F, CellType, CharT>
+                inline RetType<RowIterType> insert_row(ArgCLRefType<RowIterType> pos, const F& constructor)
                 {
                     insert_row(static_cast<const usize>(pos), constructor);
                     return pos + 1_iz;

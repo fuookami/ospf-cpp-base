@@ -9,6 +9,7 @@
 #include <ospf/meta_programming/type_info.hpp>
 #include <ospf/meta_programming/variable_type_list.hpp>
 #include <ospf/ospf_base_api.hpp>
+#include <ospf/serialization/csv/concepts.hpp>
 #include <ospf/serialization/nullable.hpp>
 #include <ospf/serialization/writable.hpp>
 #include <deque>

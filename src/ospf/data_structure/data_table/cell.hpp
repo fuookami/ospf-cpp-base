@@ -20,6 +20,12 @@ namespace ospf
                 }
 
                 template<CharType CharT>
+                inline static DataTableHeader<CharT> base_header(std::basic_string<CharT> header) noexcept
+                {
+                    return DataTableHeader{ std::move(header), TypeInfo<C>::index()};
+                }
+
+                template<CharType CharT>
                 inline static DataTableHeader<CharT> base_header(const std::basic_string_view<CharT> header) noexcept
                 {
                     return DataTableHeader{ std::basic_string<CharT>{ header }, TypeInfo<C>::index() };
@@ -32,6 +38,12 @@ namespace ospf
                 inline static const std::optional<std::type_index> type(const std::optional<T>& cell) noexcept
                 {
                     return TypeInfo<T>::index();
+                }
+
+                template<CharType CharT>
+                inline static DataTableHeader<CharT> base_header(std::basic_string<CharT> header) noexcept
+                {
+                    return DataTableHeader{ std::move(header), TypeInfo<T>::index() };
                 }
 
                 template<CharType CharT>
@@ -50,6 +62,12 @@ namespace ospf
                         {
                             return TypeInfo<OriginType<decltype(v)>>::index();
                         }, cell);
+                }
+
+                template<CharType CharT>
+                inline static DataTableHeader<CharT> base_header(std::basic_string<CharT> header) noexcept
+                {
+                    return DataTableHeader{ std::move(header), std::set<std::type_index>{ TypeInfo<Ts>::index()... } };
                 }
 
                 template<CharType CharT>
@@ -78,9 +96,15 @@ namespace ospf
                 }
 
                 template<CharType CharT>
+                inline static DataTableHeader<CharT> base_header(std::basic_string<CharT> header) noexcept
+                {
+                    return DataTableHeader{ std::move(header), std::set<std::type_index>{ TypeInfo<Ts>::index()... } };
+                }
+
+                template<CharType CharT>
                 inline static DataTableHeader<CharT> base_header(const std::basic_string_view<CharT> header) noexcept
                 {
-                    return DataTableHeader{ std::basic_string<CharT>{ header }, { TypeInfo<Ts>::index()... } };
+                    return DataTableHeader{ std::basic_string<CharT>{ header }, std::set<std::type_index>{ TypeInfo<Ts>::index()... } };
                 }
             };
         };

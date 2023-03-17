@@ -2,6 +2,7 @@
 
 #include <ospf/ospf_base_api.hpp>
 #include <ospf/basic_definition.hpp>
+#include <ospf/concepts/base.hpp>
 #include <ospf/literal_constant.hpp>
 #include <ospf/meta_programming/naming_system.hpp>
 #include <locale>

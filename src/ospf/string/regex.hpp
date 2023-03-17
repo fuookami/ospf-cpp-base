@@ -1,6 +1,7 @@
 ﻿#pragma once
 
 #include <ospf/basic_definition.hpp>
+#include <ospf/concepts/base.hpp>
 #include <set>
 
 namespace ospf

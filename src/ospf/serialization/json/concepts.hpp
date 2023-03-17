@@ -48,7 +48,7 @@ namespace std
         template<typename FormatContext>
         inline decltype(auto) format(const ospf::serialization::json::Json<CharT>& value, FormatContext& fc)
         {
-            std::basic_ostringstream<CharT> sout;
+            basic_ostringstream<CharT> sout;
             rapidjson::BasicOStreamWrapper<decltype(sout)> osw{sout};
             rapidjson::Writer<decltype(osw)> writer{ osw };
 

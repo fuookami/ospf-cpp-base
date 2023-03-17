@@ -31,6 +31,16 @@ namespace ospf
                 constexpr ~RefImpl(void) noexcept = default;
 
             public:
+                inline constexpr const PtrType operator&(void) noexcept
+                {
+                    return &ref();
+                }
+
+                inline constexpr const CPtrType operator&(void) const noexcept
+                {
+                    return &cref();
+                }
+
                 inline constexpr const PtrType operator->(void) noexcept
                 {
                     return &ref();
@@ -70,7 +80,7 @@ namespace ospf
                 }
 
                 template<typename U, typename R>
-                    requires requires (T& lhs, U& rhs) { { lhs == rhs } -> DecaySameAs<bool>; }
+                    requires requires (const T& lhs, const U& rhs) { { lhs == rhs } -> DecaySameAs<bool>; }
                 inline constexpr const bool operator==(const RefImpl<U, R>& rhs) const noexcept
                 {
                     return &cref() == &rhs.cref() || cref() == rhs.cref();
@@ -83,7 +93,7 @@ namespace ospf
                 }
 
                 template<typename U, typename R>
-                    requires requires (T& lhs, U& rhs) { { lhs != rhs } -> DecaySameAs<bool>; }
+                    requires requires (const T& lhs, const U& rhs) { { lhs != rhs } -> DecaySameAs<bool>; }
                 inline constexpr const bool operator!=(const RefImpl<U, R>& rhs) const noexcept
                 {
                     return &cref() != &rhs.cref() && cref() != rhs.cref();
@@ -96,7 +106,7 @@ namespace ospf
                 }
 
                 template<typename U>
-                    requires requires (T& lhs, U& rhs) { { lhs == rhs } -> DecaySameAs<bool>; }
+                    requires requires (const T& lhs, const U& rhs) { { lhs == rhs } -> DecaySameAs<bool>; }
                 inline constexpr const bool operator==(const U& rhs) const noexcept
                 {
                     return &cref() == &rhs || cref() == rhs;
@@ -109,7 +119,7 @@ namespace ospf
                 }
 
                 template<typename U>
-                    requires requires (T& lhs, U& rhs) { { lhs != rhs } -> DecaySameAs<bool>; }
+                    requires requires (const T& lhs, const U& rhs) { { lhs != rhs } -> DecaySameAs<bool>; }
                 inline constexpr const bool operator!=(const U& rhs) const noexcept
                 {
                     return &cref() != &rhs && cref() != rhs;
@@ -122,7 +132,7 @@ namespace ospf
                 }
 
                 template<typename U>
-                    requires requires (T& lhs, U& rhs) { { lhs == rhs } -> DecaySameAs<bool>; }
+                    requires requires (const T& lhs, const U& rhs) { { lhs == rhs } -> DecaySameAs<bool>; }
                 inline constexpr const bool operator==(const std::optional<U>& rhs) const noexcept
                 {
                     return static_cast<bool>(rhs) && (&cref() == &*rhs || cref() == *rhs);
@@ -135,7 +145,7 @@ namespace ospf
                 }
 
                 template<typename U>
-                    requires requires (T& lhs, U& rhs) { { lhs != rhs } -> DecaySameAs<bool>; }
+                    requires requires (const T& lhs, const U& rhs) { { lhs != rhs } -> DecaySameAs<bool>; }
                 inline constexpr const bool operator!=(const std::optional<U>& rhs) const noexcept
                 {
                     return !static_cast<bool>(rhs) || (&cref() != &*rhs && cref() != *rhs);
@@ -371,8 +381,8 @@ namespace std
 
         inline const ospf::usize operator()(ospf::ArgCLRefType<RefType> ref) const noexcept
         {
-            static const auto func = hash<T>{};
-            return func(*ref);
+            static const hash<T> hasher{};
+            return hasher(*ref);
         }
     };
 
@@ -385,7 +395,7 @@ namespace std
         template<typename FormatContext>
         inline decltype(auto) format(ospf::ArgCLRefType<RefType> ref, FormatContext& fc)
         {
-            static const auto _formatter = formatter<ospf::OriginType<T>, CharT>{};
+            static const formatter<ospf::OriginType<T>, CharT> _formatter{};
             return _formatter.format(*ref, fc);
         }
     };
@@ -402,7 +412,7 @@ namespace ospf
 
         inline constexpr RetType<Type> value(ArgCLRefType<RefType> ref) const noexcept
         {
-            static constexpr const auto extractor = TagValue<T>{};
+            static constexpr const TagValue<T> extractor{};
             return extractor(*ref);
         }
     };

@@ -51,12 +51,16 @@ namespace ospf
                 using Impl::operator==;
                 using Impl::operator!=;
 
+                template<typename = void>
+                    requires requires (const T& lhs, const T& rhs) { { lhs == rhs } -> DecaySameAs<bool>; }
                 inline constexpr const bool operator==(const Ref& rhs) const noexcept
                 {
                     return _ptr == rhs._ptr
                         || *_ptr == *rhs._ptr;
                 }
 
+                template<typename = void>
+                    requires requires (const T& lhs, const T& rhs) { { lhs != rhs } -> DecaySameAs<bool>; }
                 inline constexpr const bool operator!=(const Ref& rhs) const noexcept
                 {
                     return _ptr != rhs._ptr

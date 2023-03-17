@@ -3,6 +3,8 @@
 #include <ospf/data_structure/data_table.hpp>
 #include <ospf/meta_programming/meta_info.hpp>
 #include <ospf/meta_programming/name_transfer.hpp>
+#include <ospf/serialization/csv/concepts.hpp>
+#include <optional>
 
 namespace ospf
 {
@@ -53,10 +55,10 @@ namespace ospf
             {
                 ORMHeaderType<T, CharT> header{};
                 usize i{ 0_uz };
-                info.for_each([&header, &transfer](const auto& field)
+                info.for_each([&i, &header, &transfer](const auto& field)
                     {
                         header[i] = transfer.has_value() ? (*transfer)(field.key()) : field.key();
-                ++i;
+                        ++i;
                     });
                 return header;
             }
@@ -66,14 +68,16 @@ namespace ospf
         inline csv::ORMTableType<T, CharT> make_csv_table(const std::optional<csv::NameTransfer<CharT>>& transfer = meta_programming::NameTransfer<NamingSystem::Underscore, NamingSystem::UpperUnderscore, CharT>{}) noexcept
         {
             static const meta_info::MetaInfo<T> info{};
-            return csv::ORMTableType<T, CharT>{ csv::header(info, transfer) };
+            auto header = csv::header(info, transfer);
+            return csv::ORMTableType<T, CharT>{ std::span<std::basic_string_view<CharT>, csv::ORMCSVTrait<T, CharT>::col>{ header } };
         }
 
         template<WithMetaInfo T, CharType CharT = char>
         inline csv::ORMViewTableType<T, CharT> make_csv_view_table(const std::optional<csv::NameTransfer<CharT>>& transfer = meta_programming::NameTransfer<NamingSystem::Underscore, NamingSystem::UpperUnderscore, CharT>{}) noexcept
         {
             static const meta_info::MetaInfo<T> info{};
-            return csv::ORMViewTableType<T, CharT>{ csv::header(info, transfer) };
+            auto header = csv::header(info, transfer);
+            return csv::ORMViewTableType<T, CharT>{ std::span<std::basic_string_view<CharT>, csv::ORMCSVTrait<T, CharT>::col>{ header } };
         }
     };
 

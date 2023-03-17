@@ -94,7 +94,7 @@ namespace ospf
                         }
                     }, ano._either)) {}
 
-        private:
+        public:
             constexpr ValOrRef(ArgCLRefType<ValueType> value)
                 : _either(Either::left(value)) {}
 
@@ -103,6 +103,7 @@ namespace ospf
             constexpr ValOrRef(ArgRRefType<ValueType> value)
                 : _either(Either::left(move<ValueType>(value))) {}
 
+        private:
             constexpr ValOrRef(ArgRRefType<ReferenceType> ref)
                 : _either(Either::right(move<ReferenceType>(ref))) {}
 
@@ -385,24 +386,24 @@ namespace ospf
             using CRefType = CLRefType<ValueType>;
 
         public:
-            inline static constexpr RetType<ValOrRef> value(ArgCLRefType<ValueType> val) noexcept
+            inline static constexpr ValOrRef value(ArgCLRefType<ValueType> val) noexcept
             {
                 return ValOrRef{ val };
             }
 
             template<typename... Args>
                 requires std::constructible_from<ValueType, Args...>
-            inline static constexpr RetType<ValOrRef> value(Args&&... args) noexcept
+            inline static constexpr ValOrRef value(Args&&... args) noexcept
             {
                 return ValOrRef{ ValueType{ std::forward<Args>(args)... } };
             }
 
-            inline static constexpr RetType<ValOrRef> ref(ArgCLRefType<ValueType> ref) noexcept
+            inline static constexpr ValOrRef ref(ArgCLRefType<ValueType> ref) noexcept
             {
                 return ValOrRef{ ref };
             }
 
-            inline static constexpr RetType<ValOrRef> ref(ArgCLRefType<ReferenceType> ref) noexcept
+            inline static constexpr ValOrRef ref(ArgCLRefType<ReferenceType> ref) noexcept
             {
                 return ValOrRef{ ref };
             }
@@ -413,7 +414,6 @@ namespace ospf
             constexpr ValOrRef(void)
                 : _value(DefaultValue<ValueType>::value()) {}
 
-        private:
             constexpr ValOrRef(ArgCLRefType<ValueType> value)
                 : _value(value) {}
 
@@ -645,6 +645,7 @@ namespace ospf
         };
     };
 
+    // copy on write
     template<
         typename T,
         reference::ReferenceCategory cat = reference::ReferenceCategory::Reference
@@ -821,8 +822,8 @@ namespace std
 
         inline const ospf::usize operator()(ospf::ArgCLRefType<ValueType> value) const noexcept
         {
-            static const auto func = hash<T>{};
-            return func(*value);
+            static const hash<T> hasher{};
+            return hasher(*value);
         }
     };
 
@@ -835,7 +836,7 @@ namespace std
         template<typename FormatContext>
         inline decltype(auto) format(ospf::ArgCLRefType<ValueType> value, FormatContext& fc)
         {
-            static const auto _formatter = formatter<T, CharT>{};
+            static const formatter<T, CharT> _formatter{};
             return _formatter.format(*value, fc);
         }
     };
@@ -852,7 +853,7 @@ namespace ospf
 
         inline constexpr RetType<Type> value(ArgCLRefType<ValueType> value) const noexcept
         {
-            static constexpr const auto extractor = TagValue<T>{};
+            static constexpr const TagValue<T> extractor{};
             return extractor(*value);
         }
     };

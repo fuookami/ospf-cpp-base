@@ -125,9 +125,60 @@ namespace ospf
 
         extern template class Error<OSPFErrCode, char>;
         extern template class Error<OSPFErrCode, wchar>;
-        extern template class Error<OSPFErrCode, u8char>;
-        extern template class Error<OSPFErrCode, u16char>;
-        extern template class Error<OSPFErrCode, u32char>;
+        //extern template class Error<OSPFErrCode, u8char>;
+        //extern template class Error<OSPFErrCode, u16char>;
+        //extern template class Error<OSPFErrCode, u32char>;
+    };
+};
+
+namespace std
+{
+    template<ospf::EnumType C>
+    struct formatter<ospf::Error<C, char>, char>
+        : public formatter<string_view, char>
+    {
+        template<typename FormatContext>
+        inline decltype(auto) format(const ospf::Error<C, char>& error, FormatContext& fc)
+        {
+            static const formatter<string_view, char> _formatter{};
+            return _formatter.format(format("{}, msg: {}", error.code(), error.message()), fc);
+        }
+    };
+
+    template<ospf::EnumType C>
+    struct formatter<ospf::Error<C, ospf::wchar>, ospf::wchar>
+        : public formatter<wstring_view, ospf::wchar>
+    {
+        template<typename FormatContext>
+        inline decltype(auto) format(const ospf::Error<C, ospf::wchar>& error, FormatContext& fc)
+        {
+            static const formatter<wstring_view, ospf::wchar> _formatter{};
+            return _formatter.format(format(L"{}, msg: {}", error.code(), error.message()), fc);
+        }
+    };
+
+    template<ospf::EnumType C, ospf::NotVoidType T>
+    struct formatter<ospf::ExError<C, T, char>, char>
+        : public formatter<string_view, char>
+    {
+        template<typename FormatContext>
+        inline decltype(auto) format(const ospf::ExError<C, T, char>& error, FormatContext& fc)
+        {
+            static const formatter<string_view, char> _formatter{};
+            return _formatter.format(format("{}, msg: {}, arg: {}", error.code(), error.message(), error.arg()), fc);
+        }
+    };
+
+    template<ospf::EnumType C, ospf::NotVoidType T>
+    struct formatter<ospf::ExError<C, T, ospf::wchar>, ospf::wchar>
+        : public formatter<wstring_view, ospf::wchar>
+    {
+        template<typename FormatContext>
+        inline decltype(auto) format(const ospf::ExError<C, T, ospf::wchar>& error, FormatContext& fc)
+        {
+            static const formatter<wstring_view, ospf::wchar> _formatter{};
+            return _formatter.format(format(L"{}, msg: {}, arg: {}", error.code(), error.message(), error.arg()), fc);
+        }
     };
 };
 

@@ -35,13 +35,11 @@ public:\
 OSPF_CRTP_PERMISSION:\
     inline constexpr decltype(auto) OSPF_CRTP_FUNCTION(get_field_list)(void) const noexcept\
     {\
-        static constexpr const FieldList fields{ OSPF_DTO_FIELDS(__VA_ARGS__) };\
-        return fields;\
+        return FieldList{ OSPF_DTO_FIELDS(__VA_ARGS__) };\
     }\
     inline constexpr decltype(auto) OSPF_CRTP_FUNCTION(get_attribute_list)(void) const noexcept\
     {\
-        static constexpr const AttributeList attributes{};\
-        return attributes;\
+        return AttributeList{};\
     }\
 };
 
@@ -66,13 +64,11 @@ public:\
 OSPF_CRTP_PERMISSION:\
     inline constexpr decltype(auto) OSPF_CRTP_FUNCTION(get_field_list)(void) const noexcept\
     {\
-        static constexpr const FieldList fields{ OSPF_DTO_FIELDS(__VA_ARGS__) };\
-        return fields;\
+        return FieldList{ OSPF_DTO_FIELDS(__VA_ARGS__) };\
     }\
     inline constexpr decltype(auto) OSPF_CRTP_FUNCTION(get_attribute_list)(void) const noexcept\
     {\
-        static constexpr const AttributeList attributes{};\
-        return attributes;\
+        return AttributeList{};\
     }\
 };
 
@@ -97,13 +93,11 @@ public:\
 OSPF_CRTP_PERMISSION:\
     inline constexpr decltype(auto) OSPF_CRTP_FUNCTION(get_field_list)(void) const noexcept\
     {\
-        static constexpr const FieldList fields{ OSPF_DTO_FIELDS(__VA_ARGS__) };\
-        return fields;\
+        return FieldList{ OSPF_DTO_FIELDS(__VA_ARGS__) };\
     }\
     inline constexpr decltype(auto) OSPF_CRTP_FUNCTION(get_attribute_list)(void) const noexcept\
     {\
-        static constexpr const AttributeList attributes{};\
-        return attributes;\
+        return AttributeList{};\
     }\
 };
 
@@ -128,13 +122,11 @@ public:\
 OSPF_CRTP_PERMISSION:\
     inline constexpr decltype(auto) OSPF_CRTP_FUNCTION(get_field_list)(void) const noexcept\
     {\
-        static constexpr const FieldList fields{ OSPF_DTO_FIELDS(__VA_ARGS__) };\
-        return fields;\
+        return FieldList{ OSPF_DTO_FIELDS(__VA_ARGS__) };\
     }\
     inline constexpr decltype(auto) OSPF_CRTP_FUNCTION(get_attribute_list)(void) const noexcept\
     {\
-        static constexpr const AttributeList attributes{};\
-        return attributes;\
+        return AttributeList{};\
     }\
 };
 
@@ -159,13 +151,11 @@ public:\
 OSPF_CRTP_PERMISSION:\
     inline constexpr decltype(auto) OSPF_CRTP_FUNCTION(get_field_list)(void) const noexcept\
     {\
-        static constexpr const FieldList fields{ OSPF_DTO_FIELDS(__VA_ARGS__) };\
-        return fields;\
+        return FieldList{ OSPF_DTO_FIELDS(__VA_ARGS__) };\
     }\
     inline constexpr decltype(auto) OSPF_CRTP_FUNCTION(get_attribute_list)(void) const noexcept\
     {\
-        static constexpr const AttributeList attributes{};\
-        return attributes;\
+        return AttributeList{};\
     }\
 };
 
@@ -190,13 +180,11 @@ public:\
 OSPF_CRTP_PERMISSION:\
     inline constexpr decltype(auto) OSPF_CRTP_FUNCTION(get_field_list)(void) const noexcept\
     {\
-        static constexpr const FieldList fields{ Fs };\
-        return fields;\
+        return FieldList{ Fs };\
     }\
     inline constexpr decltype(auto) OSPF_CRTP_FUNCTION(get_attribute_list)(void) const noexcept\
     {\
-        static constexpr const AttributeList attributes{ As };\
-        return attributes;\
+        return AttributeList{ As };\
     }\
 };
 
@@ -221,13 +209,11 @@ public:\
 OSPF_CRTP_PERMISSION:\
     inline constexpr decltype(auto) OSPF_CRTP_FUNCTION(get_field_list)(void) const noexcept\
     {\
-        static constexpr const FieldList fields{ Fs };\
-        return fields;\
+        return FieldList{ Fs };\
     }\
     inline constexpr decltype(auto) OSPF_CRTP_FUNCTION(get_attribute_list)(void) const noexcept\
     {\
-        static constexpr const AttributeList attributes{ As };\
-        return attributes;\
+        return AttributeList{ As };\
     }\
 };
 
@@ -252,13 +238,11 @@ public:\
 OSPF_CRTP_PERMISSION:\
     inline constexpr decltype(auto) OSPF_CRTP_FUNCTION(get_field_list)(void) const noexcept\
     {\
-        static constexpr const FieldList fields{ Fs };\
-        return fields;\
+        return FieldList{ Fs };\
     }\
     inline constexpr decltype(auto) OSPF_CRTP_FUNCTION(get_attribute_list)(void) const noexcept\
     {\
-        static constexpr const AttributeList attributes{ As };\
-        return attributes;\
+        return AttributeList{ As };\
     }\
 };
 
@@ -283,13 +267,11 @@ public:\
 OSPF_CRTP_PERMISSION:\
     inline constexpr decltype(auto) OSPF_CRTP_FUNCTION(get_field_list)(void) const noexcept\
     {\
-        static constexpr const FieldList fields{ Fs };\
-        return fields;\
+        return FieldList{ Fs };\
     }\
     inline constexpr decltype(auto) OSPF_CRTP_FUNCTION(get_attribute_list)(void) const noexcept\
     {\
-        static constexpr const AttributeList attributes{ As };\
-        return attributes;\
+        return AttributeList{ As };\
     }\
 };
 
@@ -314,13 +296,11 @@ public:\
 OSPF_CRTP_PERMISSION:\
     inline constexpr decltype(auto) OSPF_CRTP_FUNCTION(get_field_list)(void) const noexcept\
     {\
-        static constexpr const FieldList fields{ Fs };\
-        return fields;\
+        return FieldList{ Fs };\
     }\
     inline constexpr decltype(auto) OSPF_CRTP_FUNCTION(get_attribute_list)(void) const noexcept\
     {\
-        static constexpr const AttributeList attributes{ As };\
-        return attributes;\
+        return AttributeList{ As };\
     }\
 };
 

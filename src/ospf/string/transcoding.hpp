@@ -17,7 +17,7 @@ namespace ospf
             }
             else
             {
-                const source = boost::locale::conv::from_utf<CharT>(str.data(), std::string{ to_string(from) });
+                const auto source = boost::locale::conv::from_utf<CharT>(str.data(), std::string{ to_string(from) });
                 return boost::locale::conv::to_utf<CharT>(source, std::string{ to_string(to) });
             }
         }

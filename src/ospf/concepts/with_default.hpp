@@ -2,7 +2,6 @@
 
 #include <ospf/concepts/base.hpp>
 #include <ospf/meta_programming/variable_type_list.hpp>
-#include <ospf/meta_programming/named_type.hpp>
 #include <ospf/type_family.hpp>
 #include <variant>
 
@@ -65,7 +64,7 @@ namespace ospf
         template<typename T, typename... Ts>
         struct IsAnyWithDefault<T, Ts...>
         {
-            static constexpr const bool value = WithDefault<T> || IsAnyWithDefault<Ts...>;
+            static constexpr const bool value = WithDefault<T> || IsAnyWithDefault<Ts...>::value;
         };
 
         template<typename... Ts>
@@ -73,16 +72,6 @@ namespace ospf
 
         template<typename... Ts>
         concept AnyWithDefault = is_any_with_default<Ts...>;
-
-        template<typename T, typename P>
-            requires WithDefault<T>
-        struct DefaultValue<NamedType<T, P>>
-        {
-            inline static constexpr NamedType<T, P> value(void) noexcept
-            {
-                return NamedType<T, P>{ DefaultValue<T>::value() };
-            }
-        };
 
         template<typename T, typename U>
             requires AllWithDefault<T, U>

@@ -262,7 +262,8 @@ namespace std
     };
 
     template<typename T, typename Ptr>
-    struct formatter<ospf::pointer::PtrImpl<T, Ptr>, char> : formatter<string_view, char>
+    struct formatter<ospf::pointer::PtrImpl<T, Ptr>, char> 
+        : public formatter<string_view, char>
     {
         using PtrType = ospf::pointer::PtrImpl<T, Ptr>;
 
@@ -271,19 +272,20 @@ namespace std
         {
             if (ptr == nullptr)
             {
-                static const auto _formatter = formatter<string_view, char>{};
+                static const formatter<string_view, char> _formatter{};
                 return _formatter.format("null", fc);
             }
             else
             {
-                static const auto _formatter = formatter<ospf::OriginType<T>, char>{};
+                static const formatter<ospf::OriginType<T>, char> _formatter{};
                 return _formatter.format(*ptr, fc);
             }
         }
     };
 
     template<typename T, typename Ptr>
-    struct formatter<ospf::pointer::PtrImpl<T, Ptr>, ospf::wchar> : formatter<wstring_view, ospf::wchar>
+    struct formatter<ospf::pointer::PtrImpl<T, Ptr>, ospf::wchar> 
+        : public formatter<wstring_view, ospf::wchar>
     {
         using PtrType = ospf::pointer::PtrImpl<T, Ptr>;
 
@@ -292,12 +294,12 @@ namespace std
         {
             if (ptr == nullptr)
             {
-                static const auto _formatter = formatter<wstring_view, ospf::wchar>{};
+                static const formatter<wstring_view, ospf::wchar> _formatter{};
                 return _formatter.format(L"null", fc);
             }
             else
             {
-                static const auto _formatter = formatter<ospf::OriginType<T>, ospf::wchar>{};
+                static const formatter<ospf::OriginType<T>, ospf::wchar> _formatter{};
                 return _formatter.format(*ptr, fc);
             }
         }
@@ -317,7 +319,7 @@ namespace ospf
 
         inline constexpr RetType<Type> value(ospf::ArgCLRefType<PtrType> ptr) const
         {
-            static constexpr const auto extractor = TagValue<T>{};
+            static constexpr const TagValue<T> extractor{};
             return extractor(*ptr);
         }
     };

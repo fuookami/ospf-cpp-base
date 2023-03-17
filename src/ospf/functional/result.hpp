@@ -426,7 +426,7 @@ namespace std
     template<typename T, typename E, typename Func>
     inline constexpr decltype(auto) visit(Func&& func, ospf::Result<T, E>&& result) noexcept
     {
-        return static_cast<ospf::RRefType<Result<T, E>>>(result).visit(std::forward<Func>(func));
+        return static_cast<ospf::RRefType<ospf::Result<T, E>>>(result).visit(std::forward<Func>(func));
     }
 
     template<typename T, ospf::ErrorType E>

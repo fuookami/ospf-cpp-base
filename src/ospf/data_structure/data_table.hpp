@@ -28,14 +28,13 @@ namespace ospf
         };
 
         template<typename T>
-        concept DataTableConfigType = requires
-        {
-            requires CharType<typename T::CharType>;
-
-            { T::store_type } -> DecaySameAs<StoreType>;
-            { T::nullable } -> DecaySameAs<DataTableNullable>;
-            { T::multi_type } -> DecaySameAs<DataTableMultiType>;
-        };
+        concept DataTableConfigType = CharType<typename T::CharType> 
+            && requires
+            {
+                { T::store_type } -> DecaySameAs<StoreType>;
+                { T::nullable } -> DecaySameAs<DataTableNullable>;
+                { T::multi_type } -> DecaySameAs<DataTableMultiType>;
+            };
 
         template<
             StoreType st = StoreType::Row,
@@ -45,7 +44,7 @@ namespace ospf
         >
         struct DataTableConfig
         {
-            using CharTyope = CharT;
+            using CharType = CharT;
 
             static constexpr const auto store_type = st;
             static constexpr const auto nullable = n;

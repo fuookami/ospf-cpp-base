@@ -344,15 +344,16 @@ namespace ospf
                 typename T,
                 reference::ReferenceCategory cat,
                 CopyOnWrite cow,
-                template<typename> class C
+                typename Alloc,
+                template<typename, typename> class C
             >
-            struct ValueOrReferenceArrayAccessPolicy<T, C<ValOrRef<OriginType<T>, cat, cow>>>
+            struct ValueOrReferenceArrayAccessPolicy<T, C<ValOrRef<OriginType<T>, cat, cow>, Alloc>>
             {
             public:
                 using ValueType = OriginType<T>;
                 using ValueOrReferenceType = ValOrRef<ValueType, cat, cow>;
                 using ReferenceType = typename ValueOrReferenceType::ReferenceType;
-                using ContainerType = C<ValueOrReferenceType>;
+                using ContainerType = C<ValueOrReferenceType, Alloc>;
                 using IterType = ValueOrReferenceArrayIterator<ValueType, ContainerType>;
                 using ConstIterType = ValueOrReferenceArrayConstIterator<ValueType, ContainerType>;
                 using ReverseIterType = ValueOrReferenceArrayReverseIterator<ValueType, ContainerType>;

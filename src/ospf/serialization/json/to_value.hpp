@@ -40,9 +40,10 @@ namespace ospf
 
             template<typename T, typename CharT>
             concept SerializableToJson = CharType<CharT> 
-                && requires (const ToJsonValue<OriginType<T>, CharT> serializer)
+                && std::default_initializable<ToJsonValue<OriginType<T>, CharT>>
+                && requires (const ToJsonValue<OriginType<T>, CharT> serializer, Document<CharT>& doc)
                 {
-                    { serializer(std::declval<OriginType<T>>(), std::declval<Document<CharT>>(), std::declval<std::optional<NameTransfer<CharT>>>()) } -> DecaySameAs<Result<Json<CharT>>>;
+                    { serializer(std::declval<OriginType<T>>(), doc, std::declval<std::optional<NameTransfer<CharT>>>()) } -> DecaySameAs<Result<Json<CharT>>>;
                 };
 
             template<EnumType T, CharType CharT>
@@ -65,7 +66,7 @@ namespace ospf
                     info.for_each(obj, [&json, &err, &doc, &transfer](const auto& obj, const auto& field)
                         {
                             using FieldValueType = OriginType<decltype(field.value(obj))>;
-                            static_assert(SerializableToJson<FieldValueType>);
+                            static_assert(SerializableToJson<FieldValueType, CharT>);
 
                             if (err.has_value())
                             {
@@ -207,14 +208,16 @@ namespace ospf
                 inline Result<Json<CharT>> operator()(const std::variant<Ts...>& obj, Document<CharT>& doc, const std::optional<NameTransfer<CharT>>& transfer) const noexcept
                 {
                     Json<CharT> json{ rapidjson::kObjectType };
-                    json.AddMember(transfer("index"), Json<CharT>{ obj.index() }, doc.GetAllocator());
+                    static const auto index_key = transfer.has_value() ? (*transfer)("index") : boost::locale::conv::to_utf<CharT>("index", std::locale{});
+                    static const auto value_key = transfer.has_value() ? (*transfer)("value") : boost::locale::conv::to_utf<CharT>("value", std::locale{});
+                    json.AddMember(rapidjson::StringRef(index_key.data()), Json<CharT>{ obj.index() }, doc.GetAllocator());
                     OSPF_TRY_EXEC(std::visit([&json, &doc, &transfer](const auto& this_value)
                         {
                             using ValueType = OriginType<decltype(this_value)>;
                             static_assert(SerializableToJson<ValueType, CharT>);
                             static const ToJsonValue<ValueType, CharT> serializer{};
                             OSPF_TRY_GET(sub_json, serializer(this_value, doc, transfer));
-                            json.AddMember(transfer("value"), sub_json.Move(), doc.GetAllocator());
+                            json.AddMember(rapidjson::StringRef(value_key.data()), sub_json.Move(), doc.GetAllocator());
                             return succeed;
                         }, obj));
                     return std::move(json);
@@ -222,19 +225,21 @@ namespace ospf
             };
 
             template<typename T, typename U, CharType CharT>
-                requires SerializableToJson<T, CharT>&& SerializableToJson<U, CharT>
+                requires SerializableToJson<T, CharT> && SerializableToJson<U, CharT>
             struct ToJsonValue<Either<T, U>, CharT>
             {
                 inline Result<Json<CharT>> operator()(const Either<T, U>& obj, Document<CharT>& doc, const std::optional<NameTransfer<CharT>>& transfer) const noexcept
                 {
                     Json<CharT> json{ rapidjson::kObjectType };
-                    json.AddMember(transfer("index"), Json<CharT>{ obj.is_left() ? 0_uz : 1_uz }, doc.GetAllocator());
+                    static const auto index_key = transfer.has_value() ? (*transfer)("index") : boost::locale::conv::to_utf<CharT>("index", std::locale{});
+                    static const auto value_key = transfer.has_value() ? (*transfer)("value") : boost::locale::conv::to_utf<CharT>("value", std::locale{});
+                    json.AddMember(rapidjson::StringRef(index_key.data()), Json<CharT>{ obj.is_left() ? 0_uz : 1_uz }, doc.GetAllocator());
                     OSPF_TRY_EXEC(std::visit([&json, &doc, &transfer](const auto& this_value)
                         {
                             using ValueType = OriginType<decltype(this_value)>;
                             static const ToJsonValue<ValueType, CharT> serializer{};
                             OSPF_TRY_GET(sub_json, serializer(this_value, doc, transfer));
-                            json.AddMember(transfer("value"), sub_json.Move(), doc.GetAllocator());
+                            json.AddMember(rapidjson::StringRef(value_key.data()), sub_json.Move(), doc.GetAllocator());
                             return succeed;
                         }, obj));
                     return std::move(json);

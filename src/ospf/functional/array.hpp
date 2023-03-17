@@ -10,8 +10,23 @@ namespace ospf
     {
         namespace array_detail
         {
-            template<typename T, usize i, usize len, typename... Args>
-            inline constexpr Result<std::array<T, len>> try_make_array_impl(const std::function<Result<T>(const usize)>& constructor, Args&&... args) noexcept
+            template<typename T, usize i, usize len, typename Func, typename... Args>
+                requires requires (const Func& func) { { func(std::declval<usize>()) } -> DecaySameAs<T>; }
+            inline constexpr std::array<T, len> make_array_impl(const Func& constructor, Args&&... args) noexcept
+            {
+                if constexpr (i == len)
+                {
+                    return std::array<T, len>{ std::forward<Args>(args)... };
+                }
+                else
+                {
+                    return make_array_impl<T, i + 1_uz, len>(constructor, std::forward<Args>(args)..., constructor(i));
+                }
+            }
+
+            template<typename T, usize i, usize len, typename Func, typename... Args>
+                requires requires (const Func&& func) { { func(std::declval<usize>()) } -> DecaySameAs<Result<T>>; }
+            inline constexpr Result<std::array<T, len>> try_make_array_impl(const Func& constructor, Args&&... args) noexcept
             {
                 if constexpr (i == len)
                 {
@@ -21,19 +36,6 @@ namespace ospf
                 {
                     OSPF_TRY_GET(this_arg, constructor(i));
                     return try_make_array_impl<T, i + 1_uz, len>(constructor, std::forward<Args>(args)..., std::move(this_arg));
-                }
-            }
-
-            template<typename T, usize i, usize len, typename... Args>
-            inline constexpr std::array<T, len> make_array_impl(const std::function<T(const usize)>& constructor, Args&&... args) noexcept
-            {
-                if constexpr (i == len)
-                {
-                    return std::array<T, len>{ std::forward<Args>(args)... };
-                }
-                else
-                {
-                    return make_array_impl<T, i + 1_uz, len>(constructor, std::forward<Args>(args)..., constructor(i));
                 }
             }
         };
@@ -58,14 +60,16 @@ namespace ospf
                 });
         }
 
-        template<typename T, usize len>
-        inline constexpr std::array<T, len> make_array(const std::function<T(const usize)>& constructor) noexcept
+        template<typename T, usize len, typename Func>
+            requires requires (const Func& func) { { func(std::declval<usize>()) } -> DecaySameAs<T>; }
+        inline constexpr std::array<T, len> make_array(const Func& constructor) noexcept
         {
             return array_detail::make_array_impl<T, 0_uz, len>(constructor);
         }
 
-        template<typename T, usize len>
-        inline constexpr Result<std::array<T, len>> make_array(const std::function<Result<T>(const usize)>& constructor) noexcept
+        template<typename T, usize len, typename Func>
+            requires requires (const Func&& func) { { func(std::declval<usize>()) } -> DecaySameAs<Result<T>>; }
+        inline constexpr Result<std::array<T, len>> make_array(const Func& constructor) noexcept
         {
             return array_detail::try_make_array_impl<T, 0_uz, len>(constructor);
         }

@@ -66,8 +66,14 @@ namespace ospf
                     }
                 }
 
-                DataTable(std::array<StringViewType, col> header)
-                    : DataTable(make_array<DataTableHeader<CharT>, col>([&header](const usize i)
+                DataTable(const std::span<StringType, col> header)
+                    : DataTable(make_array<DataTableHeader<CharT>, col>([header](const usize i)
+                        {
+                            return CellValueTypeTrait<CellType>::base_header(std::move(header[i]));
+                        })) {}
+
+                DataTable(const std::span<StringViewType, col> header)
+                    : DataTable(make_array<DataTableHeader<CharT>, col>([header](const usize i)
                         {
                             return CellValueTypeTrait<CellType>::base_header(header[i]);
                         })) {}
@@ -206,7 +212,7 @@ namespace ospf
                 
                 inline void OSPF_CRTP_FUNCTION(insert_row_by_constructor)(const usize pos, const RowConstructor& constructor)
                 {
-                    _table.insert(_table.cbegin() + pos, make_array<CellType, col>([this, &constructor](const usize i)
+                    _table.insert(_table.cbegin() + pos, make_array<CellType, col>([this, &constructor](const usize i) -> RetType<CellType>
                         {
 #ifdef _DEBUG
                             auto value = constructor(i, _header[i]);
@@ -306,8 +312,14 @@ namespace ospf
                     }
                 }
 
-                DataTable(std::array<StringViewType, col> header)
-                    : DataTable(make_array<DataTableHeader<CharT>, col>([&header](const usize i)
+                DataTable(const std::span<StringType, col> header)
+                    : DataTable(make_array<DataTableHeader<CharT>, col>([header](const usize i)
+                        {
+                            return CellValueTypeTrait<CellType>::base_header(std::move(header[i]));
+                        })) {}
+
+                DataTable(const std::span<StringViewType, col> header)
+                    : DataTable(make_array<DataTableHeader<CharT>, col>([header](const usize i)
                         {
                             return CellValueTypeTrait<CellType>::base_header(header[i]);
                         })) {}

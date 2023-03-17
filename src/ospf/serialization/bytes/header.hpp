@@ -85,7 +85,7 @@ namespace ospf
 
             public:
                 template<WithMetaInfo T>
-                inline static Header by(const T& obj, const Endian endian = local_endian) noexcept
+                inline static Header by(const T& obj, const std::optional<NameTransfer>& transfer, const Endian endian = local_endian) noexcept
                 {
                     const auto root_tag = HeaderTag::Object;
 
@@ -119,12 +119,12 @@ namespace ospf
                             });
                     }
 
-                    auto [sub_headers, fields] = analysis<OriginType<T>>();
+                    auto [sub_headers, fields] = analysis<OriginType<T>>(transfer);
                     return Header{ root_tag, ospf::address_length, endian, size, std::move(field_segement), std::move(segement), std::move(sub_headers), std::move(fields) };
                 }
 
                 template<typename T, usize len>
-                inline static Header by(const std::span<const T, len> objs, const Endian endian = local_endian) noexcept
+                inline static Header by(const std::span<const T, len> objs, const std::optional<NameTransfer>& transfer, const Endian endian = local_endian) noexcept
                 {
                     const usize root_tag = HeaderTag::Array;
 
@@ -143,7 +143,7 @@ namespace ospf
                         }
                     }
 
-                    auto [sub_headers, fields] = analysis<OriginType<T>>();
+                    auto [sub_headers, fields] = analysis<OriginType<T>>(transfer);
                     return Header{ root_tag, ospf::address_length, endian, size, { local_segement_size, 0_u64 }, std::move(segement), std::move(sub_headers), std::move(fields) };
                 }
 
@@ -223,9 +223,9 @@ namespace ospf
 
             public:
                 template<typename T>
-                inline Try<> fit(void) const noexcept
+                inline Try<> fit(const std::optional<NameTransfer>& transfer) const noexcept
                 {
-                    auto [_, fields] = analysis<OriginType<T>>();
+                    auto [_, fields] = analysis<OriginType<T>>(transfer);
                     if (same(fields, _fields, true))
                     {
                         return succeed;
@@ -251,12 +251,12 @@ namespace ospf
 
             private:
                 template<typename T>
-                inline static std::pair<std::vector<Shared<SubHeader>>, StringHashMap<std::string_view, Shared<SubHeader>>> analysis(void) noexcept
+                inline static std::pair<std::vector<Shared<SubHeader>>, StringHashMap<std::string_view, Shared<SubHeader>>> analysis(const std::optional<NameTransfer>& transfer) noexcept
                 {
                     if constexpr (WithMetaInfo<T>)
                     {
                         std::vector<Shared<SubHeader>> sub_headers{};
-                        auto fields = analysis_fields<T>(sub_headers);
+                        auto fields = analysis_fields<T>(sub_headers, transfer);
                         return std::make_pair(std::move(sub_headers), std::move(fields));
                     }
                     else
@@ -266,7 +266,7 @@ namespace ospf
                 }
 
                 template<typename T>
-                inline static Shared<SubHeader> analysis(std::vector<Shared<SubHeader>>& sub_headers) noexcept
+                inline static Shared<SubHeader> analysis(std::vector<Shared<SubHeader>>& sub_headers, const std::optional<NameTransfer>& transfer) noexcept
                 {
                     const auto id = static_cast<u64>(TypeInfo<T>::code());
                     if constexpr (WithMetaInfo<T>)
@@ -277,7 +277,7 @@ namespace ospf
                             });
                         if (it == sub_headers.cend())
                         {
-                            it = sub_headers.insert(sub_headers.end(), make_shared<SubHeader>(id, HeaderTag::Object, analysis_fields<T>(sub_headers)));
+                            it = sub_headers.insert(sub_headers.end(), make_shared<SubHeader>(id, HeaderTag::Object, analysis_fields<T>(sub_headers, transfer)));
                         }
                         return *it;
                     }
@@ -289,7 +289,7 @@ namespace ospf
                             });
                         if (it == sub_headers.cend())
                         {
-                            it = sub_headers.insert(sub_headers.end(), make_shared<SubHeader>(id, HeaderTag::Array, analysis_fields<T>(sub_headers)));
+                            it = sub_headers.insert(sub_headers.end(), make_shared<SubHeader>(id, HeaderTag::Array, analysis_fields<T>(sub_headers, transfer)));
                         }
                         return *it;
                     }
@@ -308,7 +308,7 @@ namespace ospf
                 }
 
                 template<typename T>
-                inline static StringHashMap<std::string_view, Shared<SubHeader>> analysis_fields(std::vector<Shared<SubHeader>>& sub_headers) noexcept
+                inline static StringHashMap<std::string_view, Shared<SubHeader>> analysis_fields(std::vector<Shared<SubHeader>>& sub_headers, const std::optional<NameTransfer>& transfer) noexcept
                 {
                     const auto id = static_cast<u64>(TypeInfo<T>::code());
                     const auto it = std::find_if(sub_headers.cbegin(), sub_headers.cend(), [id](const Shared<SubHeader>& header)
@@ -323,10 +323,11 @@ namespace ospf
                     {
                         static const meta_info::MetaInfo<OriginType<T>> info{};
                         StringHashMap<std::string_view, Shared<SubHeader>> ret;
-                        info.for_each([&ret, &sub_headers](const auto& field)
+                        info.for_each([&ret, &sub_headers, &transfer](const auto& field)
                             {
                                 using FieldValueType = OriginType<decltype(field.value(std::declval<OriginType<T>>()))>;
-                        ret.insert(std::make_pair(field.key(), analysis<FieldValueType>(sub_headers)));
+                                const auto key = transfer.has_value() ? (*transfer)(field.key()) : field.key();
+                                ret.insert(std::make_pair(key, analysis<FieldValueType>(sub_headers, transfer)));
                             });
                         return ret;
                     }
@@ -345,15 +346,15 @@ namespace ospf
             };
 
             template<typename T>
-            inline Header make_header(const T& obj, const Endian endian = local_endian) noexcept
+            inline Header make_header(const T& obj, const std::optional<NameTransfer>& transfer, const Endian endian = local_endian) noexcept
             {
-                return Header::by(obj, endian);
+                return Header::by(obj, transfer, endian);
             }
 
             template<typename T, usize len>
-            inline Header make_header(const std::span<const T, len> objs, const Endian endian = local_endian) noexcept
+            inline Header make_header(const std::span<const T, len> objs, const std::optional<NameTransfer>& transfer, const Endian endian = local_endian) noexcept
             {
-                return Header::by(objs, endian);
+                return Header::by(objs, transfer, endian);
             }
 
             template<>

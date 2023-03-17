@@ -19,12 +19,12 @@ namespace ospf
             template<CharType CharT>
             inline Try<> write(std::basic_ostream<CharT>& os, const Document<CharT>& doc) noexcept
             {
-                rapidjson::BasicOStreamWrapper<decltype(os)> osw{ os };
-                rapidjson::Writer<decltype(osw)> writer{ osw };
+                rapidjson::BasicOStreamWrapper<OriginType<decltype(os)>> osw{ os };
+                rapidjson::Writer<OriginType<decltype(osw)>> writer{ osw };
 
                 if (!doc.Accept(writer))
                 {
-                    throw ospf::OSPFException{ ospf::OSPFErrCode::SerializationFail };
+                    return ospf::OSPFError{ ospf::OSPFErrCode::SerializationFail };
                 }
                 return succeed;
             }
@@ -33,7 +33,7 @@ namespace ospf
             inline Result<Document<CharT>> read(std::basic_istream<CharT>& is) noexcept
             {
                 Document<CharT> doc;
-                rapidjson::BasicIStreamWrapper<decltype(is)> isw{is};
+                rapidjson::BasicIStreamWrapper<OriginType<decltype(is)>> isw{is};
                 rapidjson::ParseResult ok = doc.ParseStream(isw);
                 if (!ok)
                 {
@@ -45,10 +45,10 @@ namespace ospf
                     {
                         return OSPFError{ OSPFErrCode::DeserializationFail, std::format(L"{} at {}", rapidjson::GetParseError_En(ok.Code()), ok.Offset()) };
                     }
-                    else
-                    {
-                        static_assert(false, "unsupported character type");
-                    }
+                    //else
+                    //{
+                    //    static_assert(false, "unsupported character type");
+                    //}
                 }
                 else
                 {

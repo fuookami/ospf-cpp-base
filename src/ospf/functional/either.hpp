@@ -680,7 +680,7 @@ namespace std
     template<typename T, typename U, typename Func>
     inline constexpr decltype(auto) visit(Func&& func, ospf::Either<T, U>&& either) noexcept
     {
-        return static_cast<ospf::RRefType<Either<T, U>>>(either).visit(std::forward<Func>(func));
+        return static_cast<ospf::RRefType<ospf::Either<T, U>>>(either).visit(std::forward<Func>(func));
     }
 
     template<typename T, typename U>

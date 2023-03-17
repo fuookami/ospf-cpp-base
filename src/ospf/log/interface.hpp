@@ -59,7 +59,7 @@ namespace ospf
             {
                 if (level >= _lowest_level)
                 {
-                    log(recored(level, std::move(message));
+                    log(recored(level, std::move(message)));
                 }
             }
 
@@ -67,7 +67,7 @@ namespace ospf
             {
                 if (level >= _lowest_level)
                 {
-                    log(recored(level, StringType{ message });
+                    log(recored(level, StringType{ message }));
                 }
             }
 
@@ -84,10 +84,10 @@ namespace ospf
                     {
                         log(record(LogLevel::Error, std::format(L"{}, {}", error.code(), error.message())));
                     }
-                    else
-                    {
-                        static_assert(false, "unsupported character type");
-                    }
+                    //else
+                    //{
+                    //    static_assert(false, "unsupported character type");
+                    //}
                 }
             }
 
@@ -117,7 +117,7 @@ namespace ospf
             }
 
         protected:
-            virtual RecordType record(const LogLevel level, StringType message) noexcept = 0;
+            virtual RecordType record(const LogLevel level, StringType message) const noexcept = 0;
             virtual void write(StringType message) noexcept = 0;
 
         private:
@@ -166,7 +166,7 @@ namespace ospf
             {
                 if (level >= _lowest_level)
                 {
-                    log(recored(level, std::move(message));
+                    log(recored(level, std::move(message)));
                 }
             }
 
@@ -174,7 +174,7 @@ namespace ospf
             {
                 if (level >= _lowest_level)
                 {
-                    log(recored(level, StringType{ message });
+                    log(recored(level, StringType{ message }));
                 }
             }
 
@@ -183,7 +183,7 @@ namespace ospf
             {
                 if constexpr (level >= _lowest_level)
                 {
-                    log(recored(level, std::move(message));
+                    log(recored(level, std::move(message)));
                 }
             }
 
@@ -192,7 +192,7 @@ namespace ospf
             {
                 if constexpr (level >= _lowest_level)
                 {
-                    log(recored(level, StringType{ message });
+                    log(recored(level, StringType{ message }));
                 }
             }
 
@@ -340,19 +340,19 @@ namespace ospf
 
                 RecordType record(const LogLevel level, StringType message) const noexcept override
                 {
-                    assert(record.level() >= this->lowest_level());
+                    assert(level >= this->lowest_level());
                     return Trait::make_record(self(), level, std::move(message));
                 }
 
                 void write(StringType message) noexcept override
                 {
-                    _impl.add(RecordType{ LogLevel::Other, std::move(message) });
+                    _impl.add(Trait::make_record(self(), LogLevel::Other, std::move(message)));
                 }
 
             private:
                 struct Trait : public Self
                 {
-                    inline static make_record(const Self& self, const LogLevel level, StringType message) noexcept
+                    inline static RecordType make_record(const Self& self, const LogLevel level, StringType message) noexcept
                     {
                         static const auto impl = &Self::OSPF_CRTP_FUNCTION(make_record);
                         return (self.*impl)(level, std::move(message));
@@ -387,28 +387,28 @@ namespace ospf
             protected:
                 RecordType record(const LogLevel level, StringType message) const noexcept override
                 {
-                    assert(record.level() >= this->lowest_level());
+                    assert(level >= this->lowest_level());
                     return Trait::make_record(self(), level, std::move(message));
                 }
 
                 void write(StringType message) noexcept override
                 {
-                    Trait::write_message(std::move(message));
+                    Trait::write_message(self(), std::move(message));
                 }
 
             private:
                 struct Trait : public Self
                 {
-                    inline static make_record(const Self& self, const LogLevel level, StringType message) noexcept
+                    inline static RecordType make_record(const Self& self, const LogLevel level, StringType message) noexcept
                     {
                         static const auto impl = &Self::OSPF_CRTP_FUNCTION(make_record);
                         return (self.*impl)(level, std::move(message));
                     }
 
-                    inline static write_message(Self& self, StringType message) noexcept
+                    inline static void write_message(Self& self, StringType message) noexcept
                     {
                         static const auto impl = &Self::OSPF_CRTP_FUNCTION(write_message);
-                        return (self.*impl)(std::move(message));
+                        (self.*impl)(std::move(message));
                     }
                 };
             };
@@ -463,13 +463,13 @@ namespace ospf
 
                 void write(StringType message) noexcept override
                 {
-                    _impl.add(RecordType{ LogLevel::Other, std::move(message) });
+                    _impl.add(Trait::make_record(self(), LogLevel::Other, std::move(message)));
                 }
 
             private:
                 struct Trait : public Self
                 {
-                    inline static make_record(const Self& self, const LogLevel level, StringType message) noexcept
+                    inline static RecordType make_record(const Self& self, const LogLevel level, StringType message) noexcept
                     {
                         static const auto impl = &Self::OSPF_CRTP_FUNCTION(make_record);
                         return (self.*impl)(level, std::move(message));
@@ -509,22 +509,22 @@ namespace ospf
 
                 void write(StringType message) noexcept override
                 {
-                    Trait::write_message(std::move(message));
+                    Trait::write_message(self(), std::move(message));
                 }
 
             private:
                 struct Trait : public Self
                 {
-                    inline static make_record(const Self& self, const LogLevel level, StringType message) noexcept
+                    inline static RecordType make_record(const Self& self, const LogLevel level, StringType message) noexcept
                     {
                         static const auto impl = &Self::OSPF_CRTP_FUNCTION(make_record);
                         return (self.*impl)(level, std::move(message));
                     }
 
-                    inline static write_message(Self& self, StringType message) noexcept
+                    inline static void write_message(Self& self, StringType message) noexcept
                     {
                         static const auto impl = &Self::OSPF_CRTP_FUNCTION(write_message);
-                        return (self.*impl)(std::move(message));
+                        (self.*impl)(std::move(message));
                     }
                 };
             };
