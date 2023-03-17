@@ -57,17 +57,17 @@ namespace ospf
             };
 
             template<typename... As>
-            class AttrList
+            class AttributeList
                 : public SequenceTuple<As...>
             {
             public:
-                constexpr AttrList(As... args)
+                constexpr AttributeList(As... args)
                     : SequenceTuple<As...>(args...) {}
-                constexpr AttrList(const AttrList& ano) = default;
-                constexpr AttrList(AttrList&& ano) = default;
-                constexpr AttrList& operator=(const AttrList& rhs) = default;
-                constexpr AttrList& operator=(AttrList&& rhs) = default;
-                constexpr ~AttrList(void) = default;
+                constexpr AttributeList(const AttributeList& ano) = default;
+                constexpr AttributeList(AttributeList&& ano) = default;
+                constexpr AttributeList& operator=(const AttributeList& rhs) = default;
+                constexpr AttributeList& operator=(AttributeList&& rhs) = default;
+                constexpr ~AttributeList(void) = default;
             };
 
             template<typename... Bs>

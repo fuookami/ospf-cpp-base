@@ -45,10 +45,10 @@ namespace ospf
                     {
                         return OSPFError{ OSPFErrCode::DeserializationFail, std::format(L"{} at {}", rapidjson::GetParseError_En(ok.Code()), ok.Offset()) };
                     }
-                    else
-                    {
-                        static_assert(false, "unsupported character type");
-                    }
+                    //else
+                    //{
+                    //    static_assert(false, "unsupported character type");
+                    //}
                 }
                 else
                 {

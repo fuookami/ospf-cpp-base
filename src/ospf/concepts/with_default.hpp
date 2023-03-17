@@ -65,7 +65,7 @@ namespace ospf
         template<typename T, typename... Ts>
         struct IsAnyWithDefault<T, Ts...>
         {
-            static constexpr const bool value = WithDefault<T> || IsAnyWithDefault<Ts...>;
+            static constexpr const bool value = WithDefault<T> || IsAnyWithDefault<Ts...>::value;
         };
 
         template<typename... Ts>

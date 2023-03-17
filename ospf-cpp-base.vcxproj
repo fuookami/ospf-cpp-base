@@ -259,6 +259,7 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <IncludePath>$(SolutionDir)3rd-party\rapidjson\include;$(SolutionDir)3rd-party\magic_enum\include;$(SolutionDir)src;$(JAVA_HOME)\include\win32;$(JAVA_HOME)\include;$(BOOST_HOME)\include;$(CRYPTOPP_HOME)\include;$(IncludePath)</IncludePath>
+    <TargetName>$(ProjectName)d</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <IncludePath>$(SolutionDir)3rd-party\rapidjson\include;$(SolutionDir)3rd-party\magic_enum\include;$(SolutionDir)src;$(JAVA_HOME)\include\win32;$(JAVA_HOME)\include;$(BOOST_HOME)\include;$(CRYPTOPP_HOME)\include;$(IncludePath)</IncludePath>
@@ -295,7 +296,7 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_DEBUG;OSPF_MULTI_THREAD;OSPF_BASE_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DEBUG;BOOST_ALL_DYN_LINK;OSPF_MULTI_THREAD;OSPF_BASE_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
@@ -314,7 +315,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>NDEBUG;OSPF_MULTI_THREAD;OSPF_BASE_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NDEBUG;BOOST_ALL_DYN_LINK;OSPF_MULTI_THREAD;OSPF_BASE_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <LanguageStandard_C>stdc17</LanguageStandard_C>

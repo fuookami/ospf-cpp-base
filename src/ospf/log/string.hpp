@@ -23,10 +23,27 @@ namespace ospf
             using typename Impl::StringViewType;
 
         public:
+            template<typename = void>
+                requires (mt == off)
             DynStringLogger(const LogLevel lowest_level)
                 : Impl(lowest_level), _sout(), _writer(RecordType::default_writer(_sout)) {}
-            DynStringLogger(const LogLevel lowest_level, const RecordType::WriterGenerator& writer_generator)
+
+            template<typename = void>
+                requires (mt == off)
+            DynStringLogger(const LogLevel lowest_level, const typename RecordType::WriterGenerator& writer_generator)
                 : Impl(lowest_level), _sout(), _writer(writer_generator(_sout)) {}
+
+            template<typename = void>
+                requires (mt == on)
+            DynStringLogger(const LogLevel lowest_level, const bool with_buffer = true)
+                : Impl(lowest_level, with_buffer), _sout(), _writer(RecordType::default_writer(_sout)) {}
+
+            template<typename = void>
+                requires (mt == on)
+            DynStringLogger(const LogLevel lowest_level, const typename RecordType::WriterGenerator& writer_generator, const bool with_buffer = true)
+                : Impl(lowest_level, with_buffer), _sout(), _writer(writer_generator(_sout)) {}
+
+        public:
             DynStringLogger(const DynStringLogger& ano) = delete;
             DynStringLogger(DynStringLogger&& ano) noexcept = default;
             DynStringLogger& operator=(const DynStringLogger& rhs) = delete;
@@ -39,7 +56,7 @@ namespace ospf
                 return _sout.str();
             }
 
-            inline void set_writer(const RecordType::WriterGenerator& writer_generator) noexcept
+            inline void set_writer(const typename RecordType::WriterGenerator& writer_generator) noexcept
             {
                 if constexpr (mt == on)
                 {
@@ -70,9 +87,9 @@ namespace ospf
             CharType CharT = char
         >
         class StringLogger
-            : public log_detail::LoggerImpl<lowest_level, mt, CharT, StringLogger<mt, CharT>>
+            : public log_detail::LoggerImpl<lowest_level, mt, CharT, StringLogger<lowest_level, mt, CharT>>
         {
-            using Impl = log_detail::LoggerImpl<lowest_level, mt, CharT, StringLogger<mt, CharT>>;
+            using Impl = log_detail::LoggerImpl<lowest_level, mt, CharT, StringLogger<lowest_level, mt, CharT>>;
 
         public:
             using typename Impl::RecordType;
@@ -80,10 +97,27 @@ namespace ospf
             using typename Impl::StringViewType;
 
         public:
+            template<typename = void>
+                requires (mt == off)
             StringLogger(void)
                 : _sout(), _writer(RecordType::default_writer(_sout)) {}
-            StringLogger(const RecordType::WriterGenerator& writer_generator)
+
+            template<typename = void>
+                requires (mt == off)
+            StringLogger(const typename RecordType::WriterGenerator& writer_generator)
                 : _sout(), _writer(writer_generator(_sout)) {}
+
+            template<typename = void>
+                requires (mt == on)
+            StringLogger(const bool with_buffer = true)
+                : Impl(with_buffer), _sout(), _writer(RecordType::default_writer(_sout)) {}
+
+            template<typename = void>
+                requires (mt == on)
+            StringLogger(const typename RecordType::WriterGenerator& writer_generator, const bool with_buffer = true)
+                : Impl(with_buffer), _sout(), _writer(writer_generator(_sout)) {}
+
+        public:
             StringLogger(const StringLogger& ano) = delete;
             StringLogger(StringLogger&& ano) noexcept = default;
             StringLogger& operator=(const StringLogger& rhs) = delete;
@@ -96,7 +130,7 @@ namespace ospf
                 return _sout.str();
             }
 
-            inline void set_writer(const RecordType::WriterGenerator& writer_generator) noexcept
+            inline void set_writer(const typename RecordType::WriterGenerator& writer_generator) noexcept
             {
                 if constexpr (mt == on)
                 {

@@ -480,7 +480,7 @@ namespace ospf
                 typename T,
                 usize len,
                 pointer::PointerCategory cat,
-                template<typename U, usize l> class C
+                template<typename, usize> class C
             >
             struct PointerArrayAccessPolicy<T, C<pointer::Ptr<OriginType<T>, cat>, len>>
             {
@@ -611,14 +611,15 @@ namespace ospf
             template<
                 typename T,
                 pointer::PointerCategory cat,
-                template<typename U> class C
+                typename Alloc,
+                template<typename, typename> class C
             >
-            struct PointerArrayAccessPolicy<T, C<pointer::Ptr<OriginType<T>, cat>>>
+            struct PointerArrayAccessPolicy<T, C<pointer::Ptr<OriginType<T>, cat>, Alloc>>
             {
             public:
                 using ValueType = OriginType<T>;
                 using PointerType = pointer::Ptr<ValueType, cat>;
-                using ContainerType = C<PointerType>;
+                using ContainerType = C<PointerType, Alloc>;
                 using IterType = PointerArrayIterator<ValueType, cat, ContainerType>;
                 using ConstIterType = PointerArrayConstIterator<ValueType, cat, ContainerType>;
                 using ReverseIterType = PointerArrayReverseIterator<ValueType, cat, ContainerType>;

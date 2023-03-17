@@ -320,14 +320,15 @@ namespace ospf
             template<
                 typename T,
                 reference::ReferenceCategory cat,
-                template<typename> class C
+                typename Alloc,
+                template<typename, typename> class C
             >
-            struct ReferenceArrayAccessPolicy<T, C<reference::Ref<OriginType<T>, cat>>>
+            struct ReferenceArrayAccessPolicy<T, C<reference::Ref<OriginType<T>, cat>, Alloc>>
             {
             public:
                 using ValueType = OriginType<T>;
                 using ReferenceType = reference::Ref<ValueType, cat>;
-                using ContainerType = C<ReferenceType>;
+                using ContainerType = C<ReferenceType, Alloc>;
                 using IterType = ReferenceArrayIterator<ValueType, ContainerType>;
                 using ConstIterType = ReferenceArrayConstIterator<ValueType, ContainerType>;
                 using ReverseIterType = ReferenceArrayReverseIterator<ValueType, ContainerType>;

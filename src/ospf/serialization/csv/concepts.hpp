@@ -3,6 +3,9 @@
 #include <ospf/basic_definition.hpp>
 #include <ospf/concepts/base.hpp>
 #include <ospf/ospf_base_api.hpp>
+#include <string>
+#include <string_view>
+#include <optional>
 #include <istream>
 #include <ostream>
 

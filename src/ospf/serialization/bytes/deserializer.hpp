@@ -165,7 +165,7 @@ namespace ospf
                             const auto bg = header.field_segement()[i];
                             const auto ed = (i != header.segement_size() - 1_uz) ? header.field_segement()[1 + 1_uz] : npos;
                             const auto bg_offset = header.segement()[i];
-                            const auto ed_offset = (i != header.segement_size() - 1_uz) ? header.fegement()[1 + 1_uz] : header.size();
+                            const auto ed_offset = (i != header.segement_size() - 1_uz) ? header.segement()[1 + 1_uz] : header.size();
                             const auto bg_it = it + bg_offset;
                             const auto ed_it = it + ed_offset;
                             futures.push_back(std::async(std::launch::async, [&header, bg, ed, bg_it, ed_it, &obj](void) -> Try<>
@@ -244,7 +244,7 @@ namespace ospf
                         for (usize i{ 0_uz }; i != header.segement_size(); ++i)
                         {
                             const auto bg_it = it + header.segement()[i];
-                            const auto ed_it = it + ((i != header.segement_size() - 1_uz) ? : header.segement()[i + 1_uz] : header.size());
+                            const auto ed_it = it + ((i != header.segement_size() - 1_uz) ? header.segement()[i + 1_uz] : header.size());
                             futures.push_back(std::async(std::launch::async, [&header, bg_it, ed_it](void) -> Result<std::vector<ValueType>>
                                 {
                                     std::vector<ValueType> objs;

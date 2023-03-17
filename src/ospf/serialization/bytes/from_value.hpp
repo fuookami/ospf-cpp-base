@@ -11,6 +11,7 @@
 #include <ospf/meta_programming/variable_type_list.hpp>
 #include <ospf/serialization/bytes/concepts.hpp>
 #include <ospf/serialization/writable.hpp>
+#include <ospf/serialization/nullable.hpp>
 #include <deque>
 
 namespace ospf
@@ -323,7 +324,7 @@ namespace ospf
                     OSPF_TRY_GET(size, get_size(it, address_length, endian));
                     std::vector<T> objs;
                     objs.reserve(size);
-                    for (const auto _ : 0_uz To size)
+                    for (const auto _ : 0_uz RTo size)
                     {
                         static const FromBytesValue<OriginType<T>> deserializer{};
                         OSPF_TRY_GET(obj, deserializer(it, address_length, endian));
@@ -342,7 +343,7 @@ namespace ospf
                 {
                     OSPF_TRY_GET(size, get_size(it, address_length, endian));
                     std::deque<T> objs;
-                    for (const auto _ : 0_uz To size)
+                    for (const auto _ : 0_uz RTo size)
                     {
                         static const FromBytesValue<OriginType<T>> deserializer{};
                         OSPF_TRY_GET(obj, deserializer(it, address_length, endian));
@@ -397,7 +398,7 @@ namespace ospf
                     {
                         objs.reserve(size);
                     }
-                    for (const auto _ : 0_uz To size)
+                    for (const auto _ : 0_uz RTo size)
                     {
                         static const FromBytesValue<std::optional<T>> deserializer{};
                         OSPF_TRY_GET(obj, deserializer(it, address_length, endian));
@@ -454,7 +455,7 @@ namespace ospf
                     {
                         objs.reserve(size);
                     }
-                    for (const auto _ : 0_uz To size)
+                    for (const auto _ : 0_uz RTo size)
                     {
                         static const FromBytesValue<pointer::Ptr<T, cat>> deserializer{};
                         OSPF_TRY_GET(obj, deserializer(it, address_length, endian));
@@ -479,7 +480,7 @@ namespace ospf
                 {
                     OSPF_TRY_GET(size, get_size(it, address_length, endian));
                     ArrayType objs;
-                    for (const auto _ : 0_uz To size)
+                    for (const auto _ : 0_uz RTo size)
                     {
                         static const FromBytesValue<OriginType<T>> deserializer{};
                         OSPF_TRY_GET(obj, deserializer(it, address_length, endian));
@@ -539,7 +540,7 @@ namespace ospf
                     {
                         objs.reserve(size);
                     }
-                    for (const auto _ : 0_uz To size)
+                    for (const auto _ : 0_uz RTo size)
                     {
                         static const FromBytesValue<OriginType<T>> deserializer{};
                         OSPF_TRY_GET(obj, deserializer(it, address_length, endian));

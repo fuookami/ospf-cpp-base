@@ -125,9 +125,9 @@ namespace ospf
 
         extern template class Error<OSPFErrCode, char>;
         extern template class Error<OSPFErrCode, wchar>;
-        extern template class Error<OSPFErrCode, u8char>;
-        extern template class Error<OSPFErrCode, u16char>;
-        extern template class Error<OSPFErrCode, u32char>;
+        //extern template class Error<OSPFErrCode, u8char>;
+        //extern template class Error<OSPFErrCode, u16char>;
+        //extern template class Error<OSPFErrCode, u32char>;
     };
 };
 

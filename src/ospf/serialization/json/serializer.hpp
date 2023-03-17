@@ -82,7 +82,7 @@ namespace ospf
                     static constexpr const meta_info::MetaInfo<ValueType> info{};
                     json.SetObject();
                     std::optional<OSPFError> err;
-                    info.for_each(obj, [this, &err, &value, &doc](const auto& obj, const auto& field)
+                    info.for_each(obj, [this, &err, &doc](const auto& obj, const auto& field)
                         {
                             using FieldValueType = OriginType<decltype(field.value(obj))>;
                             static_assert(SerializableToJson<FieldValueType, CharT>);
@@ -205,7 +205,7 @@ namespace ospf
                 OSPF_TRY_GET(doc, serializer(objs));
 
                 std::basic_ostringstream<CharT> sout;
-                OSPF_TRY_EXEC(write(fout, doc));
+                OSPF_TRY_EXEC(write(sout, doc));
                 return succeed;
             }
 

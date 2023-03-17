@@ -845,10 +845,10 @@ inline static constexpr decltype(auto) operator>(F&& lhs, T&& rhs)
     return lhs(rhs);
 }
 
-#ifndef To
-#define To <to>
+#ifndef RTo
+#define RTo <to>
 #endif
 
-#ifndef Until
-#define Until <until>
+#ifndef RUntil
+#define RUntil <until>
 #endif

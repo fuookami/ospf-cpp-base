@@ -25,6 +25,7 @@ namespace ospf
             public:
                 using ColumnMap = StringHashMap<std::basic_string_view<CharT>, usize>;
                 using ValueType = OriginType<T>;
+                using HeaderType = data_table::DataTableHeader<CharT>;
                 using RowType = ORMRowType<ValueType, CharT>;
                 using RowViewType = ORMRowViewType<ValueType, CharT>;
 
@@ -169,13 +170,13 @@ namespace ospf
 
             private:
                 template<usize len>
-                inline Result<ColumnMap> parse_header(const meta_info::MetaInfo<T>& info, const std::span<const data_table::DataTableHeader, len> header) const noexcept
+                inline Result<ColumnMap> parse_header(const meta_info::MetaInfo<T>& info, const std::span<const HeaderType, len> header) const noexcept
                 {
                     ColumnMap column_map;
                     std::optional<OSPFError> err;
                     info.for_each([this, header, &column_map, &err](const auto& field) 
                         {
-                            using FieldValueType = OriginType<decltype(field.value(obj))>;
+                            using FieldValueType = OriginType<decltype(field.value(std::declval<ValueType>()))>;
                             if constexpr (!field.writable() || !serialization_writable<FieldValueType>)
                             {
                                 return;
@@ -188,14 +189,14 @@ namespace ospf
                                 }
 
                                 const auto key = this->_tansfer.has_value() ? (*this->_transfer)(field.key()) : field.key();
-                                const auto it = std::find_if(header.begin(), header.end(), [key](const data_table::DataTableHeader& header)
+                                const auto it = std::find_if(header.begin(), header.end(), [key](const HeaderType& header)
                                     {
                                         return header.name() == key;
                                     });
                                 if (it == header.end() && !serialization_nullable<FieldValueType>)
                                 {
                                     err = OSPFError{ OSPFErrCode::DeserializationFail, std::format("lost non-nullable column \"{}\" for type \"{}\"", field.key(), TypeInfo<FieldValueType>::name()) };
-                                    return
+                                    return;
                                 }
                                 else
                                 {
@@ -351,7 +352,7 @@ namespace ospf
                 }
 
                 std::basic_ifstream<CharT> fin{ path };
-                OSPF_TRY_GET(table, read<csv::ORMCSVTrait<T, CharT>::col>(fin, seperator));
+                OSPF_TRY_GET(table, (read<csv::ORMCSVTrait<T, CharT>::col>(fin, seperator)));
 
                 auto deserializer = transfer.has_value() ? Deserializer<T, CharT>{ std::move(transfer).value() } : Deserializer<T, CharT>{};
                 OSPF_TRY_GET(objs, deserializer(table));
@@ -377,7 +378,7 @@ namespace ospf
                 }
 
                 std::basic_ifstream<CharT> fin{ path };
-                OSPF_TRY_GET(table, read<csv::ORMCSVTrait<T, CharT>::col>(fin, seperator));
+                OSPF_TRY_GET(table, (read<csv::ORMCSVTrait<T, CharT>::col>(fin, seperator)));
 
                 auto deserializer = transfer.has_value() ? Deserializer<T, CharT>{ std::move(transfer).value() } : Deserializer<T, CharT>{};
                 OSPF_TRY_GET(objs, deserializer(table, origin_obj));
@@ -444,7 +445,7 @@ namespace ospf
             ) noexcept
             {
                 std::basic_istringstream<CharT> sin{ str };
-                OSPF_TRY_GET(table, read<csv::ORMCSVTrait<T, CharT>::col>(sin, seperator));
+                OSPF_TRY_GET(table, (read<csv::ORMCSVTrait<T, CharT>::col>(sin, seperator)));
 
                 auto deserializer = transfer.has_value() ? Deserializer<T, CharT>{ std::move(transfer).value() } : Deserializer<T, CharT>{};
                 OSPF_TRY_GET(objs, deserializer(table));
@@ -461,7 +462,7 @@ namespace ospf
             ) noexcept
             {
                 std::basic_istringstream<CharT> sin{ str };
-                OSPF_TRY_GET(table, read<csv::ORMCSVTrait<T, CharT>::col>(sin, seperator));
+                OSPF_TRY_GET(table, (read<csv::ORMCSVTrait<T, CharT>::col>(sin, seperator)));
 
                 auto deserializer = transfer.has_value() ? Deserializer<T, CharT>{ std::move(transfer).value() } : Deserializer<T, CharT>{};
                 OSPF_TRY_GET(objs, deserializer(table, origin_obj));

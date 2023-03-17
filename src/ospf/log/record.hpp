@@ -40,10 +40,10 @@ namespace ospf
                         {
                             os << std::format(L"[{}] {0:%F}T{0:%T%z}: {}", level, time, message) << '\n';
                         }
-                        else
-                        {
-                            static_assert(false, "unsupported character type");
-                        }
+                        //else
+                        //{
+                        //    static_assert(false, "unsupported character type");
+                        //}
                     }
                     else
                     {

@@ -82,7 +82,27 @@ namespace ospf
 {\
     Off,\
     On\
-};
+};\
+inline constexpr const bool to_bool(const Name value) noexcept\
+{\
+    return value == Name::On;\
+}\
+inline constexpr const bool operator==(const Name value, const ::ospf::named_flag::OnArgType _) noexcept\
+{\
+    return value == Name::On;\
+}\
+inline constexpr const bool operator!=(const Name value, const ::ospf::named_flag::OnArgType _) noexcept\
+{\
+    return value != Name::On;\
+}\
+inline constexpr const bool operator==(const Name value, const ::ospf::named_flag::OffArgType _) noexcept\
+{\
+    return value == Name::Off;\
+}\
+inline constexpr const bool operator!=(const Name value, const ::ospf::named_flag::OffArgType _) noexcept\
+{\
+    return value != Name::Off;\
+}
 #endif
 
 #ifndef OSPF_NAMED_TERNARY_FLAG
@@ -91,7 +111,35 @@ namespace ospf
     Off,\
     Half,\
     On\
-};
+};\
+inline constexpr const bool to_bool(const Name value) noexcept\
+{\
+    return value == Name::On;\
+}\
+inline constexpr const bool operator==(const Name value, const ::ospf::named_flag::OnArgType _) noexcept\
+{\
+    return value == Name::On;\
+}\
+inline constexpr const bool operator!=(const Name value, const ::ospf::named_flag::OnArgType _) noexcept\
+{\
+    return value != Name::On;\
+}\
+inline constexpr const bool operator==(const Name value, const ::ospf::named_flag::OffArgType _) noexcept\
+{\
+    return value == Name::Off;\
+}\
+inline constexpr const bool operator!=(const Name value, const ::ospf::named_flag::OffArgType _) noexcept\
+{\
+    return value != Name::Off;\
+}\
+inline constexpr const bool operator==(const Name value, const ::ospf::named_flag::HalfArgType _) noexcept\
+{\
+    return value == Name::Half;\
+}\
+inline constexpr const bool operator!=(const Name value, const ::ospf::named_flag::HalfArgType _) noexcept\
+{\
+    return value != Name::Half;\
+}
 #endif
 
 template<ospf::FlagType T>
