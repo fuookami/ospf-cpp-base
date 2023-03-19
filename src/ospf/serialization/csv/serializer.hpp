@@ -65,7 +65,7 @@ namespace ospf
                     std::optional<OSPFError> err;
                     info.for_each(obj, [this, &row, &err](const auto& obj, const auto& field)
                         {
-                            // todo: impl concept refer to a type that all fileds are plane
+                            // todo: impl concept refer to a type that all fields are plane
                             using FieldValueType = OriginType<decltype(field.value(obj))>;
                             static_assert(field.plane());
                             static_assert(SerializableToCSV<FieldValueType, CharT>);
@@ -103,11 +103,12 @@ namespace ospf
             };
 
             template<typename T, CharType CharT = char>
+                requires WithMetaInfo<T>
             inline Try<> to_file
             (
                 const std::filesystem::path& path, 
                 const T& obj, 
-                std::optional<NameTransfer<CharT>> transfer = meta_programming::NameTransfer<NamingSystem::Underscore, NamingSystem::UpperUnderscore, CharT>{},
+                std::optional<NameTransfer<CharT>> transfer = NameTransfer<CharT>{ meta_programming::NameTransfer<NamingSystem::Underscore, NamingSystem::UpperUnderscore, CharT>{} },
                 const std::basic_string_view<CharT> seperator = CharTrait<CharT>::default_seprator
             ) noexcept
             {
@@ -127,37 +128,6 @@ namespace ospf
 
                 auto serializer = transfer.has_value() ? Serializer<T, CharT>{ std::move(transfer).value() } : Serializer<T, CharT>{};
                 OSPF_TRY_GET(table, serializer(obj));
-
-                std::basic_ofstream<CharT> fout{ path };
-                OSPF_TRY_EXEC(write(fout, table, seperator));
-                return succeed;
-            }
-
-            template<typename T, usize len, CharType CharT = char>
-            inline Try<> to_file
-            (
-                const std::filesystem::path& path, 
-                const std::span<const T, len> objs, 
-                std::optional<NameTransfer<CharT>> transfer = meta_programming::NameTransfer<NamingSystem::Underscore, NamingSystem::UpperUnderscore, CharT>{},
-                const std::basic_string_view<CharT> seperator = CharTrait<CharT>::default_seprator
-            ) noexcept
-            {
-                if (std::filesystem::is_directory(path))
-                {
-                    return OSPFError{ OSPFErrCode::NotAFile, std::format("\"{}\" is not a file", path) };
-                }
-
-                const auto parent_path = path.parent_path();
-                if (!std::filesystem::exists(parent_path))
-                {
-                    if (!std::filesystem::create_directories(parent_path))
-                    {
-                        return OSPFError{ OSPFErrCode::DirectoryUnusable, std::format("directory \"{}\" unusable", parent_path) };
-                    }
-                }
-
-                auto serializer = transfer.has_value() ? Serializer<T, CharT>{ std::move(transfer).value() } : Serializer<T, CharT>{};
-                OSPF_TRY_GET(table, serializer(objs));
 
                 std::basic_ofstream<CharT> fout{ path };
                 OSPF_TRY_EXEC(write(fout, table, seperator));
@@ -165,10 +135,69 @@ namespace ospf
             }
 
             template<typename T, CharType CharT = char>
+                requires WithMetaInfo<T>
+            inline Try<> to_file
+            (
+                const std::filesystem::path& path,
+                const T& obj,
+                NameTransfer<CharT> transfer,
+                const std::basic_string_view<CharT> seperator = CharTrait<CharT>::default_seprator
+            ) noexcept
+            {
+                return to_file(path, obj, std::optional<NameTransfer<CharT>>{ std::move(transfer) }, seperator);
+            }
+
+            template<typename T, usize len, CharType CharT = char>
+                requires WithMetaInfo<T>
+            inline Try<> to_file
+            (
+                const std::filesystem::path& path, 
+                const std::span<const T, len> objs, 
+                std::optional<NameTransfer<CharT>> transfer = NameTransfer<CharT>{ meta_programming::NameTransfer<NamingSystem::Underscore, NamingSystem::UpperUnderscore, CharT>{} },
+                const std::basic_string_view<CharT> seperator = CharTrait<CharT>::default_seprator
+            ) noexcept
+            {
+                if (std::filesystem::is_directory(path))
+                {
+                    return OSPFError{ OSPFErrCode::NotAFile, std::format("\"{}\" is not a file", path) };
+                }
+
+                const auto parent_path = path.parent_path();
+                if (!std::filesystem::exists(parent_path))
+                {
+                    if (!std::filesystem::create_directories(parent_path))
+                    {
+                        return OSPFError{ OSPFErrCode::DirectoryUnusable, std::format("directory \"{}\" unusable", parent_path) };
+                    }
+                }
+
+                auto serializer = transfer.has_value() ? Serializer<T, CharT>{ std::move(transfer).value() } : Serializer<T, CharT>{};
+                OSPF_TRY_GET(table, serializer(objs));
+
+                std::basic_ofstream<CharT> fout{ path };
+                OSPF_TRY_EXEC(write(fout, table, seperator));
+                return succeed;
+            }
+
+            template<typename T, usize len, CharType CharT = char>
+                requires WithMetaInfo<T>
+            inline Try<> to_file
+            (
+                const std::filesystem::path& path,
+                const std::span<const T, len> objs,
+                NameTransfer<CharT> transfer,
+                const std::basic_string_view<CharT> seperator = CharTrait<CharT>::default_seprator
+            ) noexcept
+            {
+                return to_file(path, obj, std::optional<NameTransfer<CharT>>{ std::move(transfer) }, seperator);
+            }
+
+            template<typename T, CharType CharT = char>
+                requires WithMetaInfo<T>
             inline Result<std::basic_string<CharT>> to_string
             (
                 const T& obj, 
-                std::optional<NameTransfer<CharT>> transfer = meta_programming::NameTransfer<NamingSystem::Underscore, NamingSystem::UpperUnderscore, CharT>{},
+                std::optional<NameTransfer<CharT>> transfer = NameTransfer<CharT>{ meta_programming::NameTransfer<NamingSystem::Underscore, NamingSystem::UpperUnderscore, CharT>{} },
                 const std::basic_string_view<CharT> seperator = CharTrait<CharT>::default_seprator
             ) noexcept
             {
@@ -180,11 +209,24 @@ namespace ospf
                 return sout.str();
             }
 
+            template<typename T, CharType CharT = char>
+                requires WithMetaInfo<T>
+            inline Result<std::basic_string<CharT>> to_string
+            (
+                const T& obj,
+                NameTransfer<CharT> transfer,
+                const std::basic_string_view<CharT> seperator = CharTrait<CharT>::default_seprator
+            ) noexcept
+            {
+                return to_string(obj, std::optional<NameTransfer<CharT>>{ std::move(transfer) }, seperator);
+            }
+
             template<typename T, usize len, CharType CharT = char>
+                requires WithMetaInfo<T>
             inline Result<std::basic_string<CharT>> to_string
             (
                 const std::span<const T, len> objs, 
-                std::optional<NameTransfer<CharT>> transfer = meta_programming::NameTransfer<NamingSystem::Underscore, NamingSystem::UpperUnderscore, CharT>{},
+                std::optional<NameTransfer<CharT>> transfer = NameTransfer<CharT>{ meta_programming::NameTransfer<NamingSystem::Underscore, NamingSystem::UpperUnderscore, CharT>{} },
                 const std::basic_string_view<CharT> seperator = CharTrait<CharT>::default_seprator
             ) noexcept
             {
@@ -194,6 +236,18 @@ namespace ospf
                 std::basic_ostringstream<CharT> sout;
                 OSPF_TRY_EXEC(write(sout, table, seperator));
                 return sout.str();
+            }
+
+            template<typename T, usize len, CharType CharT = char>
+                requires WithMetaInfo<T>
+            inline Result<std::basic_string<CharT>> to_string
+            (
+                const std::span<const T, len> objs,
+                NameTransfer<CharT> transfer,
+                const std::basic_string_view<CharT> seperator = CharTrait<CharT>::default_seprator
+            ) noexcept
+            {
+                return to_string(objs, std::optional<NameTransfer<CharT>>{ std::move(transfer) }, seperator);
             }
 
             // todo: to bytes

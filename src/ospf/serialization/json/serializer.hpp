@@ -120,11 +120,12 @@ namespace ospf
             };
 
             template<typename T, CharType CharT = char>
+                requires SerializableToJson<T, CharT>
             inline Try<> to_file
             (
                 const std::filesystem::path& path,
                 const T& obj,
-                std::optional<NameTransfer<CharT>> transfer = meta_programming::NameTransfer<NamingSystem::Underscore, NamingSystem::Camelcase, CharT>{}
+                std::optional<NameTransfer<CharT>> transfer = NameTransfer<CharT>{ meta_programming::NameTransfer<NamingSystem::Underscore, NamingSystem::Camelcase, CharT>{} }
             ) noexcept
             {
                 if (std::filesystem::is_directory(path))
@@ -149,12 +150,25 @@ namespace ospf
                 return succeed;
             }
 
+            template<typename T, CharType CharT = char>
+                requires SerializableToJson<T, CharT>
+            inline Try<> to_file
+            (
+                const std::filesystem::path& path,
+                const T& obj,
+                NameTransfer<CharT> transfer
+            ) noexcept
+            {
+                return to_file(path, obj, std::optional<NameTransfer<CharT>>{ std::move(transfer) });
+            }
+
             template<typename T, usize len, CharType CharT = char>
+                requires SerializableToJson<T, CharT>
             inline Try<> to_file
             (
                 const std::filesystem::path& path,
                 const std::span<const T, len> objs,
-                std::optional<NameTransfer<CharT>> transfer = meta_programming::NameTransfer<NamingSystem::Underscore, NamingSystem::Camelcase, CharT>{}
+                std::optional<NameTransfer<CharT>> transfer = NameTransfer<CharT>{ meta_programming::NameTransfer<NamingSystem::Underscore, NamingSystem::Camelcase, CharT>{} }
             ) noexcept
             {
                 if (std::filesystem::is_directory(path))
@@ -179,11 +193,24 @@ namespace ospf
                 return succeed;
             }
 
+            template<typename T, usize len, CharType CharT = char>
+                requires SerializableToJson<T, CharT>
+            inline Try<> to_file
+            (
+                const std::filesystem::path& path,
+                const std::span<const T, len> objs,
+                NameTransfer<CharT> transfer
+            ) noexcept
+            {
+                return to_file(path, objs, std::optional<NameTransfer<CharT>>{ std::move(transfer) });
+            }
+
             template<typename T, CharType CharT = char>
+                requires SerializableToJson<T, CharT>
             inline Result<std::basic_string<CharT>> to_string
             (
                 const T& obj,
-                std::optional<NameTransfer<CharT>> transfer = meta_programming::NameTransfer<NamingSystem::Underscore, NamingSystem::Camelcase, CharT>{}
+                std::optional<NameTransfer<CharT>> transfer = NameTransfer<CharT>{ meta_programming::NameTransfer<NamingSystem::Underscore, NamingSystem::Camelcase, CharT>{} }
             ) noexcept
             {
                 auto serializer = transfer.has_value() ? Serializer<T, CharT>{ std::move(transfer).value() } : Serializer<T, CharT>{};
@@ -194,11 +221,23 @@ namespace ospf
                 return succeed;
             }
 
+            template<typename T, CharType CharT = char>
+                requires SerializableToJson<T, CharT>
+            inline Result<std::basic_string<CharT>> to_string
+            (
+                const T& obj,
+                NameTransfer<CharT> transfer
+            ) noexcept
+            {
+                return to_string(obj, std::optional<NameTransfer<CharT>>{ std::move(transfer) });
+            }
+
             template<typename T, usize len, CharType CharT = char>
+                requires SerializableToJson<T, CharT>
             inline Result<std::basic_string<CharT>> to_string
             (
                 const std::span<const T, len> objs,
-                std::optional<NameTransfer<CharT>> transfer = meta_programming::NameTransfer<NamingSystem::Underscore, NamingSystem::Camelcase, CharT>{}
+                std::optional<NameTransfer<CharT>> transfer = NameTransfer<CharT>{ meta_programming::NameTransfer<NamingSystem::Underscore, NamingSystem::Camelcase, CharT>{} }
             ) noexcept
             {
                 auto serializer = transfer.has_value() ? Serializer<T, CharT>{ std::move(transfer).value() } : Serializer<T, CharT>{};
@@ -209,28 +248,65 @@ namespace ospf
                 return succeed;
             }
 
+            template<typename T, usize len, CharType CharT = char>
+                requires SerializableToJson<T, CharT>
+            inline Result<std::basic_string<CharT>> to_string
+            (
+                const std::span<const T, len> objs,
+                NameTransfer<CharT> transfer
+            ) noexcept
+            {
+                return to_string(objs, std::optional<NameTransfer<CharT>>{ std::move(transfer) });
+            }
+
             template<typename T, CharType CharT = char>
+                requires SerializableToJson<T, CharT>
             inline Result<Json<CharT>> to_value
             (
                 const T& obj,
                 Document<CharT>& doc,
-                std::optional<NameTransfer<CharT>> transfer = meta_programming::NameTransfer<NamingSystem::Underscore, NamingSystem::Camelcase, CharT>{}
-            )
+                std::optional<NameTransfer<CharT>> transfer = NameTransfer<CharT>{ meta_programming::NameTransfer<NamingSystem::Underscore, NamingSystem::Camelcase, CharT>{} }
+            ) noexcept
             {
                 auto serializer = transfer.has_value() ? Serializer<T, CharT>{ std::move(transfer).value() } : Serializer<T, CharT>{};
                 return serializer(obj, doc);
             }
 
+            template<typename T, CharType CharT = char>
+                requires SerializableToJson<T, CharT>
+            inline Result<Json<CharT>> to_value
+            (
+                const T& obj,
+                Document<CharT>& doc,
+                NameTransfer<CharT> transfer
+            ) noexcept
+            {
+                return to_value(obj, doc, std::optional<NameTransfer<CharT>>{ std::move(transfer) });
+            }
+
             template<typename T, usize len, CharType CharT = char>
+                requires SerializableToJson<T, CharT>
             inline Result<Json<CharT>> to_value
             (
                 const std::span<const T, len> objs,
                 Document<CharT>& doc,
-                std::optional<NameTransfer<CharT>> transfer = meta_programming::NameTransfer<NamingSystem::Underscore, NamingSystem::Camelcase, CharT>{}
-            )
+                std::optional<NameTransfer<CharT>> transfer = NameTransfer<CharT>{ meta_programming::NameTransfer<NamingSystem::Underscore, NamingSystem::Camelcase, CharT>{} }
+            ) noexcept
             {
                 auto serializer = transfer.has_value() ? Serializer<T, CharT>{ std::move(transfer).value() } : Serializer<T, CharT>{};
                 return serializer(objs, doc);
+            }
+
+            template<typename T, usize len, CharType CharT = char>
+                requires SerializableToJson<T, CharT>
+            inline Result<Json<CharT>> to_value
+            (
+                const std::span<const T, len> objs,
+                Document<CharT>& doc,
+                NameTransfer<CharT> transfer
+            ) noexcept
+            {
+                return to_value(objs, doc, std::optional<NameTransfer<CharT>>{ std::move(transfer) });
             }
 
             // todo: to bytes

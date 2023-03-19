@@ -335,10 +335,10 @@ namespace ospf
             };
 
             template<typename T, CharType CharT = char>
-                requires WithDefault<T>
+                requires WithMetaInfo<T> && WithDefault<T>
             inline Try<std::vector<T>> from_file(
                 const std::filesystem::path& path, 
-                std::optional<NameTransfer<CharT>> transfer = meta_programming::NameTransfer<NamingSystem::UpperUnderscore, NamingSystem::Underscore, CharT>{},
+                std::optional<NameTransfer<CharT>> transfer = NameTransfer<CharT>{ meta_programming::NameTransfer<NamingSystem::UpperUnderscore, NamingSystem::Underscore, CharT>{} },
                 const std::basic_string_view<CharT> seperator = CharTrait<CharT>::default_seprator
             ) noexcept
             {
@@ -360,11 +360,22 @@ namespace ospf
             }
 
             template<typename T, CharType CharT = char>
-                requires std::copy_constructible<T>
+                requires WithMetaInfo<T> && WithDefault<T>
+            inline Try<std::vector<T>> from_file(
+                const std::filesystem::path& path,
+                NameTransfer<CharT> transfer,
+                const std::basic_string_view<CharT> seperator = CharTrait<CharT>::default_seprator
+            ) noexcept
+            {
+                return from_file(path, std::optional<NameTransfer<CharT>>{ std::move(transfer) }, seperator);
+            }
+
+            template<typename T, CharType CharT = char>
+                requires WithMetaInfo<T> && std::copy_constructible<T>
             inline Try<std::vector<T>> from_file(
                 const std::filesystem::path& path, 
                 const T& origin_obj, 
-                std::optional<NameTransfer<CharT>> transfer = meta_programming::NameTransfer<NamingSystem::UpperUnderscore, NamingSystem::Underscore, CharT>{},
+                std::optional<NameTransfer<CharT>> transfer = NameTransfer<CharT>{ meta_programming::NameTransfer<NamingSystem::UpperUnderscore, NamingSystem::Underscore, CharT>{} },
                 const std::basic_string_view<CharT> seperator = CharTrait<CharT>::default_seprator
             ) noexcept
             {
@@ -386,10 +397,22 @@ namespace ospf
             }
 
             template<typename T, CharType CharT = char>
-                requires WithDefault<T>
+                requires WithMetaInfo<T> && std::copy_constructible<T>
+            inline Try<std::vector<T>> from_file(
+                const std::filesystem::path& path,
+                const T& origin_obj,
+                NameTransfer<CharT> transfer,
+                const std::basic_string_view<CharT> seperator = CharTrait<CharT>::default_seprator
+            ) noexcept
+            {
+                return from_file(path, origin_obj, std::optional<NameTransfer<CharT>>{ std::move(transfer) }, seperator);
+            }
+
+            template<typename T, CharType CharT = char>
+                requires WithMetaInfo<T> && WithDefault<T>
             inline Try<std::vector<T>> from_file_soft(
                 const std::filesystem::path& path, 
-                std::optional<NameTransfer<CharT>> transfer = meta_programming::NameTransfer<NamingSystem::UpperUnderscore, NamingSystem::Underscore, CharT>{},
+                std::optional<NameTransfer<CharT>> transfer = NameTransfer<CharT>{ meta_programming::NameTransfer<NamingSystem::UpperUnderscore, NamingSystem::Underscore, CharT>{} },
                 const std::basic_string_view<CharT> seperator = CharTrait<CharT>::default_seprator
             ) noexcept
             {
@@ -411,11 +434,22 @@ namespace ospf
             }
 
             template<typename T, CharType CharT = char>
-                requires std::copy_constructible<T>
+                requires WithMetaInfo<T> && WithDefault<T>
+            inline Try<std::vector<T>> from_file_soft(
+                const std::filesystem::path& path,
+                NameTransfer<CharT> transfer,
+                const std::basic_string_view<CharT> seperator = CharTrait<CharT>::default_seprator
+            ) noexcept
+            {
+                return from_file_soft(path, std::optional<NameTransfer<CharT>>{ std::move(transfer) }, seperator);
+            }
+
+            template<typename T, CharType CharT = char>
+                requires WithMetaInfo<T> && std::copy_constructible<T>
             inline Try<std::vector<T>> from_file_soft(
                 const std::filesystem::path& path, 
                 const T& origin_obj, 
-                std::optional<NameTransfer<CharT>> transfer = meta_programming::NameTransfer<NamingSystem::UpperUnderscore, NamingSystem::Underscore, CharT>{},
+                std::optional<NameTransfer<CharT>> transfer = NameTransfer<CharT>{ meta_programming::NameTransfer<NamingSystem::UpperUnderscore, NamingSystem::Underscore, CharT>{} },
                 const std::basic_string_view<CharT> seperator = CharTrait<CharT>::default_seprator
             ) noexcept
             {
@@ -437,10 +471,22 @@ namespace ospf
             }
 
             template<typename T, CharType CharT = char>
-                requires WithDefault<T>
+                requires WithMetaInfo<T> && std::copy_constructible<T>
+            inline Try<std::vector<T>> from_file_soft(
+                const std::filesystem::path& path,
+                const T& origin_obj,
+                NameTransfer<CharT> transfer,
+                const std::basic_string_view<CharT> seperator = CharTrait<CharT>::default_seprator
+            ) noexcept
+            {
+                return from_file_soft(path, origin_obj, std::optional<NameTransfer<CharT>>{ std::move(transfer) }, seperator);
+            }
+
+            template<typename T, CharType CharT = char>
+                requires WithMetaInfo<T> && WithDefault<T>
             inline Try<std::vector<T>> from_string(
                 const std::basic_string_view<CharT> str,
-                std::optional<NameTransfer<CharT>> transfer = meta_programming::NameTransfer<NamingSystem::UpperUnderscore, NamingSystem::Underscore, CharT>{},
+                std::optional<NameTransfer<CharT>> transfer = NameTransfer<CharT>{ meta_programming::NameTransfer<NamingSystem::UpperUnderscore, NamingSystem::Underscore, CharT>{} },
                 const std::basic_string_view<CharT> seperator = CharTrait<CharT>::default_seprator
             ) noexcept
             {
@@ -453,11 +499,22 @@ namespace ospf
             }
 
             template<typename T, CharType CharT = char>
-                requires std::copy_constructible<T>
+                requires WithMetaInfo<T> && WithDefault<T>
+            inline Try<std::vector<T>> from_string(
+                const std::basic_string_view<CharT> str,
+                NameTransfer<CharT> transfer,
+                const std::basic_string_view<CharT> seperator = CharTrait<CharT>::default_seprator
+            ) noexcept
+            {
+                return from_string(str, std::optional<NameTransfer<CharT>>{ std::move(transfer) }, seperator);
+            }
+
+            template<typename T, CharType CharT = char>
+                requires WithMetaInfo<T> && std::copy_constructible<T>
             inline Try<std::vector<T>> from_string(
                 const std::basic_string_view<CharT> str,
                 const T& origin_obj, 
-                std::optional<NameTransfer<CharT>> transfer = meta_programming::NameTransfer<NamingSystem::UpperUnderscore, NamingSystem::Underscore, CharT>{},
+                std::optional<NameTransfer<CharT>> transfer = NameTransfer<CharT>{ meta_programming::NameTransfer<NamingSystem::UpperUnderscore, NamingSystem::Underscore, CharT>{} },
                 const std::basic_string_view<CharT> seperator = CharTrait<CharT>::default_seprator
             ) noexcept
             {
@@ -470,10 +527,22 @@ namespace ospf
             }
 
             template<typename T, CharType CharT = char>
-                requires WithDefault<T>
+                requires WithMetaInfo<T>&& std::copy_constructible<T>
+            inline Try<std::vector<T>> from_string(
+                const std::basic_string_view<CharT> str,
+                const T& origin_obj,
+                NameTransfer<CharT> transfer,
+                const std::basic_string_view<CharT> seperator = CharTrait<CharT>::default_seprator
+            ) noexcept
+            {
+                return from_string(str, origin_obj, std::optional<NameTransfer<CharT>>{ std::move(transfer) }, seperator);
+            }
+
+            template<typename T, CharType CharT = char>
+                requires WithMetaInfo<T> && WithDefault<T>
             inline Try<std::vector<T>> from_string_soft(
                 const std::basic_string_view<CharT> str,
-                std::optional<NameTransfer<CharT>> transfer = meta_programming::NameTransfer<NamingSystem::UpperUnderscore, NamingSystem::Underscore, CharT>{},
+                std::optional<NameTransfer<CharT>> transfer = NameTransfer<CharT>{ meta_programming::NameTransfer<NamingSystem::UpperUnderscore, NamingSystem::Underscore, CharT>{} },
                 const std::basic_string_view<CharT> seperator = CharTrait<CharT>::default_seprator
             ) noexcept
             {
@@ -486,11 +555,22 @@ namespace ospf
             }
 
             template<typename T, CharType CharT = char>
-                requires std::copy_constructible<T>
+                requires WithMetaInfo<T> && WithDefault<T>
+            inline Try<std::vector<T>> from_string_soft(
+                const std::basic_string_view<CharT> str,
+                NameTransfer<CharT> transfer,
+                const std::basic_string_view<CharT> seperator = CharTrait<CharT>::default_seprator
+            ) noexcept
+            {
+                return from_string_soft(str, std::optional<NameTransfer<CharT>>{ std::move(transfer) }, seperator);
+            }
+
+            template<typename T, CharType CharT = char>
+                requires WithMetaInfo<T> && std::copy_constructible<T>
             inline Try<std::vector<T>> from_string_soft(
                 const std::basic_string_view<CharT> str, 
                 const T& origin_obj, 
-                std::optional<NameTransfer<CharT>> transfer = meta_programming::NameTransfer<NamingSystem::UpperUnderscore, NamingSystem::Underscore, CharT>{},
+                std::optional<NameTransfer<CharT>> transfer = NameTransfer<CharT>{ meta_programming::NameTransfer<NamingSystem::UpperUnderscore, NamingSystem::Underscore, CharT>{} },
                 const std::basic_string_view<CharT> seperator = CharTrait<CharT>::default_seprator
             ) noexcept
             {
@@ -500,6 +580,18 @@ namespace ospf
                 auto deserializer = transfer.has_value() ? Deserializer<T, CharT>{ std::move(transfer).value() } : Deserializer<T, CharT>{};
                 OSPF_TRY_GET(objs, deserializer(table, origin_obj));
                 return std::move(objs);
+            }
+
+            template<typename T, CharType CharT = char>
+                requires WithMetaInfo<T>&& std::copy_constructible<T>
+            inline Try<std::vector<T>> from_string_soft(
+                const std::basic_string_view<CharT> str,
+                const T& origin_obj,
+                NameTransfer<CharT> transfer,
+                const std::basic_string_view<CharT> seperator = CharTrait<CharT>::default_seprator
+            ) noexcept
+            {
+                return from_string_soft(str, origin_obj, std::optional<NameTransfer<CharT>>{ std::move(transfer) }, seperator);
             }
 
             // todo: from bytes

@@ -19,6 +19,8 @@ namespace ospf
 
             template<typename It>
             concept ToValueIter = std::output_iterator<It, ubyte>;
+
+            using NameTransfer = std::function<const std::string_view(const std::string_view)>;
         };
     };
 };

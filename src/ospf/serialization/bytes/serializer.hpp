@@ -28,6 +28,8 @@ namespace ospf
             public:
                 Serializer(const Endian endian = local_endian)
                     : _endian(endian) {}
+                Serializer(NameTransfer transfer, const Endian endian = local_endian)
+                    : _transfer(std::move(transfer)), _endian(endian) {}
                 Serializer(const Serializer& ano) = default;
                 Serializer(Serializer&& ano) noexcept = default;
                 Serializer& operator=(const Serializer& rhs) = default;
@@ -39,7 +41,7 @@ namespace ospf
                 inline Result<Bytes<>> operator()(const std::span<const ValueType, len> objs) const noexcept
                 {
                     Bytes<> ret;
-                    const auto header = make_header(objs);
+                    const auto header = make_header(objs, _transfer, _endian);
                     static const ToBytesValue<Header> header_serializer{};
                     const auto header_size = header_serializer.size(header);
                     ret.resize(header_size + header.size(), 0_ub);
@@ -76,7 +78,7 @@ namespace ospf
                 template<ToValueIter It, usize len>
                 inline Try<> operator()(const std::span<const ValueType, len> objs, It& it) const noexcept
                 {
-                    const auto header = make_header(objs);
+                    const auto header = make_header(objs, _transfer, _endian);
                     static const ToBytesValue<Header> header_serializer{};
                     header_serializer(header, it, _endian);
                     static const ToBytesValue<std::span<const ValueType, len>> serializer{};
@@ -89,7 +91,7 @@ namespace ospf
                 inline Result<Bytes<>> operator()(const ValueType& obj) const noexcept
                 {
                     Bytes<> ret;
-                    const auto header = make_header(obj);
+                    const auto header = make_header(obj, _transfer, _endian);
                     static const ToBytesValue<Header> header_serializer{};
                     const auto header_size = header_serializer.size(header);
                     ret.resize(header_size + header.size(), 0_ub);
@@ -157,7 +159,7 @@ namespace ospf
                     requires WithMetaInfo<ValueType>
                 inline Try<> operator()(const ValueType& obj, It& it) const noexcept
                 {
-                    const auto header = make_header(obj);
+                    const auto header = make_header(obj, _transfer, _endian);
                     static const ToBytesValue<Header> header_serializer{};
                     header_serializer(header, it, _endian);
                     static const ToBytesValue<ValueType> serializer{};
@@ -166,11 +168,18 @@ namespace ospf
                 }
 
             private:
+                std::optional<NameTransfer> _transfer;
                 Endian _endian;
             };
 
             template<typename T, usize len>
-            inline Try<> to_file(const std::filesystem::path& path, const std::span<const T, len> objs, const Endian endian = local_endian) noexcept
+                requires SerializableToBytes<T>
+            inline Try<> to_file(
+                const std::filesystem::path& path, 
+                const std::span<const T, len> objs, 
+                std::optional<NameTransfer> transfer = std::nullopt,
+                const Endian endian = local_endian
+            ) noexcept
             {
                 if (std::filesystem::is_directory(path))
                 {
@@ -187,13 +196,31 @@ namespace ospf
                 }
 
                 std::ofstream fout{ path };
-                static const Serializer<T> serializer{ endian };
+                auto serializer = transfer.has_value() ? Serializer<T>{ std::move(transfer).value(), endian } : Serializer<T>{ endian };
                 OSPF_TRY_EXEC(serializer(objs, std::ostreambuf_iterator{ fout }));
                 return succeed;
             }
 
+            template<typename T, usize len>
+                requires SerializableToBytes<T>
+            inline Try<> to_file(
+                const std::filesystem::path& path,
+                const std::span<const T, len> objs,
+                NameTransfer transfer,
+                const Endian endian = local_endian
+            ) noexcept
+            {
+                return to_file(path, objs, std::optional<NameTransfer>{ std::move(transfer) }, endian);
+            }
+
             template<typename T, typename CharT = char>
-            inline Try<> to_file(const std::filesystem::path& path, const T& obj, const Endian endian = local_endian) noexcept
+                requires SerializableToBytes<T>
+            inline Try<> to_file(
+                const std::filesystem::path& path, 
+                const T& obj, 
+                std::optional<NameTransfer> transfer = std::nullopt,
+                const Endian endian = local_endian
+            ) noexcept
             {
                 if (std::filesystem::is_directory(path))
                 {
@@ -210,41 +237,117 @@ namespace ospf
                 }
 
                 std::ofstream fout{ path };
-                static const Serializer<T> serializer{ endian };
+                auto serializer = transfer.has_value() ? Serializer<T>{ std::move(transfer).value(), endian } : Serializer<T>{ endian };
                 OSPF_TRY_EXEC(serializer(obj, std::ostreambuf_iterator{ fout }));
                 return succeed;
             }
 
+            template<typename T, typename CharT = char>
+                requires SerializableToBytes<T>
+            inline Try<> to_file(
+                const std::filesystem::path& path,
+                const T& obj,
+                NameTransfer transfer,
+                const Endian endian = local_endian
+            ) noexcept
+            {
+                return to_file(path, obj, std::optional<NameTransfer>{ std::move(transfer) }, endian);
+            }
+
             template<typename T, usize len>
-            inline Result<std::string> to_string(const std::span<const T, len> objs, const Endian endian = local_endian) noexcept
+                requires SerializableToBytes<T>
+            inline Result<std::string> to_string(
+                const std::span<const T, len> objs, 
+                std::optional<NameTransfer> transfer = std::nullopt,
+                const Endian endian = local_endian
+            ) noexcept
             {
                 std::ostringstream sout;
-                static const Serializer<T> serializer{ endian };
+                auto serializer = transfer.has_value() ? Serializer<T>{ std::move(transfer).value(), endian } : Serializer<T>{ endian };
                 OSPF_TRY_EXEC(serializer(objs, std::ostreambuf_iterator{ sout }));
                 return sout.str();
             }
 
+            template<typename T, usize len>
+                requires SerializableToBytes<T>
+            inline Result<std::string> to_string(
+                const std::span<const T, len> objs,
+                NameTransfer transfer,
+                const Endian endian = local_endian
+            ) noexcept
+            {
+                return to_string(objs, std::optional<NameTransfer>{ std::move(transfer) }, endian);
+            }
+
             template<typename T>
-            inline Result<std::string> to_string(const T& obj, const Endian endian = local_endian) noexcept
+                requires SerializableToBytes<T>
+            inline Result<std::string> to_string(
+                const T& obj, 
+                std::optional<NameTransfer> transfer = std::nullopt,
+                const Endian endian = local_endian
+            ) noexcept
             {
                 std::ostringstream sout;
-                static const Serializer<T> serializer{ endian };
+                auto serializer = transfer.has_value() ? Serializer<T>{ std::move(transfer).value(), endian } : Serializer<T>{ endian };
                 OSPF_TRY_EXEC(serializer(obj, std::ostreambuf_iterator{ sout }));
                 return sout.str();
             }
 
-            template<typename T, usize len, typename CharT = char>
-            inline Result<Bytes<>> to_bytes(const std::span<const T, len> objs, const Endian endian = local_endian) noexcept
+            template<typename T>
+                requires SerializableToBytes<T>
+            inline Result<std::string> to_string(
+                const T& obj,
+                NameTransfer transfer,
+                const Endian endian = local_endian
+            ) noexcept
             {
-                static const Serializer<T> serializer{ endian };
+                return to_string(obj, std::optional<NameTransfer>{ std::move(transfer) }, endian);
+            }
+
+            template<typename T, usize len, typename CharT = char>
+                requires SerializableToBytes<T>
+            inline Result<Bytes<>> to_bytes(
+                const std::span<const T, len> objs, 
+                std::optional<NameTransfer> transfer = std::nullopt,
+                const Endian endian = local_endian
+            ) noexcept
+            {
+                auto serializer = transfer.has_value() ? Serializer<T>{ std::move(transfer).value(), endian } : Serializer<T>{ endian };
                 return serializer(objs);
             }
 
-            template<typename T, typename CharT = char>
-            inline Result<Bytes<>> to_bytes(const T& obj, const Endian endian = local_endian) noexcept
+            template<typename T, usize len, typename CharT = char>
+                requires SerializableToBytes<T>
+            inline Result<Bytes<>> to_bytes(
+                const std::span<const T, len> objs,
+                NameTransfer transfer,
+                const Endian endian = local_endian
+            ) noexcept
             {
-                static const Serializer<T> serializer{ endian };
+                return to_bytes(objs, std::optional<NameTransfer>{ std::move(transfer) }, endian);
+            }
+
+            template<typename T, typename CharT = char>
+                requires SerializableToBytes<T>
+            inline Result<Bytes<>> to_bytes(
+                const T& obj, 
+                std::optional<NameTransfer> transfer = std::nullopt,
+                const Endian endian = local_endian
+            ) noexcept
+            {
+                auto serializer = transfer.has_value() ? Serializer<T>{ std::move(transfer).value(), endian } : Serializer<T>{ endian };
                 return serializer(obj);
+            }
+
+            template<typename T, typename CharT = char>
+                requires SerializableToBytes<T>
+            inline Result<Bytes<>> to_bytes(
+                const T& obj,
+                NameTransfer transfer,
+                const Endian endian = local_endian
+            ) noexcept
+            {
+                return to_bytes(obj, std::optional<NameTransfer>{ std::move(transfer) }, endian);
             }
         };
     };

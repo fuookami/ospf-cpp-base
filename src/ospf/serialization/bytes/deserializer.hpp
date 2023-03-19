@@ -22,6 +22,8 @@ namespace ospf
 
             public:
                 Deserializer(void) = default;
+                Deserializer(NameTransfer transfer)
+                    : _transfer(std::move(transfer)) {}
                 Deserializer(const Deserializer& ano) = default;
                 Deserializer(Deserializer&& ano) noexcept = default;
                 Deserializer& operator=(const Deserializer& rhs) = default;
@@ -147,7 +149,7 @@ namespace ospf
                     {
                         return OSPFError{ OSPFErrCode::DeserializationFail, "target bytes long is bigger than local" };
                     }
-                    OSPF_TRY_EXEC(header.fit<ValueType>());
+                    OSPF_TRY_EXEC(header.fit<ValueType>(_transfer));
                     return std::move(header);
                 }
 
@@ -278,10 +280,17 @@ namespace ospf
                         return deserializer(it, header.address_length(), header.endian());
                     }
                 }
+
+            private:
+                std::optional<NameTransfer> _transfer;
             };
 
             template<typename T, CharType CharT = char>
-            inline Result<Either<OriginType<T>, std::vector<OriginType<T>>>> from_file(const std::filesystem::path& path) noexcept
+                requires DeserializableFromBytes<T>
+            inline auto from_file(
+                const std::filesystem::path& path,
+                std::optional<NameTransfer> transfer = std::nullopt
+            ) noexcept -> Result<Either<OriginType<T>, std::vector<OriginType<T>>>>
             {
                 if (!std::filesystem::exists(path))
                 {
@@ -293,12 +302,26 @@ namespace ospf
                 }
 
                 std::basic_ifstream<CharT> fin{ path };
-                static const Deserializer<OriginType<T>> deserializer{};
+                auto deserializer = (transfer.has_value()) ? Deserializer<OriginType<T>>{ std::move(transfer).value() } : Deserializer<OriginType<T>>{};
                 return deserializer(fin);
             }
 
             template<typename T, CharType CharT = char>
-            inline Result<OriginType<T>> from_file_object(const std::filesystem::path& path) noexcept
+                requires DeserializableFromBytes<T>
+            inline auto from_file(
+                const std::filesystem::path& path,
+                NameTransfer transfer
+            ) noexcept -> Result<Either<OriginType<T>, std::vector<OriginType<T>>>>
+            {
+                return from_file(path, std::optional<NameTransfer>{ std::move(transfer) });
+            }
+
+            template<typename T, CharType CharT = char>
+                requires DeserializableFromBytes<T>
+            inline Result<OriginType<T>> from_file_object(
+                const std::filesystem::path& path,
+                std::optional<NameTransfer> transfer = std::nullopt
+            ) noexcept
             {
                 if (!std::filesystem::exists(path))
                 {
@@ -310,12 +333,26 @@ namespace ospf
                 }
 
                 std::basic_ifstream<CharT> fin{ path };
-                static const Deserializer<OriginType<T>> deserializer{};
+                auto deserializer = (transfer.has_value()) ? Deserializer<OriginType<T>>{ std::move(transfer).value() } : Deserializer<OriginType<T>>{};
                 return deserializer.parse_object(fin);
             }
 
             template<typename T, CharType CharT = char>
-            inline Result<std::vector<OriginType<T>>> from_file_array(const std::filesystem::path& path) noexcept
+                requires DeserializableFromBytes<T>
+            inline Result<OriginType<T>> from_file_object(
+                const std::filesystem::path& path,
+                NameTransfer transfer
+            ) noexcept
+            {
+                return from_file_object(path, std::optional<NameTransfer>{ std::move(transfer) });
+            }
+
+            template<typename T, CharType CharT = char>
+                requires DeserializableFromBytes<T>
+            inline Result<std::vector<OriginType<T>>> from_file_array(
+                const std::filesystem::path& path,
+                std::optional<NameTransfer> transfer = std::nullopt
+            ) noexcept
             {
                 if (!std::filesystem::exists(path))
                 {
@@ -327,53 +364,147 @@ namespace ospf
                 }
 
                 std::basic_ifstream<CharT> fin{ path };
-                static const Deserializer<OriginType<T>> deserializer{};
+                auto deserializer = (transfer.has_value()) ? Deserializer<OriginType<T>>{ std::move(transfer).value() } : Deserializer<OriginType<T>>{};
                 return deserializer.parse_array(fin);
             }
 
             template<typename T, CharType CharT = char>
-            inline Result<Either<OriginType<T>, std::vector<OriginType<T>>>> from_string(const std::basic_string_view<CharT> str) noexcept
+                requires DeserializableFromBytes<T>
+            inline Result<std::vector<OriginType<T>>> from_file_array(
+                const std::filesystem::path& path,
+                NameTransfer transfer
+            ) noexcept
+            {
+                return from_file_array(path, std::optional<NameTransfer>{ std::move(transfer) });
+            }
+
+            template<typename T, CharType CharT = char>
+                requires DeserializableFromBytes<T>
+            inline auto from_string(
+                const std::basic_string_view<CharT> str,
+                std::optional<NameTransfer> transfer = std::nullopt
+            ) noexcept -> Result<Either<OriginType<T>, std::vector<OriginType<T>>>>
             {
                 std::basic_istringstream sin{ str };
-                static const Deserializer<OriginType<T>> deserializer{};
+                auto deserializer = (transfer.has_value()) ? Deserializer<OriginType<T>>{ std::move(transfer).value() } : Deserializer<OriginType<T>>{};
                 return deserializer(sin);
             }
 
             template<typename T, CharType CharT = char>
-            inline Result<OriginType<T>> from_string_object(const std::basic_string_view<CharT> str) noexcept
+                requires DeserializableFromBytes<T>
+            inline auto from_string(
+                const std::basic_string_view<CharT> str,
+                NameTransfer transfer
+            ) noexcept -> Result<Either<OriginType<T>, std::vector<OriginType<T>>>>
+            {
+                return from_string(str, std::optional<NameTransfer>{ std::move(transfer) });
+            }
+
+            template<typename T, CharType CharT = char>
+                requires DeserializableFromBytes<T>
+            inline Result<OriginType<T>> from_string_object(
+                const std::basic_string_view<CharT> str,
+                std::optional<NameTransfer> transfer = std::nullopt
+            ) noexcept
             {
                 std::basic_istringstream sin{ str };
-                static const Deserializer<OriginType<T>> deserializer{};
+                auto deserializer = (transfer.has_value()) ? Deserializer<OriginType<T>>{ std::move(transfer).value() } : Deserializer<OriginType<T>>{};
                 return deserializer.parse_object(sin);
             }
 
             template<typename T, CharType CharT = char>
-            inline Result<std::vector<OriginType<T>>> from_string_array(const std::basic_string_view<CharT> str) noexcept
+                requires DeserializableFromBytes<T>
+            inline Result<OriginType<T>> from_string_object(
+                const std::basic_string_view<CharT> str,
+                NameTransfer transfer
+            ) noexcept
+            {
+                return from_string_object(str, std::optional<NameTransfer>{ std::move(transfer) });
+            }
+
+            template<typename T, CharType CharT = char>
+                requires DeserializableFromBytes<T>
+            inline Result<std::vector<OriginType<T>>> from_string_array(
+                const std::basic_string_view<CharT> str,
+                std::optional<NameTransfer> transfer = std::nullopt
+            ) noexcept
             {
                 std::basic_istringstream sin{ str };
-                static const Deserializer<OriginType<T>> deserializer{};
+                auto deserializer = (transfer.has_value()) ? Deserializer<OriginType<T>>{ std::move(transfer).value() } : Deserializer<OriginType<T>>{};
                 return deserializer.parse_array(sin);
             }
 
-            template<typename T, usize len>
-            inline Result<Either<OriginType<T>, std::vector<OriginType<T>>>> from_bytes(const Bytes<len>& bytes) noexcept
+            template<typename T, CharType CharT = char>
+                requires DeserializableFromBytes<T>
+            inline Result<std::vector<OriginType<T>>> from_string_array(
+                const std::basic_string_view<CharT> str,
+                NameTransfer transfer
+            ) noexcept
             {
-                static const Deserializer<OriginType<T>> deserializer{};
+                return from_string_array(str, std::optional<NameTransfer>{ std::move(transfer) });
+            }
+
+            template<typename T, usize len>
+                requires DeserializableFromBytes<T>
+            inline auto from_bytes(
+                const Bytes<len>& bytes,
+                std::optional<NameTransfer> transfer = std::nullopt
+            ) noexcept -> Result<Either<OriginType<T>, std::vector<OriginType<T>>>>
+            {
+                auto deserializer = (transfer.has_value()) ? Deserializer<OriginType<T>>{ std::move(transfer).value() } : Deserializer<OriginType<T>>{};
                 return deserializer(bytes);
             }
 
             template<typename T, usize len>
-            inline Result<OriginType<T>> from_bytes_object(const Bytes<len>& bytes) noexcept
+                requires DeserializableFromBytes<T>
+            inline auto from_bytes(
+                const Bytes<len>& bytes,
+                NameTransfer transfer
+            ) noexcept -> Result<Either<OriginType<T>, std::vector<OriginType<T>>>>
             {
-                static const Deserializer<OriginType<T>> deserializer{};
+                return from_bytes(bytes, std::optional<NameTransfer>{ std::move(transfer) });
+            }
+
+            template<typename T, usize len>
+                requires DeserializableFromBytes<T>
+            inline Result<OriginType<T>> from_bytes_object(
+                const Bytes<len>& bytes,
+                std::optional<NameTransfer> transfer = std::nullopt
+            ) noexcept
+            {
+                auto deserializer = (transfer.has_value()) ? Deserializer<OriginType<T>>{ std::move(transfer).value() } : Deserializer<OriginType<T>>{};
                 return deserializer.parse_object(bytes);
             }
 
             template<typename T, usize len>
-            inline Result<std::vector<OriginType<T>>> from_bytes_object(const Bytes<len>& bytes) noexcept
+                requires DeserializableFromBytes<T>
+            inline Result<OriginType<T>> from_bytes_object(
+                const Bytes<len>& bytes,
+                NameTransfer transfer
+            ) noexcept
             {
-                static const Deserializer<OriginType<T>> deserializer{};
+                return from_bytes_object(bytes, std::optional<NameTransfer>{ std::move(transfer) });
+            }
+
+            template<typename T, usize len>
+                requires DeserializableFromBytes<T>
+            inline Result<std::vector<OriginType<T>>> from_bytes_array(
+                const Bytes<len>& bytes,
+                std::optional<NameTransfer> transfer = std::nullopt
+            ) noexcept
+            {
+                auto deserializer = (transfer.has_value()) ? Deserializer<OriginType<T>>{ std::move(transfer).value() } : Deserializer<OriginType<T>>{};
                 return deserializer.parse_array(bytes);
+            }
+
+            template<typename T, usize len>
+                requires DeserializableFromBytes<T>
+            inline Result<std::vector<OriginType<T>>> from_bytes_array(
+                const Bytes<len>& bytes,
+                NameTransfer transfer
+            ) noexcept
+            {
+                return from_bytes_array(bytes, std::optional<NameTransfer>{ std::move(transfer) });
             }
         };
     };
