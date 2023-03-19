@@ -39,9 +39,9 @@ namespace ospf
 
             template<typename T, typename CharT>
             concept DeserializableFromJson = CharType<CharT> 
-                && (requires (const FromJsonValue<OriginType<T>, CharT>& deserializer)
+                && (requires (const FromJsonValue<OriginType<T>, CharT>& deserializer, T& obj)
                 {
-                    { deserializer(std::declval<Json<CharT>>(), std::declval<OriginType<T>>(), std::declval<std::optional<NameTransfer<CharT>>>()) } -> DecaySameAs<Try<>>;
+                    { deserializer(std::declval<Json<CharT>>(), obj, std::declval<std::optional<NameTransfer<CharT>>>()) } -> DecaySameAs<Try<>>;
                 }) 
                 && (!WithDefault<OriginType<T>> || requires (const FromJsonValue<OriginType<T>, CharT>& deserializer)
                 {
@@ -133,7 +133,7 @@ namespace ospf
                                 else
                                 {
                                     static const FromJsonValue<FieldValueType, CharT> deserializer{};
-                                    auto value = deserializer(json, transfer);
+                                    auto value = deserializer(json[key.data()], transfer);
                                     if constexpr (!serialization_nullable<FieldValueType>)
                                     {
                                         if (value.is_failed())
@@ -142,7 +142,7 @@ namespace ospf
                                             return;
                                         }
                                     }
-                                    if (value.is_successful())
+                                    if (value.is_succeeded())
                                     {
                                         field.value(obj) = std::move(value).unwrap();
                                     }
@@ -345,7 +345,7 @@ namespace ospf
                     else
                     {
                         OSPF_TRY_GET(index, get_index(json, transfer));
-                        static const auto key = transfer("value");
+                        static const auto key = transfer.has_value() ? (*transfer)("value") : boost::locale::conv::to_utf<CharT>("value", std::locale{});
                         if (!json.HasMember(key))
                         {
                             return OSPFError{ OSPFErrCode::DeserializationFail, std::format("lost field \"value\" for \"{}\"", TypeInfo<std::variant<Ts...>>::name()) };
@@ -370,7 +370,7 @@ namespace ospf
             private:
                 inline static Result<usize> get_index(const Json<CharT>& json, const std::optional<NameTransfer<CharT>>& transfer) noexcept
                 {
-                    static const auto key = transfer("index");
+                    static const auto key = transfer.has_value() ? (*transfer)("index") : boost::locale::conv::to_utf<CharT>("index", std::locale{});
                     if (!json.HasMember(key))
                     {
                         return OSPFError{ OSPFErrCode::DeserializationFail, std::format("lost field \"index\" for \"{}\"", TypeInfo<std::variant<Ts...>>::name()) };
@@ -428,7 +428,7 @@ namespace ospf
                     else
                     {
                         OSPF_TRY_GET(index, get_index(json, transfer));
-                        static const auto key = transfer("value");
+                        static const auto key = transfer.has_value() ? (*transfer)("value") : boost::locale::conv::to_utf<CharT>("index", std::locale{});
                         if (!json.HasMember(key))
                         {
                             return OSPFError{ OSPFErrCode::DeserializationFail, std::format("lost field \"value\" for \"{}\"", TypeInfo<Either<T, U>>::name()) };
@@ -462,7 +462,7 @@ namespace ospf
             private:
                 inline static Result<usize> get_index(const Json<CharT>& json, const std::optional<NameTransfer<CharT>>& transfer) noexcept
                 {
-                    static const auto key = transfer("index");
+                    static const auto key = transfer.has_value() ? (*transfer)("index") : boost::locale::conv::to_utf<CharT>("index", std::locale{});
                     if (!json.HasMember(key))
                     {
                         return OSPFError{ OSPFErrCode::DeserializationFail, std::format("lost field \"index\" for \"{}\"", TypeInfo<Either<T, U>>::name()) };

@@ -82,7 +82,7 @@ namespace ospf
                     static constexpr const meta_info::MetaInfo<ValueType> info{};
                     json.SetObject();
                     std::optional<OSPFError> err;
-                    info.for_each(obj, [this, &err, &doc](const auto& obj, const auto& field)
+                    info.for_each(obj, [this, &json, &err, &doc](const auto& obj, const auto& field)
                         {
                             using FieldValueType = OriginType<decltype(field.value(obj))>;
                             static_assert(SerializableToJson<FieldValueType, CharT>);
@@ -94,7 +94,7 @@ namespace ospf
 
                             const auto key = this->_transfer.has_value() ? (*this->_transfer)(field.key()) : field.key();
                             static const ToJsonValue<FieldValueType, CharT> serializer{};
-                            auto sub_json = serializer(field.value(obj));
+                            auto sub_json = serializer(field.value(obj), doc, this->_transfer);
                             if (sub_json.is_failed())
                             {
                                 err = OSPFError{ OSPFErrCode::SerializationFail, std::format("failed serializing field \"{}\" for type\"{}\", {}", field.key(), TypeInfo<T>::name(), sub_json.err().message()) };
@@ -130,7 +130,7 @@ namespace ospf
             {
                 if (std::filesystem::is_directory(path))
                 {
-                    return OSPFError{ OSPFErrCode::NotAFile, std::format("\"{}\" is not a file", path) };
+                    return OSPFError{ OSPFErrCode::NotAFile, std::format("\"{}\" is not a file", path.string()) };
                 }
 
                 const auto parent_path = path.parent_path();
@@ -138,7 +138,7 @@ namespace ospf
                 {
                     if (!std::filesystem::create_directories(parent_path))
                     {
-                        return OSPFError{ OSPFErrCode::DirectoryUnusable, std::format("directory \"{}\" unusable", parent_path) };
+                        return OSPFError{ OSPFErrCode::DirectoryUnusable, std::format("directory \"{}\" unusable", parent_path.string()) };
                     }
                 }
 
@@ -173,7 +173,7 @@ namespace ospf
             {
                 if (std::filesystem::is_directory(path))
                 {
-                    return OSPFError{ OSPFErrCode::NotAFile, std::format("\"{}\" is not a file", path) };
+                    return OSPFError{ OSPFErrCode::NotAFile, std::format("\"{}\" is not a file", path.string()) };
                 }
 
                 const auto parent_path = path.parent_path();
@@ -181,7 +181,7 @@ namespace ospf
                 {
                     if (!std::filesystem::create_directories(parent_path))
                     {
-                        return OSPFError{ OSPFErrCode::DirectoryUnusable, std::format("directory \"{}\" unusable", parent_path) };
+                        return OSPFError{ OSPFErrCode::DirectoryUnusable, std::format("directory \"{}\" unusable", parent_path.string()) };
                     }
                 }
 

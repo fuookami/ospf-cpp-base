@@ -8,6 +8,11 @@ namespace ospf
 {
     inline namespace meta_programming
     {
+        inline const std::string_view type_name(const std::type_index type) noexcept
+        {
+            return split(type.name(), " :").back();
+        }
+
         template<typename T>
         struct TypeInfo
         {
@@ -43,14 +48,9 @@ namespace ospf
 
             inline static const std::string_view name(void) noexcept
             {
-                static const std::string ret = name(index());
+                static const std::string_view ret = type_name(info());
                 return ret;
             }
         };
-
-        inline const std::string_view type_name(const std::type_index type) noexcept
-        {
-            return split(type.name(), " :").back();
-        }
     };
 };

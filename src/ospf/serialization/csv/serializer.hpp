@@ -114,7 +114,7 @@ namespace ospf
             {
                 if (std::filesystem::is_directory(path))
                 {
-                    return OSPFError{ OSPFErrCode::NotAFile, std::format("\"{}\" is not a file", path) };
+                    return OSPFError{ OSPFErrCode::NotAFile, std::format("\"{}\" is not a file", path.string()) };
                 }
 
                 const auto parent_path = path.parent_path();
@@ -122,7 +122,7 @@ namespace ospf
                 {
                     if (!std::filesystem::create_directories(parent_path))
                     {
-                        return OSPFError{ OSPFErrCode::DirectoryUnusable, std::format("directory \"{}\" unusable", parent_path) };
+                        return OSPFError{ OSPFErrCode::DirectoryUnusable, std::format("directory \"{}\" unusable", parent_path.string()) };
                     }
                 }
 
@@ -159,7 +159,7 @@ namespace ospf
             {
                 if (std::filesystem::is_directory(path))
                 {
-                    return OSPFError{ OSPFErrCode::NotAFile, std::format("\"{}\" is not a file", path) };
+                    return OSPFError{ OSPFErrCode::NotAFile, std::format("\"{}\" is not a file", path.string()) };
                 }
 
                 const auto parent_path = path.parent_path();
@@ -167,7 +167,7 @@ namespace ospf
                 {
                     if (!std::filesystem::create_directories(parent_path))
                     {
-                        return OSPFError{ OSPFErrCode::DirectoryUnusable, std::format("directory \"{}\" unusable", parent_path) };
+                        return OSPFError{ OSPFErrCode::DirectoryUnusable, std::format("directory \"{}\" unusable", parent_path.string()) };
                     }
                 }
 
@@ -189,7 +189,7 @@ namespace ospf
                 const std::basic_string_view<CharT> seperator = CharTrait<CharT>::default_seprator
             ) noexcept
             {
-                return to_file(path, obj, std::optional<NameTransfer<CharT>>{ std::move(transfer) }, seperator);
+                return to_file(path, objs, std::optional<NameTransfer<CharT>>{ std::move(transfer) }, seperator);
             }
 
             template<typename T, CharType CharT = char>

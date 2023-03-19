@@ -2,6 +2,7 @@
 
 #include <ospf/concepts/base.hpp>
 #include <ospf/string/hasher.hpp>
+#include <boost/locale.hpp>
 #include <magic_enum.hpp>
 
 namespace ospf

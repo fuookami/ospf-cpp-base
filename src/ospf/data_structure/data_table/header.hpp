@@ -12,14 +12,17 @@ namespace ospf
     {
         namespace data_table
         {
+            OSPF_BASE_API std::string to_string(const std::string_view name, const std::optional<functional::Either<std::type_index, std::set<std::type_index>>>& type) noexcept;
+            OSPF_BASE_API std::wstring to_string(const std::wstring_view name, const std::optional<functional::Either<std::type_index, std::set<std::type_index>>>& type) noexcept;
+
+            // todo: impl for different character
+
             template<CharType CharT>
             class DataTableHeader
             {
                 using Either = functional::Either<std::type_index, std::set<std::type_index>>;
                 using StringType = std::basic_string<CharT>;
                 using StringViewType = std::basic_string_view<CharT>;
-
-                friend StringType to_string(const DataTableHeader& header) noexcept;
 
             public:
                 DataTableHeader(void)
@@ -176,15 +179,16 @@ namespace ospf
                     _type = std::nullopt;
                 }
 
+            public:
+                inline StringType to_string(void) const noexcept
+                {
+                    return ::ospf::data_table::to_string(_name, _type);
+                }
+
             private:
                 std::basic_string<CharT> _name;
                 std::optional<Either> _type;
             };
-
-            OSPF_BASE_API std::string to_string(const DataTableHeader<char>& header) noexcept;
-            OSPF_BASE_API std::wstring to_string(const DataTableHeader<wchar>& header) noexcept;
-
-            // todo: impl for different character
         };
     };
 };
@@ -205,7 +209,7 @@ namespace std
         inline decltype(auto) format(const ospf::data_table::DataTableHeader<CharT>& header, FormatContext& fc)
         {
             static const auto _formatter = formatter<basic_string_view<CharT>, CharT>{};
-            return _formatter.format(ospf::data_table::to_string(header), fc);
+            return _formatter.format(header.to_string(), fc);
         }
     };
 };

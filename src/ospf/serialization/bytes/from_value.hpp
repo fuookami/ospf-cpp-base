@@ -24,9 +24,9 @@ namespace ospf
             struct FromBytesValue;
 
             template<typename T>
-            concept DeserializableFromBytes = requires (const FromBytesValue<OriginType<T>> deserializer, Bytes<>::iterator it)
+            concept DeserializableFromBytes = requires (const FromBytesValue<OriginType<T>> deserializer, Bytes<>::iterator it, const usize address_length, const Endian endian)
             {
-                { deserializer(it, std::declval<usize>, std::declval<Endian>()) } -> DecaySameAs<Result<OriginType<T>>>;
+                { deserializer(it, address_length, endian) } -> DecaySameAs<Result<OriginType<T>>>;
             };
 
             template<FromValueIter It>

@@ -150,7 +150,7 @@ namespace ospf
                     }
 #else
                     static const ToBytesValue<ValueType> serializer{};
-                    serializer(objs, ret.begin() + header_size, _endian);
+                    serializer(obj, ret.begin() + header_size, _endian);
 #endif
                     return std::move(ret);
                 }

@@ -294,11 +294,11 @@ namespace ospf
             {
                 if (!std::filesystem::exists(path))
                 {
-                    return OSPFError{ OSPFErrCode::FileNotFound, std::format("\"{}\" not exist", path) };
+                    return OSPFError{ OSPFErrCode::FileNotFound, std::format("\"{}\" not exist", path.string()) };
                 }
                 if (std::filesystem::is_directory(path))
                 {
-                    return OSPFError{ OSPFErrCode::NotAFile, std::format("\"{}\" is not a file", path) };
+                    return OSPFError{ OSPFErrCode::NotAFile, std::format("\"{}\" is not a file", path.string()) };
                 }
 
                 std::basic_ifstream<CharT> fin{ path };
@@ -313,7 +313,7 @@ namespace ospf
                 NameTransfer transfer
             ) noexcept -> Result<Either<OriginType<T>, std::vector<OriginType<T>>>>
             {
-                return from_file(path, std::optional<NameTransfer>{ std::move(transfer) });
+                return from_file<T>(path, std::optional<NameTransfer>{ std::move(transfer) });
             }
 
             template<typename T, CharType CharT = char>
@@ -325,11 +325,11 @@ namespace ospf
             {
                 if (!std::filesystem::exists(path))
                 {
-                    return OSPFError{ OSPFErrCode::FileNotFound, std::format("\"{}\" not exist", path) };
+                    return OSPFError{ OSPFErrCode::FileNotFound, std::format("\"{}\" not exist", path.string()) };
                 }
                 if (std::filesystem::is_directory(path))
                 {
-                    return OSPFError{ OSPFErrCode::NotAFile, std::format("\"{}\" is not a file", path) };
+                    return OSPFError{ OSPFErrCode::NotAFile, std::format("\"{}\" is not a file", path.string()) };
                 }
 
                 std::basic_ifstream<CharT> fin{ path };
@@ -344,7 +344,7 @@ namespace ospf
                 NameTransfer transfer
             ) noexcept
             {
-                return from_file_object(path, std::optional<NameTransfer>{ std::move(transfer) });
+                return from_file_object<T>(path, std::optional<NameTransfer>{ std::move(transfer) });
             }
 
             template<typename T, CharType CharT = char>
@@ -356,11 +356,11 @@ namespace ospf
             {
                 if (!std::filesystem::exists(path))
                 {
-                    return OSPFError{ OSPFErrCode::FileNotFound, std::format("\"{}\" not exist", path) };
+                    return OSPFError{ OSPFErrCode::FileNotFound, std::format("\"{}\" not exist", path.string()) };
                 }
                 if (std::filesystem::is_directory(path))
                 {
-                    return OSPFError{ OSPFErrCode::NotAFile, std::format("\"{}\" is not a file", path) };
+                    return OSPFError{ OSPFErrCode::NotAFile, std::format("\"{}\" is not a file", path.string()) };
                 }
 
                 std::basic_ifstream<CharT> fin{ path };
@@ -375,7 +375,7 @@ namespace ospf
                 NameTransfer transfer
             ) noexcept
             {
-                return from_file_array(path, std::optional<NameTransfer>{ std::move(transfer) });
+                return from_file_array<T>(path, std::optional<NameTransfer>{ std::move(transfer) });
             }
 
             template<typename T, CharType CharT = char>
@@ -397,7 +397,7 @@ namespace ospf
                 NameTransfer transfer
             ) noexcept -> Result<Either<OriginType<T>, std::vector<OriginType<T>>>>
             {
-                return from_string(str, std::optional<NameTransfer>{ std::move(transfer) });
+                return from_string<T>(str, std::optional<NameTransfer>{ std::move(transfer) });
             }
 
             template<typename T, CharType CharT = char>
@@ -419,7 +419,7 @@ namespace ospf
                 NameTransfer transfer
             ) noexcept
             {
-                return from_string_object(str, std::optional<NameTransfer>{ std::move(transfer) });
+                return from_string_object<T>(str, std::optional<NameTransfer>{ std::move(transfer) });
             }
 
             template<typename T, CharType CharT = char>
@@ -441,7 +441,7 @@ namespace ospf
                 NameTransfer transfer
             ) noexcept
             {
-                return from_string_array(str, std::optional<NameTransfer>{ std::move(transfer) });
+                return from_string_array<T>(str, std::optional<NameTransfer>{ std::move(transfer) });
             }
 
             template<typename T, usize len>
@@ -462,7 +462,7 @@ namespace ospf
                 NameTransfer transfer
             ) noexcept -> Result<Either<OriginType<T>, std::vector<OriginType<T>>>>
             {
-                return from_bytes(bytes, std::optional<NameTransfer>{ std::move(transfer) });
+                return from_bytes<T>(bytes, std::optional<NameTransfer>{ std::move(transfer) });
             }
 
             template<typename T, usize len>
@@ -483,7 +483,7 @@ namespace ospf
                 NameTransfer transfer
             ) noexcept
             {
-                return from_bytes_object(bytes, std::optional<NameTransfer>{ std::move(transfer) });
+                return from_bytes_object<T>(bytes, std::optional<NameTransfer>{ std::move(transfer) });
             }
 
             template<typename T, usize len>
@@ -504,7 +504,7 @@ namespace ospf
                 NameTransfer transfer
             ) noexcept
             {
-                return from_bytes_array(bytes, std::optional<NameTransfer>{ std::move(transfer) });
+                return from_bytes_array<T>(bytes, std::optional<NameTransfer>{ std::move(transfer) });
             }
         };
     };

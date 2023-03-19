@@ -37,11 +37,6 @@ namespace ospf
                     return _key;
                 }
 
-                inline constexpr const bool writable(void) const noexcept
-                {
-                    return Trait::is_writable(self());
-                }
-
             public:
                 inline constexpr const std::type_index index(void) const noexcept
                 {
@@ -104,6 +99,12 @@ namespace ospf
                 constexpr ~FieldItem(void) noexcept = default;
 
             public:
+                inline static constexpr const bool writable(void) noexcept
+                {
+                    return true;
+                }
+
+            public:
                 using Impl::value;
 
                 inline constexpr decltype(auto) value(LRefType<ParentType> obj) const noexcept
@@ -112,11 +113,6 @@ namespace ospf
                 }
 
             OSPF_CRTP_PERMISSION:
-                inline constexpr const bool OSPF_CRTP_FUNCTION(is_writable)(void) const noexcept
-                {
-                    return true;
-                }
-
                 inline constexpr decltype(auto) OSPF_CRTP_FUNCTION(get_const_value)(CLRefType<ParentType> obj) const noexcept
                 {
                     return obj.*_ptr;
@@ -150,12 +146,13 @@ namespace ospf
                 constexpr AttributeItem& operator=(AttributeItem&& rhs) noexcept = default;
                 constexpr ~AttributeItem(void) noexcept = default;
 
-            OSPF_CRTP_PERMISSION:
-                inline constexpr const bool OSPF_CRTP_FUNCTION(is_writable)(void) const noexcept
+            public:
+                inline static constexpr const bool writable(void) noexcept
                 {
                     return false;
                 }
 
+            OSPF_CRTP_PERMISSION:
                 inline constexpr decltype(auto) OSPF_CRTP_FUNCTION(get_const_value)(CLRefType<ParentType> obj) const noexcept
                 {
                     return (obj.*_ptr)();

@@ -338,17 +338,17 @@ namespace ospf
                 requires WithMetaInfo<T> && WithDefault<T>
             inline Try<std::vector<T>> from_file(
                 const std::filesystem::path& path, 
-                std::optional<NameTransfer<CharT>> transfer = NameTransfer<CharT>{ meta_programming::NameTransfer<NamingSystem::UpperUnderscore, NamingSystem::Underscore, CharT>{} },
+                std::optional<NameTransfer<CharT>> transfer = NameTransfer<CharT>{ meta_programming::NameTransfer<NamingSystem::Underscore, NamingSystem::UpperUnderscore, CharT>{} },
                 const std::basic_string_view<CharT> seperator = CharTrait<CharT>::default_seprator
             ) noexcept
             {
                 if (!std::filesystem::exists(path))
                 {
-                    return OSPFError{ OSPFErrCode::FileNotFound, std::format("\"{}\" not exist", path) };
+                    return OSPFError{ OSPFErrCode::FileNotFound, std::format("\"{}\" not exist", path.string()) };
                 }
                 if (std::filesystem::is_directory(path))
                 {
-                    return OSPFError{ OSPFErrCode::NotAFile, std::format("\"{}\" is not a file", path) };
+                    return OSPFError{ OSPFErrCode::NotAFile, std::format("\"{}\" is not a file", path.string()) };
                 }
 
                 std::basic_ifstream<CharT> fin{ path };
@@ -367,7 +367,7 @@ namespace ospf
                 const std::basic_string_view<CharT> seperator = CharTrait<CharT>::default_seprator
             ) noexcept
             {
-                return from_file(path, std::optional<NameTransfer<CharT>>{ std::move(transfer) }, seperator);
+                return from_file<T>(path, std::optional<NameTransfer<CharT>>{ std::move(transfer) }, seperator);
             }
 
             template<typename T, CharType CharT = char>
@@ -375,17 +375,17 @@ namespace ospf
             inline Try<std::vector<T>> from_file(
                 const std::filesystem::path& path, 
                 const T& origin_obj, 
-                std::optional<NameTransfer<CharT>> transfer = NameTransfer<CharT>{ meta_programming::NameTransfer<NamingSystem::UpperUnderscore, NamingSystem::Underscore, CharT>{} },
+                std::optional<NameTransfer<CharT>> transfer = NameTransfer<CharT>{ meta_programming::NameTransfer<NamingSystem::Underscore, NamingSystem::UpperUnderscore, CharT>{} },
                 const std::basic_string_view<CharT> seperator = CharTrait<CharT>::default_seprator
             ) noexcept
             {
                 if (!std::filesystem::exists(path))
                 {
-                    return OSPFError{ OSPFErrCode::FileNotFound, std::format("\"{}\" not exist", path) };
+                    return OSPFError{ OSPFErrCode::FileNotFound, std::format("\"{}\" not exist", path.string()) };
                 }
                 if (std::filesystem::is_directory(path))
                 {
-                    return OSPFError{ OSPFErrCode::NotAFile, std::format("\"{}\" is not a file", path) };
+                    return OSPFError{ OSPFErrCode::NotAFile, std::format("\"{}\" is not a file", path.string()) };
                 }
 
                 std::basic_ifstream<CharT> fin{ path };
@@ -412,17 +412,17 @@ namespace ospf
                 requires WithMetaInfo<T> && WithDefault<T>
             inline Try<std::vector<T>> from_file_soft(
                 const std::filesystem::path& path, 
-                std::optional<NameTransfer<CharT>> transfer = NameTransfer<CharT>{ meta_programming::NameTransfer<NamingSystem::UpperUnderscore, NamingSystem::Underscore, CharT>{} },
+                std::optional<NameTransfer<CharT>> transfer = NameTransfer<CharT>{ meta_programming::NameTransfer<NamingSystem::Underscore, NamingSystem::UpperUnderscore, CharT>{} },
                 const std::basic_string_view<CharT> seperator = CharTrait<CharT>::default_seprator
             ) noexcept
             {
                 if (!std::filesystem::exists(path))
                 {
-                    return OSPFError{ OSPFErrCode::FileNotFound, std::format("\"{}\" not exist", path) };
+                    return OSPFError{ OSPFErrCode::FileNotFound, std::format("\"{}\" not exist", path.string()) };
                 }
                 if (std::filesystem::is_directory(path))
                 {
-                    return OSPFError{ OSPFErrCode::NotAFile, std::format("\"{}\" is not a file", path) };
+                    return OSPFError{ OSPFErrCode::NotAFile, std::format("\"{}\" is not a file", path.string()) };
                 }
 
                 std::basic_ifstream<CharT> fin{ path };
@@ -441,7 +441,7 @@ namespace ospf
                 const std::basic_string_view<CharT> seperator = CharTrait<CharT>::default_seprator
             ) noexcept
             {
-                return from_file_soft(path, std::optional<NameTransfer<CharT>>{ std::move(transfer) }, seperator);
+                return from_file_soft<T>(path, std::optional<NameTransfer<CharT>>{ std::move(transfer) }, seperator);
             }
 
             template<typename T, CharType CharT = char>
@@ -449,17 +449,17 @@ namespace ospf
             inline Try<std::vector<T>> from_file_soft(
                 const std::filesystem::path& path, 
                 const T& origin_obj, 
-                std::optional<NameTransfer<CharT>> transfer = NameTransfer<CharT>{ meta_programming::NameTransfer<NamingSystem::UpperUnderscore, NamingSystem::Underscore, CharT>{} },
+                std::optional<NameTransfer<CharT>> transfer = NameTransfer<CharT>{ meta_programming::NameTransfer<NamingSystem::Underscore, NamingSystem::UpperUnderscore, CharT>{} },
                 const std::basic_string_view<CharT> seperator = CharTrait<CharT>::default_seprator
             ) noexcept
             {
                 if (!std::filesystem::exists(path))
                 {
-                    return OSPFError{ OSPFErrCode::FileNotFound, std::format("\"{}\" not exist", path) };
+                    return OSPFError{ OSPFErrCode::FileNotFound, std::format("\"{}\" not exist", path.string()) };
                 }
                 if (std::filesystem::is_directory(path))
                 {
-                    return OSPFError{ OSPFErrCode::NotAFile, std::format("\"{}\" is not a file", path) };
+                    return OSPFError{ OSPFErrCode::NotAFile, std::format("\"{}\" is not a file", path.string()) };
                 }
 
                 std::basic_ifstream<CharT> fin{ path };
@@ -486,7 +486,7 @@ namespace ospf
                 requires WithMetaInfo<T> && WithDefault<T>
             inline Try<std::vector<T>> from_string(
                 const std::basic_string_view<CharT> str,
-                std::optional<NameTransfer<CharT>> transfer = NameTransfer<CharT>{ meta_programming::NameTransfer<NamingSystem::UpperUnderscore, NamingSystem::Underscore, CharT>{} },
+                std::optional<NameTransfer<CharT>> transfer = NameTransfer<CharT>{ meta_programming::NameTransfer<NamingSystem::Underscore, NamingSystem::UpperUnderscore, CharT>{} },
                 const std::basic_string_view<CharT> seperator = CharTrait<CharT>::default_seprator
             ) noexcept
             {
@@ -506,7 +506,7 @@ namespace ospf
                 const std::basic_string_view<CharT> seperator = CharTrait<CharT>::default_seprator
             ) noexcept
             {
-                return from_string(str, std::optional<NameTransfer<CharT>>{ std::move(transfer) }, seperator);
+                return from_string<T>(str, std::optional<NameTransfer<CharT>>{ std::move(transfer) }, seperator);
             }
 
             template<typename T, CharType CharT = char>
@@ -514,7 +514,7 @@ namespace ospf
             inline Try<std::vector<T>> from_string(
                 const std::basic_string_view<CharT> str,
                 const T& origin_obj, 
-                std::optional<NameTransfer<CharT>> transfer = NameTransfer<CharT>{ meta_programming::NameTransfer<NamingSystem::UpperUnderscore, NamingSystem::Underscore, CharT>{} },
+                std::optional<NameTransfer<CharT>> transfer = NameTransfer<CharT>{ meta_programming::NameTransfer<NamingSystem::Underscore, NamingSystem::UpperUnderscore, CharT>{} },
                 const std::basic_string_view<CharT> seperator = CharTrait<CharT>::default_seprator
             ) noexcept
             {
@@ -542,7 +542,7 @@ namespace ospf
                 requires WithMetaInfo<T> && WithDefault<T>
             inline Try<std::vector<T>> from_string_soft(
                 const std::basic_string_view<CharT> str,
-                std::optional<NameTransfer<CharT>> transfer = NameTransfer<CharT>{ meta_programming::NameTransfer<NamingSystem::UpperUnderscore, NamingSystem::Underscore, CharT>{} },
+                std::optional<NameTransfer<CharT>> transfer = NameTransfer<CharT>{ meta_programming::NameTransfer<NamingSystem::Underscore, NamingSystem::UpperUnderscore, CharT>{} },
                 const std::basic_string_view<CharT> seperator = CharTrait<CharT>::default_seprator
             ) noexcept
             {
@@ -562,7 +562,7 @@ namespace ospf
                 const std::basic_string_view<CharT> seperator = CharTrait<CharT>::default_seprator
             ) noexcept
             {
-                return from_string_soft(str, std::optional<NameTransfer<CharT>>{ std::move(transfer) }, seperator);
+                return from_string_soft<T>(str, std::optional<NameTransfer<CharT>>{ std::move(transfer) }, seperator);
             }
 
             template<typename T, CharType CharT = char>
@@ -570,7 +570,7 @@ namespace ospf
             inline Try<std::vector<T>> from_string_soft(
                 const std::basic_string_view<CharT> str, 
                 const T& origin_obj, 
-                std::optional<NameTransfer<CharT>> transfer = NameTransfer<CharT>{ meta_programming::NameTransfer<NamingSystem::UpperUnderscore, NamingSystem::Underscore, CharT>{} },
+                std::optional<NameTransfer<CharT>> transfer = NameTransfer<CharT>{ meta_programming::NameTransfer<NamingSystem::Underscore, NamingSystem::UpperUnderscore, CharT>{} },
                 const std::basic_string_view<CharT> seperator = CharTrait<CharT>::default_seprator
             ) noexcept
             {

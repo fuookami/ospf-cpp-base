@@ -58,7 +58,7 @@ namespace ospf
                 info.for_each([&header, &transfer](const auto& field)
                     {
                         header[i] = transfer.has_value() ? (*transfer)(field.key()) : field.key();
-                ++i;
+                        ++i;
                     });
                 return header;
             }

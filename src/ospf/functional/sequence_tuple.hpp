@@ -114,7 +114,7 @@ namespace ospf
             }
 
             template<usize i, typename T, typename Func>
-            inline constexpr decltype(auto) accumulate(T&& lhs, const Func& func) const noexcept
+            inline constexpr auto accumulate(T&& lhs, const Func& func) const noexcept
             {
                 if constexpr (i != Types::length)
                 {
