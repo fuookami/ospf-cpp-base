@@ -39,10 +39,10 @@ namespace ospf
 
             template<typename T, typename CharT>
             concept SerializableToCSV = CharType<CharT> 
-                && requires (const ToCSVValue<OriginType<T>, CharT>& serializer)
+                && requires (std::basic_ostringstream<CharT>& os, const ToCSVValue<OriginType<T>, CharT>& serializer)
                 {
                     { serializer(std::declval<OriginType<T>>()) } -> DecaySameAs<Result<std::basic_string<CharT>>>;
-                    { serializer(std::declval<std::basic_ostringstream<CharT>>(), std::declval<OriginType<T>>()) } -> DecaySameAs<Try<>>;
+                    { serializer(os, std::declval<OriginType<T>>()) } -> DecaySameAs<Try<>>;
                 };
 
             template<EnumType T, CharType CharT>

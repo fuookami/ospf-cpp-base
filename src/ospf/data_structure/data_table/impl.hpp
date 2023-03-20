@@ -1298,14 +1298,20 @@ namespace ospf
                 }
 
                 template<typename U>
+                    requires std::convertible_to<U, CellType>
                 inline const usize insert_row(const usize pos, U&& value)
                 {
-                    return insert_row(pos, CellType{ std::forward<U>(value) });
+                    return insert_row(pos, static_cast<CellType>(std::forward<U>(value)));
                 }
-                
-                inline const usize insert_row(const usize pos, const std::function<RetType<CellType>(const usize)>& constructor)
+
+                template<typename F>
+                    requires requires (const F& fun, const usize i)
+                    {
+                        { fun(i) } -> DecaySameAs<CellType>;
+                    }
+                inline const usize insert_row(const usize pos, const F& constructor)
                 {
-                    return insert_row(pos, [&constructor](const usize i, const DataTableHeader& _)
+                    return insert_row(pos, [&constructor](const usize i, const DataTableHeader<CharT>& _)
                         {
                             return constructor(i);
                         });
@@ -1314,7 +1320,7 @@ namespace ospf
                 inline const usize insert_row(const usize pos, const RowConstructor& constructor)
                 {
                     Trait::insert_row(self(), pos, constructor);
-                    return row + 1_uz;
+                    return pos + 1_uz;
                 }
 
                 template<typename = void>

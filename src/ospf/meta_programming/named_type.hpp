@@ -1,6 +1,8 @@
 #pragma once
 
 #include <ospf/concepts/base.hpp>
+#include <ospf/concepts/with_default.hpp>
+#include <ospf/concepts/with_tag.hpp>
 #include <ospf/type_family.hpp>
 
 namespace ospf
@@ -14,12 +16,17 @@ namespace ospf
             using ValueType = OriginType<T>;
 
         public:
+            template<typename = void>
+                requires WithDefault<T>
+            constexpr NamedType(void)
+                : _value(DefaultValue<T>::value()) {}
+
             constexpr NamedType(ArgCLRefType<ValueType> value)
                 : _value(value) {}
 
             template<typename = void>
                 requires ReferenceFaster<ValueType> && std::movable<ValueType>
-            NamedType(ArgRRefType<ValueType> value)
+            constexpr NamedType(ArgRRefType<ValueType> value)
                 : _value(move<ValueType>(value)) {}
 
         public:
@@ -381,15 +388,25 @@ namespace ospf
         {
             return is >> value.unwrap();
         }
+    };
+};
 
 #ifndef OSPF_NAMED_TYPE
 #define OSPF_NAMED_TYPE(N, T) using N = ::ospf::NamedType<T, struct N##Param>;
 #endif
-    };
-};
 
 namespace std
 {
+    template<typename T, typename P>
+    struct hash<ospf::NamedType<T, P>>
+    {
+        inline const ospf::usize operator()(ospf::ArgCLRefType<ospf::NamedType<T, P>> value) const noexcept
+        {
+            static const hash<T> hasher{};
+            return hasher(value.unwrap());
+        }
+    };
+
     template<typename T, typename P>
         requires requires (const T& value) { { std::abs(value) } -> ospf::DecaySameAs<T>; }
     inline ospf::NamedType<T, P> abs(const ospf::NamedType<T, P>& value) noexcept
@@ -411,8 +428,34 @@ namespace std
         template<typename FormatContext>
         inline decltype(auto) format(const ospf::NamedType<T, P>& value, FormatContext& fc)
         {
-            static const auto _formatter = formatter<T, CharT>{};
+            static const formatter<T, CharT> _formatter{};
             return _formatter.format(value.unwrap(), fc);
+        }
+    };
+};
+
+namespace ospf
+{
+    template<typename T, typename P>
+        requires WithTag<T>
+    struct TagValue<NamedType<T, P>>
+    {
+        using Type = typename TagValue<T>::Type;
+
+        inline constexpr RetType<Type> value(ArgCLRefType<NamedType<T, P>> value) const noexcept
+        {
+            static constexpr const TagValue<T> extractor{};
+            return extractor(value.unwrap());
+        }
+    };
+
+    template<typename T, typename P>
+        requires WithDefault<T>
+    struct DefaultValue<NamedType<T, P>>
+    {
+        inline static constexpr RetType<NamedType<T, P>> value(void) noexcept
+        {
+            return NamedType<T, P>{};
         }
     };
 };

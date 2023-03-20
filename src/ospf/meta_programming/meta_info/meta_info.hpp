@@ -315,6 +315,7 @@ namespace ospf
         namespace meta_info
         {
             template<typename T, typename P>
+                requires WithMetaInfo<T>
             struct MetaInfo<NamedType<T, P>>
                 : public MetaInfo<T> {};
         };

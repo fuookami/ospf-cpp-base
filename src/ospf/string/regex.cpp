@@ -29,7 +29,7 @@ namespace ospf::string::regex
 
         for (auto end(splitors.cend()); curr != end; ++curr)
         {
-            regex_sout << "|" << to_regex_expr(*curr);
+            regex_sout << to_regex_expr(*curr);
         }
         regex_sout << "]";
         return regex_sout.str();
@@ -61,7 +61,7 @@ namespace ospf::string::regex
 
         for (auto end(splitors.cend()); curr != end; ++curr)
         {
-            regex_sout << L"|" << to_regex_expr(*curr);
+            regex_sout << to_regex_expr(*curr);
         }
         regex_sout << L"]";
         return regex_sout.str();

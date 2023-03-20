@@ -821,8 +821,8 @@ namespace std
 
         inline const ospf::usize operator()(ospf::ArgCLRefType<ValueType> value) const noexcept
         {
-            static const auto func = hash<T>{};
-            return func(*value);
+            static const hash<T> hasher{};
+            return hasher(*value);
         }
     };
 
@@ -835,7 +835,7 @@ namespace std
         template<typename FormatContext>
         inline decltype(auto) format(ospf::ArgCLRefType<ValueType> value, FormatContext& fc)
         {
-            static const auto _formatter = formatter<T, CharT>{};
+            static const formatter<T, CharT> _formatter{};
             return _formatter.format(*value, fc);
         }
     };
@@ -852,7 +852,7 @@ namespace ospf
 
         inline constexpr RetType<Type> value(ArgCLRefType<ValueType> value) const noexcept
         {
-            static constexpr const auto extractor = TagValue<T>{};
+            static constexpr const TagValue<T> extractor{};
             return extractor(*value);
         }
     };

@@ -10,7 +10,7 @@ namespace ospf
     inline namespace string
     {
         template<CharType CharT>
-        inline static constexpr std::vector<std::basic_string_view<CharT>> regex_split(const std::basic_string_view<CharT> src, const std::basic_string_view<CharT> regex) noexcept
+        inline constexpr std::vector<std::basic_string_view<CharT>> regex_split(const std::basic_string_view<CharT> src, const std::basic_string_view<CharT> regex) noexcept
         {
             std::basic_regex<CharT> reg{ regex.data() };
             std::vector<std::basic_string_view<CharT>> ret;
@@ -21,7 +21,7 @@ namespace ospf
             {
                 if (curr->prefix().length() != 0_uz)
                 {
-                    ret.push_back(curr->prefix().str());
+                    ret.push_back(std::basic_string_view<CharT>{ curr->prefix().first, curr->prefix().second });
                     prefix = curr;
                     flag = true;
                 }
@@ -32,7 +32,7 @@ namespace ospf
                 auto temp = prefix->suffix();
                 if (temp.length() != 0_uz)
                 {
-                    ret.push_back(std::move(temp.str()));
+                    ret.push_back(std::basic_string_view<CharT>{ temp.first, temp.second });
                 }
             }
             else if (!flag)
@@ -44,19 +44,37 @@ namespace ospf
         }
 
         template<CharType CharT>
-        inline static constexpr std::vector<std::basic_string_view<CharT>> regex_split(const std::basic_string_view<CharT> src, const CharT* regex) noexcept
-        {
-            return regex_split(src, std::basic_string_view<CharT>{ regex });
-        }
-
-        template<CharType CharT>
-        inline static constexpr std::vector<std::basic_string_view<CharT>> regex_split(const CharT* src, const CharT* regex) noexcept
+        inline constexpr std::vector<std::basic_string_view<CharT>> regex_split(const std::basic_string<CharT>& src, const std::basic_string<CharT>& regex) noexcept
         {
             return regex_split(std::basic_string_view<CharT>{ src }, std::basic_string_view<CharT>{ regex });
         }
 
         template<CharType CharT>
-        inline static constexpr decltype(auto) split(const std::basic_string_view<CharT> src, const std::basic_string_view<CharT> splitors = std::basic_string_view<CharT>{}) noexcept
+        inline constexpr std::vector<std::basic_string_view<CharT>> regex_split(const std::basic_string<CharT>& src, const std::basic_string_view<CharT> regex) noexcept
+        {
+            return regex_split(std::basic_string_view<CharT>{ src }, regex);
+        }
+
+        template<CharType CharT>
+        inline constexpr std::vector<std::basic_string_view<CharT>> regex_split(const std::basic_string<CharT>& src, const CharT* const regex) noexcept
+        {
+            return regex_split(std::basic_string_view<CharT>{ src }, std::basic_string_view<CharT>{ regex });
+        }
+
+        template<CharType CharT>
+        inline constexpr std::vector<std::basic_string_view<CharT>> regex_split(const std::basic_string_view<CharT> src, const CharT* const regex) noexcept
+        {
+            return regex_split(src, std::basic_string_view<CharT>{ regex });
+        }
+
+        template<CharType CharT>
+        inline constexpr std::vector<std::basic_string_view<CharT>> regex_split(const CharT* const src, const CharT* const regex) noexcept
+        {
+            return regex_split(std::basic_string_view<CharT>{ src }, std::basic_string_view<CharT>{ regex });
+        }
+
+        template<CharType CharT>
+        inline constexpr std::vector<std::basic_string_view<CharT>> split(const std::basic_string_view<CharT> src, const std::basic_string_view<CharT> splitors = std::basic_string_view<CharT>{}) noexcept
         {
             if (splitors.empty())
             {
@@ -69,40 +87,76 @@ namespace ospf
         }
 
         template<CharType CharT>
-        std::vector<std::basic_string_view<CharT>> split(const std::basic_string_view<CharT> src, const CharT* splitors) noexcept
-        {
-            return split(src, std::basic_string_view<CharT>{ splitors });
-        }
-
-        template<CharType CharT>
-        std::vector<std::basic_string_view<CharT>> split(const CharT* src, const CharT* splitors) noexcept
+        inline constexpr std::vector<std::basic_string_view<CharT>> split(const std::basic_string<CharT>& src, const std::basic_string<CharT>& splitors) noexcept
         {
             return split(std::basic_string_view<CharT>{ src }, std::basic_string_view<CharT>{ splitors });
         }
 
         template<CharType CharT>
-        std::vector<std::basic_string_view<CharT>> regex_catch(const std::basic_string_view<CharT> src, const std::basic_string_view<CharT> regex) noexcept
+        inline constexpr std::vector<std::basic_string_view<CharT>> split(const std::basic_string<CharT>& src, const std::basic_string_view<CharT> splitors) noexcept
         {
-            std::basic_regex<CharT> reg(regex);
+            return split(std::basic_string_view<CharT>{ src }, splitors);
+        }
+
+        template<CharType CharT>
+        inline constexpr std::vector<std::basic_string_view<CharT>> split(const std::basic_string<CharT>& src, const CharT* const splitors) noexcept
+        {
+            return split(std::basic_string_view<CharT>{ src }, std::basic_string_view<CharT>{ splitors });
+        }
+
+        template<CharType CharT>
+        inline constexpr std::vector<std::basic_string_view<CharT>> split(const std::basic_string_view<CharT> src, const CharT* const splitors) noexcept
+        {
+            return split(src, std::basic_string_view<CharT>{ splitors });
+        }
+
+        template<CharType CharT>
+        inline constexpr std::vector<std::basic_string_view<CharT>> split(const CharT* src, const CharT* const splitors) noexcept
+        {
+            return split(std::basic_string_view<CharT>{ src }, std::basic_string_view<CharT>{ splitors });
+        }
+
+        template<CharType CharT>
+        inline constexpr std::vector<std::basic_string_view<CharT>> regex_catch(const std::basic_string_view<CharT> src, const std::basic_string_view<CharT> regex) noexcept
+        {
+            std::basic_regex<CharT> reg{ regex.data() };
             std::vector<std::basic_string_view<CharT>> ret;
             std::regex_iterator<typename std::basic_string_view<CharT>::const_iterator> curr(src.cbegin(), src.cend(), reg);
             decltype(curr) end;
             for (; curr != end; ++curr)
             {
-                ret.push_back(curr->str());
+                ret.push_back(src.substr(curr->position(), curr->length()));
             }
 
             return ret;
         }
 
         template<CharType CharT>
-        std::vector<std::basic_string_view<CharT>> regex_catch(const std::basic_string_view<CharT> src, const CharT* regex) noexcept
+        inline constexpr std::vector<std::basic_string_view<CharT>> regex_catch(const std::basic_string<CharT>& src, const std::basic_string<CharT>& regex) noexcept
+        {
+            return regex_catch(std::basic_string_view<CharT>{ src }, std::basic_string_view<CharT>{ regex });
+        }
+
+        template<CharType CharT>
+        inline constexpr std::vector<std::basic_string_view<CharT>> regex_catch(const std::basic_string<CharT>& src, const std::basic_string_view<CharT> regex) noexcept
+        {
+            return regex_catch(std::basic_string_view<CharT>{ src }, regex);
+        }
+
+        template<CharType CharT>
+        inline constexpr std::vector<std::basic_string_view<CharT>> regex_catch(const std::basic_string<CharT>& src, const CharT* const regex) noexcept
+        {
+            return regex_catch(std::basic_string_view<CharT>{ src }, std::basic_string_view<CharT>{ regex });
+        }
+
+        template<CharType CharT>
+        inline constexpr std::vector<std::basic_string_view<CharT>> regex_catch(const std::basic_string_view<CharT> src, const CharT* const regex) noexcept
         {
             return regex_catch(src, std::basic_string_view<CharT>{ regex });
         }
 
         template<CharType CharT>
-        std::vector<std::basic_string_view<CharT>> regex_catch(const CharT* src, const CharT* regex) noexcept
+        inline constexpr std::vector<std::basic_string_view<CharT>> regex_catch(const CharT* const src, const CharT* const regex) noexcept
         {
             return regex_catch(std::basic_string_view<CharT>{ src }, std::basic_string_view<CharT>{ regex });
         }

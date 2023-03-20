@@ -58,16 +58,15 @@ namespace ospf
                 }
 
             private:
-                inline Result<RowType> serialize(const meta_info::MetaInfo<ValueType>& info, const ValueType& obj) noexcept
+                inline Result<RowType> serialize(const meta_info::MetaInfo<ValueType>& info, const ValueType& obj) const noexcept
                 {
                     RowType row;
                     usize i{ 0_uz };
                     std::optional<OSPFError> err;
-                    info.for_each(obj, [this, &row, &err](const auto& obj, const auto& field)
+                    info.for_each(obj, [this, &i, &row, &err](const auto& obj, const auto& field)
                         {
                             // todo: impl concept refer to a type that all fields are plane
                             using FieldValueType = OriginType<decltype(field.value(obj))>;
-                            static_assert(field.plane());
                             static_assert(SerializableToCSV<FieldValueType, CharT>);
 
                             if (err.has_value())
@@ -109,7 +108,7 @@ namespace ospf
                 const std::filesystem::path& path, 
                 const T& obj, 
                 std::optional<NameTransfer<CharT>> transfer = NameTransfer<CharT>{ meta_programming::NameTransfer<NamingSystem::Underscore, NamingSystem::UpperUnderscore, CharT>{} },
-                const std::basic_string_view<CharT> seperator = CharTrait<CharT>::default_seprator
+                const std::basic_string_view<CharT> seperator = CharTrait<CharT>::default_seperator
             ) noexcept
             {
                 if (std::filesystem::is_directory(path))
@@ -141,7 +140,7 @@ namespace ospf
                 const std::filesystem::path& path,
                 const T& obj,
                 NameTransfer<CharT> transfer,
-                const std::basic_string_view<CharT> seperator = CharTrait<CharT>::default_seprator
+                const std::basic_string_view<CharT> seperator = CharTrait<CharT>::default_seperator
             ) noexcept
             {
                 return to_file(path, obj, std::optional<NameTransfer<CharT>>{ std::move(transfer) }, seperator);
@@ -154,7 +153,7 @@ namespace ospf
                 const std::filesystem::path& path, 
                 const std::span<const T, len> objs, 
                 std::optional<NameTransfer<CharT>> transfer = NameTransfer<CharT>{ meta_programming::NameTransfer<NamingSystem::Underscore, NamingSystem::UpperUnderscore, CharT>{} },
-                const std::basic_string_view<CharT> seperator = CharTrait<CharT>::default_seprator
+                const std::basic_string_view<CharT> seperator = CharTrait<CharT>::default_seperator
             ) noexcept
             {
                 if (std::filesystem::is_directory(path))
@@ -186,7 +185,7 @@ namespace ospf
                 const std::filesystem::path& path,
                 const std::span<const T, len> objs,
                 NameTransfer<CharT> transfer,
-                const std::basic_string_view<CharT> seperator = CharTrait<CharT>::default_seprator
+                const std::basic_string_view<CharT> seperator = CharTrait<CharT>::default_seperator
             ) noexcept
             {
                 return to_file(path, objs, std::optional<NameTransfer<CharT>>{ std::move(transfer) }, seperator);
@@ -198,7 +197,7 @@ namespace ospf
             (
                 const T& obj, 
                 std::optional<NameTransfer<CharT>> transfer = NameTransfer<CharT>{ meta_programming::NameTransfer<NamingSystem::Underscore, NamingSystem::UpperUnderscore, CharT>{} },
-                const std::basic_string_view<CharT> seperator = CharTrait<CharT>::default_seprator
+                const std::basic_string_view<CharT> seperator = CharTrait<CharT>::default_seperator
             ) noexcept
             {
                 auto serializer = transfer.has_value() ? Serializer<T, CharT>{ std::move(transfer).value() } : Serializer<T, CharT>{};
@@ -215,7 +214,7 @@ namespace ospf
             (
                 const T& obj,
                 NameTransfer<CharT> transfer,
-                const std::basic_string_view<CharT> seperator = CharTrait<CharT>::default_seprator
+                const std::basic_string_view<CharT> seperator = CharTrait<CharT>::default_seperator
             ) noexcept
             {
                 return to_string(obj, std::optional<NameTransfer<CharT>>{ std::move(transfer) }, seperator);
@@ -227,7 +226,7 @@ namespace ospf
             (
                 const std::span<const T, len> objs, 
                 std::optional<NameTransfer<CharT>> transfer = NameTransfer<CharT>{ meta_programming::NameTransfer<NamingSystem::Underscore, NamingSystem::UpperUnderscore, CharT>{} },
-                const std::basic_string_view<CharT> seperator = CharTrait<CharT>::default_seprator
+                const std::basic_string_view<CharT> seperator = CharTrait<CharT>::default_seperator
             ) noexcept
             {
                 auto serializer = transfer.has_value() ? Serializer<T, CharT>{ std::move(transfer).value() } : Serializer<T, CharT>{};
@@ -244,7 +243,7 @@ namespace ospf
             (
                 const std::span<const T, len> objs,
                 NameTransfer<CharT> transfer,
-                const std::basic_string_view<CharT> seperator = CharTrait<CharT>::default_seprator
+                const std::basic_string_view<CharT> seperator = CharTrait<CharT>::default_seperator
             ) noexcept
             {
                 return to_string(objs, std::optional<NameTransfer<CharT>>{ std::move(transfer) }, seperator);

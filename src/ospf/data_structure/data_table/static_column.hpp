@@ -66,8 +66,14 @@ namespace ospf
                     }
                 }
 
-                DataTable(std::array<StringViewType, col> header)
-                    : DataTable(make_array<DataTableHeader<CharT>, col>([&header](const usize i)
+                DataTable(const std::span<StringType, col> header)
+                    : DataTable(make_array<DataTableHeader<CharT>, col>([header](const usize i)
+                        {
+                            return CellValueTypeTrait<CellType>::base_header(std::move(header[i]));
+                        })) {}
+
+                DataTable(const std::span<StringViewType, col> header)
+                    : DataTable(make_array<DataTableHeader<CharT>, col>([header](const usize i)
                         {
                             return CellValueTypeTrait<CellType>::base_header(header[i]);
                         })) {}
@@ -306,8 +312,14 @@ namespace ospf
                     }
                 }
 
-                DataTable(std::array<StringViewType, col> header)
-                    : DataTable(make_array<DataTableHeader<CharT>, col>([&header](const usize i)
+                DataTable(const std::span<StringType, col> header)
+                    : DataTable(make_array<DataTableHeader<CharT>, col>([header](const usize i)
+                        {
+                            return CellValueTypeTrait<CellType>::base_header(std::move(header[i]));
+                        })) {}
+
+                DataTable(const std::span<StringViewType, col> header)
+                    : DataTable(make_array<DataTableHeader<CharT>, col>([header](const usize i)
                         {
                             return CellValueTypeTrait<CellType>::base_header(header[i]);
                         })) {}
