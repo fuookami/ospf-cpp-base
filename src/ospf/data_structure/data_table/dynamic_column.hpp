@@ -185,7 +185,9 @@ namespace ospf
                     return insert_column(pos, move<DataTableHeader<CharT>>(header), CellType{ std::forward<U>(value) });
                 }
 
-                inline const usize insert_column(const usize pos, ArgRRefType<DataTableHeader<CharT>> header, const ColumnConstructor& constructor)
+                template<typename F>
+                    requires ColumnConstructorType<F, CellType>
+                inline const usize insert_column(const usize pos, ArgRRefType<DataTableHeader<CharT>> header, const F& constructor)
                 {
 #ifdef _DEBUG
                     std::vector<CellType> new_column;
@@ -249,7 +251,9 @@ namespace ospf
                     return insert_column(pos, move<DataTableHeader<CharT>>(header), CellType{ std::forward<U>(value) });
                 }
 
-                inline RetType<ColumnIterType> insert_column(ArgCLRefType<ColumnIterType> pos, ArgRRefType<DataTableHeader<CharT>> header, const ColumnConstructor& constructor)
+                template<typename F>
+                    requires ColumnConstructorType<F, CellType>
+                inline RetType<ColumnIterType> insert_column(ArgCLRefType<ColumnIterType> pos, ArgRRefType<DataTableHeader<CharT>> header, const F& constructor)
                 {
                     insert_column(static_cast<const usize>(pos), move<DataTableHeader<CharT>>(header), constructor);
                     return pos + 1_iz;
@@ -530,7 +534,9 @@ namespace ospf
                     return insert_column(pos, move<DataTableHeader<CharT>>(header), CellType{ std::forward<U>(value) });
                 }
 
-                inline const usize insert_column(const usize pos, ArgRRefType<DataTableHeader<CharT>> header, const ColumnConstructor& constructor)
+                template<typename F>
+                    requires ColumnConstructorType<F, CellType>
+                inline const usize insert_column(const usize pos, ArgRRefType<DataTableHeader<CharT>> header, const F& constructor)
                 {
                     std::vector<CellType> new_column;
                     new_column.reserve(this->row());
@@ -588,7 +594,9 @@ namespace ospf
                     return insert_column(pos, move<DataTableHeader<CharT>>(header), CellType{ std::forward<U>(value) });
                 }
 
-                inline RetType<ColumnIterType> insert_column(ArgCLRefType<ColumnIterType> pos, ArgRRefType<DataTableHeader<CharT>> header, const ColumnConstructor& constructor)
+                template<typename F>
+                    requires ColumnConstructorType<F, CellType>
+                inline RetType<ColumnIterType> insert_column(ArgCLRefType<ColumnIterType> pos, ArgRRefType<DataTableHeader<CharT>> header, const F& constructor)
                 {
                     insert_column(static_cast<const usize>(pos), move<DataTableHeader<CharT>>(header), constructor);
                     return pos + 1_iz;
