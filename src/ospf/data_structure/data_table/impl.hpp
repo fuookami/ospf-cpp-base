@@ -1366,9 +1366,9 @@ namespace ospf
                 }
 
                 template<typename F>
-                    requires requires (const F& fun, const usize col)
+                    requires requires (const F& fun, const usize j)
                     {
-                        { fun(col) } -> DecaySameAs<CellType>;
+                        { fun(j) } -> DecaySameAs<CellType>;
                     }
                 inline const usize insert_row(const usize pos, const F& constructor)
                 {
@@ -1407,9 +1407,9 @@ namespace ospf
                 }
 
                 template<typename F>
-                    requires requires (const F& fun, const usize col)
+                    requires requires (const F& fun, const usize j)
                     {
-                        { fun(col) } -> DecaySameAs<CellType>;
+                        { fun(j) } -> DecaySameAs<CellType>;
                     }
                 inline RetType<RowIterType> insert_row(ArgCLRefType<RowIterType> pos, const F& constructor)
                 {
