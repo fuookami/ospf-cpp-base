@@ -201,8 +201,8 @@ namespace ospf
                     {
                         static const FromJsonValue<OriginType<T>, CharT> deserializer{};
                         OSPF_TRY_SET(obj, deserializer(json, transfer));
-                        return succeed;
                     }
+                    return succeed;
                 }
 
                 inline Result<std::optional<T>> operator()(const Json<CharT>& json, const std::optional<NameTransfer<CharT>>& transfer) const noexcept
@@ -228,8 +228,8 @@ namespace ospf
                         static const FromJsonValue<OriginType<T>, CharT> deserializer{};
                         OSPF_TRY_GET(value, deserializer(json, transfer));
                         obj = pointer::Ptr<T, cat>{ new T{ std::move(value) } };
-                        return succeed;
                     }
+                    return succeed;
                 }
 
                 template<typename = void>
