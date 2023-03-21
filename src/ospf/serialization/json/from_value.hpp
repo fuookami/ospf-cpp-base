@@ -571,7 +571,7 @@ namespace ospf
                     else
                     {
                         const ArrayView<CharT>& json_array = json.GetArray();
-                        objs.reserve(objs.size(), json_array.Size());
+                        objs.reserve(objs.size() + json_array.Size());
                         for (const Json<CharT>& sub_json : json_array)
                         {
                             static const FromJsonValue<OriginType<T>, CharT> deserializer{};
@@ -970,6 +970,31 @@ namespace ospf
             };
 
             template<>
+            struct FromJsonValue<bool, char>
+            {
+                inline Try<> operator()(const rapidjson::Value& json, bool& value, const std::optional<NameTransfer<char>>& transfer) const noexcept
+                {
+                    const auto bool_value = to_bool(json);
+                    if (bool_value.has_value())
+                    {
+                        value = bool_value.value();
+                        return succeed;
+                    }
+                    else
+                    {
+                        return OSPFError{ OSPFErrCode::DeserializationFail, std::format("invalid json \"{}\" for bool", json) };
+                    }
+                }
+
+                inline Result<bool> operator()(const rapidjson::Value& json, const std::optional<NameTransfer<char>>& transfer) const noexcept
+                {
+                    bool value{ true };
+                    OSPF_TRY_EXEC(this->operator()(json, value, transfer));
+                    return value;
+                }
+            };
+
+            template<>
             struct FromJsonValue<u8, char>
             {
                 inline Try<> operator()(const rapidjson::Value& json, u8& value, const std::optional<NameTransfer<char>>& transfer) const noexcept
@@ -1164,6 +1189,56 @@ namespace ospf
                 inline Result<i64> operator()(const rapidjson::Value& json, const std::optional<NameTransfer<char>>& transfer) const noexcept
                 {
                     i64 value{ 0_i64 };
+                    OSPF_TRY_EXEC(this->operator()(json, value, transfer));
+                    return value;
+                }
+            };
+
+            template<>
+            struct FromJsonValue<f32, char>
+            {
+                inline Try<> operator()(const rapidjson::Value& json, f32& value, const std::optional<NameTransfer<char>>& transfer) const noexcept
+                {
+                    const auto f32_value = to_f32(json);
+                    if (f32_value.has_value())
+                    {
+                        value = f32_value.value();
+                        return succeed;
+                    }
+                    else
+                    {
+                        return OSPFError{ OSPFErrCode::DeserializationFail, std::format("invalid json \"{}\" for f32", json) };
+                    }
+                }
+
+                inline Result<f32> operator()(const rapidjson::Value& json, const std::optional<NameTransfer<char>>& transfer) const noexcept
+                {
+                    f32 value{ 0._f32 };
+                    OSPF_TRY_EXEC(this->operator()(json, value, transfer));
+                    return value;
+                }
+            };
+
+            template<>
+            struct FromJsonValue<f64, char>
+            {
+                inline Try<> operator()(const rapidjson::Value& json, f64& value, const std::optional<NameTransfer<char>>& transfer) const noexcept
+                {
+                    const auto f64_value = to_f64(json);
+                    if (f64_value.has_value())
+                    {
+                        value = f64_value.value();
+                        return succeed;
+                    }
+                    else
+                    {
+                        return OSPFError{ OSPFErrCode::DeserializationFail, std::format("invalid json \"{}\" for f64", json) };
+                    }
+                }
+
+                inline Result<f64> operator()(const rapidjson::Value& json, const std::optional<NameTransfer<char>>& transfer) const noexcept
+                {
+                    f64 value{ 0._f64 };
                     OSPF_TRY_EXEC(this->operator()(json, value, transfer));
                     return value;
                 }
