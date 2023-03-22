@@ -386,24 +386,24 @@ namespace ospf
             using CRefType = CLRefType<ValueType>;
 
         public:
-            inline static constexpr RetType<ValOrRef> value(ArgCLRefType<ValueType> val) noexcept
+            inline static constexpr ValOrRef value(ArgCLRefType<ValueType> val) noexcept
             {
                 return ValOrRef{ val };
             }
 
             template<typename... Args>
                 requires std::constructible_from<ValueType, Args...>
-            inline static constexpr RetType<ValOrRef> value(Args&&... args) noexcept
+            inline static constexpr ValOrRef value(Args&&... args) noexcept
             {
                 return ValOrRef{ ValueType{ std::forward<Args>(args)... } };
             }
 
-            inline static constexpr RetType<ValOrRef> ref(ArgCLRefType<ValueType> ref) noexcept
+            inline static constexpr ValOrRef ref(ArgCLRefType<ValueType> ref) noexcept
             {
                 return ValOrRef{ ref };
             }
 
-            inline static constexpr RetType<ValOrRef> ref(ArgCLRefType<ReferenceType> ref) noexcept
+            inline static constexpr ValOrRef ref(ArgCLRefType<ReferenceType> ref) noexcept
             {
                 return ValOrRef{ ref };
             }
