@@ -94,7 +94,7 @@ namespace ospf
                         }
                     }, ano._either)) {}
 
-        private:
+        public:
             constexpr ValOrRef(ArgCLRefType<ValueType> value)
                 : _either(Either::left(value)) {}
 
@@ -103,6 +103,7 @@ namespace ospf
             constexpr ValOrRef(ArgRRefType<ValueType> value)
                 : _either(Either::left(move<ValueType>(value))) {}
 
+        private:
             constexpr ValOrRef(ArgRRefType<ReferenceType> ref)
                 : _either(Either::right(move<ReferenceType>(ref))) {}
 
@@ -645,6 +646,7 @@ namespace ospf
         };
     };
 
+    // copy on write
     template<
         typename T,
         reference::ReferenceCategory cat = reference::ReferenceCategory::Reference
