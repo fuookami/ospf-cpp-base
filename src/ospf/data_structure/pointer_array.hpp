@@ -1236,7 +1236,7 @@ namespace ospf
 
                     inline constexpr void fill(const std::nullptr_t _ = nullptr) noexcept
                     {
-                        if constexpr (std::copy_constructible<PointerType>)
+                        if constexpr (std::copyable<PointerType>)
                         {
                             _container.fill(PointerType{ nullptr });
                         }
@@ -1250,21 +1250,21 @@ namespace ospf
                     }
 
                     template<typename = void>
-                        requires std::copy_constructible<PointerType>
+                        requires std::copyable<PointerType>
                     inline constexpr void fill(const PtrType<ValueType> ptr) noexcept
                     {
                         _container.fill(PointerType{ ptr });
                     }
 
                     template<typename = void>
-                        requires std::copy_constructible<PointerType>
+                        requires std::copyable<PointerType>
                     inline constexpr void fill(const CPtrType<ValueType> ptr) noexcept
                     {
                         _container.fill(PointerType{ ptr });
                     }
 
                     template<typename = void>
-                        requires std::copy_constructible<PointerType>
+                        requires std::copyable<PointerType>
                     inline constexpr void fill(ArgCLRefType<PointerType> ptr) noexcept
                     {
                         _container.fill(ptr);
@@ -1356,22 +1356,22 @@ namespace ospf
                         : _container(length) {}
 
                     template<typename = void>
-                        requires (!std::default_initializable<PointerType> && WithDefault<PointerType> && std::copy_constructible<PointerType>)
+                        requires (!std::default_initializable<PointerType> && WithDefault<PointerType> && std::copyable<PointerType>)
                     constexpr explicit DynamicPointerArray(const usize length)
                         : _container(length, DefaultValue<PointerType>::value()) {}
 
                     template<typename = void>
-                        requires std::copy_constructible<PointerType>
+                        requires std::copyable<PointerType>
                     constexpr DynamicPointerArray(const usize length, const PtrType<ValueType> ptr)
                         : _container(length, PointerType{ ptr }) {}
 
                     template<typename = void>
-                        requires std::copy_constructible<PointerType>
+                        requires std::copyable<PointerType>
                     constexpr DynamicPointerArray(const usize length, const CPtrType<ValueType> ptr)
                         : _container(length, PointerType{ ptr }) {}
 
                     template<typename = void>
-                        requires std::copy_constructible<PointerType>
+                        requires std::copyable<PointerType>
                     constexpr DynamicPointerArray(const usize length, ArgCLRefType<PointerType> ptr)
                         : _container(length, ptr) {}
 
@@ -1427,7 +1427,7 @@ namespace ospf
                 public:
                     inline constexpr void assign(const usize length, const std::nullptr_t _ = nullptr)
                     {
-                        if constexpr (std::copy_constructible<PointerType>)
+                        if constexpr (std::copyable<PointerType>)
                         {
                             _container.assign(length, PointerType{ nullptr });
                         }
@@ -1442,21 +1442,21 @@ namespace ospf
                     }
 
                     template<typename = void>
-                        requires std::copy_constructible<PointerType>
+                        requires std::copyable<PointerType>
                     inline constexpr void assign(const usize length, const PtrType<ValueType> ptr)
                     {
                         _container.assign(length, PointerType{ ptr });
                     }
 
                     template<typename = void>
-                        requires std::copy_constructible<PointerType>
+                        requires std::copyable<PointerType>
                     inline constexpr void assign(const usize length, const CPtrType<ValueType> ptr)
                     {
                         _container.assign(length, PointerType{ ptr });
                     }
 
                     template<typename = void>
-                        requires std::copy_constructible<PointerType>
+                        requires std::copyable<PointerType>
                     inline constexpr void assign(const usize length, ArgCLRefType<PointerType> ptr)
                     {
                         _container.assign(length, ptr);
@@ -1516,7 +1516,7 @@ namespace ospf
                         usize len,
                         template<typename, usize> class C1
                     >
-                        requires std::copy_constructible<PointerType>
+                        requires std::copyable<PointerType>
                     inline constexpr void assign(const StaticPointerArray<ValueType, len, cat, C1>& ptrs)
                     {
                         assign(ptrs._container.begin(), ptrs._container.end());
@@ -1537,7 +1537,7 @@ namespace ospf
                         usize len,
                         template<typename, usize> class C1
                     >
-                        requires std::copy_constructible<PointerType> && std::convertible_to<PtrType<U>, PointerType>
+                        requires std::copyable<PointerType> && std::convertible_to<PtrType<U>, PointerType>
                     inline constexpr void assign(const StaticPointerArray<U, len, cat, C1>& ptrs)
                     {
                         assign(
@@ -1561,7 +1561,7 @@ namespace ospf
                     }
 
                     template<template<typename> class C1>
-                        requires std::copy_constructible<PointerType>
+                        requires std::copyable<PointerType>
                     inline constexpr void assign(const DynamicPointerArray<ValueType, cat, C1>& ptrs)
                     {
                         assign(ptrs._container.begin(), ptrs._container.end());
@@ -1578,7 +1578,7 @@ namespace ospf
                         typename U,
                         template<typename> class C1
                     >
-                        requires std::copy_constructible<PointerType> && std::convertible_to<PtrType<U>, PointerType>
+                        requires std::copyable<PointerType> && std::convertible_to<PtrType<U>, PointerType>
                     inline constexpr void assign(const DynamicPointerArray<U, cat, C1>& ptrs)
                     {
                         assign(
@@ -1801,7 +1801,7 @@ namespace ospf
                         usize len,
                         template<typename, usize> class C1
                     >
-                        requires std::copy_constructible<PointerType>
+                        requires std::copyable<PointerType>
                     inline constexpr RetType<IterType> insert(ArgCLRefType<ConstIterType> pos, const StaticPointerArray<ValueType, len, cat, C1>& ptrs)
                     {
                         return insert(pos, ptrs._container.begin(), ptrs._container.end());
@@ -1821,7 +1821,7 @@ namespace ospf
                         usize len,
                         template<typename, usize> class C1
                     >
-                        requires std::copy_constructible<PointerType> && std::convertible_to<PtrType<U>, PointerType>
+                        requires std::copyable<PointerType> && std::convertible_to<PtrType<U>, PointerType>
                     inline constexpr RetType<IterType> insert(ArgCLRefType<ConstIterType> pos, const StaticPointerArray<U, len, cat, C1>& ptrs)
                     {
                         return insert(pos,
@@ -1848,7 +1848,7 @@ namespace ospf
                         usize len,
                         template<typename, usize> class C1
                     >
-                        requires std::copy_constructible<PointerType>
+                        requires std::copyable<PointerType>
                     inline constexpr RetType<UncheckedIterType> insert(ArgCLRefType<ConstUncheckedIterType> pos, const StaticPointerArray<ValueType, len, cat, C1>& ptrs)
                     {
                         return insert(pos, ptrs._container.begin(), ptrs._container.end());
@@ -1868,7 +1868,7 @@ namespace ospf
                         usize len,
                         template<typename, usize> class C1
                     >
-                        requires std::copy_constructible<PointerType> && std::convertible_to<PtrType<U>, PointerType>
+                        requires std::copyable<PointerType> && std::convertible_to<PtrType<U>, PointerType>
                     inline constexpr RetType<UncheckedIterType> insert(ArgCLRefType<ConstUncheckedIterType> pos, const StaticPointerArray<U, len, cat, C1>& ptrs)
                     {
                         return insert(pos, 
@@ -1892,7 +1892,7 @@ namespace ospf
                     }
 
                     template<template<typename> class C1>
-                        requires std::copy_constructible<PointerType>
+                        requires std::copyable<PointerType>
                     inline constexpr RetType<IterType> insert(ArgCLRefType<ConstIterType> pos, const DynamicPointerArray<ValueType, cat, C1>& ptrs)
                     {
                         return insert(pos, ptrs._container.begin(), ptrs._container.end());
@@ -1908,7 +1908,7 @@ namespace ospf
                         typename U,
                         template<typename> class C1
                     >
-                        requires std::copy_constructible<PointerType> && std::convertible_to<PtrType<U>, PointerType>
+                        requires std::copyable<PointerType> && std::convertible_to<PtrType<U>, PointerType>
                     inline constexpr RetType<IterType> insert(ArgCLRefType<ConstIterType> pos, const DynamicPointerArray<U, cat, C1>& ptrs)
                     {
                         return insert(pos,
@@ -1931,7 +1931,7 @@ namespace ospf
                     }
 
                     template<template<typename> class C1>
-                        requires std::copy_constructible<PointerType>
+                        requires std::copyable<PointerType>
                     inline constexpr RetType<UncheckedIterType> insert(ArgCLRefType<ConstUncheckedIterType> pos, const DynamicPointerArray<ValueType, cat, C1>& ptrs)
                     {
                         return insert(pos, ptrs._container.begin(), ptrs._container.end());
@@ -1947,7 +1947,7 @@ namespace ospf
                         typename U,
                         template<typename> class C1
                     >
-                        requires std::copy_constructible<PointerType> && std::convertible_to<PtrType<U>, PointerType>
+                        requires std::copyable<PointerType> && std::convertible_to<PtrType<U>, PointerType>
                     inline constexpr RetType<UncheckedIterType> insert(ArgCLRefType<ConstUncheckedIterType> pos, const DynamicPointerArray<U, cat, C1>& ptrs)
                     {
                         return insert(pos,
@@ -2057,7 +2057,7 @@ namespace ospf
                         usize len,
                         template<typename, usize> class C1
                     >
-                        requires std::copy_constructible<PointerType>
+                        requires std::copyable<PointerType>
                     inline constexpr void push_back(const StaticPointerArray<ValueType, len, cat, C1>& ptrs)
                     {
                         insert(this->end(), ptrs);
@@ -2077,7 +2077,7 @@ namespace ospf
                         usize len,
                         template<typename, usize> class C1
                     >
-                        requires std::copy_constructible<PointerType> && std::convertible_to<PtrType<U>, PointerType>
+                        requires std::copyable<PointerType> && std::convertible_to<PtrType<U>, PointerType>
                     inline constexpr void push_back(const StaticPointerArray<U, len, cat, C1>& ptrs)
                     {
                         insert(this->end(), ptrs);
@@ -2095,7 +2095,7 @@ namespace ospf
                     }
 
                     template<template<typename> class C1>
-                        requires std::copy_constructible<PointerType>
+                        requires std::copyable<PointerType>
                     inline constexpr void push_back(const DynamicPointerArray<ValueType, cat, C1>& ptrs)
                     {
                         insert(this->end(), ptrs);
@@ -2111,7 +2111,7 @@ namespace ospf
                         typename U,
                         template<typename> class C1
                     >
-                        requires std::copy_constructible<PointerType> && std::convertible_to<PtrType<U>, PointerType>
+                        requires std::copyable<PointerType> && std::convertible_to<PtrType<U>, PointerType>
                     inline constexpr void push_back(const DynamicPointerArray<U, cat, C1>& ptrs)
                     {
                         insert(this->end(), ptrs);
@@ -2208,7 +2208,7 @@ namespace ospf
                         usize len,
                         template<typename, usize> class C1
                     >
-                        requires std::copy_constructible<PointerType>
+                        requires std::copyable<PointerType>
                     inline constexpr void push_front(const StaticPointerArray<ValueType, len, cat, C1>& ptrs)
                     {
                         insert(this->begin(), ptrs);
@@ -2228,7 +2228,7 @@ namespace ospf
                         usize len,
                         template<typename, usize> class C1
                     >
-                        requires std::copy_constructible<PointerType> && std::convertible_to<PtrType<U>, PointerType>
+                        requires std::copyable<PointerType> && std::convertible_to<PtrType<U>, PointerType>
                     inline constexpr void push_front(const StaticPointerArray<U, len, cat, C1>& ptrs)
                     {
                         insert(this->begin(), ptrs);
@@ -2246,7 +2246,7 @@ namespace ospf
                     }
 
                     template<template<typename> class C1>
-                        requires std::copy_constructible<PointerType>
+                        requires std::copyable<PointerType>
                     inline constexpr void push_front(const DynamicPointerArray<ValueType, cat, C1>& ptrs)
                     {
                         insert(this->begin(), ptrs);
@@ -2262,7 +2262,7 @@ namespace ospf
                         typename U,
                         template<typename> class C1
                     >
-                        requires std::copy_constructible<PointerType> && std::convertible_to<PtrType<U>, PointerType>
+                        requires std::copyable<PointerType> && std::convertible_to<PtrType<U>, PointerType>
                     inline constexpr void push_front(const DynamicPointerArray<U, cat, C1>& ptrs)
                     {
                         insert(this->begin(), ptrs);
@@ -2344,28 +2344,28 @@ namespace ospf
                     }
 
                     template<typename = void>
-                        requires (!std::default_initializable<PointerType> && WithDefault<PointerType> && std::copy_constructible<PointerType>)
+                        requires (!std::default_initializable<PointerType> && WithDefault<PointerType> && std::copyable<PointerType>)
                     inline constexpr void resize(const usize length)
                     {
                         _container.resize(length, DefaultValue<PointerType>::value());
                     }
                     
                     template<typename = void>
-                        requires std::copy_constructible<PointerType>
+                        requires std::copyable<PointerType>
                     inline constexpr void resize(const usize length, const PtrType<ValueType> ptr)
                     {
                         _container.resize(length, PointerType{ ptr });
                     }
 
                     template<typename = void>
-                        requires std::copy_constructible<PointerType>
+                        requires std::copyable<PointerType>
                     inline constexpr void resize(const usize length, const CPtrType<ValueType> ptr)
                     {
                         _container.resize(length, PointerType{ ptr });
                     }
 
                     template<typename = void>
-                        requires std::copy_constructible<PointerType>
+                        requires std::copyable<PointerType>
                     inline constexpr void resize(const usize length, ArgCLRefType<PointerType> ptr)
                     {
                         _container.resize(length, ptr);

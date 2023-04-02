@@ -76,6 +76,7 @@
     <ClInclude Include="src\ospf\functional\range_bounds.hpp" />
     <ClInclude Include="src\ospf\functional\either.hpp" />
     <ClInclude Include="src\ospf\functional\sequence_tuple.hpp" />
+    <ClInclude Include="src\ospf\functional\ptr_or_reference.hpp" />
     <ClInclude Include="src\ospf\functional\value_or_reference.hpp" />
     <ClInclude Include="src\ospf\functional\result.hpp" />
     <ClInclude Include="src\ospf\jni.hpp" />

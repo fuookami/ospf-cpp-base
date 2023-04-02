@@ -625,7 +625,7 @@ namespace ospf
 
             public:
                 template<typename = void>
-                    requires std::copy_constructible<ReferenceType>
+                    requires std::copyable<ReferenceType>
                 inline constexpr void fill(ArgCLRefType<ReferenceType> ref) noexcept
                 {
                     _container.fill(ref);
@@ -707,12 +707,12 @@ namespace ospf
                 constexpr DynamicReferenceArray(void) = default;
 
                 template<typename = void>
-                    requires std::copy_constructible<ReferenceType>
+                    requires std::copyable<ReferenceType>
                 constexpr DynamicReferenceArray(const usize length, CLRefType<ValueType> ref)
                     : _container(length, ReferenceType{ ref }) {}
 
                 template<typename = void>
-                    requires std::copy_constructible<ReferenceType>
+                    requires std::copyable<ReferenceType>
                 constexpr DynamicReferenceArray(const usize length, ArgCLRefType<ReferenceType> ref)
                     : _container(length, ref) {}
 
@@ -749,14 +749,14 @@ namespace ospf
 
             public:
                 template<typename = void>
-                    requires std::copy_constructible<ReferenceType>
+                    requires std::copyable<ReferenceType>
                 inline constexpr void assign(const usize length, CLRefType<ValueType> ref)
                 {
                     _container.assign(length, ReferenceType{ ref });
                 }
 
                 template<typename = void>
-                    requires std::copy_constructible<ReferenceType>
+                    requires std::copyable<ReferenceType>
                 inline constexpr void assign(const usize length, ArgCLRefType<ReferenceType> ref)
                 {
                     _container.assign(length, ref);
@@ -798,7 +798,7 @@ namespace ospf
                     usize len,
                     template<typename, usize> class C1
                 >
-                    requires std::copy_constructible<ReferenceType>
+                    requires std::copyable<ReferenceType>
                 inline constexpr void assign(const StaticReferenceArray<ValueType, len, cat, C1>& refs)
                 {
                     assign(refs._container.begin(), refs._container.end());
@@ -819,7 +819,7 @@ namespace ospf
                     usize len,
                     template<typename, usize> class C1
                 >
-                    requires std::copy_constructible<ReferenceType> && std::convertible_to<PtrType<U>, PtrType<ValueType>>
+                    requires std::copyable<ReferenceType> && std::convertible_to<PtrType<U>, PtrType<ValueType>>
                 inline constexpr void assign(const StaticReferenceArray<U, len, cat, C1>& refs)
                 {
                     assign(
@@ -843,7 +843,7 @@ namespace ospf
                 }
 
                 template<template<typename> class C1>
-                    requires std::copy_constructible<ReferenceType>
+                    requires std::copyable<ReferenceType>
                 inline constexpr void assign(const DynamicReferenceArray<ValueType, cat, C1>& refs)
                 {
                     assign(refs._container.begin(), refs._container.end());
@@ -860,7 +860,7 @@ namespace ospf
                     typename U,
                     template<typename> class C1
                 >
-                    requires std::copy_constructible<ReferenceType> && std::convertible_to<PtrType<U>, PtrType<ValueType>>
+                    requires std::copyable<ReferenceType> && std::convertible_to<PtrType<U>, PtrType<ValueType>>
                 inline constexpr void assign(const DynamicReferenceArray<U, cat, C1>& refs)
                 {
                     assign(
@@ -982,7 +982,7 @@ namespace ospf
                     usize len,
                     template<typename, usize> class C1
                 >
-                    requires std::copy_constructible<ReferenceType>
+                    requires std::copyable<ReferenceType>
                 inline constexpr RetType<IterType> insert(ArgCLRefType<ConstIterType> pos, const StaticReferenceArray<ValueType, len, cat, C1>& refs)
                 {
                     return insert(pos, refs._container.cbegin(), refs._container.cend());
@@ -1002,7 +1002,7 @@ namespace ospf
                     usize len,
                     template<typename, usize> class C1
                 >
-                    requires std::copy_constructible<ReferenceType> && std::convertible_to<PtrType<U>, PtrType<ValueType>>
+                    requires std::copyable<ReferenceType> && std::convertible_to<PtrType<U>, PtrType<ValueType>>
                 inline constexpr RetType<IterType> insert(ArgCLRefType<ConstIterType> pos, const StaticReferenceArray<U, len, cat, C1>& refs)
                 {
                     return insert(pos, 
@@ -1026,7 +1026,7 @@ namespace ospf
                 }
 
                 template<template<typename> class C1>
-                    requires std::copy_constructible<ReferenceType>
+                    requires std::copyable<ReferenceType>
                 inline constexpr RetType<IterType> insert(ArgCLRefType<ConstIterType> pos, const DynamicReferenceArray<ValueType, cat, C1>& refs)
                 {
                     return insert(refs._container.cbegin(), refs._container.cend());
@@ -1042,7 +1042,7 @@ namespace ospf
                     typename U,
                     template<typename> class C1
                 >
-                    requires std::copy_constructible<ReferenceType> && std::convertible_to<PtrType<U>, PtrType<ValueType>>
+                    requires std::copyable<ReferenceType> && std::convertible_to<PtrType<U>, PtrType<ValueType>>
                 inline constexpr RetType<IterType> insert(ArgCLRefType<ConstIterType> pos, const DynamicReferenceArray<U, cat, C1>& refs)
                 {
                     return insert(pos, 
@@ -1106,7 +1106,7 @@ namespace ospf
                     usize len,
                     template<typename, usize> class C1
                 >
-                    requires std::copy_constructible<ReferenceType>
+                    requires std::copyable<ReferenceType>
                 inline constexpr void push_back(const StaticReferenceArray<ValueType, len, cat, C1>& refs)
                 {
                     insert(this->end(), refs);
@@ -1126,7 +1126,7 @@ namespace ospf
                     usize len,
                     template<typename, usize> class C1
                 >
-                    requires std::copy_constructible<ReferenceType> && std::convertible_to<PtrType<U>, PtrType<ValueType>>
+                    requires std::copyable<ReferenceType> && std::convertible_to<PtrType<U>, PtrType<ValueType>>
                 inline constexpr void push_back(const StaticReferenceArray<U, len, cat, C1>& refs)
                 {
                     insert(this->end(), refs);
@@ -1144,7 +1144,7 @@ namespace ospf
                 }
 
                 template<template<typename> class C1>
-                    requires std::copy_constructible<ReferenceType>
+                    requires std::copyable<ReferenceType>
                 inline constexpr void push_back(const DynamicReferenceArray<ValueType, cat, C1>& refs)
                 {
                     insert(this->end(), refs);
@@ -1160,7 +1160,7 @@ namespace ospf
                     typename U,
                     template<typename> class C1
                 >
-                    requires std::copy_constructible<ReferenceType> && std::convertible_to<PtrType<U>, PtrType<ValueType>>
+                    requires std::copyable<ReferenceType> && std::convertible_to<PtrType<U>, PtrType<ValueType>>
                 inline constexpr void push_back(const DynamicReferenceArray<U, cat, C1>& refs)
                 {
                     insert(this->end(), refs);
@@ -1223,7 +1223,7 @@ namespace ospf
                     usize len,
                     template<typename, usize> class C1
                 >
-                    requires std::copy_constructible<ReferenceType>
+                    requires std::copyable<ReferenceType>
                 inline constexpr void push_front(const StaticReferenceArray<ValueType, len, cat, C1>& refs)
                 {
                     insert(this->begin(), refs);
@@ -1243,7 +1243,7 @@ namespace ospf
                     usize len,
                     template<typename, usize> class C1
                 >
-                    requires std::copy_constructible<ReferenceType> && std::convertible_to<PtrType<U>, PtrType<ValueType>>
+                    requires std::copyable<ReferenceType> && std::convertible_to<PtrType<U>, PtrType<ValueType>>
                 inline constexpr void push_front(const StaticReferenceArray<U, len, cat, C1>& refs)
                 {
                     insert(this->begin(), refs);
@@ -1261,7 +1261,7 @@ namespace ospf
                 }
 
                 template<template<typename> class C1>
-                    requires std::copy_constructible<ReferenceType>
+                    requires std::copyable<ReferenceType>
                 inline constexpr void push_front(const DynamicReferenceArray<ValueType, cat, C1>& refs)
                 {
                     insert(this->begin(), refs);
@@ -1277,7 +1277,7 @@ namespace ospf
                     typename U,
                     template<typename> class C1
                 >
-                    requires std::copy_constructible<ReferenceType> && std::convertible_to<PtrType<U>, PtrType<ValueType>>
+                    requires std::copyable<ReferenceType> && std::convertible_to<PtrType<U>, PtrType<ValueType>>
                 inline constexpr void push_front(const DynamicReferenceArray<U, cat, C1>& refs)
                 {
                     insert(this->begin(), refs);
@@ -1328,14 +1328,14 @@ namespace ospf
                 }
 
                 template<typename = void>
-                    requires std::copy_constructible<ReferenceType>
+                    requires std::copyable<ReferenceType>
                 inline constexpr void resize(const usize length, CLRefType<ValueType> ref)
                 {
                     _container.resize(length, ReferenceType{ ref });
                 }
 
                 template<typename = void>
-                    requires std::copy_constructible<ReferenceType>
+                    requires std::copyable<ReferenceType>
                 inline constexpr void resize(const usize length, ArgCLRefType<ReferenceType> ref)
                 {
                     _container.resize(length, ref);

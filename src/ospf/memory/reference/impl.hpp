@@ -87,6 +87,13 @@ namespace ospf
                 }
 
                 template<typename U, typename R>
+                    requires requires (const T& lhs, const U& rhs) { { lhs == rhs } -> DecayNotSameAs<void, bool>; }
+                inline constexpr decltype(auto) operator==(const RefImpl<U, R>& rhs) const noexcept
+                {
+                    return cref() == rhs.cref();
+                }
+
+                template<typename U, typename R>
                 inline constexpr const bool operator!=(const RefImpl<U, R>& rhs) const noexcept
                 {
                     return &cref() != &rhs.cref();
@@ -97,6 +104,13 @@ namespace ospf
                 inline constexpr const bool operator!=(const RefImpl<U, R>& rhs) const noexcept
                 {
                     return &cref() != &rhs.cref() && cref() != rhs.cref();
+                }
+
+                template<typename U, typename R>
+                    requires requires (const T& lhs, const U& rhs) { { lhs != rhs } -> DecayNotSameAs<void, bool>; }
+                inline constexpr decltype(auto) operator!=(const RefImpl<U, R>& rhs) const noexcept
+                {
+                    return cref() != rhs.cref();
                 }
 
                 template<typename U>
@@ -113,6 +127,13 @@ namespace ospf
                 }
 
                 template<typename U>
+                    requires requires (const T& lhs, const U& rhs) { { lhs == rhs } -> DecayNotSameAs<void, bool>; }
+                inline constexpr decltype(auto) operator==(const U& rhs) const noexcept
+                {
+                    return cref() == rhs;
+                }
+
+                template<typename U>
                 inline constexpr const bool operator!=(const U& rhs) const noexcept
                 {
                     return &cref() != &rhs;
@@ -123,6 +144,13 @@ namespace ospf
                 inline constexpr const bool operator!=(const U& rhs) const noexcept
                 {
                     return &cref() != &rhs && cref() != rhs;
+                }
+
+                template<typename U>
+                    requires requires (const T& lhs, const U& rhs) { { lhs != rhs } -> DecayNotSameAs<void, bool>; }
+                inline constexpr decltype(auto) operator!=(const U& rhs) const noexcept
+                {
+                    return cref() != rhs;
                 }
 
                 template<typename U>
@@ -139,6 +167,13 @@ namespace ospf
                 }
 
                 template<typename U>
+                    requires requires (const T& lhs, const U& rhs) { { lhs == rhs } -> DecayNotSameAs<void, bool>; }
+                inline constexpr decltype(auto) operator==(const std::optional<U>& rhs) const
+                {
+                    return cref() == *rhs;
+                }
+
+                template<typename U>
                 inline constexpr const bool operator!=(const std::optional<U>& rhs) const noexcept
                 {
                     return !static_cast<bool>(rhs) || &cref() != &*rhs;
@@ -151,77 +186,116 @@ namespace ospf
                     return !static_cast<bool>(rhs) || (&cref() != &*rhs && cref() != *rhs);
                 }
 
+                template<typename U>
+                    requires requires (const T& lhs, const U& rhs) { { lhs != rhs } -> DecayNotSameAs<void, bool>; }
+                inline constexpr decltype(auto) operator!=(const std::optional<U>& rhs) const
+                {
+                    return cref() != *rhs;
+                }
+
             public:
                 template<typename U, typename R>
-                inline constexpr const bool operator<(const RefImpl<U, R>& rhs) const noexcept
+                inline constexpr decltype(auto) operator<(const RefImpl<U, R>& rhs) const noexcept
                 {
                     return cref() < rhs.cref();
                 }
 
                 template<typename U, typename R>
-                inline constexpr const bool operator<=(const RefImpl<U, R>& rhs) const noexcept
+                inline constexpr decltype(auto) operator<=(const RefImpl<U, R>& rhs) const noexcept
                 {
                     return cref() <= rhs.cref();
                 }
 
                 template<typename U, typename R>
-                inline constexpr const bool operator>(const RefImpl<U, R>& rhs) const noexcept
+                inline constexpr decltype(auto) operator>(const RefImpl<U, R>& rhs) const noexcept
                 {
                     return cref() > rhs.cref();
                 }
 
                 template<typename U, typename R>
-                inline constexpr const bool operator>=(const RefImpl<U, R>& rhs) const noexcept
+                inline constexpr decltype(auto) operator>=(const RefImpl<U, R>& rhs) const noexcept
                 {
                     return cref() >= rhs.cref();
                 }
 
                 template<typename U>
-                inline constexpr const bool operator<(const U& rhs) const noexcept
+                inline constexpr decltype(auto) operator<(const U& rhs) const noexcept
                 {
                     return cref() < rhs;
                 }
 
                 template<typename U>
-                inline constexpr const bool operator<=(const U& rhs) const noexcept
+                inline constexpr decltype(auto) operator<=(const U& rhs) const noexcept
                 {
                     return cref() <= rhs;
                 }
 
                 template<typename U>
-                inline constexpr const bool operator>(const U& rhs) const noexcept
+                inline constexpr decltype(auto) operator>(const U& rhs) const noexcept
                 {
                     return cref() > rhs;
                 }
 
                 template<typename U>
-                inline constexpr const bool operator>=(const U& rhs) const noexcept
+                inline constexpr decltype(auto) operator>=(const U& rhs) const noexcept
                 {
                     return cref() >= rhs;
                 }
 
                 template<typename U>
+                    requires requires (const T& lhs, const U& rhs) { { lhs < rhs } -> DecaySameAs<bool>; }
                 inline constexpr const bool operator<(const std::optional<U>& rhs) const noexcept
                 {
                     return static_cast<bool>(rhs) && cref() < *rhs;
                 }
 
                 template<typename U>
+                    requires requires (const T& lhs, const U& rhs) { { lhs < rhs } -> DecayNotSameAs<void, bool>; }
+                inline constexpr decltype(auto) operator<(const std::optional<U>& rhs) const
+                {
+                    return cref() < *rhs;
+                }
+
+                template<typename U>
+                    requires requires (const T& lhs, const U& rhs) { { lhs <= rhs } -> DecaySameAs<bool>; }
                 inline constexpr const bool operator<=(const std::optional<U>& rhs) const noexcept
                 {
                     return static_cast<bool>(rhs) && cref() <= *rhs;
                 }
 
                 template<typename U>
+                    requires requires (const T& lhs, const U& rhs) { { lhs <= rhs } -> DecayNotSameAs<void, bool>; }
+                inline constexpr decltype(auto) operator<=(const std::optional<U>& rhs) const
+                {
+                    return cref() <= *rhs;
+                }
+
+                template<typename U>
+                    requires requires (const T& lhs, const U& rhs) { { lhs > rhs } -> DecaySameAs<bool>; }
                 inline constexpr const bool operator>(const std::optional<U>& rhs) const noexcept
                 {
                     return static_cast<bool>(rhs) && cref() > *rhs;
                 }
 
                 template<typename U>
+                    requires requires (const T& lhs, const U& rhs) { { lhs > rhs } -> DecayNotSameAs<void, bool>; }
+                inline constexpr decltype(auto) operator>(const std::optional<U>& rhs) const
+                {
+                    return cref() > *rhs;
+                }
+
+                template<typename U>
+                    requires requires (const T& lhs, const U& rhs) { { lhs >= rhs } -> DecaySameAs<bool>; }
                 inline constexpr const bool operator>=(const std::optional<U>& rhs) const noexcept
                 {
                     return static_cast<bool>(rhs) && cref() >= *rhs;
+                }
+
+                template<typename U>
+                    requires requires (const T& lhs, const U& rhs) { { lhs >= rhs } -> DecayNotSameAs<void, bool>; }
+                inline constexpr decltype(auto) operator>=(const std::optional<U>& rhs) const
+                {
+                    return cref() >= *rhs;
                 }
 
             public:
@@ -238,7 +312,7 @@ namespace ospf
                 }
 
                 template<typename U>
-                inline constexpr decltype(auto) operator<=>(const std::optional<U>& rhs) const noexcept
+                inline constexpr RetType<std::compare_three_way_result_t<T, U>> operator<=>(const std::optional<U>& rhs) const noexcept
                 {
                     if (static_cast<bool>(rhs))
                     {

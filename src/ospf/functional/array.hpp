@@ -75,7 +75,7 @@ namespace ospf
         }
 
         template<typename T, usize len>
-            requires std::copy_constructible<T>
+            requires std::copyable<T>
         inline constexpr std::array<T, len> make_array(ArgCLRefType<T> value) noexcept
         {
             if constexpr (CopyFaster<T>)

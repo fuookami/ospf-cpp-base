@@ -42,7 +42,7 @@ namespace ospf
 
             template<typename = void>
                 requires ReferenceFaster<ValueType> && std::movable<ValueType>
-            NamedType& operator=(ArgRRefType<ValueType> rhs) noexcept
+            constexpr NamedType& operator=(ArgRRefType<ValueType> rhs) noexcept
             {
                 _value = move<ValueType>(rhs);
             }
@@ -51,17 +51,17 @@ namespace ospf
             constexpr ~NamedType(void) noexcept = default;
 
         public:
-            inline ValueType& unwrap(void) & noexcept
+            inline constexpr ValueType& unwrap(void) & noexcept
             {
                 return _value;
             }
 
-            inline const ValueType& unwrap(void) const & noexcept
+            inline constexpr const ValueType& unwrap(void) const & noexcept
             {
                 return _value;
             }
 
-            inline ValueType unwrap(void) && noexcept
+            inline constexpr ValueType unwrap(void) && noexcept
             {
                 return std::move(_value);
             }
@@ -69,50 +69,50 @@ namespace ospf
         public:
             template<typename = void>
                 requires requires (const ValueType& value) { { +value } -> DecaySameAs<ValueType>; }
-            inline NamedType operator+(void) const noexcept
+            inline constexpr NamedType operator+(void) const noexcept
             {
                 return NamedType{ +_value };
             }
 
             template<typename = void>
                 requires requires (const ValueType& value) { { -value } -> DecaySameAs<ValueType>; }
-            inline NamedType operator-(void) const noexcept
+            inline constexpr NamedType operator-(void) const noexcept
             {
                 return NamedType{ -_value };
             }
 
             template<typename = void>
-                requires requires (const ValueType& value) { { *value } -> NotSameAs<void>; }
-            inline decltype(auto) operator*(void) const noexcept
+                requires requires (const ValueType& value) { { *value } -> NotVoidType; }
+            inline constexpr decltype(auto) operator*(void) const noexcept
             {
                 return *_value;
             }
 
             template<typename = void>
                 requires requires (const ValueType& value) { { &value } -> DecaySameAs<ptraddr>; }
-            inline const ptraddr operator&(void) const noexcept
+            inline constexpr const ptraddr operator&(void) const noexcept
             {
                 return &_value;
             }
 
         public:
             template<typename = void>
-                requires requires (const ValueType& lhs, const ValueType& rhs) { { lhs && rhs } -> DecaySameAs<bool>; }
-            inline const bool operator&&(const NamedType& rhs) const noexcept
+                requires requires (const ValueType& lhs, const ValueType& rhs) { { lhs && rhs } -> NotVoidType; }
+            inline constexpr decltype(auto) operator&&(const NamedType& rhs) const noexcept
             {
                 return _value && rhs._value;
             }
 
             template<typename = void>
-                requires requires (const ValueType& lhs, const ValueType& rhs) { { lhs || rhs } -> DecaySameAs<bool>; }
-            inline const bool operator||(const NamedType& rhs) const noexcept
+                requires requires (const ValueType& lhs, const ValueType& rhs) { { lhs || rhs } -> NotVoidType; }
+            inline constexpr decltype(auto) operator||(const NamedType& rhs) const noexcept
             {
                 return _value || rhs._value;
             }
 
             template<typename = void>
-                requires requires (const ValueType& value) { { !value } -> DecaySameAs<bool>; }
-            inline const bool operator!(void) const noexcept
+                requires requires (const ValueType& value) { { !value } -> NotVoidType; }
+            inline constexpr decltype(auto) operator!(void) const noexcept
             {
                 return !_value;
             }
@@ -120,21 +120,21 @@ namespace ospf
         public:
             template<typename = void>
                 requires requires (const ValueType& value) { { ~value } -> DecaySameAs<ValueType>; }
-            inline NamedType operator~(void) const noexcept
+            inline constexpr NamedType operator~(void) const noexcept
             {
                 return NamedType{ ~_value };
             }
 
             template<typename = void>
                 requires requires (const ValueType& lhs, const ValueType& rhs) { { lhs& rhs } -> DecaySameAs<ValueType>; }
-            inline NamedType operator&(const NamedType& rhs) const noexcept
+            inline constexpr NamedType operator&(const NamedType& rhs) const noexcept
             {
                 return NamedType{ _value & rhs._value };
             }
 
             template<typename = void>
                 requires requires (ValueType& lhs, const ValueType& rhs) { { lhs &= rhs } -> DecaySameAs<ValueType>; }
-            inline NamedType& operator&=(const NamedType& rhs) noexcept
+            inline constexpr NamedType& operator&=(const NamedType& rhs) noexcept
             {
                 _value &= rhs._value;
                 return *this;
@@ -142,14 +142,14 @@ namespace ospf
 
             template<typename = void>
                 requires requires (const ValueType& lhs, const ValueType& rhs) { { lhs | rhs } -> DecaySameAs<ValueType>; }
-            inline NamedType operator|(const NamedType& rhs) const noexcept
+            inline constexpr NamedType operator|(const NamedType& rhs) const noexcept
             {
                 return NamedType{ _value | rhs._value };
             }
 
             template<typename = void>
                 requires requires (ValueType& lhs, const ValueType& rhs) { { lhs |= rhs } -> DecaySameAs<ValueType>; }
-            inline NamedType& operator|=(const NamedType& rhs) noexcept
+            inline constexpr NamedType& operator|=(const NamedType& rhs) noexcept
             {
                 _value |= rhs._value;
                 return *this;
@@ -157,14 +157,14 @@ namespace ospf
 
             template<typename = void>
                 requires requires (const ValueType& lhs, const ValueType& rhs) { { lhs ^ rhs } -> DecaySameAs<ValueType>; }
-            inline NamedType operator^(const NamedType& rhs) const noexcept
+            inline constexpr NamedType operator^(const NamedType& rhs) const noexcept
             {
                 return NamedType{ _value ^ rhs._value };
             }
 
             template<typename = void>
                 requires requires (ValueType& lhs, const ValueType& rhs) { { lhs ^= rhs } -> DecaySameAs<ValueType>; }
-            inline NamedType& operator^=(const NamedType& rhs) noexcept
+            inline constexpr NamedType& operator^=(const NamedType& rhs) noexcept
             {
                 _value ^= rhs._value;
                 return *this;
@@ -172,14 +172,14 @@ namespace ospf
 
             template<typename = void>
                 requires requires (const ValueType& lhs, const usize rhs) { { lhs << rhs } -> DecaySameAs<ValueType>; }
-            inline NamedType operator<<(const usize rhs) const noexcept
+            inline constexpr NamedType operator<<(const usize rhs) const noexcept
             {
                 return NamedType{ _value << rhs };
             }
 
             template<typename = void>
                 requires requires (ValueType& lhs, const usize rhs) { { lhs <<= rhs } -> DecaySameAs<ValueType>; }
-            inline NamedType& operator<<=(const usize len) noexcept
+            inline constexpr NamedType& operator<<=(const usize len) noexcept
             {
                 _value <<= len;
                 return *this;
@@ -187,14 +187,14 @@ namespace ospf
 
             template<typename = void>
                 requires requires (const ValueType& lhs, const usize rhs) { { lhs >> rhs } -> DecaySameAs<ValueType>; }
-            inline NamedType operator>>(const usize rhs) const noexcept
+            inline constexpr NamedType operator>>(const usize rhs) const noexcept
             {
                 return NamedType{ _value >> rhs };
             }
 
             template<typename = void>
                 requires requires (ValueType& lhs, const usize rhs) { { lhs >>= rhs } -> DecaySameAs<ValueType>; }
-            inline NamedType& operator>>=(const usize rhs) noexcept
+            inline constexpr NamedType& operator>>=(const usize rhs) noexcept
             {
                 _value >>= rhs;
                 return *this;
@@ -203,14 +203,14 @@ namespace ospf
         public:
             template<typename = void>
                 requires requires (const ValueType& lhs, const ValueType& rhs) { { lhs + rhs } -> DecaySameAs<ValueType>; }
-            inline NamedType operator+(const NamedType& rhs) const noexcept
+            inline constexpr NamedType operator+(const NamedType& rhs) const noexcept
             {
                 return NamedType{ _value + rhs._value };
             }
 
             template<typename = void>
                 requires requires (ValueType& lhs, const ValueType& rhs) { { lhs += rhs } -> DecaySameAs<ValueType>; }
-            inline NamedType& operator+=(const NamedType& rhs) noexcept
+            inline constexpr NamedType& operator+=(const NamedType& rhs) noexcept
             {
                 _value += rhs._value;
                 return *this;
@@ -218,14 +218,14 @@ namespace ospf
 
             template<typename = void>
                 requires requires (const ValueType& lhs, const ValueType& rhs) { { lhs - rhs } -> DecaySameAs<ValueType>; }
-            inline NamedType operator-(const NamedType& rhs) const noexcept
+            inline constexpr NamedType operator-(const NamedType& rhs) const noexcept
             {
                 return NamedType{ _value - rhs._value };
             }
 
             template<typename = void>
                 requires requires (ValueType& lhs, const ValueType& rhs) { { lhs -= rhs } -> DecaySameAs<ValueType>; }
-            inline NamedType& operator-=(const NamedType& rhs) noexcept
+            inline constexpr NamedType& operator-=(const NamedType& rhs) noexcept
             {
                 _value -= rhs._value;
                 return *this;
@@ -233,14 +233,14 @@ namespace ospf
 
             template<typename = void>
                 requires requires (const ValueType& lhs, const ValueType& rhs) { { lhs * rhs } -> DecaySameAs<ValueType>; }
-            inline NamedType operator*(const NamedType& rhs) const noexcept
+            inline constexpr NamedType operator*(const NamedType& rhs) const noexcept
             {
                 return NamedType{ _value * rhs._value };
             }
 
             template<typename = void>
                 requires requires (ValueType& lhs, const ValueType& rhs) { { lhs *= rhs } -> DecaySameAs<ValueType>; }
-            inline NamedType& operator*=(const NamedType& rhs) noexcept
+            inline constexpr NamedType& operator*=(const NamedType& rhs) noexcept
             {
                 _value *= rhs._value;
                 return *this;
@@ -248,14 +248,14 @@ namespace ospf
 
             template<typename = void>
                 requires requires (const ValueType& lhs, const ValueType& rhs) { { lhs / rhs } -> DecaySameAs<ValueType>; }
-            inline NamedType operator/(const NamedType& rhs) const noexcept
+            inline constexpr NamedType operator/(const NamedType& rhs) const noexcept
             {
                 return NamedType{ _value / rhs._value };
             }
 
             template<typename = void>
                 requires requires (ValueType& lhs, const ValueType& rhs) { { lhs /= rhs } -> DecaySameAs<ValueType>; }
-            inline NamedType& operator/=(const NamedType& rhs) noexcept
+            inline constexpr NamedType& operator/=(const NamedType& rhs) noexcept
             {
                 _value /= rhs._value;
                 return *this;
@@ -263,14 +263,14 @@ namespace ospf
 
             template<typename = void>
                 requires requires (const ValueType& lhs, const ValueType& rhs) { { lhs % rhs } -> DecaySameAs<ValueType>; }
-            inline NamedType operator%(const NamedType& rhs) const noexcept
+            inline constexpr NamedType operator%(const NamedType& rhs) const noexcept
             {
                 return NamedType{ _value % rhs._value };
             }
 
             template<typename = void>
                 requires requires (ValueType& lhs, const ValueType& rhs) { { lhs %= rhs } -> DecaySameAs<ValueType>; }
-            inline NamedType& operator%=(const NamedType& rhs) noexcept
+            inline constexpr NamedType& operator%=(const NamedType& rhs) noexcept
             {
                 _value %= rhs._value;
                 return *this;
@@ -279,7 +279,7 @@ namespace ospf
         public:
             template<typename = void>
                 requires requires (ValueType& value) { { ++value } -> DecaySameAs<ValueType>; }
-            inline NamedType& operator++(void) noexcept
+            inline constexpr NamedType& operator++(void) noexcept
             {
                 ++_value;
                 return *this;
@@ -287,7 +287,7 @@ namespace ospf
             
             template<typename = void>
                 requires requires (ValueType& value) { { value++ } -> DecaySameAs<ValueType>; }
-            inline NamedType operator++(int) noexcept
+            inline constexpr NamedType operator++(int) noexcept
             {
                 NamedType ret{ _value };
                 ++_value;
@@ -296,7 +296,7 @@ namespace ospf
 
             template<typename = void>
                 requires requires (ValueType& value) { { --value } -> DecaySameAs<ValueType>; }
-            inline NamedType& operator--(void) noexcept
+            inline constexpr NamedType& operator--(void) noexcept
             {
                 --_value;
                 return *this;
@@ -304,7 +304,7 @@ namespace ospf
 
             template<typename = void>
                 requires requires (ValueType& value) { { value-- } -> DecaySameAs<ValueType>; }
-            inline NamedType operator--(int) noexcept
+            inline constexpr NamedType operator--(int) noexcept
             {
                 NamedType ret{ _value };
                 --_value;
@@ -313,44 +313,44 @@ namespace ospf
 
         public:
             template<typename = void>
-                requires requires (const ValueType& lhs, const ValueType& rhs) { { lhs == rhs } -> DecaySameAs<bool>; }
-            inline const bool operator==(const NamedType& rhs) const noexcept
+                requires requires (const ValueType& lhs, const ValueType& rhs) { { lhs == rhs } -> NotVoidType; }
+            inline constexpr decltype(auto) operator==(const NamedType& rhs) const noexcept
             {
                 return _value == rhs._value;
             }
 
             template<typename = void>
-                requires requires (const ValueType& lhs, const ValueType& rhs) { { lhs != rhs } -> DecaySameAs<bool>; }
-            inline const bool operator!=(const NamedType& rhs) const noexcept
+                requires requires (const ValueType& lhs, const ValueType& rhs) { { lhs != rhs } -> NotVoidType; }
+            inline constexpr decltype(auto) operator!=(const NamedType& rhs) const noexcept
             {
                 return _value != rhs._value;
             }
 
         public:
             template<typename = void>
-                requires requires (const ValueType& lhs, const ValueType& rhs) { { lhs < rhs } -> DecaySameAs<bool>; }
-            inline const bool operator<(const NamedType& rhs) const noexcept
+                requires requires (const ValueType& lhs, const ValueType& rhs) { { lhs < rhs } -> NotVoidType; }
+            inline constexpr decltype(auto) operator<(const NamedType& rhs) const noexcept
             {
                 return _value < rhs._value;
             }
 
             template<typename = void>
-                requires requires (const ValueType& lhs, const ValueType& rhs) { { lhs <= rhs } -> DecaySameAs<bool>; }
-            inline const bool operator<=(const NamedType& rhs) const noexcept
+                requires requires (const ValueType& lhs, const ValueType& rhs) { { lhs <= rhs } -> NotVoidType; }
+            inline constexpr decltype(auto) operator<=(const NamedType& rhs) const noexcept
             {
                 return _value <= rhs._value;
             }
 
             template<typename = void>
-                requires requires (const ValueType& lhs, const ValueType& rhs) { { lhs > rhs } -> DecaySameAs<bool>; }
-            inline const bool operator>(const NamedType& rhs) const noexcept
+                requires requires (const ValueType& lhs, const ValueType& rhs) { { lhs > rhs } -> NotVoidType; }
+            inline constexpr decltype(auto) operator>(const NamedType& rhs) const noexcept
             {
                 return _value > rhs._value;
             }
 
             template<typename = void>
-                requires requires (const ValueType& lhs, const ValueType& rhs) { { lhs >= rhs } -> DecaySameAs<bool>; }
-            inline const bool operator>=(const NamedType& rhs) const noexcept
+                requires requires (const ValueType& lhs, const ValueType& rhs) { { lhs >= rhs } -> NotVoidType; }
+            inline constexpr decltype(auto) operator>=(const NamedType& rhs) const noexcept
             {
                 return _value >= rhs._value;
             }
@@ -358,7 +358,7 @@ namespace ospf
         public:
             template<typename = void>
                 requires std::three_way_comparable<ValueType>
-            inline decltype(auto) operator<=>(const NamedType& rhs) const noexcept
+            inline constexpr decltype(auto) operator<=>(const NamedType& rhs) const noexcept
             {
                 return _value <=> rhs._value;
             }
@@ -366,7 +366,7 @@ namespace ospf
         public:
             template<typename = void>
                 requires requires (ValueType& lhs, ValueType& rhs) { std::swap(lhs, rhs); }
-            inline void swap(ValueType& rhs) noexcept
+            inline constexpr void swap(ValueType& rhs) noexcept
             {
                 std::swap(_value, rhs._value);
             }
@@ -400,7 +400,7 @@ namespace std
     template<typename T, typename P>
     struct hash<ospf::NamedType<T, P>>
     {
-        inline const ospf::usize operator()(ospf::ArgCLRefType<ospf::NamedType<T, P>> value) const noexcept
+        inline constexpr const ospf::usize operator()(ospf::ArgCLRefType<ospf::NamedType<T, P>> value) const noexcept
         {
             static const hash<T> hasher{};
             return hasher(value.unwrap());
@@ -409,14 +409,14 @@ namespace std
 
     template<typename T, typename P>
         requires requires (const T& value) { { std::abs(value) } -> ospf::DecaySameAs<T>; }
-    inline ospf::NamedType<T, P> abs(const ospf::NamedType<T, P>& value) noexcept
+    inline constexpr ospf::NamedType<T, P> abs(const ospf::NamedType<T, P>& value) noexcept
     {
         return ospf::NamedType<T, P>(std::abs(value.unwrap()));
     }
 
     template<typename T, typename P>
         requires requires (T& lhs, T& rhs) { std::swap(lhs, rhs); }
-    inline void swap(ospf::NamedType<T, P>& lhs, ospf::NamedType<T, P>& rhs) noexcept
+    inline constexpr void swap(ospf::NamedType<T, P>& lhs, ospf::NamedType<T, P>& rhs) noexcept
     {
         return lhs.swap(rhs);
     }
@@ -426,7 +426,7 @@ namespace std
         : public formatter<T, CharT>
     {
         template<typename FormatContext>
-        inline decltype(auto) format(const ospf::NamedType<T, P>& value, FormatContext& fc)
+        inline constexpr decltype(auto) format(const ospf::NamedType<T, P>& value, FormatContext& fc)
         {
             static const formatter<T, CharT> _formatter{};
             return _formatter.format(value.unwrap(), fc);

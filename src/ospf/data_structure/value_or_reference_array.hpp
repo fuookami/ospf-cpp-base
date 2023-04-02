@@ -629,7 +629,7 @@ namespace ospf
                     : _container(make_array<ValueOrReferenceType, len>([](const usize _) { return ValueOrReferenceType{}; })) {}
 
                 template<typename = void>
-                    requires (!std::default_initializable<ValueOrReferenceType> && WithDefault<ValueOrReferenceType> && std::copy_constructible<ValueOrReferenceType>)
+                    requires (!std::default_initializable<ValueOrReferenceType> && WithDefault<ValueOrReferenceType> && std::copyable<ValueOrReferenceType>)
                 constexpr StaticValueOrReferenceArray(void)
                     : _container(make_array<ValueOrReferenceType, len>(DefaultValue<ValueOrReferenceType>::value())) {}
 
@@ -666,35 +666,35 @@ namespace ospf
 
             public:
                 template<typename = void>
-                    requires std::copy_constructible<ValueOrReferenceType>
+                    requires std::copyable<ValueOrReferenceType>
                 inline constexpr void fill(ArgCLRefType<ValueOrReferenceType> value) noexcept
                 {
                     _container.fill(value);
                 }
 
                 template<typename = void>
-                    requires std::copy_constructible<ValueOrReferenceType>
+                    requires std::copyable<ValueOrReferenceType>
                 inline constexpr void fill_value(ArgCLRefType<ValueType> value) noexcept
                 {
                     _container.fill(ValueOrReferenceType::value(value));
                 }
 
                 template<typename = void>
-                    requires std::copy_constructible<ValueOrReferenceType> && ReferenceFaster<ValueType> && std::movable<ValueType>
+                    requires std::copyable<ValueOrReferenceType> && ReferenceFaster<ValueType> && std::movable<ValueType>
                 inline constexpr void fill_value(ArgRRefType<ValueType> value) noexcept
                 {
                     _container.fill(ValueOrReferenceType::value(move<ValueType>(value)));
                 }
 
                 template<typename = void>
-                    requires std::copy_constructible<ValueOrReferenceType>
+                    requires std::copyable<ValueOrReferenceType>
                 inline constexpr void fill_reference(CLRefType<ValueType> ref) noexcept
                 {
                     _container.fill(ValueOrReferenceType::ref(ref));
                 }
 
                 template<typename = void>
-                    requires std::copy_constructible<ValueOrReferenceType>
+                    requires std::copyable<ValueOrReferenceType>
                 inline constexpr void fill_reference(ArgRRefType<ReferenceType> ref) noexcept
                 {
                     _container.fill(ValueOrReferenceType::ref(move<ReferenceType>(ref)));
@@ -784,12 +784,12 @@ namespace ospf
                     : _container(length) {}
 
                 template<typename = void>
-                    requires (!std::default_initializable<ValueOrReferenceType> && WithDefault<ValueOrReferenceType> && std::copy_constructible<ValueOrReferenceType>)
+                    requires (!std::default_initializable<ValueOrReferenceType> && WithDefault<ValueOrReferenceType> && std::copyable<ValueOrReferenceType>)
                 constexpr DynamicValueOrReferenceArray(const usize length)
                     : _container(length, DefaultValue<ValueOrReferenceType>::value()) {}
 
                 template<typename = void>
-                    requires std::copy_constructible<ValueOrReferenceType>
+                    requires std::copyable<ValueOrReferenceType>
                 constexpr DynamicValueOrReferenceArray(const usize length, ArgCLRefType<ValueOrReferenceType> value)
                     : _container(length, value) {}
 
@@ -821,7 +821,7 @@ namespace ospf
                     requires std::default_initializable<ValueOrReferenceType>
                 inline constexpr void assign(const usize length)
                 {
-                    if constexpr (std::copy_constructible<ValueOrReferenceType>)
+                    if constexpr (std::copyable<ValueOrReferenceType>)
                     {
                         _container.assign(length, ValueOrReferenceType{});
                     }
@@ -836,14 +836,14 @@ namespace ospf
                 }
 
                 template<typename = void>
-                    requires (!std::default_initializable<ValueOrReferenceType> && WithDefault<ValueOrReferenceType> && std::copy_constructible<ValueOrReferenceType>)
+                    requires (!std::default_initializable<ValueOrReferenceType> && WithDefault<ValueOrReferenceType> && std::copyable<ValueOrReferenceType>)
                 inline constexpr void assign(const usize length)
                 {
                     _container.assign(length, DefaultValue<ValueOrReferenceType>::value());
                 }
 
                 template<typename = void>
-                    requires std::copy_constructible<ValueOrReferenceType>
+                    requires std::copyable<ValueOrReferenceType>
                 inline constexpr void assign(const usize length, ArgCLRefType<ValueOrReferenceType> value)
                 {
                     _container.assign(length, value);
@@ -874,7 +874,7 @@ namespace ospf
                     usize len,
                     template<typename, usize> class C1
                 >
-                    requires std::copy_constructible<ValueOrReferenceType>
+                    requires std::copyable<ValueOrReferenceType>
                 inline constexpr void assign(const StaticValueOrReferenceArray<ValueType, len, cat, cow, C1>& refs)
                 {
                     assign(refs._container.begin(), refs._container.end());
@@ -919,7 +919,7 @@ namespace ospf
                 }
 
                 template<template<typename> class C1>
-                    requires std::copy_constructible<ValueOrReferenceType>
+                    requires std::copyable<ValueOrReferenceType>
                 inline constexpr void assign(const DynamicValueOrReferenceArray<ValueType, cat, cow, C1>& refs)
                 {
                     assign(refs._container.begin(), refs._container.end());
@@ -961,14 +961,14 @@ namespace ospf
                 }
 
                 template<typename = void>
-                    requires std::copy_constructible<ValueOrReferenceType>
+                    requires std::copyable<ValueOrReferenceType>
                 inline constexpr void assign_value(const usize length, ArgCLRefType<ValueType> value)
                 {
                     _container.assign(length, ValueOrReferenceType::value(value));
                 }
 
                 template<typename = void>
-                    requires std::copy_constructible<ValueOrReferenceType> && ReferenceFaster<ValueType>&& std::movable<ValueType>
+                    requires std::copyable<ValueOrReferenceType> && ReferenceFaster<ValueType>&& std::movable<ValueType>
                 inline constexpr void assign_value(const usize length, ArgRRefType<ValueType> value)
                 {
                     _container.assign(length, ValueOrReferenceType::value(move<ValueType>(value)));
@@ -1000,14 +1000,14 @@ namespace ospf
                 }
 
                 template<typename = void>
-                    requires std::copy_constructible<ValueOrReferenceType>
+                    requires std::copyable<ValueOrReferenceType>
                 inline constexpr void assign_reference(const usize length, CLRefType<ValueType> ref)
                 {
                     _container.assign(length, ValueOrReferenceType::ref(ReferenceType{ ref }));
                 }
 
                 template<typename = void>
-                    requires std::copy_constructible<ValueOrReferenceType>
+                    requires std::copyable<ValueOrReferenceType>
                 inline constexpr void assign_reference(const usize length, ArgRRefType<ReferenceType> ref)
                 {
                     _container.assign(length, ValueOrReferenceType::ref(move<ReferenceType>(ref)));
@@ -1024,7 +1024,7 @@ namespace ospf
                 }
 
                 template<std::input_iterator It>
-                    requires std::copy_constructible<ReferenceType> && requires (const It it) { { *it } -> DecaySameAs<ReferenceType>; }
+                    requires std::copyable<ReferenceType> && requires (const It it) { { *it } -> DecaySameAs<ReferenceType>; }
                 inline constexpr void assign_reference(It&& first, It&& last)
                 {
                     _container.assign(
@@ -1259,7 +1259,7 @@ namespace ospf
                 }
 
                 template<std::input_iterator It>
-                    requires std::copy_constructible<ReferenceType> && requires (const It it) { { *it } -> DecaySameAs<ReferenceType>; }
+                    requires std::copyable<ReferenceType> && requires (const It it) { { *it } -> DecaySameAs<ReferenceType>; }
                 inline constexpr RetType<IterType> insert_reference(ArgCLRefType<ConstIterType> pos, It&& first, It&& last)
                 {
                     return IterType{ _container.insert(pos._iter,
@@ -1297,7 +1297,7 @@ namespace ospf
                     usize len,
                     template<typename, usize> class C1
                 >
-                    requires std::copy_constructible<ValueOrReferenceType>
+                    requires std::copyable<ValueOrReferenceType>
                 inline constexpr void push_back(const StaticValueOrReferenceArray<ValueType, len, cat, cow, C1>& refs)
                 {
                     insert(this->end(), refs);
@@ -1335,7 +1335,7 @@ namespace ospf
                 }
 
                 template<template<typename> class C1>
-                    requires std::copy_constructible<ValueOrReferenceType>
+                    requires std::copyable<ValueOrReferenceType>
                 inline constexpr void push_back(const DynamicValueOrReferenceArray<ValueType, cat, cow, C1>& refs)
                 {
                     insert(this->end(), refs);
@@ -1426,7 +1426,7 @@ namespace ospf
                     usize len,
                     template<typename, usize> class C1
                 >
-                    requires std::copy_constructible<ValueOrReferenceType>
+                    requires std::copyable<ValueOrReferenceType>
                 inline constexpr void push_front(const StaticValueOrReferenceArray<ValueType, len, cat, cow, C1>& refs)
                 {
                     insert(this->begin(), refs);
@@ -1464,7 +1464,7 @@ namespace ospf
                 }
 
                 template<template<typename> class C1>
-                    requires std::copy_constructible<ValueOrReferenceType>
+                    requires std::copyable<ValueOrReferenceType>
                 inline constexpr void push_front(const DynamicValueOrReferenceArray<ValueType, cat, cow, C1>& refs)
                 {
                     insert(this->begin(), refs);
@@ -1592,14 +1592,14 @@ namespace ospf
                 }
 
                 template<typename = void>
-                    requires (!std::default_initializable<ValueOrReferenceType> && WithDefault<ValueOrReferenceType> && std::copy_constructible<ValueOrReferenceType>)
+                    requires (!std::default_initializable<ValueOrReferenceType> && WithDefault<ValueOrReferenceType> && std::copyable<ValueOrReferenceType>)
                 inline constexpr void resize(const usize length)
                 {
                     _container.resize(length, DefaultValue<ValueOrReferenceType>::value());
                 }
 
                 template<typename = void>
-                    requires std::copy_constructible<ValueOrReferenceType>
+                    requires std::copyable<ValueOrReferenceType>
                 inline constexpr void resize(const usize length, ArgCLRefType<ValueOrReferenceType> value)
                 {
                     _container.resize(length, value);

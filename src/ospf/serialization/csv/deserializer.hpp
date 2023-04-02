@@ -57,7 +57,7 @@ namespace ospf
                 }
 
                 template<typename = void>
-                    requires std::copy_constructible<ValueType>
+                    requires std::copyable<ValueType>
                 inline Result<std::vector<ValueType>> operator()(const CSVTable<CharT>& table, const ValueType& origin_obj) const noexcept
                 {
                     static constexpr const meta_info::MetaInfo<ValueType> info{};
@@ -89,7 +89,7 @@ namespace ospf
                 }
 
                 template<typename = void>
-                    requires std::copy_constructible<ValueType>
+                    requires std::copyable<ValueType>
                 inline Result<std::vector<ValueType>> operator()(const CSVViewTable<CharT>& table, const ValueType& origin_obj) const noexcept
                 {
                     static constexpr const meta_info::MetaInfo<ValueType> info{};
@@ -121,7 +121,7 @@ namespace ospf
                 }
 
                 template<typename = void>
-                    requires std::copy_constructible<ValueType>
+                    requires std::copyable<ValueType>
                 inline Result<std::vector<ValueType>> operator()(const ORMTableType<ValueType, CharT>& table, const ValueType& origin_obj) const noexcept
                 {
                     static constexpr const meta_info::MetaInfo<ValueType> info{};
@@ -153,7 +153,7 @@ namespace ospf
                 }
 
                 template<typename = void>
-                    requires std::copy_constructible<ValueType>
+                    requires std::copyable<ValueType>
                 inline Result<std::vector<ValueType>> operator()(const ORMViewTableType<ValueType, CharT>& table, const ValueType& origin_obj) const noexcept
                 {
                     static constexpr const meta_info::MetaInfo<ValueType> info{};
@@ -367,7 +367,7 @@ namespace ospf
             }
 
             template<typename T, CharType CharT = char>
-                requires WithMetaInfo<T> && std::copy_constructible<T>
+                requires WithMetaInfo<T> && std::copyable<T>
             inline Result<std::vector<T>> from_file(
                 const std::filesystem::path& path, 
                 const T& origin_obj, 
@@ -393,7 +393,7 @@ namespace ospf
             }
 
             template<typename T, CharType CharT = char>
-                requires WithMetaInfo<T> && std::copy_constructible<T>
+                requires WithMetaInfo<T> && std::copyable<T>
             inline Result<std::vector<T>> from_file(
                 const std::filesystem::path& path,
                 const T& origin_obj,
@@ -441,7 +441,7 @@ namespace ospf
             }
 
             template<typename T, CharType CharT = char>
-                requires WithMetaInfo<T> && std::copy_constructible<T>
+                requires WithMetaInfo<T> && std::copyable<T>
             inline Result<std::vector<T>> from_file_soft(
                 const std::filesystem::path& path, 
                 const T& origin_obj, 
@@ -467,7 +467,7 @@ namespace ospf
             }
 
             template<typename T, CharType CharT = char>
-                requires WithMetaInfo<T> && std::copy_constructible<T>
+                requires WithMetaInfo<T> && std::copyable<T>
             inline Result<std::vector<T>> from_file_soft(
                 const std::filesystem::path& path,
                 const T& origin_obj,
@@ -506,7 +506,7 @@ namespace ospf
             }
 
             template<typename T, CharType CharT = char>
-                requires WithMetaInfo<T> && std::copy_constructible<T>
+                requires WithMetaInfo<T> && std::copyable<T>
             inline Result<std::vector<T>> from_string(
                 const std::basic_string_view<CharT> str,
                 const T& origin_obj, 
@@ -523,7 +523,7 @@ namespace ospf
             }
 
             template<typename T, CharType CharT = char>
-                requires WithMetaInfo<T>&& std::copy_constructible<T>
+                requires WithMetaInfo<T>&& std::copyable<T>
             inline Result<std::vector<T>> from_string(
                 const std::basic_string_view<CharT> str,
                 const T& origin_obj,
@@ -562,7 +562,7 @@ namespace ospf
             }
 
             template<typename T, CharType CharT = char>
-                requires WithMetaInfo<T> && std::copy_constructible<T>
+                requires WithMetaInfo<T> && std::copyable<T>
             inline Result<std::vector<T>> from_string_soft(
                 const std::basic_string_view<CharT> str, 
                 const T& origin_obj, 
@@ -579,7 +579,7 @@ namespace ospf
             }
 
             template<typename T, CharType CharT = char>
-                requires WithMetaInfo<T>&& std::copy_constructible<T>
+                requires WithMetaInfo<T>&& std::copyable<T>
             inline Result<std::vector<T>> from_string_soft(
                 const std::basic_string_view<CharT> str,
                 const T& origin_obj,

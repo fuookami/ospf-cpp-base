@@ -72,7 +72,7 @@ namespace ospf
                 }
 
                 template<typename = void>
-                    requires std::copy_constructible<ValueType>
+                    requires std::copyable<ValueType>
                 inline Result<std::vector<ValueType>> parse_array(const Json<CharT>& json, const ValueType& origin_obj) const noexcept
                 {
                     if (json.IsNull())
@@ -211,7 +211,7 @@ namespace ospf
             }
 
             template<typename T, CharType CharT = char>
-                requires DeserializableFromJson<T, CharT> && std::copy_constructible<T>
+                requires DeserializableFromJson<T, CharT> && std::copyable<T>
             inline Result<std::vector<T>> from_file_array
             (
                 const std::filesystem::path& path,
@@ -238,7 +238,7 @@ namespace ospf
             }
 
             template<typename T, CharType CharT = char>
-                requires DeserializableFromJson<T, CharT> && std::copy_constructible<T>
+                requires DeserializableFromJson<T, CharT> && std::copyable<T>
             inline Result<std::vector<T>> from_file_array
             (
                 const std::filesystem::path& path,
@@ -334,7 +334,7 @@ namespace ospf
             }
 
             template<typename T, CharType CharT = char>
-                requires DeserializableFromJson<T, CharT> && std::copy_constructible<T>
+                requires DeserializableFromJson<T, CharT> && std::copyable<T>
             inline Result<std::vector<T>> from_string_array
             (
                 const std::basic_string_view<CharT> str,
@@ -352,7 +352,7 @@ namespace ospf
             }
 
             template<typename T, CharType CharT = char>
-                requires DeserializableFromJson<T, CharT> && std::copy_constructible<T>
+                requires DeserializableFromJson<T, CharT> && std::copyable<T>
             inline Result<std::vector<T>> from_string_array
             (
                 const std::basic_string_view<CharT> str,
@@ -438,7 +438,7 @@ namespace ospf
             }
 
             template<typename T, CharType CharT = char>
-                requires DeserializableFromJson<T, CharT> && std::copy_constructible<T>
+                requires DeserializableFromJson<T, CharT> && std::copyable<T>
             inline Result<std::vector<T>> from_json_array
             (
                 const Json<CharT>& json,
@@ -452,7 +452,7 @@ namespace ospf
             }
 
             template<typename T, CharType CharT = char>
-                requires DeserializableFromJson<T, CharT> && std::copy_constructible<T>
+                requires DeserializableFromJson<T, CharT> && std::copyable<T>
             inline Result<std::vector<T>> from_json_array
             (
                 const Json<CharT>& json,

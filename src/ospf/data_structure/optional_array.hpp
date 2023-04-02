@@ -1268,7 +1268,7 @@ namespace ospf
 
                 inline constexpr void fill(const std::nullopt_t _ = std::nullopt) noexcept
                 {
-                    if constexpr (std::copy_constructible<OptType>)
+                    if constexpr (std::copyable<OptType>)
                     {
                         _container.fill(OptType{ std::nullopt });
                     }
@@ -1282,21 +1282,21 @@ namespace ospf
                 }
 
                 template<typename = void>
-                    requires std::copy_constructible<OptType>
+                    requires std::copyable<OptType>
                 inline constexpr void fill(ArgCLRefType<ValueType> value) noexcept
                 {
                     _container.fill(OptType{ value });
                 }
 
                 template<typename = void>
-                    requires std::copy_constructible<OptType> && ReferenceFaster<ValueType> && std::movable<ValueType>
+                    requires std::copyable<OptType> && ReferenceFaster<ValueType> && std::movable<ValueType>
                 inline void fill(ArgRRefType<ValueType> value) noexcept
                 {
                     _container.fill(OptType{ move<ValueType>(value) });
                 }
 
                 template<typename = void>
-                    requires std::copy_constructible<OptType>
+                    requires std::copyable<OptType>
                 inline constexpr void fill(ArgCLRefType<OptType> value) noexcept
                 {
                     _container.fill(value);
@@ -1388,22 +1388,22 @@ namespace ospf
                     : _container(length) {}
 
                 template<typename = void>
-                    requires (!std::default_initializable<OptType> && WithDefault<OptType> && std::copy_constructible<OptType>)
+                    requires (!std::default_initializable<OptType> && WithDefault<OptType> && std::copyable<OptType>)
                 constexpr explicit DynamicOptionalArray(const usize length)
                     : _container(length, DefaultValue<OptType>::value()) {}
 
                 template<typename = void>
-                    requires std::copy_constructible<OptType>
+                    requires std::copyable<OptType>
                 constexpr DynamicOptionalArray(const usize length, ArgCLRefType<ValueType> value)
                     : _container(length, OptType{ value }) {}
 
                 template<typename = void>
-                    requires std::copy_constructible<OptType> && ReferenceFaster<ValueType> && std::movable<ValueType>
+                    requires std::copyable<OptType> && ReferenceFaster<ValueType> && std::movable<ValueType>
                 DynamicOptionalArray(const usize length, ArgRRefType<ValueType> value)
                     : _container(length, OptType{ move<ValueType>(value) }) {}
 
                 template<typename = void>
-                    requires std::copy_constructible<OptType>
+                    requires std::copyable<OptType>
                 DynamicOptionalArray(const usize length, ArgCLRefType<OptType> value)
                     : _container(length, value) {}
 
@@ -1454,7 +1454,7 @@ namespace ospf
             public:
                 inline constexpr void assign(const usize length, const std::nullopt_t _ = std::nullopt)
                 {
-                    if constexpr (std::copy_constructible<OptType>)
+                    if constexpr (std::copyable<OptType>)
                     {
                         _container.assign(length, OptType{ std::nullopt });
                     }
@@ -1469,21 +1469,21 @@ namespace ospf
                 }
 
                 template<typename = void>
-                    requires std::copy_constructible<OptType>
+                    requires std::copyable<OptType>
                 inline constexpr void assign(const usize length, ArgCLRefType<ValueType> value)
                 {
                     _container.assign(length, OptType{ value });
                 }
 
                 template<typename = void>
-                    requires std::copy_constructible<OptType> && ReferenceFaster<ValueType> && std::movable<ValueType>
+                    requires std::copyable<OptType> && ReferenceFaster<ValueType> && std::movable<ValueType>
                 inline constexpr void assign(const usize length, ArgRRefType<ValueType> value)
                 {
                     _container.assign(length, OptType{ move<ValueType>(value) });
                 }
 
                 template<typename = void>
-                    requires std::copy_constructible<OptType>
+                    requires std::copyable<OptType>
                 inline constexpr void assign(const usize length, ArgCLRefType<OptType> value)
                 {
                     _container.assign(length, value);
@@ -1534,7 +1534,7 @@ namespace ospf
                     usize len,
                     template<typename, usize> class C1
                 >
-                    requires std::copy_constructible<OptType>
+                    requires std::copyable<OptType>
                 inline constexpr void assign(const StaticOptionalArray<ValueType, len, C1>& values)
                 {
                     assign(values._container.begin(), values._container.end());
@@ -1579,7 +1579,7 @@ namespace ospf
                 }
 
                 template<template<typename> class C1>
-                    requires std::copy_constructible<OptType>
+                    requires std::copyable<OptType>
                 inline constexpr void assign(const DynamicOptionalArray<ValueType, C1>& values)
                 {
                     assign(values._container.begin(), values._container.end());
@@ -2334,28 +2334,28 @@ namespace ospf
                 }
 
                 template<typename = void>
-                    requires (!std::default_initializable<OptType> && WithDefault<OptType> && std::copy_constructible<OptType>)
+                    requires (!std::default_initializable<OptType> && WithDefault<OptType> && std::copyable<OptType>)
                 inline constexpr void resize(const usize length)
                 {
                     _container.resize(length, DefaultValue<OptType>::value());
                 }
 
                 template<typename = void>
-                    requires std::copy_constructible<OptType>
+                    requires std::copyable<OptType>
                 inline constexpr void resize(const usize length, ArgCLRefType<ValueType> value)
                 {
                     _container.resize(length, OptType{ value });
                 }
 
                 template<typename = void>
-                    requires std::copy_constructible<OptType> && ReferenceFaster<ValueType> && std::movable<ValueType>
+                    requires std::copyable<OptType> && ReferenceFaster<ValueType> && std::movable<ValueType>
                 inline constexpr void resize(const usize length, ArgRRefType<ValueType> value)
                 {
                     _container.resize(length, OptType{ move<ValueType>(value) });
                 }
 
                 template<typename = void>
-                    requires std::copy_constructible<OptType>
+                    requires std::copyable<OptType>
                 inline constexpr void resize(const usize length, ArgCLRefType<OptType> value)
                 {
                     _container.resize(length, value);
