@@ -356,75 +356,123 @@ namespace ospf
 };
 
 template<typename T, typename U, typename R>
-inline constexpr const bool operator==(const T& lhs, const ospf::reference::RefImpl<U, R>& rhs) noexcept
+inline constexpr decltype(auto) operator==(const T& lhs, const ospf::reference::RefImpl<U, R>& rhs) noexcept
 {
     return lhs == *rhs;
 }
 
 template<typename T, typename U, typename R>
-inline constexpr const bool operator!=(const T& lhs, const ospf::reference::RefImpl<U, R>& rhs) noexcept
+inline constexpr decltype(auto) operator!=(const T& lhs, const ospf::reference::RefImpl<U, R>& rhs) noexcept
 {
     return lhs != *rhs;
 }
 
 template<typename T, typename U, typename R>
+    requires requires (const T& lhs, const U& rhs) { { lhs == rhs } -> ospf::DecaySameAs<bool>; }
 inline constexpr const bool operator==(const std::optional<T>& lhs, const ospf::reference::RefImpl<U, R>& rhs) noexcept
 {
     return static_cast<bool>(lhs) && *lhs == *rhs;
 }
 
 template<typename T, typename U, typename R>
+    requires requires (const T& lhs, const U& rhs) { { lhs == rhs } -> ospf::DecayNotSameAs<void, bool>; }
+inline constexpr decltype(auto) operator==(const std::optional<T>& lhs, const ospf::reference::RefImpl<U, R>& rhs)
+{
+    return *lhs == *rhs;
+}
+
+template<typename T, typename U, typename R>
+    requires requires (const T& lhs, const U& rhs) { { lhs != rhs } -> ospf::DecaySameAs<bool>; }
 inline constexpr const bool operator!=(const std::optional<T>& lhs, const ospf::reference::RefImpl<U, R>& rhs) noexcept
 {
     return !static_cast<bool>(lhs) || *lhs != *rhs;
 }
 
 template<typename T, typename U, typename R>
-inline constexpr const bool operator<(const T& lhs, const ospf::reference::RefImpl<U, R>& rhs) noexcept
+    requires requires (const T& lhs, const U& rhs) { { lhs != rhs } -> ospf::DecayNotSameAs<void, bool>; }
+inline constexpr decltype(auto) operator!=(const std::optional<T>& lhs, const ospf::reference::RefImpl<U, R>& rhs)
+{
+    return *lhs != *rhs;
+}
+
+template<typename T, typename U, typename R>
+inline constexpr decltype(auto) operator<(const T& lhs, const ospf::reference::RefImpl<U, R>& rhs) noexcept
 {
     return lhs < *rhs;
 }
 
 template<typename T, typename U, typename R>
-inline constexpr const bool operator<=(const T& lhs, const ospf::reference::RefImpl<U, R>& rhs) noexcept
+inline constexpr decltype(auto) operator<=(const T& lhs, const ospf::reference::RefImpl<U, R>& rhs) noexcept
 {
     return lhs <= *rhs;
 }
 
 template<typename T, typename U, typename R>
-inline constexpr const bool operator>(const T& lhs, const ospf::reference::RefImpl<U, R>& rhs) noexcept
+inline constexpr decltype(auto) operator>(const T& lhs, const ospf::reference::RefImpl<U, R>& rhs) noexcept
 {
     return lhs > *rhs;
 }
 
 template<typename T, typename U, typename R>
-inline constexpr const bool operator>=(const T& lhs, const ospf::reference::RefImpl<U, R>& rhs) noexcept
+inline constexpr decltype(auto) operator>=(const T& lhs, const ospf::reference::RefImpl<U, R>& rhs) noexcept
 {
     return lhs >= *rhs;
 }
 
 template<typename T, typename U, typename R>
+    requires requires (const T& lhs, const U& rhs) { { lhs < rhs } -> ospf::DecaySameAs<bool>; }
 inline constexpr const bool operator<(const std::optional<T>& lhs, const ospf::reference::RefImpl<U, R>& rhs) noexcept
 {
     return static_cast<bool>(lhs) && *lhs < *rhs;
 }
 
 template<typename T, typename U, typename R>
+    requires requires (const T& lhs, const U& rhs) { { lhs < rhs } -> ospf::DecayNotSameAs<void, bool>; }
+inline constexpr decltype(auto) operator<(const std::optional<T>& lhs, const ospf::reference::RefImpl<U, R>& rhs)
+{
+    return *lhs < *rhs;
+}
+
+template<typename T, typename U, typename R>
+    requires requires (const T& lhs, const U& rhs) { { lhs <= rhs } -> ospf::DecaySameAs<bool>; }
 inline constexpr const bool operator<=(const std::optional<T>& lhs, const ospf::reference::RefImpl<U, R>& rhs) noexcept
 {
     return static_cast<bool>(lhs) && *lhs <= *rhs;
 }
 
 template<typename T, typename U, typename R>
+    requires requires (const T& lhs, const U& rhs) { { lhs <= rhs } -> ospf::DecayNotSameAs<void, bool>; }
+inline constexpr decltype(auto) operator<=(const std::optional<T>& lhs, const ospf::reference::RefImpl<U, R>& rhs)
+{
+    return *lhs <= *rhs;
+}
+
+template<typename T, typename U, typename R>
+    requires requires (const T& lhs, const U& rhs) { { lhs > rhs } -> ospf::DecaySameAs<bool>; }
 inline constexpr const bool operator>(const std::optional<T>& lhs, const ospf::reference::RefImpl<U, R>& rhs) noexcept
 {
     return static_cast<bool>(lhs) && *lhs > *rhs;
 }
 
 template<typename T, typename U, typename R>
+    requires requires (const T& lhs, const U& rhs) { { lhs > rhs } -> ospf::DecayNotSameAs<void, bool>; }
+inline constexpr decltype(auto) operator>(const std::optional<T>& lhs, const ospf::reference::RefImpl<U, R>& rhs)
+{
+    return *lhs > *rhs;
+}
+
+template<typename T, typename U, typename R>
+    requires requires (const T& lhs, const U& rhs) { { lhs >= rhs } -> ospf::DecaySameAs<bool>; }
 inline constexpr const bool operator>=(const std::optional<T>& lhs, const ospf::reference::RefImpl<U, R>& rhs) noexcept
 {
     return static_cast<bool>(lhs) && *lhs >= *rhs;
+}
+
+template<typename T, typename U, typename R>
+    requires requires (const T& lhs, const U& rhs) { { lhs > rhs } -> ospf::DecayNotSameAs<void, bool>; }
+inline constexpr decltype(auto) operator>=(const std::optional<T>& lhs, const ospf::reference::RefImpl<U, R>& rhs)
+{
+    return *lhs >= *rhs;
 }
 
 template<typename T, typename U, typename R>
@@ -434,7 +482,7 @@ inline constexpr decltype(auto) operator<=>(const T& lhs, const ospf::reference:
 }
 
 template<typename T, typename U, typename R>
-inline constexpr decltype(auto) operator<=>(const std::optional<T>& lhs, const ospf::reference::RefImpl<U, R>& rhs) noexcept
+inline constexpr ospf::RetType<std::compare_three_way_result_t<T, U>> operator<=>(const std::optional<T>& lhs, const ospf::reference::RefImpl<U, R>& rhs) noexcept
 {
     if (static_cast<bool>(lhs))
     {

@@ -31,9 +31,6 @@ namespace ospf
         template<typename... Ts>
         struct IsAllWithDefault;
 
-        template<typename... Ts>
-        struct IsAllWithDefault;
-
         template<typename T>
         struct IsAllWithDefault<T>
         {

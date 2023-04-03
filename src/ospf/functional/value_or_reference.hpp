@@ -45,7 +45,7 @@ namespace ospf
                 requires std::constructible_from<ValueType, Args...>
             inline static constexpr ValOrRef value(Args&&... args) noexcept
             {
-                return ValOrRef{ ValueType{ std::forward<Args>(args)... }};
+                return ValOrRef{ ValueType{ std::forward<Args>(args)... } };
             }
 
             inline static constexpr ValOrRef ref(CLRefType<ValueType> ref) noexcept
@@ -88,20 +88,20 @@ namespace ospf
                         }
                     }, ano._either)) {}
 
-            template<typename U>
-                requires std::convertible_to<U, ValueType> && std::convertible_to<ospf::PtrType<U>, PtrType>
-            constexpr ValOrRef(ValOrRef<U, cat>&& ano)
-                : _either(std::visit([](auto& value)
-                    {
-                        if constexpr (DecaySameAs<decltype(value), U>)
-                        {
-                            return Either::left(ValueType{ std::move(value) });
-                        }
-                        else if constexpr (DecaySameAs<decltype(value), Ref<U, cat>>)
-                        {
-                            return Either::right(ReferenceType{ std::move(value) });
-                        }
-                    }, ano._either)) {}
+                    template<typename U>
+                        requires std::convertible_to<U, ValueType> && std::convertible_to<ospf::PtrType<U>, PtrType>
+                    constexpr ValOrRef(ValOrRef<U, cat>&& ano)
+                        : _either(std::visit([](auto& value)
+                            {
+                                if constexpr (DecaySameAs<decltype(value), U>)
+                                {
+                                    return Either::left(ValueType{ std::move(value) });
+                                }
+                                else if constexpr (DecaySameAs<decltype(value), Ref<U, cat>>)
+                                {
+                                    return Either::right(ReferenceType{ std::move(value) });
+                                }
+                            }, ano._either)) {}
 
         public:
             constexpr ValOrRef(ArgCLRefType<ValueType> value)
@@ -184,153 +184,249 @@ namespace ospf
 
         public:
             template<typename U, reference::ReferenceCategory c, CopyOnWrite cw>
+                requires requires (const ValueType& lhs, const U& rhs) { { lhs == rhs } -> DecaySameAs<bool>; }
             inline constexpr const bool operator==(const ValOrRef<U, c, cw>& rhs) const noexcept
             {
                 return &deref() == &*rhs || deref() == *rhs;
             }
 
             template<typename U, reference::ReferenceCategory c, CopyOnWrite cw>
+                requires requires (const ValueType& lhs, const U& rhs) { { lhs == rhs } -> DecayNotSameAs<void, bool>; }
+            inline constexpr decltype(auto) operator==(const ValOrRef<U, c, cw>& rhs) const noexcept
+            {
+                return deref() == *rhs;
+            }
+
+            template<typename U, reference::ReferenceCategory c, CopyOnWrite cw>
+                requires requires (const ValueType& lhs, const U& rhs) { { lhs != rhs } -> DecaySameAs<bool>; }
             inline constexpr const bool operator!=(const ValOrRef<U, c, cw>& rhs) const noexcept
             {
                 return &deref() != &*rhs && deref() != *rhs;
             }
 
+            template<typename U, reference::ReferenceCategory c, CopyOnWrite cw>
+                requires requires (const ValueType& lhs, const U& rhs) { { lhs != rhs } -> DecayNotSameAs<void, bool>; }
+            inline constexpr decltype(auto) operator!=(const ValOrRef<U, c, cw>& rhs) const noexcept
+            {
+                return deref() != *rhs;
+            }
+
             template<typename U, reference::ReferenceCategory c>
+                requires requires (const ValueType& lhs, const U& rhs) { { lhs == rhs } -> DecaySameAs<bool>; }
             inline constexpr const bool operator==(const reference::Ref<U, c>& rhs) const noexcept
             {
                 return &deref() == &*rhs || deref() == *rhs;
             }
 
             template<typename U, reference::ReferenceCategory c>
+                requires requires (const ValueType& lhs, const U& rhs) { { lhs == rhs } -> DecayNotSameAs<void, bool>; }
+            inline constexpr decltype(auto) operator==(const reference::Ref<U, c>& rhs) const noexcept
+            {
+                return deref() == *rhs;
+            }
+
+            template<typename U, reference::ReferenceCategory c>
+                requires requires (const ValueType& lhs, const U& rhs) { { lhs != rhs } -> DecaySameAs<bool>; }
             inline constexpr const bool operator!=(const reference::Ref<U, c>& rhs) const noexcept
             {
                 return &deref() != &*rhs && deref() != *rhs;
             }
 
+            template<typename U, reference::ReferenceCategory c>
+                requires requires (const ValueType& lhs, const U& rhs) { { lhs != rhs } -> DecayNotSameAs<void, bool>; }
+            inline constexpr decltype(auto) operator!=(const reference::Ref<U, c>& rhs) const noexcept
+            {
+                return deref() != *rhs;
+            }
+
             template<typename U>
+                requires requires (const ValueType& lhs, const U& rhs) { { lhs == rhs } -> DecaySameAs<bool>; }
             inline constexpr const bool operator==(const U& rhs) const noexcept
             {
                 return &deref() == &rhs || deref() == rhs;
             }
 
             template<typename U>
+                requires requires (const ValueType& lhs, const U& rhs) { { lhs == rhs } -> DecayNotSameAs<void, bool>; }
+            inline constexpr decltype(auto) operator==(const U& rhs) const noexcept
+            {
+                return deref() == rhs;
+            }
+
+            template<typename U>
+                requires requires (const ValueType& lhs, const U& rhs) { { lhs != rhs } -> DecaySameAs<bool>; }
             inline constexpr const bool operator!=(const U& rhs) const noexcept
             {
                 return &deref() != &rhs && deref() != rhs;
             }
 
             template<typename U>
+                requires requires (const ValueType& lhs, const U& rhs) { { lhs != rhs } -> DecayNotSameAs<void, bool>; }
+            inline constexpr decltype(auto) operator!=(const U& rhs) const noexcept
+            {
+                return deref() != rhs;
+            }
+
+            template<typename U>
+                requires requires (const ValueType& lhs, const U& rhs) { { lhs == rhs } -> DecaySameAs<bool>; }
             inline constexpr const bool operator==(const std::optional<U>& rhs) const noexcept
             {
                 return static_cast<bool>(rhs) && (&deref() == &*rhs || deref() == *rhs);
             }
 
             template<typename U>
+                requires requires (const ValueType& lhs, const U& rhs) { { lhs == rhs } -> DecayNotSameAs<void, bool>; }
+            inline constexpr decltype(auto) operator==(const std::optional<U>& rhs) const
+            {
+                return deref() == *rhs;
+            }
+
+            template<typename U>
+                requires requires (const ValueType& lhs, const U& rhs) { { lhs != rhs } -> DecaySameAs<bool>; }
             inline constexpr const bool operator!=(const std::optional<U>& rhs) const noexcept
             {
                 return !static_cast<bool>(rhs) || (&deref() != &*rhs && deref() != *rhs);
             }
 
+            template<typename U>
+                requires requires (const ValueType& lhs, const U& rhs) { { lhs != rhs } -> DecayNotSameAs<void, bool>; }
+            inline constexpr decltype(auto) operator!=(const std::optional<U>& rhs) const
+            {
+                return deref() != *rhs;
+            }
+
         public:
             template<typename U, reference::ReferenceCategory c, CopyOnWrite cw>
-            inline constexpr const bool operator<(const ValOrRef<U, c, cw>& rhs) const noexcept
+            inline constexpr decltype(auto) operator<(const ValOrRef<U, c, cw>& rhs) const noexcept
             {
                 return deref() < *rhs;
             }
 
             template<typename U, reference::ReferenceCategory c, CopyOnWrite cw>
-            inline constexpr const bool operator<=(const ValOrRef<U, c, cw>& rhs) const noexcept
+            inline constexpr decltype(auto) operator<=(const ValOrRef<U, c, cw>& rhs) const noexcept
             {
                 return deref() <= *rhs;
             }
 
             template<typename U, reference::ReferenceCategory c, CopyOnWrite cw>
-            inline constexpr const bool operator>(const ValOrRef<U, c, cw>& rhs) const noexcept
+            inline constexpr decltype(auto) operator>(const ValOrRef<U, c, cw>& rhs) const noexcept
             {
                 return deref() > *rhs;
             }
 
             template<typename U, reference::ReferenceCategory c, CopyOnWrite cw>
-            inline constexpr const bool operator>=(const ValOrRef<U, c, cw>& rhs) const noexcept
+            inline constexpr decltype(auto) operator>=(const ValOrRef<U, c, cw>& rhs) const noexcept
             {
                 return deref() >= *rhs;
             }
 
             template<typename U, reference::ReferenceCategory c>
-            inline constexpr const bool operator<(const reference::Ref<U, c>& rhs) const noexcept
+            inline constexpr decltype(auto) operator<(const reference::Ref<U, c>& rhs) const noexcept
             {
                 return deref() < *rhs;
             }
 
             template<typename U, reference::ReferenceCategory c>
-            inline constexpr const bool operator<=(const reference::Ref<U, c>& rhs) const noexcept
+            inline constexpr decltype(auto) operator<=(const reference::Ref<U, c>& rhs) const noexcept
             {
                 return deref() <= *rhs;
             }
 
             template<typename U, reference::ReferenceCategory c>
-            inline constexpr const bool operator>(const reference::Ref<U, c>& rhs) const noexcept
+            inline constexpr decltype(auto) operator>(const reference::Ref<U, c>& rhs) const noexcept
             {
                 return deref() > *rhs;
             }
 
             template<typename U, reference::ReferenceCategory c>
-            inline constexpr const bool operator>=(const reference::Ref<U, c>& rhs) const noexcept
+            inline constexpr decltype(auto) operator>=(const reference::Ref<U, c>& rhs) const noexcept
             {
                 return deref() > *rhs;
             }
 
             template<typename U>
-            inline constexpr const bool operator<(const U& rhs) const noexcept
+            inline constexpr decltype(auto) operator<(const U& rhs) const noexcept
             {
                 return deref() < rhs;
             }
 
             template<typename U>
-            inline constexpr const bool operator<=(const U& rhs) const noexcept
+            inline constexpr decltype(auto) operator<=(const U& rhs) const noexcept
             {
                 return deref() <= rhs;
             }
 
             template<typename U>
-            inline constexpr const bool operator>(const U& rhs) const noexcept
+            inline constexpr decltype(auto) operator>(const U& rhs) const noexcept
             {
                 return deref() > rhs;
             }
 
             template<typename U>
-            inline constexpr const bool operator>=(const U& rhs) const noexcept
+            inline constexpr decltype(auto) operator>=(const U& rhs) const noexcept
             {
                 return deref() >= rhs;
             }
 
             template<typename U>
+                requires requires (const ValueType& lhs, const U& rhs) { { lhs < rhs } -> DecaySameAs<bool>; }
             inline constexpr const bool operator<(const std::optional<U>& rhs) const noexcept
             {
                 return static_cast<bool>(rhs) && deref() < *rhs;
             }
 
             template<typename U>
+                requires requires (const ValueType& lhs, const U& rhs) { { lhs < rhs } -> DecayNotSameAs<void, bool>; }
+            inline constexpr decltype(auto) operator<(const std::optional<U>& rhs) const
+            {
+                return deref() < *rhs;
+            }
+
+            template<typename U>
+                requires requires (const ValueType& lhs, const U& rhs) { { lhs <= rhs } -> DecaySameAs<bool>; }
             inline constexpr const bool operator<=(const std::optional<U>& rhs) const noexcept
             {
                 return static_cast<bool>(rhs) && deref() <= *rhs;
             }
 
             template<typename U>
+                requires requires (const ValueType& lhs, const U& rhs) { { lhs <= rhs } -> DecayNotSameAs<void, bool>; }
+            inline constexpr decltype(auto) operator<=(const std::optional<U>& rhs) const
+            {
+                return deref() <= *rhs;
+            }
+
+            template<typename U>
+                requires requires (const ValueType& lhs, const U& rhs) { { lhs > rhs } -> DecaySameAs<bool>; }
             inline constexpr const bool operator>(const std::optional<U>& rhs) const noexcept
             {
                 return static_cast<bool>(rhs) && deref() > *rhs;
             }
 
             template<typename U>
+                requires requires (const ValueType& lhs, const U& rhs) { { lhs > rhs } -> DecayNotSameAs<void, bool>; }
+            inline constexpr decltype(auto) operator>(const std::optional<U>& rhs) const
+            {
+                return deref() > *rhs;
+            }
+
+            template<typename U>
+                requires requires (const ValueType& lhs, const U& rhs) { { lhs >= rhs } -> DecaySameAs<bool>; }
             inline constexpr const bool operator>=(const std::optional<U>& rhs) const noexcept
             {
                 return static_cast<bool>(rhs) && deref() >= *rhs;
             }
 
+            template<typename U>
+                requires requires (const ValueType& lhs, const U& rhs) { { lhs >= rhs } -> DecayNotSameAs<void, bool>; }
+            inline constexpr decltype(auto) operator>=(const std::optional<U>& rhs) const
+            {
+                return deref() >= *rhs;
+            }
+
         public:
             template<typename U, reference::ReferenceCategory c, CopyOnWrite cw>
-            inline constexpr const bool operator<=>(const ValOrRef<U, c, cw>& rhs) const noexcept
+            inline constexpr decltype(auto) operator<=>(const ValOrRef<U, c, cw>& rhs) const noexcept
             {
                 return deref() <=> *rhs;
             }
@@ -500,116 +596,132 @@ namespace ospf
 
         public:
             template<typename U, reference::ReferenceCategory c, CopyOnWrite cw>
-            inline constexpr const bool operator==(const ValOrRef<U, c, cw>& rhs) const noexcept
+            inline constexpr decltype(auto) operator==(const ValOrRef<U, c, cw>& rhs) const noexcept
             {
                 return _value == *rhs;
             }
 
             template<typename U, reference::ReferenceCategory c, CopyOnWrite cw>
-            inline constexpr const bool operator!=(const ValOrRef<U, c, cw>& rhs) const noexcept
+            inline constexpr decltype(auto) operator!=(const ValOrRef<U, c, cw>& rhs) const noexcept
             {
                 return _value != *rhs;
             }
 
             template<typename U, reference::ReferenceCategory c>
-            inline constexpr const bool operator==(const reference::Ref<U, c>& rhs) const noexcept
+            inline constexpr decltype(auto) operator==(const reference::Ref<U, c>& rhs) const noexcept
             {
                 return _value == *rhs;
             }
 
             template<typename U, reference::ReferenceCategory c>
-            inline constexpr const bool operator!=(const reference::Ref<U, c>& rhs) const noexcept
+            inline constexpr decltype(auto) operator!=(const reference::Ref<U, c>& rhs) const noexcept
             {
                 return _value != *rhs;
             }
 
             template<typename U>
-            inline constexpr const bool operator==(const U& rhs) const noexcept
+            inline constexpr decltype(auto) operator==(const U& rhs) const noexcept
             {
                 return _value == rhs;
             }
 
             template<typename U>
-            inline constexpr const bool operator!=(const U& rhs) const noexcept
+            inline constexpr decltype(auto) operator!=(const U& rhs) const noexcept
             {
                 return _value != rhs;
             }
 
             template<typename U>
+                requires requires (const ValueType& lhs, const U& rhs) { { lhs == rhs } -> DecaySameAs<bool>; }
             inline constexpr const bool operator==(const std::optional<U>& rhs) const noexcept
             {
                 return static_cast<bool>(rhs) && _value == *rhs;
             }
 
             template<typename U>
+                requires requires (const ValueType& lhs, const U& rhs) { { lhs == rhs } -> DecayNotSameAs<void, bool>; }
+            inline constexpr decltype(auto) operator==(const std::optional<U>& rhs) const
+            {
+                return _value == *rhs;
+            }
+
+            template<typename U>
+                requires requires (const ValueType& lhs, const U& rhs) { { lhs != rhs } -> DecaySameAs<bool>; }
             inline constexpr const bool operator!=(const std::optional<U>& rhs) const noexcept
             {
                 return !static_cast<bool>(rhs) || _value != *rhs;
             }
 
+            template<typename U>
+                requires requires (const ValueType& lhs, const U& rhs) { { lhs != rhs } -> DecayNotSameAs<void, bool>; }
+            inline constexpr decltype(auto) operator!=(const std::optional<U>& rhs) const
+            {
+                return _value != *rhs;
+            }
+
         public:
             template<typename U, reference::ReferenceCategory c, CopyOnWrite cw>
-            inline constexpr const bool operator<(const ValOrRef<U, c, cw>& rhs) const noexcept
+            inline constexpr decltype(auto) operator<(const ValOrRef<U, c, cw>& rhs) const noexcept
             {
                 return _value < *rhs;
             }
 
             template<typename U, reference::ReferenceCategory c, CopyOnWrite cw>
-            inline constexpr const bool operator<=(const ValOrRef<U, c, cw>& rhs) const noexcept
+            inline constexpr decltype(auto) operator<=(const ValOrRef<U, c, cw>& rhs) const noexcept
             {
                 return _value <= *rhs;
             }
 
             template<typename U, reference::ReferenceCategory c, CopyOnWrite cw>
-            inline constexpr const bool operator>(const ValOrRef<U, c, cw>& rhs) const noexcept
+            inline constexpr decltype(auto) operator>(const ValOrRef<U, c, cw>& rhs) const noexcept
             {
                 return _value > *rhs;
             }
 
             template<typename U, reference::ReferenceCategory c, CopyOnWrite cw>
-            inline constexpr const bool operator>=(const ValOrRef<U, c, cw>& rhs) const noexcept
+            inline constexpr decltype(auto) operator>=(const ValOrRef<U, c, cw>& rhs) const noexcept
             {
                 return _value > *rhs;
             }
 
             template<typename U, reference::ReferenceCategory c>
-            inline constexpr const bool operator<(const reference::Ref<U, c>& rhs) const noexcept
+            inline constexpr decltype(auto) operator<(const reference::Ref<U, c>& rhs) const noexcept
             {
                 return _value < *rhs;
             }
 
             template<typename U, reference::ReferenceCategory c>
-            inline constexpr const bool operator<=(const reference::Ref<U, c>& rhs) const noexcept
+            inline constexpr decltype(auto) operator<=(const reference::Ref<U, c>& rhs) const noexcept
             {
                 return _value <= *rhs;
             }
 
             template<typename U, reference::ReferenceCategory c>
-            inline constexpr const bool operator>(const reference::Ref<U, c>& rhs) const noexcept
+            inline constexpr decltype(auto) operator>(const reference::Ref<U, c>& rhs) const noexcept
             {
                 return _value > *rhs;
             }
 
             template<typename U, reference::ReferenceCategory c>
-            inline constexpr const bool operator>=(const reference::Ref<U, c>& rhs) const noexcept
+            inline constexpr decltype(auto) operator>=(const reference::Ref<U, c>& rhs) const noexcept
             {
                 return _value > *rhs;
             }
 
             template<typename U>
-            inline constexpr const bool operator<(const U& rhs) const noexcept
+            inline constexpr decltype(auto) operator<(const U& rhs) const noexcept
             {
                 return _value < rhs;
             }
 
             template<typename U>
-            inline constexpr const bool operator<=(const U& rhs) const noexcept
+            inline constexpr decltype(auto) operator<=(const U& rhs) const noexcept
             {
                 return _value <= rhs;
             }
 
             template<typename U>
-            inline constexpr const bool operator>(const U& rhs) const noexcept
+            inline constexpr decltype(auto) operator>(const U& rhs) const noexcept
             {
                 return _value > rhs;
             }
@@ -621,27 +733,59 @@ namespace ospf
             }
 
             template<typename U>
+                requires requires (const ValueType& lhs, const U& rhs) { { lhs < rhs } -> DecaySameAs<bool>; }
             inline constexpr const bool operator<(const std::optional<U>& rhs) const noexcept
             {
                 return static_cast<bool>(rhs) && _value < *rhs;
             }
 
             template<typename U>
+                requires requires (const ValueType& lhs, const U& rhs) { { lhs <= rhs } -> DecayNotSameAs<void, bool>; }
+            inline constexpr decltype(auto) operator<(const std::optional<U>& rhs) const
+            {
+                return _value < *rhs;
+            }
+
+            template<typename U>
+                requires requires (const ValueType& lhs, const U& rhs) { { lhs <= rhs } -> DecaySameAs<bool>; }
             inline constexpr const bool operator<=(const std::optional<U>& rhs) const noexcept
             {
                 return static_cast<bool>(rhs) && _value <= *rhs;
             }
 
             template<typename U>
+                requires requires (const ValueType& lhs, const U& rhs) { { lhs <= rhs } -> DecayNotSameAs<void, bool>; }
+            inline constexpr decltype(auto) operator<=(const std::optional<U>& rhs) const
+            {
+                return _value <= *rhs;
+            }
+
+            template<typename U>
+                requires requires (const ValueType& lhs, const U& rhs) { { lhs > rhs } -> DecaySameAs<bool>; }
             inline constexpr const bool operator>(const std::optional<U>& rhs) const noexcept
             {
                 return static_cast<bool>(rhs) && _value > *rhs;
             }
 
             template<typename U>
+                requires requires (const ValueType& lhs, const U& rhs) { { lhs > rhs } -> DecayNotSameAs<void, bool>; }
+            inline constexpr decltype(auto) operator>(const std::optional<U>& rhs) const
+            {
+                return _value > *rhs;
+            }
+
+            template<typename U>
+                requires requires (const ValueType& lhs, const U& rhs) { { lhs >= rhs } -> DecaySameAs<bool>; }
             inline constexpr const bool operator>=(const std::optional<U>& rhs) const noexcept
             {
                 return static_cast<bool>(rhs) && _value >= *rhs;
+            }
+
+            template<typename U>
+                requires requires (const ValueType& lhs, const U& rhs) { { lhs >= rhs } -> DecayNotSameAs<void, bool>; }
+            inline constexpr decltype(auto) operator>=(const std::optional<U>& rhs) const
+            {
+                return _value >= *rhs;
             }
 
         public:
@@ -690,112 +834,159 @@ namespace ospf
 };
 
 template<typename T, typename U, ospf::reference::ReferenceCategory cat1, ospf::reference::ReferenceCategory cat2, ospf::CopyOnWrite cow>
-inline constexpr const bool operator==(const ospf::reference::Ref<T, cat1>& lhs, const ospf::ValOrRef<U, cat2, cow>& rhs) noexcept
+inline constexpr decltype(auto) operator==(const ospf::reference::Ref<T, cat1>& lhs, const ospf::ValOrRef<U, cat2, cow>& rhs) noexcept
 {
     return *lhs == *rhs;
 }
 
 template<typename T, typename U, ospf::reference::ReferenceCategory cat1, ospf::reference::ReferenceCategory cat2, ospf::CopyOnWrite cow>
-inline constexpr const bool operator!=(const ospf::reference::Ref<T, cat1>& lhs, const ospf::ValOrRef<U, cat2, cow>& rhs) noexcept
+inline constexpr decltype(auto) operator!=(const ospf::reference::Ref<T, cat1>& lhs, const ospf::ValOrRef<U, cat2, cow>& rhs) noexcept
 {
     return *lhs != *rhs;
 }
 
 template<typename T, typename U, ospf::reference::ReferenceCategory cat, ospf::CopyOnWrite cow>
-inline constexpr const bool operator==(const T& lhs, const ospf::ValOrRef<U, cat, cow>& rhs) noexcept
+inline constexpr decltype(auto) operator==(const T& lhs, const ospf::ValOrRef<U, cat, cow>& rhs) noexcept
 {
     return lhs == *rhs;
 }
 
 template<typename T, typename U, ospf::reference::ReferenceCategory cat, ospf::CopyOnWrite cow>
-inline constexpr const bool operator!=(const T& lhs, const ospf::ValOrRef<U, cat, cow>& rhs) noexcept
+inline constexpr decltype(auto) operator!=(const T& lhs, const ospf::ValOrRef<U, cat, cow>& rhs) noexcept
 {
     return lhs != *rhs;
 }
 
 template<typename T, typename U, ospf::reference::ReferenceCategory cat, ospf::CopyOnWrite cow>
+    requires requires (const T& lhs, const U& rhs) { { lhs == rhs } -> ospf::DecaySameAs<bool>; }
 inline constexpr const bool operator==(const std::optional<U>& lhs, const ospf::ValOrRef<U, cat, cow>& rhs) noexcept
 {
     return static_cast<bool>(lhs) && lhs == *rhs;
 }
 
 template<typename T, typename U, ospf::reference::ReferenceCategory cat, ospf::CopyOnWrite cow>
+    requires requires (const T& lhs, const U& rhs) { { lhs == rhs } -> ospf::DecayNotSameAs<void, bool>; }
+inline constexpr decltype(auto) operator==(const std::optional<U>& lhs, const ospf::ValOrRef<U, cat, cow>& rhs)
+{
+    return lhs == *rhs;
+}
+
+template<typename T, typename U, ospf::reference::ReferenceCategory cat, ospf::CopyOnWrite cow>
+    requires requires (const T& lhs, const U& rhs) { { lhs != rhs } -> ospf::DecaySameAs<bool>; }
 inline constexpr const bool operator!=(const std::optional<U>& lhs, const ospf::ValOrRef<U, cat, cow>& rhs) noexcept
 {
     return !static_cast<bool>(lhs) || lhs != *rhs;
 }
 
+template<typename T, typename U, ospf::reference::ReferenceCategory cat, ospf::CopyOnWrite cow>
+    requires requires (const T& lhs, const U& rhs) { { lhs != rhs } -> ospf::DecayNotSameAs<void, bool>; }
+inline constexpr decltype(auto) operator!=(const std::optional<U>& lhs, const ospf::ValOrRef<U, cat, cow>& rhs)
+{
+    return lhs != *rhs;
+}
 
 template<typename T, typename U, ospf::reference::ReferenceCategory cat1, ospf::reference::ReferenceCategory cat2, ospf::CopyOnWrite cow>
-inline constexpr const bool operator<(const ospf::reference::Ref<T, cat1>& lhs, const ospf::ValOrRef<U, cat2, cow>& rhs) noexcept
+inline constexpr decltype(auto) operator<(const ospf::reference::Ref<T, cat1>& lhs, const ospf::ValOrRef<U, cat2, cow>& rhs) noexcept
 {
     return *lhs < *rhs;
 }
 
 template<typename T, typename U, ospf::reference::ReferenceCategory cat1, ospf::reference::ReferenceCategory cat2, ospf::CopyOnWrite cow>
-inline constexpr const bool operator<=(const ospf::reference::Ref<T, cat1>& lhs, const ospf::ValOrRef<U, cat2, cow>& rhs) noexcept
+inline constexpr decltype(auto) operator<=(const ospf::reference::Ref<T, cat1>& lhs, const ospf::ValOrRef<U, cat2, cow>& rhs) noexcept
 {
     return *lhs <= *rhs;
 }
 
 template<typename T, typename U, ospf::reference::ReferenceCategory cat1, ospf::reference::ReferenceCategory cat2, ospf::CopyOnWrite cow>
-inline constexpr const bool operator>(const ospf::reference::Ref<T, cat1>& lhs, const ospf::ValOrRef<U, cat2, cow>& rhs) noexcept
+inline constexpr decltype(auto) operator>(const ospf::reference::Ref<T, cat1>& lhs, const ospf::ValOrRef<U, cat2, cow>& rhs) noexcept
 {
     return *lhs > *rhs;
 }
 
 template<typename T, typename U, ospf::reference::ReferenceCategory cat1, ospf::reference::ReferenceCategory cat2, ospf::CopyOnWrite cow>
-inline constexpr const bool operator>=(const ospf::reference::Ref<T, cat1>& lhs, const ospf::ValOrRef<U, cat2, cow>& rhs) noexcept
+inline constexpr decltype(auto) operator>=(const ospf::reference::Ref<T, cat1>& lhs, const ospf::ValOrRef<U, cat2, cow>& rhs) noexcept
 {
     return *lhs >= *rhs;
 }
 
 template<typename T, typename U, ospf::reference::ReferenceCategory cat, ospf::CopyOnWrite cow>
-inline constexpr const bool operator<(const T& lhs, const ospf::ValOrRef<U, cat, cow>& rhs) noexcept
+inline constexpr decltype(auto) operator<(const T& lhs, const ospf::ValOrRef<U, cat, cow>& rhs) noexcept
 {
     return lhs < *rhs;
 }
 
 template<typename T, typename U, ospf::reference::ReferenceCategory cat, ospf::CopyOnWrite cow>
-inline constexpr const bool operator<=(const T& lhs, const ospf::ValOrRef<U, cat, cow>& rhs) noexcept
+inline constexpr decltype(auto) operator<=(const T& lhs, const ospf::ValOrRef<U, cat, cow>& rhs) noexcept
 {
     return lhs <= *rhs;
 }
 
 template<typename T, typename U, ospf::reference::ReferenceCategory cat, ospf::CopyOnWrite cow>
-inline constexpr const bool operator>(const T& lhs, const ospf::ValOrRef<U, cat, cow>& rhs) noexcept
+inline constexpr decltype(auto) operator>(const T& lhs, const ospf::ValOrRef<U, cat, cow>& rhs) noexcept
 {
     return lhs > *rhs;
 }
 
 template<typename T, typename U, ospf::reference::ReferenceCategory cat, ospf::CopyOnWrite cow>
-inline constexpr const bool operator>=(const T& lhs, const ospf::ValOrRef<U, cat, cow>& rhs) noexcept
+inline constexpr decltype(auto) operator>=(const T& lhs, const ospf::ValOrRef<U, cat, cow>& rhs) noexcept
 {
     return lhs >= *rhs;
 }
 
 template<typename T, typename U, ospf::reference::ReferenceCategory cat, ospf::CopyOnWrite cow>
+    requires requires (const T& lhs, const U& rhs) { { lhs < rhs } -> ospf::DecaySameAs<bool>; }
 inline constexpr const bool operator<(const std::optional<T>& lhs, const ospf::ValOrRef<U, cat, cow>& rhs) noexcept
 {
     return static_cast<bool>(lhs) && *lhs < *rhs;
 }
 
 template<typename T, typename U, ospf::reference::ReferenceCategory cat, ospf::CopyOnWrite cow>
+    requires requires (const T& lhs, const U& rhs) { { lhs < rhs } -> ospf::DecayNotSameAs<void, bool>; }
+inline constexpr decltype(auto) operator<(const std::optional<T>& lhs, const ospf::ValOrRef<U, cat, cow>& rhs) noexcept
+{
+    return *lhs < *rhs;
+}
+
+template<typename T, typename U, ospf::reference::ReferenceCategory cat, ospf::CopyOnWrite cow>
+    requires requires (const T& lhs, const U& rhs) { { lhs <= rhs } -> ospf::DecaySameAs<bool>; }
 inline constexpr const bool operator<=(const std::optional<T>& lhs, const ospf::ValOrRef<U, cat, cow>& rhs) noexcept
 {
     return static_cast<bool>(lhs) && *lhs <= *rhs;
 }
 
 template<typename T, typename U, ospf::reference::ReferenceCategory cat, ospf::CopyOnWrite cow>
+    requires requires (const T& lhs, const U& rhs) { { lhs <= rhs } -> ospf::DecayNotSameAs<void, bool>; }
+inline constexpr decltype(auto) operator<=(const std::optional<T>& lhs, const ospf::ValOrRef<U, cat, cow>& rhs) noexcept
+{
+    return *lhs <= *rhs;
+}
+
+template<typename T, typename U, ospf::reference::ReferenceCategory cat, ospf::CopyOnWrite cow>
+    requires requires (const T& lhs, const U& rhs) { { lhs > rhs } -> ospf::DecaySameAs<bool>; }
 inline constexpr const bool operator>(const std::optional<T>& lhs, const ospf::ValOrRef<U, cat, cow>& rhs) noexcept
 {
     return static_cast<bool>(lhs) && *lhs > *rhs;
 }
 
 template<typename T, typename U, ospf::reference::ReferenceCategory cat, ospf::CopyOnWrite cow>
+    requires requires (const T& lhs, const U& rhs) { { lhs > rhs } -> ospf::DecayNotSameAs<void, bool>; }
+inline constexpr decltype(auto) operator>(const std::optional<T>& lhs, const ospf::ValOrRef<U, cat, cow>& rhs) noexcept
+{
+    return *lhs > *rhs;
+}
+
+template<typename T, typename U, ospf::reference::ReferenceCategory cat, ospf::CopyOnWrite cow>
+    requires requires (const T& lhs, const U& rhs) { { lhs >= rhs } -> ospf::DecaySameAs<bool>; }
 inline constexpr const bool operator>=(const std::optional<T>& lhs, const ospf::ValOrRef<U, cat, cow>& rhs) noexcept
 {
     return static_cast<bool>(lhs) && *lhs >= *rhs;
+}
+
+template<typename T, typename U, ospf::reference::ReferenceCategory cat, ospf::CopyOnWrite cow>
+    requires requires (const T& lhs, const U& rhs) { { lhs >= rhs } -> ospf::DecayNotSameAs<void, bool>; }
+inline constexpr decltype(auto) operator>=(const std::optional<T>& lhs, const ospf::ValOrRef<U, cat, cow>& rhs) noexcept
+{
+    return *lhs >= *rhs;
 }
 
 template<typename T, typename U, ospf::reference::ReferenceCategory cat1, ospf::reference::ReferenceCategory cat2, ospf::CopyOnWrite cow>
