@@ -561,11 +561,131 @@ inline constexpr const bool operator==(const ospf::ValOrRef<T, rcat1, cow>& lhs,
     return &*lhs == &*rhs || *lhs == *rhs;
 }
 
+template<typename T, typename U, ospf::pointer::PointerCategory pcat, ospf::reference::ReferenceCategory rcat1, ospf::reference::ReferenceCategory rcat2, ospf::CopyOnWrite cow>
+    requires requires (const T& lhs, const U& rhs) { { lhs == rhs } -> ospf::DecayNotSameAs<void, bool>; }
+inline constexpr decltype(auto) operator==(const ospf::ValOrRef<T, rcat1, cow>& lhs, const ospf::PtrOrRef<U, pcat, rcat2>& rhs) noexcept
+{
+    return *lhs == *rhs;
+}
 
+template<typename T, typename U, ospf::pointer::PointerCategory pcat, ospf::reference::ReferenceCategory rcat1, ospf::reference::ReferenceCategory rcat2, ospf::CopyOnWrite cow>
+    requires requires (const T& lhs, const U& rhs) { { lhs != rhs } -> ospf::DecaySameAs<bool>; }
+inline constexpr const bool operator!=(const ospf::ValOrRef<T, rcat1, cow>& lhs, const ospf::PtrOrRef<U, pcat, rcat2>& rhs) noexcept
+{
+    return &*lhs != &*rhs && *lhs != *rhs;
+}
 
-// operator==, operator!=
+template<typename T, typename U, ospf::pointer::PointerCategory pcat, ospf::reference::ReferenceCategory rcat1, ospf::reference::ReferenceCategory rcat2, ospf::CopyOnWrite cow>
+    requires requires (const T& lhs, const U& rhs) { { lhs != rhs } -> ospf::DecayNotSameAs<void, bool>; }
+inline constexpr decltype(auto) operator!=(const ospf::ValOrRef<T, rcat1, cow>& lhs, const ospf::PtrOrRef<U, pcat, rcat2>& rhs) noexcept
+{
+    return *lhs != *rhs;
+}
+
+template<typename T, typename U, ospf::pointer::PointerCategory pcat1, ospf::pointer::PointerCategory pcat2, ospf::reference::ReferenceCategory rcat>
+inline constexpr const bool operator==(const ospf::pointer::Ptr<T, pcat1>& lhs, const ospf::PtrOrRef<U, pcat2, rcat>& rhs) noexcept
+{
+    return &lhs == &*rhs;
+}
+
+template<typename T, typename U, ospf::pointer::PointerCategory pcat1, ospf::pointer::PointerCategory pcat2, ospf::reference::ReferenceCategory rcat>
+inline constexpr const bool operator!=(const ospf::pointer::Ptr<T, pcat1>& lhs, const ospf::PtrOrRef<U, pcat2, rcat>& rhs) noexcept
+{
+    return &lhs != &*rhs;
+}
+
+template<typename T, typename U, ospf::pointer::PointerCategory pcat, ospf::reference::ReferenceCategory rcat1, ospf::reference::ReferenceCategory rcat2>
+    requires requires (const T& lhs, const U& rhs) { { lhs == rhs } -> ospf::DecaySameAs<bool>; }
+inline constexpr const bool operator==(const ospf::reference::Ref<T, rcat1>& lhs, const ospf::PtrOrRef<U, pcat, rcat2>& rhs) noexcept
+{
+    return &*lhs == &*rhs || *lhs == *rhs;
+}
+
+template<typename T, typename U, ospf::pointer::PointerCategory pcat, ospf::reference::ReferenceCategory rcat1, ospf::reference::ReferenceCategory rcat2>
+    requires requires (const T& lhs, const U& rhs) { { lhs == rhs } -> ospf::DecayNotSameAs<void, bool>; }
+inline constexpr decltype(auto) operator==(const ospf::reference::Ref<T, rcat1>& lhs, const ospf::PtrOrRef<U, pcat, rcat2>& rhs) noexcept
+{
+    return *lhs == *rhs;
+}
+
+template<typename T, typename U, ospf::pointer::PointerCategory pcat, ospf::reference::ReferenceCategory rcat1, ospf::reference::ReferenceCategory rcat2>
+    requires requires (const T& lhs, const U& rhs) { { lhs != rhs } -> ospf::DecaySameAs<bool>; }
+inline constexpr const bool operator!=(const ospf::reference::Ref<T, rcat1>& lhs, const ospf::PtrOrRef<U, pcat, rcat2>& rhs) noexcept
+{
+    return &*lhs != &*rhs && *lhs != *rhs;
+}
+
+template<typename T, typename U, ospf::pointer::PointerCategory pcat, ospf::reference::ReferenceCategory rcat1, ospf::reference::ReferenceCategory rcat2>
+    requires requires (const T& lhs, const U& rhs) { { lhs != rhs } -> ospf::DecayNotSameAs<void, bool>; }
+inline constexpr decltype(auto) operator!=(const ospf::reference::Ref<T, rcat1>& lhs, const ospf::PtrOrRef<U, pcat, rcat2>& rhs) noexcept
+{
+    return *lhs != *rhs;
+}
+
+template<typename T, typename U, ospf::pointer::PointerCategory pcat, ospf::reference::ReferenceCategory rcat>
+    requires requires (const T& lhs, const U& rhs) { { lhs == rhs } -> ospf::DecaySameAs<bool>; }
+inline constexpr const bool operator==(const T& lhs, const ospf::PtrOrRef<U, pcat, rcat>& rhs) noexcept
+{
+    return &lhs == &*rhs || lhs == *rhs;
+}
+
+template<typename T, typename U, ospf::pointer::PointerCategory pcat, ospf::reference::ReferenceCategory rcat>
+    requires requires (const T& lhs, const U& rhs) { { lhs == rhs } -> ospf::DecayNotSameAs<void, bool>; }
+inline constexpr decltype(auto) operator==(const T& lhs, const ospf::PtrOrRef<U, pcat, rcat>& rhs) noexcept
+{
+    return lhs == *rhs;
+}
+
+template<typename T, typename U, ospf::pointer::PointerCategory pcat, ospf::reference::ReferenceCategory rcat>
+    requires requires (const T& lhs, const U& rhs) { { lhs != rhs } -> ospf::DecaySameAs<bool>; }
+inline constexpr const bool operator!=(const T& lhs, const ospf::PtrOrRef<U, pcat, rcat>& rhs) noexcept
+{
+    return &lhs != &*rhs && lhs != *rhs;
+}
+
+template<typename T, typename U, ospf::pointer::PointerCategory pcat, ospf::reference::ReferenceCategory rcat>
+    requires requires (const T& lhs, const U& rhs) { { lhs != rhs } -> ospf::DecayNotSameAs<void, bool>; }
+inline constexpr decltype(auto) operator!=(const T& lhs, const ospf::PtrOrRef<U, pcat, rcat>& rhs) noexcept
+{
+    return lhs != *rhs;
+}
+
+template<typename T, typename U, ospf::pointer::PointerCategory pcat, ospf::reference::ReferenceCategory rcat>
+    requires requires (const T& lhs, const U& rhs) { { lhs == rhs } -> ospf::DecaySameAs<bool>; }
+inline constexpr const bool operator==(const std::optional<T>& lhs, const ospf::PtrOrRef<U, pcat, rcat>& rhs) noexcept
+{
+    return static_cast<bool>(lhs) && (&*lhs == &*rhs || *lhs == *rhs);
+}
+
+template<typename T, typename U, ospf::pointer::PointerCategory pcat, ospf::reference::ReferenceCategory rcat>
+    requires requires (const T& lhs, const U& rhs) { { lhs == rhs } -> ospf::DecayNotSameAs<void, bool>; }
+inline constexpr decltype(auto) operator==(const std::optional<T>& lhs, const ospf::PtrOrRef<U, pcat, rcat>& rhs)
+{
+    return *lhs == *rhs;
+}
+
+template<typename T, typename U, ospf::pointer::PointerCategory pcat, ospf::reference::ReferenceCategory rcat>
+    requires requires (const T& lhs, const U& rhs) { { lhs != rhs } -> ospf::DecaySameAs<bool>; }
+inline constexpr const bool operator!=(const std::optional<T>& lhs, const ospf::PtrOrRef<U, pcat, rcat>& rhs) noexcept
+{
+    return static_cast<bool>(lhs) && (&*lhs != &*rhs && *lhs != *rhs);
+}
+
+template<typename T, typename U, ospf::pointer::PointerCategory pcat, ospf::reference::ReferenceCategory rcat>
+    requires requires (const T& lhs, const U& rhs) { { lhs != rhs } -> ospf::DecayNotSameAs<void, bool>; }
+inline constexpr decltype(auto) operator!=(const std::optional<T>& lhs, const ospf::PtrOrRef<U, pcat, rcat>& rhs)
+{
+    return *lhs != *rhs;
+}
+
 // operator<, operator<=, operator>, operator>=
-// operator<=>
+
+template<typename T, typename U, ospf::pointer::PointerCategory pcat, ospf::reference::ReferenceCategory rcat1, ospf::reference::ReferenceCategory rcat2, ospf::CopyOnWrite cow>
+inline constexpr decltype(auto) operator<=>(const ospf::ValOrRef<T, rcat1, cow>& lhs, const ospf::PtrOrRef<U, pcat, rcat2>& rhs) noexcept
+{
+    return *lhs <=> *rhs;
+}
+
 
 // hash
 // format

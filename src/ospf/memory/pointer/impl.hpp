@@ -150,6 +150,16 @@ namespace ospf
                 }
 
             public:
+                inline const PtrType operator&(void) noexcept
+                {
+                    return ptr();
+                }
+
+                inline const CPtrType operator&(void) const noexcept
+                {
+                    return cptr();
+                }
+
                 inline const PtrType operator->(void) noexcept
                 {
                     return ptr();
