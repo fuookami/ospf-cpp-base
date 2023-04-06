@@ -6,16 +6,16 @@ namespace ospf
 {
     inline namespace memory
     {
+        enum class PointerCategory : u8
+        {
+            Unique,
+            Shared,
+            Weak,
+            Raw
+        };
+
         namespace pointer
         {
-            enum class PointerCategory : u8
-            {
-                Unique,
-                Shared,
-                Weak,
-                Raw
-            };
-
             template<typename T, PointerCategory cat = PointerCategory::Raw>
             class Ptr;
         };
@@ -24,7 +24,7 @@ namespace ospf
 
 namespace std
 {
-    template<typename T, ospf::pointer::PointerCategory cat>
+    template<typename T, ospf::PointerCategory cat>
         requires requires(ospf::pointer::Ptr<T, cat>& lhs, ospf::pointer::Ptr<T, cat>& rhs) { lhs.swap(rhs); }
     inline void swap(ospf::pointer::Ptr<T, cat>& lhs, ospf::pointer::Ptr<T, cat>& rhs) noexcept
     {

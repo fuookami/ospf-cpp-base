@@ -6,15 +6,15 @@ namespace ospf
 {
     inline namespace memory
     {
+        enum class ReferenceCategory : u8
+        {
+            Reference,      // not null pointer
+            Borrow,
+            UniqueBorrow
+        };
+
         namespace reference
         {
-            enum class ReferenceCategory : u8
-            {
-                Reference,      // not null pointer
-                Borrow,
-                UniqueBorrow
-            };
-
             template<typename T, ReferenceCategory cat = ReferenceCategory::Reference>
             class Ref;
         };
@@ -23,7 +23,7 @@ namespace ospf
 
 namespace std
 {
-    template<typename T, ospf::reference::ReferenceCategory cat>
+    template<typename T, ospf::ReferenceCategory cat>
         requires requires(ospf::reference::Ref<T, cat>& lhs, ospf::reference::Ref<T, cat>& rhs) { lhs.swap(rhs); }
     inline void swap(ospf::reference::Ref<T, cat>& lhs, ospf::reference::Ref<T, cat>& rhs) noexcept
     {

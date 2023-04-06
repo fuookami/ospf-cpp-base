@@ -264,7 +264,7 @@ namespace std
     {
         using PtrType = ospf::pointer::PtrImpl<T, Ptr>;
 
-        inline const ospf::usize operator()(ospf::ArgCLRefType<PtrType> ptr) const noexcept
+        inline constexpr const ospf::usize operator()(ospf::ArgCLRefType<PtrType> ptr) const noexcept
         {
             static const auto func = hash<typename PtrType::CPtrType>{};
             return func(reinterpret_cast<typename PtrType::CPtrType>(static_cast<ospf::ptraddr>(ptr)));
@@ -278,7 +278,7 @@ namespace std
         using PtrType = ospf::pointer::PtrImpl<T, Ptr>;
 
         template<typename FormatContext>
-        inline decltype(auto) format(ospf::ArgCLRefType<PtrType> ptr, FormatContext& fc)
+        inline constexpr decltype(auto) format(ospf::ArgCLRefType<PtrType> ptr, FormatContext& fc) const
         {
             if (ptr == nullptr)
             {
@@ -300,7 +300,7 @@ namespace std
         using PtrType = ospf::pointer::PtrImpl<T, Ptr>;
 
         template<typename FormatContext>
-        inline decltype(auto) format(ospf::ArgCLRefType<PtrType> ptr, FormatContext& fc)
+        inline constexpr decltype(auto) format(ospf::ArgCLRefType<PtrType> ptr, FormatContext& fc) const
         {
             if (ptr == nullptr)
             {

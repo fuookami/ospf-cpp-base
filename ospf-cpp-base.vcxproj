@@ -60,6 +60,7 @@
     <ClInclude Include="src\ospf\data_structure\multi_array\view.hpp" />
     <ClInclude Include="src\ospf\data_structure\optional_array.hpp" />
     <ClInclude Include="src\ospf\data_structure\pointer_array.hpp" />
+    <ClInclude Include="src\ospf\data_structure\pointer_or_reference_array.hpp" />
     <ClInclude Include="src\ospf\data_structure\reference_array.hpp" />
     <ClInclude Include="src\ospf\data_structure\store_type.hpp" />
     <ClInclude Include="src\ospf\data_structure\tagged_map.hpp" />

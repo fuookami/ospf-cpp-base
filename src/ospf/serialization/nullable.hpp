@@ -27,7 +27,7 @@ namespace ospf
             static constexpr const bool value = true;
         };
 
-        template<typename T, pointer::PointerCategory cat>
+        template<typename T, PointerCategory cat>
             requires WithDefault<pointer::Ptr<T, cat>>
         struct SerializationNullableTrait<pointer::Ptr<T, cat>>
         {

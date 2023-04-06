@@ -7,4 +7,5 @@
 #include <ospf/data_structure/reference_array.hpp>
 #include <ospf/data_structure/store_type.hpp>
 #include <ospf/data_structure/tagged_map.hpp>
+#include <ospf/data_structure/pointer_or_reference_array.hpp>
 #include <ospf/data_structure/value_or_reference_array.hpp>

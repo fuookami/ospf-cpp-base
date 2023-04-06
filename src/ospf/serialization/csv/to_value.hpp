@@ -138,7 +138,7 @@ namespace ospf
                 }
             };
 
-            template<typename T, pointer::PointerCategory cat, CharType CharT>
+            template<typename T, PointerCategory cat, CharType CharT>
                 requires SerializableToCSV<T, CharT>
             struct ToCSVValue<pointer::Ptr<T, cat>, CharT>
             {
@@ -169,7 +169,7 @@ namespace ospf
                 }
             };
 
-            template<typename T, reference::ReferenceCategory cat, CharType CharT>
+            template<typename T, ReferenceCategory cat, CharType CharT>
                 requires SerializableToCSV<T, CharT>
             struct ToCSVValue<reference::Ref<T, cat>, CharT>
             {
@@ -307,7 +307,7 @@ namespace ospf
                 }
             };
 
-            template<typename T, reference::ReferenceCategory cat, CopyOnWrite cow, CharType CharT>
+            template<typename T, ReferenceCategory cat, CopyOnWrite cow, CharType CharT>
                 requires SerializableToCSV<T, CharT>
             struct ToCSVValue<ValOrRef<T, cat, cow>, CharT>
             {
@@ -492,7 +492,7 @@ namespace ospf
             template<
                 typename T,
                 usize len,
-                pointer::PointerCategory cat,
+                PointerCategory cat,
                 template<typename, usize> class C,
                 CharType CharT
             >
@@ -523,7 +523,7 @@ namespace ospf
 
             template<
                 typename T,
-                pointer::PointerCategory cat,
+                PointerCategory cat,
                 template<typename> class C,
                 CharType CharT
             >
@@ -555,7 +555,7 @@ namespace ospf
             template<
                 typename T,
                 usize len,
-                reference::ReferenceCategory cat,
+                ReferenceCategory cat,
                 template<typename, usize> class C,
                 CharType CharT
             >
@@ -586,7 +586,7 @@ namespace ospf
 
             template<
                 typename T,
-                reference::ReferenceCategory cat,
+                ReferenceCategory cat,
                 template<typename> class C,
                 CharType CharT
             >
@@ -651,7 +651,7 @@ namespace ospf
             template<
                 typename T,
                 usize len,
-                reference::ReferenceCategory cat,
+                ReferenceCategory cat,
                 CopyOnWrite cow,
                 template<typename, usize> class C,
                 CharType CharT
@@ -683,7 +683,7 @@ namespace ospf
 
             template<
                 typename T,
-                reference::ReferenceCategory cat,
+                ReferenceCategory cat,
                 CopyOnWrite cow,
                 template<typename> class C,
                 CharType CharT

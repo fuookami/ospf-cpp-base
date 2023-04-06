@@ -17,33 +17,33 @@ namespace ospf
             template<
                 typename T,
                 usize len,
-                pointer::PointerCategory cat,
+                PointerCategory cat,
                 template<typename, usize> class C
             >
             class StaticPointerArray;
 
             template<
                 typename T,
-                pointer::PointerCategory cat,
+                PointerCategory cat,
                 template<typename> class C
             >
             class DynamicPointerArray;
 
-            template<typename T, pointer::PointerCategory cat, typename C>
+            template<typename T, PointerCategory cat, typename C>
             class PointerArrayConstIterator
                 : public RandomIteratorImpl<const pointer::Ptr<OriginType<T>, cat>, typename OriginType<C>::const_iterator, PointerArrayConstIterator<T, cat, C>>
             {
                 template<
                     typename T,
                     usize len,
-                    pointer::PointerCategory cat,
+                    PointerCategory cat,
                     template<typename, usize> class C
                 >
                 friend class StaticPointerArray;
 
                 template<
                     typename T,
-                    pointer::PointerCategory cat,
+                    PointerCategory cat,
                     template<typename> class C
                 >
                 friend class DynamicPointerArray;
@@ -83,21 +83,21 @@ namespace ospf
                 }
             };
 
-            template<typename T, pointer::PointerCategory cat, typename C>
+            template<typename T, PointerCategory cat, typename C>
             class PointerArrayIterator
                 : public RandomIteratorImpl<pointer::Ptr<OriginType<T>, cat>, typename OriginType<C>::iterator, PointerArrayIterator<T, cat, C>>
             {
                 template<
                     typename T,
                     usize len,
-                    pointer::PointerCategory cat,
+                    PointerCategory cat,
                     template<typename, usize> class C
                 >
                 friend class StaticPointerArray;
 
                 template<
                     typename T,
-                    pointer::PointerCategory cat,
+                    PointerCategory cat,
                     template<typename> class C
                 >
                 friend class DynamicPointerArray;
@@ -143,21 +143,21 @@ namespace ospf
                 }
             };
 
-            template<typename T, pointer::PointerCategory cat, typename C>
+            template<typename T, PointerCategory cat, typename C>
             class PointerArrayConstReverseIterator
                 : public RandomIteratorImpl<const pointer::Ptr<OriginType<T>, cat>, typename OriginType<C>::const_reverse_iterator, PointerArrayConstReverseIterator<T, cat, C>>
             {
                 template<
                     typename T,
                     usize len,
-                    pointer::PointerCategory cat,
+                    PointerCategory cat,
                     template<typename, usize> class C
                 >
                 friend class StaticPointerArray;
 
                 template<
                     typename T,
-                    pointer::PointerCategory cat,
+                    PointerCategory cat,
                     template<typename> class C
                 >
                 friend class DynamicPointerArray;
@@ -197,21 +197,21 @@ namespace ospf
                 }
             };
 
-            template<typename T, pointer::PointerCategory cat, typename C>
+            template<typename T, PointerCategory cat, typename C>
             class PointerArrayReverseIterator
                 : public RandomIteratorImpl<pointer::Ptr<OriginType<T>, cat>, typename OriginType<C>::reverse_iterator, PointerArrayReverseIterator<T, cat, C>>
             {
                 template<
                     typename T,
                     usize len,
-                    pointer::PointerCategory cat,
+                    PointerCategory cat,
                     template<typename, usize> class C
                 >
                 friend class StaticPointerArray;
 
                 template<
                     typename T,
-                    pointer::PointerCategory cat,
+                    PointerCategory cat,
                     template<typename> class C
                 >
                 friend class DynamicPointerArray;
@@ -251,21 +251,21 @@ namespace ospf
                 }
             };
 
-            template<typename T, pointer::PointerCategory cat, typename C>
+            template<typename T, PointerCategory cat, typename C>
             class PointerArrayConstUncheckedIterator
                 : public RandomIteratorImpl<ConstType<T>, typename OriginType<C>::const_iterator, PointerArrayConstUncheckedIterator<T, cat, C>>
             {
                 template<
                     typename T,
                     usize len,
-                    pointer::PointerCategory cat,
+                    PointerCategory cat,
                     template<typename, usize> class C
                 >
                 friend class StaticPointerArray;
 
                 template<
                     typename T,
-                    pointer::PointerCategory cat,
+                    PointerCategory cat,
                     template<typename> class C
                 >
                 friend class DynamicPointerArray;
@@ -305,21 +305,21 @@ namespace ospf
                 }
             };
 
-            template<typename T, pointer::PointerCategory cat, typename C>
+            template<typename T, PointerCategory cat, typename C>
             class PointerArrayUncheckedIterator
                 : public RandomIteratorImpl<OriginType<T>, typename OriginType<C>::iterator, PointerArrayUncheckedIterator<T, cat, C>>
             {
                 template<
                     typename T,
                     usize len,
-                    pointer::PointerCategory cat,
+                    PointerCategory cat,
                     template<typename, usize> class C
                 >
                 friend class StaticPointerArray;
 
                 template<
                     typename T,
-                    pointer::PointerCategory cat,
+                    PointerCategory cat,
                     template<typename> class C
                 >
                 friend class DynamicPointerArray;
@@ -365,21 +365,21 @@ namespace ospf
                 }
             };
 
-            template<typename T, pointer::PointerCategory cat, typename C>
+            template<typename T, PointerCategory cat, typename C>
             class PointerArrayConstUncheckedReverseIterator
                 : public RandomIteratorImpl<ConstType<T>, typename OriginType<C>::const_reverse_iterator, PointerArrayConstUncheckedReverseIterator<T, cat, C>>
             {
                 template<
                     typename T,
                     usize len,
-                    pointer::PointerCategory cat,
+                    PointerCategory cat,
                     template<typename, usize> class C
                 >
                 friend class StaticPointerArray;
 
                 template<
                     typename T,
-                    pointer::PointerCategory cat,
+                    PointerCategory cat,
                     template<typename> class C
                 >
                 friend class DynamicPointerArray;
@@ -419,21 +419,21 @@ namespace ospf
                 }
             };
 
-            template<typename T, pointer::PointerCategory cat, typename C>
+            template<typename T, PointerCategory cat, typename C>
             class PointerArrayUncheckedReverseIterator
                 : public RandomIteratorImpl<OriginType<T>, typename OriginType<C>::reverse_iterator, PointerArrayUncheckedReverseIterator<T, cat, C>>
             {
                 template<
                     typename T,
                     usize len,
-                    pointer::PointerCategory cat,
+                    PointerCategory cat,
                     template<typename, usize> class C
                 >
                 friend class StaticPointerArray;
 
                 template<
                     typename T,
-                    pointer::PointerCategory cat,
+                    PointerCategory cat,
                     template<typename> class C
                 >
                 friend class DynamicPointerArray;
@@ -479,7 +479,7 @@ namespace ospf
             template<
                 typename T,
                 usize len,
-                pointer::PointerCategory cat,
+                PointerCategory cat,
                 template<typename, usize> class C
             >
             struct PointerArrayAccessPolicy<T, C<pointer::Ptr<OriginType<T>, cat>, len>>
@@ -610,7 +610,7 @@ namespace ospf
 
             template<
                 typename T,
-                pointer::PointerCategory cat,
+                PointerCategory cat,
                 typename Alloc,
                 template<typename, typename> class C
             >
@@ -1141,7 +1141,7 @@ namespace ospf
                 template<
                     typename T, 
                     usize len,
-                    pointer::PointerCategory cat,
+                    PointerCategory cat,
                     template<typename, usize> class C
                 >
                 class StaticPointerArray
@@ -1152,7 +1152,7 @@ namespace ospf
 
                     template<
                         typename T,
-                        pointer::PointerCategory cat,
+                        PointerCategory cat,
                         template<typename> class C
                     >
                     friend class DynamicPointerArray;
@@ -1325,7 +1325,7 @@ namespace ospf
 
                 template<
                     typename T,
-                    pointer::PointerCategory cat,
+                    PointerCategory cat,
                     template<typename> class C
                 >
                 class DynamicPointerArray
@@ -2429,7 +2429,7 @@ namespace ospf
         template<
             typename T,
             usize l,
-            pointer::PointerCategory cat = pointer::PointerCategory::Raw,
+            PointerCategory cat = PointerCategory::Raw,
             template<typename, usize> class C = std::array
         >
         using PtrArray = pointer_array::StaticPointerArray<T, l, cat, C>;
@@ -2438,17 +2438,17 @@ namespace ospf
             usize l,
             template<typename, usize> class C = std::array
         >
-        using SharedArray = pointer_array::StaticPointerArray<T, l, pointer::PointerCategory::Shared, C>;
+        using SharedArray = pointer_array::StaticPointerArray<T, l, PointerCategory::Shared, C>;
 
         template<typename T,
             usize l,
             template<typename, usize> class C = std::array
         >
-        using UniqueArray = pointer_array::StaticPointerArray<T, l, pointer::PointerCategory::Unique, C>;
+        using UniqueArray = pointer_array::StaticPointerArray<T, l, PointerCategory::Unique, C>;
 
         template<
             typename T,
-            pointer::PointerCategory cat = pointer::PointerCategory::Raw,
+            PointerCategory cat = PointerCategory::Raw,
             template<typename> class C = std::vector
         >
         using DynPtrArray = pointer_array::DynamicPointerArray<T, cat, C>;
@@ -2457,13 +2457,13 @@ namespace ospf
             typename T,
             template<typename> class C = std::vector
         >
-        using DynSharedArray = pointer_array::DynamicPointerArray<T, pointer::PointerCategory::Shared, C>;
+        using DynSharedArray = pointer_array::DynamicPointerArray<T, PointerCategory::Shared, C>;
 
         template<
             typename T,
             template<typename> class C = std::vector
         >
-        using DynUniqueArray = pointer_array::DynamicPointerArray<T, pointer::PointerCategory::Unique, C>;
+        using DynUniqueArray = pointer_array::DynamicPointerArray<T, PointerCategory::Unique, C>;
     };
 };
 

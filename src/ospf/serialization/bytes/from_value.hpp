@@ -158,7 +158,7 @@ namespace ospf
                 }
             };
 
-            template<typename T, pointer::PointerCategory cat>
+            template<typename T, PointerCategory cat>
                 requires DeserializableFromBytes<T> && WithDefault<pointer::Ptr<T, cat>>
             struct FromBytesValue<pointer::Ptr<T, cat>>
             {
@@ -281,7 +281,7 @@ namespace ospf
                 }
             };
 
-            template<typename T, reference::ReferenceCategory cat, CopyOnWrite cow>
+            template<typename T, ReferenceCategory cat, CopyOnWrite cow>
                 requires DeserializableFromBytes<T>
             struct FromBytesValue<ValOrRef<T, cat, cow>>
             {
@@ -411,7 +411,7 @@ namespace ospf
             template<
                 typename T,
                 usize len,
-                pointer::PointerCategory cat,
+                PointerCategory cat,
                 template<typename, usize> class C
             >
                 requires DeserializableFromBytes<pointer::Ptr<T, cat>>
@@ -438,7 +438,7 @@ namespace ospf
 
             template<
                 typename T,
-                pointer::PointerCategory cat,
+                PointerCategory cat,
                 template<typename> class C
             >
                 requires DeserializableFromBytes<pointer::Ptr<T, cat>>
@@ -493,7 +493,7 @@ namespace ospf
             template<
                 typename T,
                 usize len,
-                reference::ReferenceCategory cat,
+                ReferenceCategory cat,
                 CopyOnWrite cow,
                 template<typename, usize> class C
             >
@@ -522,7 +522,7 @@ namespace ospf
 
             template<
                 typename T,
-                reference::ReferenceCategory cat,
+                ReferenceCategory cat,
                 CopyOnWrite cow,
                 template<typename> class C
             >

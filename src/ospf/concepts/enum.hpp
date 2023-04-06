@@ -83,7 +83,7 @@ namespace std
         : public formatter<basic_string_view<CharT>, CharT>
     {
         template<typename FormatContext>
-        inline decltype(auto) format(const T value, FormatContext& fc)
+        inline constexpr decltype(auto) format(const T value, FormatContext& fc) const
         {
             static const auto _formatter = formatter<basic_string_view<CharT>, CharT>{};
             return _formatter.format(ospf::to_string<T, CharT>(value), fc);

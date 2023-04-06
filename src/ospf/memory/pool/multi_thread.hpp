@@ -71,42 +71,42 @@ namespace ospf
                     requires std::is_constructible_v<T, Args...>
                 inline Ptr<T> make_ptr(Args&&... args) noexcept
                 {
-                    return make_ptr_from_pool<pointer::PointerCategory::Raw>(std::forward<Args>(args)...);
+                    return make_ptr_from_pool<PointerCategory::Raw>(std::forward<Args>(args)...);
                 }
 
                 template<typename U, typename... Args>
                     requires std::convertible_to<PtrType<T>, PtrType<U>> && std::is_constructible_v<T, Args...>
                 inline Ptr<U> make_base_ptr(Args&&... args) noexcept
                 {
-                    return make_base_ptr_from_pool<U, pointer::PointerCategory::Raw>(std::forward<Args>(args)...);
+                    return make_base_ptr_from_pool<U, PointerCategory::Raw>(std::forward<Args>(args)...);
                 }
 
                 template<typename... Args>
                     requires std::is_constructible_v<T, Args...>
                 inline Unique<T> make_unique(Args&&... args) noexcept
                 {
-                    return make_ptr_from_pool<pointer::PointerCategory::Unique>(std::forward<Args>(args)...);
+                    return make_ptr_from_pool<PointerCategory::Unique>(std::forward<Args>(args)...);
                 }
 
                 template<typename U, typename... Args>
                     requires std::convertible_to<PtrType<T>, PtrType<U>> && std::is_constructible_v<T, Args...>
                 inline Unique<U> make_base_unique(Args&&... args) noexcept
                 {
-                    return make_base_ptr_from_pool<U, pointer::PointerCategory::Unique>(std::forward<Args>(args)...);
+                    return make_base_ptr_from_pool<U, PointerCategory::Unique>(std::forward<Args>(args)...);
                 }
 
                 template<typename... Args>
                     requires std::is_constructible_v<T, Args...>
                 inline Shared<T> make_shared(Args&&... args) noexcept
                 {
-                    return make_ptr_from_pool<pointer::PointerCategory::Shared>(std::forward<Args>(args)...);
+                    return make_ptr_from_pool<PointerCategory::Shared>(std::forward<Args>(args)...);
                 }
 
                 template<typename U, typename... Args>
                     requires std::convertible_to<PtrType<T>, PtrType<U>> && std::is_constructible_v<T, Args...>
                 inline Shared<U> make_base_shared(Args&&... args) noexcept
                 {
-                    return make_base_ptr_from_pool<U, pointer::PointerCategory::Shared>(std::forward<Args>(args)...);
+                    return make_base_ptr_from_pool<U, PointerCategory::Shared>(std::forward<Args>(args)...);
                 }
 
             public:
@@ -123,7 +123,7 @@ namespace ospf
                 }
 
             private:
-                template<pointer::PointerCategory cat, typename... Args>
+                template<PointerCategory cat, typename... Args>
                 inline decltype(auto) make_ptr_from_pool(Args&&... args) noexcept
                 {
                     std::lock_guard<std::mutex> guard{ _mutex };
@@ -134,7 +134,7 @@ namespace ospf
                     }
                     else
                     {
-                        if constexpr (cat == pointer::PointerCategory::Raw)
+                        if constexpr (cat == PointerCategory::Raw)
                         {
                             return pointer::Ptr<T, cat>{ ::new (ptr) T(std::forward<Args>(args)...) };
                         }
@@ -145,7 +145,7 @@ namespace ospf
                     }
                 }
 
-                template<typename U, pointer::PointerCategory cat, typename... Args>
+                template<typename U, PointerCategory cat, typename... Args>
                     requires std::convertible_to<PtrType<T>, PtrType<U>>
                 inline decltype(auto) make_base_ptr_from_pool(Args&&... args) noexcept
                 {
@@ -157,7 +157,7 @@ namespace ospf
                     }
                     else
                     {
-                        if constexpr (cat == pointer::PointerCategory::Raw)
+                        if constexpr (cat == PointerCategory::Raw)
                         {
                             return pointer::Ptr<U, cat>{ static_cast<PtrType<U>>(::new (ptr) T(std::forward<Args>(args)...)) };
                         }

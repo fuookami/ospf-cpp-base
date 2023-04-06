@@ -501,7 +501,7 @@ namespace std
     {
         using RefType = ospf::reference::RefImpl<T, Ref>;
 
-        inline const ospf::usize operator()(ospf::ArgCLRefType<RefType> ref) const noexcept
+        inline constexpr const ospf::usize operator()(ospf::ArgCLRefType<RefType> ref) const noexcept
         {
             static const hash<T> hasher{};
             return hasher(*ref);
@@ -515,7 +515,7 @@ namespace std
         using RefType = ospf::reference::RefImpl<T, Ref>;
 
         template<typename FormatContext>
-        inline decltype(auto) format(ospf::ArgCLRefType<RefType> ref, FormatContext& fc)
+        inline constexpr decltype(auto) format(ospf::ArgCLRefType<RefType> ref, FormatContext& fc) const
         {
             static const formatter<ospf::OriginType<T>, CharT> _formatter{};
             return _formatter.format(*ref, fc);

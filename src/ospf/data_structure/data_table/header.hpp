@@ -206,7 +206,7 @@ namespace std
         : public formatter<basic_string_view<CharT>, CharT>
     {
         template<typename FormatContext>
-        inline decltype(auto) format(const ospf::data_table::DataTableHeader<CharT>& header, FormatContext& fc)
+        inline constexpr decltype(auto) format(const ospf::data_table::DataTableHeader<CharT>& header, FormatContext& fc) const
         {
             static const auto _formatter = formatter<basic_string_view<CharT>, CharT>{};
             return _formatter.format(header.to_string(), fc);

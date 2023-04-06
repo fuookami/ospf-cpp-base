@@ -640,7 +640,7 @@ namespace std
     template<typename T, typename U>
     struct hash<ospf::Either<T, U>>
     {
-        inline const ospf::usize operator()(ospf::ArgCLRefType<ospf::Either<T, U>> either) const noexcept
+        inline constexpr const ospf::usize operator()(ospf::ArgCLRefType<ospf::Either<T, U>> either) const noexcept
         {
             return either.visit([](const auto& ele)
                 {
@@ -655,7 +655,7 @@ namespace std
         : public formatter<basic_string_view<CharT>, CharT>
     {
         template<typename FormatContext>
-        inline decltype(auto) format(ospf::ArgCLRefType<ospf::Either<T, U>> either, FormatContext& fc)
+        inline constexpr decltype(auto) format(ospf::ArgCLRefType<ospf::Either<T, U>> either, FormatContext& fc) const
         {
             return either.visit([](const auto& ele)
                 {

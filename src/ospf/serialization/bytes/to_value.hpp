@@ -128,7 +128,7 @@ namespace ospf
                 }
             };
 
-            template<typename T, pointer::PointerCategory cat>
+            template<typename T, PointerCategory cat>
                 requires SerializableToBytes<T>
             struct ToBytesValue<pointer::Ptr<T, cat>>
             {
@@ -158,7 +158,7 @@ namespace ospf
                 }
             };
             
-            template<typename T, reference::ReferenceCategory cat>
+            template<typename T, ReferenceCategory cat>
                 requires SerializableToBytes<T>
             struct ToBytesValue<reference::Ref<T, cat>>
             {
@@ -303,7 +303,7 @@ namespace ospf
                 }
             };
 
-            template<typename T, reference::ReferenceCategory cat, CopyOnWrite cow>
+            template<typename T, ReferenceCategory cat, CopyOnWrite cow>
                 requires SerializableToBytes<T>
             struct ToBytesValue<ValOrRef<T, cat, cow>>
             {
@@ -491,7 +491,7 @@ namespace ospf
             template<
                 typename T,
                 usize len,
-                pointer::PointerCategory cat,
+                PointerCategory cat,
                 template<typename, usize> class C
             >
                 requires SerializableToBytes<pointer::Ptr<T, cat>>
@@ -523,7 +523,7 @@ namespace ospf
 
             template<
                 typename T,
-                pointer::PointerCategory cat,
+                PointerCategory cat,
                 template<typename> class C
             >
                 requires SerializableToBytes<pointer::Ptr<T, cat>>
@@ -556,7 +556,7 @@ namespace ospf
             template<
                 typename T,
                 usize len,
-                reference::ReferenceCategory cat,
+                ReferenceCategory cat,
                 template<typename, usize> class C
             >
                 requires SerializableToBytes<T>
@@ -588,7 +588,7 @@ namespace ospf
 
             template<
                 typename T,
-                reference::ReferenceCategory cat,
+                ReferenceCategory cat,
                 template<typename> class C
             >
                 requires SerializableToBytes<T>
@@ -653,7 +653,7 @@ namespace ospf
             template<
                 typename T,
                 usize len,
-                reference::ReferenceCategory cat,
+                ReferenceCategory cat,
                 CopyOnWrite cow,
                 template<typename, usize> class C
             >
@@ -686,7 +686,7 @@ namespace ospf
 
             template<
                 typename T,
-                reference::ReferenceCategory cat,
+                ReferenceCategory cat,
                 CopyOnWrite cow,
                 template<typename> class C
             >

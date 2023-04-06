@@ -15,7 +15,7 @@ namespace ospf
                 template<typename T, PointerCategory>
                 friend class Ptr;
 
-                template<typename T, reference::ReferenceCategory>
+                template<typename T, ReferenceCategory>
                 friend class Ref;
 
             private:

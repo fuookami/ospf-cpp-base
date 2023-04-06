@@ -17,7 +17,7 @@ namespace ospf
             template<
                 typename T,
                 usize len,
-                reference::ReferenceCategory cat,
+                ReferenceCategory cat,
                 CopyOnWrite cow,
                 template<typename, usize> class C
             >
@@ -26,7 +26,7 @@ namespace ospf
 
             template<
                 typename T,
-                reference::ReferenceCategory cat,
+                ReferenceCategory cat,
                 CopyOnWrite cow,
                 template<typename> class C
             >
@@ -40,7 +40,7 @@ namespace ospf
                 template<
                     typename T,
                     usize len,
-                    reference::ReferenceCategory cat,
+                    ReferenceCategory cat,
                     CopyOnWrite cow,
                     template<typename, usize> class C
                 >
@@ -49,7 +49,7 @@ namespace ospf
 
                 template<
                     typename T,
-                    reference::ReferenceCategory cat,
+                    ReferenceCategory cat,
                     CopyOnWrite cow,
                     template<typename> class C
                 >
@@ -92,7 +92,7 @@ namespace ospf
                 template<
                     typename T,
                     usize len,
-                    reference::ReferenceCategory cat,
+                    ReferenceCategory cat,
                     CopyOnWrite cow,
                     template<typename, usize> class C
                 >
@@ -101,7 +101,7 @@ namespace ospf
 
                 template<
                     typename T,
-                    reference::ReferenceCategory cat,
+                    ReferenceCategory cat,
                     CopyOnWrite cow,
                     template<typename> class C
                 >
@@ -150,7 +150,7 @@ namespace ospf
                 template<
                     typename T,
                     usize len,
-                    reference::ReferenceCategory cat,
+                    ReferenceCategory cat,
                     CopyOnWrite cow,
                     template<typename, usize> class C
                 >
@@ -159,7 +159,7 @@ namespace ospf
 
                 template<
                     typename T,
-                    reference::ReferenceCategory cat,
+                    ReferenceCategory cat,
                     CopyOnWrite cow,
                     template<typename> class C
                 >
@@ -202,7 +202,7 @@ namespace ospf
                 template<
                     typename T,
                     usize len,
-                    reference::ReferenceCategory cat,
+                    ReferenceCategory cat,
                     CopyOnWrite cow,
                     template<typename, usize> class C
                 >
@@ -211,7 +211,7 @@ namespace ospf
 
                 template<
                     typename T,
-                    reference::ReferenceCategory cat,
+                    ReferenceCategory cat,
                     CopyOnWrite cow,
                     template<typename> class C
                 >
@@ -253,7 +253,7 @@ namespace ospf
             template<
                 typename T,
                 usize len,
-                reference::ReferenceCategory cat,
+                ReferenceCategory cat,
                 CopyOnWrite cow,
                 template<typename, usize> class C
             >
@@ -342,7 +342,7 @@ namespace ospf
 
             template<
                 typename T,
-                reference::ReferenceCategory cat,
+                ReferenceCategory cat,
                 CopyOnWrite cow,
                 typename Alloc,
                 template<typename, typename> class C
@@ -593,7 +593,7 @@ namespace ospf
             template<
                 typename T,
                 usize len,
-                reference::ReferenceCategory cat,
+                ReferenceCategory cat,
                 CopyOnWrite cow,
                 template<typename, usize> class C
             >
@@ -605,7 +605,7 @@ namespace ospf
 
                 template<
                     typename T,
-                    reference::ReferenceCategory cat,
+                    ReferenceCategory cat,
                     CopyOnWrite cow,
                     template<typename> class C
                 >
@@ -755,7 +755,7 @@ namespace ospf
 
             template<
                 typename T,
-                reference::ReferenceCategory cat,
+                ReferenceCategory cat,
                 CopyOnWrite cow,
                 template<typename> class C
             >
@@ -1662,7 +1662,7 @@ namespace ospf
         template<
             typename T,
             usize len,
-            reference::ReferenceCategory cat = reference::ReferenceCategory::Reference,
+            ReferenceCategory cat = ReferenceCategory::Reference,
             CopyOnWrite cow = off,
             template<typename, usize> class C = std::array
         >
@@ -1670,7 +1670,7 @@ namespace ospf
 
         template<
             typename T,
-            reference::ReferenceCategory cat = reference::ReferenceCategory::Reference,
+            ReferenceCategory cat = ReferenceCategory::Reference,
             CopyOnWrite cow = off,
             template<typename> class C = std::vector
         >

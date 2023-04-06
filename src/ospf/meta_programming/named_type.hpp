@@ -426,7 +426,7 @@ namespace std
         : public formatter<T, CharT>
     {
         template<typename FormatContext>
-        inline constexpr decltype(auto) format(const ospf::NamedType<T, P>& value, FormatContext& fc)
+        inline constexpr decltype(auto) format(const ospf::NamedType<T, P>& value, FormatContext& fc) const
         {
             static const formatter<T, CharT> _formatter{};
             return _formatter.format(value.unwrap(), fc);

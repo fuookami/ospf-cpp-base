@@ -25,7 +25,7 @@ namespace ospf
             static constexpr const bool value = false;
         };
 
-        template<typename T, reference::ReferenceCategory cat>
+        template<typename T, ReferenceCategory cat>
         struct SerializationWritableTrait<reference::Ref<T, cat>>
         {
             static constexpr const bool value = false;

@@ -11,7 +11,7 @@ namespace ospf
     {
         template<
             typename T,
-            pointer::PointerCategory cat = pointer::PointerCategory::Raw
+            PointerCategory cat = PointerCategory::Raw
         >
         using Ptr = std::conditional_t<
             std::is_array_v<T>,
@@ -22,22 +22,22 @@ namespace ospf
         template<typename T>
         using Unique = std::conditional_t<
             std::is_array_v<T>,
-            pointer::Ptr<ArrayType<T>, pointer::PointerCategory::Unique>,
-            pointer::Ptr<OriginType<T>, pointer::PointerCategory::Unique>
+            pointer::Ptr<ArrayType<T>, PointerCategory::Unique>,
+            pointer::Ptr<OriginType<T>, PointerCategory::Unique>
         >;
 
         template<typename T>
         using Shared = std::conditional_t<
             std::is_array_v<T>,
-            pointer::Ptr<ArrayType<T>, pointer::PointerCategory::Shared>,
-            pointer::Ptr<OriginType<T>, pointer::PointerCategory::Shared>
+            pointer::Ptr<ArrayType<T>, PointerCategory::Shared>,
+            pointer::Ptr<OriginType<T>, PointerCategory::Shared>
         >;
 
         template<typename T>
         using Weak = std::conditional_t<
             std::is_array_v<T>,
-            pointer::Ptr<ArrayType<T>, pointer::PointerCategory::Weak>,
-            pointer::Ptr<OriginType<T>, pointer::PointerCategory::Weak>
+            pointer::Ptr<ArrayType<T>, PointerCategory::Weak>,
+            pointer::Ptr<OriginType<T>, PointerCategory::Weak>
         >;
     };
 };

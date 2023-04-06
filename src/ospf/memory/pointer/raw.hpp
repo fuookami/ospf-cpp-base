@@ -17,7 +17,7 @@ namespace ospf
             class Ptr<T, PointerCategory::Raw>
                 : public PtrImpl<T, Ptr<T, PointerCategory::Raw>>
             {
-                template<typename U, reference::ReferenceCategory category>
+                template<typename U, ReferenceCategory category>
                 friend class Ref;
 
             private:

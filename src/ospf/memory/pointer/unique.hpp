@@ -31,7 +31,7 @@ namespace ospf
                 template<typename T, PointerCategory>
                 friend class Ptr;
 
-                template<typename T, reference::ReferenceCategory>
+                template<typename T, ReferenceCategory>
                 friend class Ref;
 
             private:
@@ -114,7 +114,7 @@ namespace ospf
                 template<typename T, PointerCategory>
                 friend class Ptr;
 
-                template<typename T, reference::ReferenceCategory>
+                template<typename T, ReferenceCategory>
                 friend class Ref;
 
             protected:
@@ -166,7 +166,7 @@ namespace ospf
                 template<typename T, PointerCategory>
                 friend class Ptr;
 
-                template<typename T, reference::ReferenceCategory>
+                template<typename T, ReferenceCategory>
                 friend class Ref;
 
             private:
@@ -370,14 +370,14 @@ namespace ospf
             requires std::is_constructible_v<T, Args...>
         inline decltype(auto) make_unique(Args&&... args)
         {
-            return pointer::Ptr<T, pointer::PointerCategory::Unique>{ new T{ std::forward<Args>(args)... } };
+            return pointer::Ptr<T, PointerCategory::Unique>{ new T{ std::forward<Args>(args)... } };
         }
 
         template<typename T, typename U, typename... Args>
             requires std::convertible_to<PtrType<U>, PtrType<T>> && std::is_constructible_v<U, Args...>
         inline decltype(auto) make_base_unique(Args&&... args)
         {
-            return pointer::Ptr<T, pointer::PointerCategory::Unique>{ static_cast<T*>(new U{ std::forward<Args>(args)... }) };
+            return pointer::Ptr<T, PointerCategory::Unique>{ static_cast<T*>(new U{ std::forward<Args>(args)... }) };
         }
     };
 };

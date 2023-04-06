@@ -138,7 +138,7 @@ namespace std
         : public formatter<string_view, char>
     {
         template<typename FormatContext>
-        inline decltype(auto) format(const ospf::Error<C, char>& error, FormatContext& fc)
+        inline constexpr decltype(auto) format(const ospf::Error<C, char>& error, FormatContext& fc) const
         {
             static const formatter<string_view, char> _formatter{};
             return _formatter.format(format("{}, msg: {}", error.code(), error.message()), fc);
@@ -150,7 +150,7 @@ namespace std
         : public formatter<wstring_view, ospf::wchar>
     {
         template<typename FormatContext>
-        inline decltype(auto) format(const ospf::Error<C, ospf::wchar>& error, FormatContext& fc)
+        inline constexpr decltype(auto) format(const ospf::Error<C, ospf::wchar>& error, FormatContext& fc) const
         {
             static const formatter<wstring_view, ospf::wchar> _formatter{};
             return _formatter.format(format(L"{}, msg: {}", error.code(), error.message()), fc);
@@ -162,7 +162,7 @@ namespace std
         : public formatter<string_view, char>
     {
         template<typename FormatContext>
-        inline decltype(auto) format(const ospf::ExError<C, T, char>& error, FormatContext& fc)
+        inline constexpr decltype(auto) format(const ospf::ExError<C, T, char>& error, FormatContext& fc) const
         {
             static const formatter<string_view, char> _formatter{};
             return _formatter.format(format("{}, msg: {}, arg: {}", error.code(), error.message(), error.arg()), fc);
@@ -174,7 +174,7 @@ namespace std
         : public formatter<wstring_view, ospf::wchar>
     {
         template<typename FormatContext>
-        inline decltype(auto) format(const ospf::ExError<C, T, ospf::wchar>& error, FormatContext& fc)
+        inline constexpr decltype(auto) format(const ospf::ExError<C, T, ospf::wchar>& error, FormatContext& fc) const
         {
             static const formatter<wstring_view, ospf::wchar> _formatter{};
             return _formatter.format(format(L"{}, msg: {}, arg: {}", error.code(), error.message(), error.arg()), fc);

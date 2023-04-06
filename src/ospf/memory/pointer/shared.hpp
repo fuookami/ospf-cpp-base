@@ -15,7 +15,7 @@ namespace ospf
                 template<typename T, PointerCategory>
                 friend class Ptr;
 
-                template<typename T, reference::ReferenceCategory>
+                template<typename T, ReferenceCategory>
                 friend class Ref;
 
             private:
@@ -164,14 +164,14 @@ namespace ospf
                 requires std::is_constructible_v<T, Args...>
             inline decltype(auto) make_shared(Args&&... args)
             {
-                return pointer::Ptr<T, pointer::PointerCategory::Shared>{ new T{ std::forward<Args>(args)... } };
+                return pointer::Ptr<T, PointerCategory::Shared>{ new T{ std::forward<Args>(args)... } };
             }
 
             template<typename T, typename U, typename... Args>
                 requires std::convertible_to<PtrType<U>, PtrType<T>> && std::is_constructible_v<U, Args...>
             inline decltype(auto) make_base_shared(Args&&... args)
             {
-                return pointer::Ptr<T, pointer::PointerCategory::Shared>{ static_cast<T*>(new U{ std::forward<Args>(args)... }) };
+                return pointer::Ptr<T, PointerCategory::Shared>{ static_cast<T*>(new U{ std::forward<Args>(args)... }) };
             }
         };
     };

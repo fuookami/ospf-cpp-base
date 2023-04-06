@@ -537,8 +537,11 @@
     <ClInclude Include="src\ospf\meta_programming\named_type.hpp">
       <Filter>src\ospf\meta-programming</Filter>
     </ClInclude>
-    <ClInclude Include="src\ospf\functional\ptr_or_reference.hpp">
+    <ClInclude Include="src\ospf\functional\pointer_or_reference.hpp">
       <Filter>src\ospf\functional</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ospf\data_structure\pointer_or_reference_array.hpp">
+      <Filter>src\ospf\data-structure</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

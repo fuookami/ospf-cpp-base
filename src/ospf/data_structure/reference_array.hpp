@@ -16,14 +16,14 @@ namespace ospf
             template<
                 typename T,
                 usize len,
-                reference::ReferenceCategory cat,
+                ReferenceCategory cat,
                 template<typename, usize> class C
             >
             class StaticReferenceArray;
 
             template<
                 typename T,
-                reference::ReferenceCategory cat,
+                ReferenceCategory cat,
                 template<typename> class C
             >
             class DynamicReferenceArray;
@@ -35,14 +35,14 @@ namespace ospf
                 template<
                     typename T,
                     usize len,
-                    reference::ReferenceCategory cat,
+                    ReferenceCategory cat,
                     template<typename, usize> class C
                 >
                 friend class StaticReferenceArray;
 
                 template<
                     typename T,
-                    reference::ReferenceCategory cat,
+                    ReferenceCategory cat,
                     template<typename> class C
                 >
                 friend class DynamicReferenceArray;
@@ -83,14 +83,14 @@ namespace ospf
                 template<
                     typename T,
                     usize len,
-                    reference::ReferenceCategory cat,
+                    ReferenceCategory cat,
                     template<typename, usize> class C
                 >
                 friend class StaticReferenceArray;
 
                 template<
                     typename T,
-                    reference::ReferenceCategory cat,
+                    ReferenceCategory cat,
                     template<typename> class C
                 >
                 friend class DynamicReferenceArray;
@@ -137,14 +137,14 @@ namespace ospf
                 template<
                     typename T,
                     usize len,
-                    reference::ReferenceCategory cat,
+                    ReferenceCategory cat,
                     template<typename, usize> class C
                 >
                 friend class StaticReferenceArray;
 
                 template<
                     typename T,
-                    reference::ReferenceCategory cat,
+                    ReferenceCategory cat,
                     template<typename> class C
                 >
                 friend class DynamicReferenceArray;
@@ -185,14 +185,14 @@ namespace ospf
                 template<
                     typename T,
                     usize len,
-                    reference::ReferenceCategory cat,
+                    ReferenceCategory cat,
                     template<typename, usize> class C
                 >
                 friend class StaticReferenceArray;
 
                 template<
                     typename T,
-                    reference::ReferenceCategory cat,
+                    ReferenceCategory cat,
                     template<typename> class C
                 >
                 friend class DynamicReferenceArray;
@@ -232,7 +232,7 @@ namespace ospf
             template<
                 typename T,
                 usize len,
-                reference::ReferenceCategory cat,
+                ReferenceCategory cat,
                 template<typename, usize> class C
             >
             struct ReferenceArrayAccessPolicy<T, C<reference::Ref<OriginType<T>, cat>, len>>
@@ -319,7 +319,7 @@ namespace ospf
 
             template<
                 typename T,
-                reference::ReferenceCategory cat,
+                ReferenceCategory cat,
                 typename Alloc,
                 template<typename, typename> class C
             >
@@ -567,7 +567,7 @@ namespace ospf
             template<
                 typename T,
                 usize len,
-                reference::ReferenceCategory cat,
+                ReferenceCategory cat,
                 template<typename, usize> class C
             >
             class StaticReferenceArray
@@ -577,7 +577,7 @@ namespace ospf
 
                 template<
                     typename T,
-                    reference::ReferenceCategory cat,
+                    ReferenceCategory cat,
                     template<typename> class C
                 >
                 friend class DynamicReferenceArray;
@@ -686,7 +686,7 @@ namespace ospf
 
             template<
                 typename T,
-                reference::ReferenceCategory cat,
+                ReferenceCategory cat,
                 template<typename> class C
             >
             class DynamicReferenceArray
@@ -1394,7 +1394,7 @@ namespace ospf
                 ContainerType _container;
             };
 
-            template<typename T, reference::ReferenceCategory cat>
+            template<typename T, ReferenceCategory cat>
             struct ReferenceArrayTrait
             {
                 template<
@@ -1409,7 +1409,7 @@ namespace ospf
                 using DynamicType = DynamicReferenceArray<T, cat, C>;
             };
 
-            template<typename T, reference::ReferenceCategory cat>
+            template<typename T, ReferenceCategory cat>
             struct ReferenceArrayTrait<reference::Ref<T, cat>, cat>
                 : public ReferenceArrayTrait<T, cat> {};
         };
@@ -1417,7 +1417,7 @@ namespace ospf
         template<
             typename T,
             usize len,
-            reference::ReferenceCategory cat = reference::ReferenceCategory::Reference,
+            ReferenceCategory cat = ReferenceCategory::Reference,
             template<typename, usize> class C = std::array
         >
         using RefArray = typename reference_array::ReferenceArrayTrait<T, cat>::template StaticType<len, C>;
@@ -1427,18 +1427,18 @@ namespace ospf
             usize len,
             template<typename, usize> class C = std::array
         >
-        using BorrowArray = typename reference_array::ReferenceArrayTrait<T, reference::ReferenceCategory::Borrow>::template StaticType<len, C>;
+        using BorrowArray = typename reference_array::ReferenceArrayTrait<T, ReferenceCategory::Borrow>::template StaticType<len, C>;
 
         template<
             typename T,
             usize len,
             template<typename, usize> class C = std::array
         >
-        using UniqueBorrowArray = typename reference_array::ReferenceArrayTrait<T, reference::ReferenceCategory::UniqueBorrow>::template StaticType<len, C>;
+        using UniqueBorrowArray = typename reference_array::ReferenceArrayTrait<T, ReferenceCategory::UniqueBorrow>::template StaticType<len, C>;
 
         template<
             typename T,
-            reference::ReferenceCategory cat = reference::ReferenceCategory::Reference,
+            ReferenceCategory cat = ReferenceCategory::Reference,
             template<typename> class C = std::vector
         >
         using DynRefArray = typename reference_array::ReferenceArrayTrait<T, cat>::template DynamicType<C>;
@@ -1447,13 +1447,13 @@ namespace ospf
             typename T,
             template<typename> class C = std::vector
         >
-        using DynBorrowArray = typename reference_array::ReferenceArrayTrait<T, reference::ReferenceCategory::Borrow>::template DynamicType<C>;
+        using DynBorrowArray = typename reference_array::ReferenceArrayTrait<T, ReferenceCategory::Borrow>::template DynamicType<C>;
 
         template<
             typename T,
             template<typename> class C = std::vector
         >
-        using DynUniqueBorrowArray = typename reference_array::ReferenceArrayTrait<T, reference::ReferenceCategory::UniqueBorrow>::template DynamicType<C>;
+        using DynUniqueBorrowArray = typename reference_array::ReferenceArrayTrait<T, ReferenceCategory::UniqueBorrow>::template DynamicType<C>;
     };
 };
 
