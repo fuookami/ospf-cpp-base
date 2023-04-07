@@ -433,7 +433,7 @@ namespace ospf
             template<typename T, typename C, typename Self>
             class ValueOrReferenceArrayImpl
             {
-                OSPF_CRTP_IMPL
+                OSPF_CRTP_IMPL;
 
             public:
                 using ValueType = OriginType<T>;
@@ -1666,7 +1666,7 @@ namespace ospf
             CopyOnWrite cow = off,
             template<typename, usize> class C = std::array
         >
-        using ValOrRefArray = typename value_or_reference_array::StaticValueOrReferenceArray<T, len, cat, cow, C>;
+        using ValOrRefArray = value_or_reference_array::StaticValueOrReferenceArray<T, len, cat, cow, C>;
 
         template<
             typename T,
@@ -1674,7 +1674,7 @@ namespace ospf
             CopyOnWrite cow = off,
             template<typename> class C = std::vector
         >
-        using DynValOrRefArray = typename value_or_reference_array::DynamicValueOrReferenceArray<T, cat, cow, C>;
+        using DynValOrRefArray = value_or_reference_array::DynamicValueOrReferenceArray<T, cat, cow, C>;
     };
 };
 

@@ -30,24 +30,6 @@ namespace ospf
             public:
                 using ValueType = OriginType<T>;
                 using IterType = OriginType<I>;
-
-            private:
-                struct Trait : public Self
-                {
-                    inline static constexpr decltype(auto) get(ArgCLRefType<IterType> iter) noexcept
-                    {
-                        static const auto impl = &Self::OSPF_CRTP_FUNCTION(get);
-                        return (*impl)(iter);
-                    }
-
-                    inline static constexpr Self construct(ArgCLRefType<IterType> iter) noexcept
-                    {
-                        static const auto impl = &Self::OSPF_CRTP_FUNCTION(construct);
-                        return (*impl)(iter);
-                    }
-                };
-
-            public:
                 using RefType = std::conditional_t<std::is_const_v<T>, CLRefType<ValueType>, LRefType<ValueType>>;
                 using PtrType = std::conditional_t<std::is_const_v<T>, CPtrType<ValueType>, PtrType<ValueType>>;
 
@@ -104,6 +86,22 @@ namespace ospf
                 {
                     return _iter != ano._iter;
                 }
+
+            private:
+                struct Trait : public Self
+                {
+                    inline static constexpr decltype(auto) get(ArgCLRefType<IterType> iter) noexcept
+                    {
+                        static const auto impl = &Self::OSPF_CRTP_FUNCTION(get);
+                        return (*impl)(iter);
+                    }
+
+                    inline static constexpr Self construct(ArgCLRefType<IterType> iter) noexcept
+                    {
+                        static const auto impl = &Self::OSPF_CRTP_FUNCTION(construct);
+                        return (*impl)(iter);
+                    }
+                };
 
             protected:
                 IterType _iter;
