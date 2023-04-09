@@ -64,6 +64,38 @@ namespace ospf
         public:
             constexpr PtrOrRef(const std::nullptr_t) = delete;
 
+        public:
+            template<typename U>
+                requires std::copyable<PointerType> && std::convertible_to<ospf::PtrType<U>, PtrType>
+            constexpr PtrOrRef(const PtrOrRef<U, pcat, rcat>& ano)
+                : _either(std::visit([](const auto& value) 
+                    {
+                        if constexpr (DecaySameAs<decltype(value), pointer::Ptr<U, pcat>>)
+                        {
+                            return Either::left(PointerType{ value })
+                        }
+                        else if constexpr (DecaySameAs<decltype(value), reference::Ref<U, rcat>>)
+                        {
+                            return Either::right(ReferenceType{ value })
+                        }
+                    }, ano._either)) {}
+
+            template<typename U>
+                requires std::convertible_to<ospf::PtrType<U>, PtrType>
+            constexpr PtrOrRef(PtrOrRef<U, pcat, rcat>&& ano)
+                : _either(std::visit([](auto& value) 
+                    {
+                        if constexpr (DecaySameAs<decltype(value), pointer::Ptr<U, pcat>>)
+                        {
+                            return Either::left(PointerType{ std::move(value) })
+                        }
+                        else if constexpr (DecaySameAs<decltype(value), reference::Ref<U, rcat>>)
+                        {
+                            return Either::right(ReferenceType{ std::move(value) })
+                        }
+                    }, ano._either)) {}
+
+        public:
             template<typename = void>
                 requires std::copyable<PointerType>
             constexpr PtrOrRef(ArgCLRefType<PointerType> ptr)

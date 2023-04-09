@@ -448,6 +448,7 @@ namespace ospf
 
             protected:
                 constexpr ValueOrReferenceArrayImpl(void) = default;
+
             public:
                 constexpr ValueOrReferenceArrayImpl(const ValueOrReferenceArrayImpl& ano) = default;
                 constexpr ValueOrReferenceArrayImpl(ValueOrReferenceArrayImpl&& ano) noexcept = default;
@@ -695,6 +696,13 @@ namespace ospf
 
                 template<typename = void>
                     requires std::copyable<ValueOrReferenceType>
+                inline constexpr void fill_reference(ArgCLRefType<ReferenceType> ref) noexcept
+                {
+                    _container.fill(ValueOrReferenceType::ref(ref));
+                }
+
+                template<typename = void>
+                    requires std::copyable<ValueOrReferenceType> && ReferenceType<ReferenceType> && std::movable<ReferenceType>
                 inline constexpr void fill_reference(ArgRRefType<ReferenceType> ref) noexcept
                 {
                     _container.fill(ValueOrReferenceType::ref(move<ReferenceType>(ref)));
@@ -799,15 +807,17 @@ namespace ospf
                     : _container(first, last) {}
 
                 constexpr DynamicValueOrReferenceArray(std::initializer_list<ValueType> values)
-                {
-                    for (auto i{ 0_uz }; i != values.size(); ++i)
-                    {
-                        _container.push_back(ValueOrReferenceType::value(move<ValueType>(values[i])));
-                    }
-                }
+                    : _container
+                    (
+                        boost::make_transform_iterator(values.begin(), [](ValueType& value) { return ValueOrReferenceType::value(move<ValueType>(value)); }),
+                        boost::make_transform_iterator(values.end(), [](ValueType& value) { return ValueOrReferenceType::value(move<ValueType>(value)); })
+                    ) {}
 
                 constexpr DynamicValueOrReferenceArray(std::initializer_list<ValueOrReferenceType> values)
                     : _container(std::move(values)) {}
+
+                constexpr DynamicValueOrReferenceArray(ArgRRefType<ContainerType> container)
+                    : _container(move<ContainerType>(container)) {}
 
             public:
                 constexpr DynamicValueOrReferenceArray(const DynamicValueOrReferenceArray& ano) = default;
@@ -858,11 +868,11 @@ namespace ospf
 
                 inline constexpr void assign(std::initializer_list<ValueType> values)
                 {
-                    _container.clear();
-                    for (auto i{ 0_uz }; i != values.size(); ++i)
-                    {
-                        _container.push_back(ValueOrReferenceType::value(move<ValueType>(values[i])));
-                    }
+                    _container.assign
+                    (
+                        boost::make_transform_iterator(values.begin(), [](ValueType& value) { return ValueOrReferenceType::value(move<ValueType>(value)); }),
+                        boost::make_transform_iterator(values.end(), [](ValueType& value) { return ValueOrReferenceType::value(move<ValueType>(value)); })
+                    );
                 }
 
                 inline constexpr void assign(std::initializer_list<ValueOrReferenceType> values)
@@ -875,19 +885,20 @@ namespace ospf
                     template<typename, usize> class C1
                 >
                     requires std::copyable<ValueOrReferenceType>
-                inline constexpr void assign(const StaticValueOrReferenceArray<ValueType, len, cat, cow, C1>& refs)
+                inline constexpr void assign(const StaticValueOrReferenceArray<ValueType, len, cat, cow, C1>& values)
                 {
-                    assign(refs._container.begin(), refs._container.end());
+                    assign(values._container.begin(), values._container.end());
                 }
 
                 template<
                     usize len,
                     template<typename, usize> class C1
                 >
-                inline constexpr void assign(StaticValueOrReferenceArray<ValueType, len, cat, cow, C1>&& refs)
+                    requires std::movable<ValueOrReferenceType>
+                inline constexpr void assign(StaticValueOrReferenceArray<ValueType, len, cat, cow, C1>&& values)
                 {
                     _container.clear();
-                    std::move(refs._container.begin(), refs._container.end(), std::back_inserter(_container));
+                    std::move(values._container.begin(), values._container.end(), std::back_inserter(_container));
                 }
 
                 template<
@@ -896,11 +907,12 @@ namespace ospf
                     template<typename, usize> class C1
                 >
                     requires std::convertible_to<U, ValueType> && std::convertible_to<PtrType<U>, PtrType<ValueType>>
-                inline constexpr void assign(const StaticValueOrReferenceArray<U, len, cat, cow, C1>& refs)
+                inline constexpr void assign(const StaticValueOrReferenceArray<U, len, cat, cow, C1>& values)
                 {
-                    assign(
-                        boost::make_transform_iterator(refs._container.begin(), [](const ValOrRef<U, cat, cow>& value) { return ValueOrReferenceType{ value }; }),
-                        boost::make_transform_iterator(refs._container.end(), [](const ValOrRef<U, cat, cow>& value) { return ValueOrReferenceType{ value }; })
+                    assign
+                    (
+                        boost::make_transform_iterator(values._container.begin(), [](const ValOrRef<U, cat, cow>& value) { return ValueOrReferenceType{ value }; }),
+                        boost::make_transform_iterator(values._container.end(), [](const ValOrRef<U, cat, cow>& value) { return ValueOrReferenceType{ value }; })
                     );
                 }
 
@@ -910,26 +922,27 @@ namespace ospf
                     template<typename, usize> class C1
                 >
                     requires std::convertible_to<U, ValueType> && std::convertible_to<PtrType<U>, PtrType<ValueType>>
-                inline constexpr void assign(StaticValueOrReferenceArray<U, len, cat, cow, C1>&& refs)
+                inline constexpr void assign(StaticValueOrReferenceArray<U, len, cat, cow, C1>&& values)
                 {
-                    assign(
-                        boost::make_transform_iterator(refs._container.begin(), [](ValOrRef<U, cat, cow>& value) { return ValueOrReferenceType{ std::move(value) }; }),
-                        boost::make_transform_iterator(refs._container.end(), [](ValOrRef<U, cat, cow>& value) { return ValueOrReferenceType{ std::move(value) }; })
+                    assign
+                    (
+                        boost::make_transform_iterator(values._container.begin(), [](ValOrRef<U, cat, cow>& value) { return ValueOrReferenceType{ std::move(value) }; }),
+                        boost::make_transform_iterator(values._container.end(), [](ValOrRef<U, cat, cow>& value) { return ValueOrReferenceType{ std::move(value) }; })
                     );
                 }
 
                 template<template<typename> class C1>
                     requires std::copyable<ValueOrReferenceType>
-                inline constexpr void assign(const DynamicValueOrReferenceArray<ValueType, cat, cow, C1>& refs)
+                inline constexpr void assign(const DynamicValueOrReferenceArray<ValueType, cat, cow, C1>& values)
                 {
-                    assign(refs._container.begin(), refs._container.end());
+                    assign(values._container.begin(), values._container.end());
                 }
 
                 template<template<typename> class C1>
-                inline constexpr void assign(DynamicValueOrReferenceArray<ValueType, cat, cow, C1>&& refs)
+                inline constexpr void assign(DynamicValueOrReferenceArray<ValueType, cat, cow, C1>&& values)
                 {
                     _container.clear();
-                    std::move(refs._container.begin(), refs._container.end(), std::back_inserter(_container));
+                    std::move(values._container.begin(), values._container.end(), std::back_inserter(_container));
                 }
 
                 template<
@@ -938,11 +951,12 @@ namespace ospf
                     template<typename> class C1
                 >
                     requires std::convertible_to<U, ValueType> && std::convertible_to<PtrType<U>, PtrType<ValueType>>
-                inline constexpr void assign(const DynamicValueOrReferenceArray<U, cat, cow, C1>& refs)
+                inline constexpr void assign(const DynamicValueOrReferenceArray<U, cat, cow, C1>& values)
                 {
-                    assign(
-                        boost::make_transform_iterator(refs._container.begin(), [](const ValOrRef<U, cat, cow>& value) { return ValueOrReferenceType{ value }; }),
-                        boost::make_transform_iterator(refs._container.end(), [](const ValOrRef<U, cat, cow>& value) { return ValueOrReferenceType{ value }; })
+                    assign
+                    (
+                        boost::make_transform_iterator(values._container.begin(), [](const ValOrRef<U, cat, cow>& value) { return ValueOrReferenceType{ value }; }),
+                        boost::make_transform_iterator(values._container.end(), [](const ValOrRef<U, cat, cow>& value) { return ValueOrReferenceType{ value }; })
                     );
                 }
 
@@ -952,11 +966,12 @@ namespace ospf
                     template<typename> class C1
                 >
                     requires std::convertible_to<U, ValueType> && std::convertible_to<PtrType<U>, PtrType<ValueType>>
-                inline constexpr void assign(DynamicValueOrReferenceArray<U, cat, cow, C1>&& refs)
+                inline constexpr void assign(DynamicValueOrReferenceArray<U, cat, cow, C1>&& values)
                 {
-                    assign(
-                        boost::make_transform_iterator(refs._container.begin(), [](ValOrRef<U, cat, cow>& value) { return ValueOrReferenceType{ std::move(value) }; }),
-                        boost::make_transform_iterator(refs._container.end(), [](ValOrRef<U, cat, cow>& value) { return ValueOrReferenceType{ std::move(value) }; })
+                    assign
+                    (
+                        boost::make_transform_iterator(values._container.begin(), [](ValOrRef<U, cat, cow>& value) { return ValueOrReferenceType{ std::move(value) }; }),
+                        boost::make_transform_iterator(values._container.end(), [](ValOrRef<U, cat, cow>& value) { return ValueOrReferenceType{ std::move(value) }; })
                     );
                 }
 
@@ -968,7 +983,7 @@ namespace ospf
                 }
 
                 template<typename = void>
-                    requires std::copyable<ValueOrReferenceType> && ReferenceFaster<ValueType>&& std::movable<ValueType>
+                    requires std::copyable<ValueOrReferenceType> && ReferenceFaster<ValueType> && std::movable<ValueType>
                 inline constexpr void assign_value(const usize length, ArgRRefType<ValueType> value)
                 {
                     _container.assign(length, ValueOrReferenceType::value(move<ValueType>(value)));
@@ -980,14 +995,16 @@ namespace ospf
                 {
                     if constexpr (std::is_same_v<decltype(*first), CLRefType<ValueType>>)
                     {
-                        _container.assign(
+                        _container.assign
+                        (
                             boost::make_transform_iterator(std::forward<It>(first), [](ArgCLRefType<ValueType> value) { return ValueOrReferenceType::value(value); }),
                             boost::make_transform_iterator(std::forward<It>(last), [](ArgCLRefType<ValueType> value) { return ValueOrReferenceType::value(value); })
                         );
                     }
                     else
                     {
-                        _container.assign(
+                        _container.assign
+                        (
                             boost::make_transform_iterator(std::forward<It>(first), [](ArgLRefType<ValueType> value) { return ValueOrReferenceType::value(move<ValueType>(value)); }),
                             boost::make_transform_iterator(std::forward<It>(last), [](ArgLRefType<ValueType> value) { return ValueOrReferenceType::value(move<ValueType>(value)); })
                         );
@@ -1008,6 +1025,13 @@ namespace ospf
 
                 template<typename = void>
                     requires std::copyable<ValueOrReferenceType>
+                inline constexpr void assign_reference(const usize length, ArgCLRefType<ReferenceType> ref)
+                {
+                    _container.assign(length, ValueOrReferenceType::ref(ref));
+                }
+
+                template<typename = void>
+                    requires std::copyable<ValueOrReferenceType> && ReferenceFaster<ReferenceType> && std::movable<ReferenceType>
                 inline constexpr void assign_reference(const usize length, ArgRRefType<ReferenceType> ref)
                 {
                     _container.assign(length, ValueOrReferenceType::ref(move<ReferenceType>(ref)));
@@ -1017,7 +1041,8 @@ namespace ospf
                     requires requires (const It it) { { *it } -> DecaySameAs<ValueType>; }
                 inline constexpr void assign_reference(It&& first, It&& last)
                 {
-                    _container.assign(
+                    _container.assign
+                    (
                         boost::make_transform_iterator(std::forward<It>(first), [](CLRefType<ValueType> value) { return ValueOrReferenceType::ref(value); }),
                         boost::make_transform_iterator(std::forward<It>(last), [](CLRefType<ValueType> value) { return ValueOrReferenceType::ref(value); })
                     );
@@ -1027,7 +1052,8 @@ namespace ospf
                     requires std::copyable<ReferenceType> && requires (const It it) { { *it } -> DecaySameAs<ReferenceType>; }
                 inline constexpr void assign_reference(It&& first, It&& last)
                 {
-                    _container.assign(
+                    _container.assign
+                    (
                         boost::make_transform_iterator(std::forward<It>(first), [](ArgCLRefType<ReferenceType> ref) { return ValueOrReferenceType::ref(ref); }),
                         boost::make_transform_iterator(std::forward<It>(last), [](ArgCLRefType<ReferenceType> ref) { return ValueOrReferenceType::ref(ref); })
                     );
@@ -1035,11 +1061,11 @@ namespace ospf
 
                 inline constexpr void assign_reference(std::initializer_list<ReferenceType> refs)
                 {
-                    _container.clear();
-                    for (auto i{ 0_uz }; i != refs.size(); ++i)
-                    {
-                        _container.push_back(ValueOrReferenceType::ref(move<ReferenceType>(refs[i])));
-                    }
+                    _container.assign
+                    (
+                        boost::make_transform_iterator(std::forward<It>(first), [](LRefType<ReferenceType> ref) { return PointerOrReferenceType::ref(move<ReferenceType>(ref)); }),
+                        boost::make_transform_iterator(std::forward<It>(last), [](LRefType<ReferenceType> ref) { return PointerOrReferenceType::ref(move<ReferenceType>(ref)); })
+                    );
                 }
 
             public:
@@ -1052,7 +1078,7 @@ namespace ospf
 
                 template<typename = void>
                     requires requires (ContainerType& container) { { container.data() } -> DecaySameAs<CPtrType<ValueOrReferenceType>>; }
-                inline constexpr const PtrType<ValueOrReferenceType> data(void) const noexcept
+                inline constexpr const CPtrType<ValueOrReferenceType> data(void) const noexcept
                 {
                     return _container.data();
                 }
@@ -1090,6 +1116,13 @@ namespace ospf
                     _container.clear();
                 }
 
+                inline constexpr RetType<IterType> insert(ArgCLRefType<ConstIterType> pos, ArgCLRefType<ValueOrReferenceType> value)
+                {
+                    return IterType{ _container.insert(pos._iter, value) };
+                }
+
+                template<typename = void>
+                    requires ReferenceFaster<ValueOrReferenceType> && std::movable<ValueOrReferenceType>
                 inline constexpr RetType<IterType> insert(ArgCLRefType<ConstIterType> pos, ArgRRefType<ValueOrReferenceType> value)
                 {
                     return IterType{ _container.insert(pos._iter, move<ValueOrReferenceType>(value)) };
@@ -1288,6 +1321,7 @@ namespace ospf
                     return IterType{ _container.erase(first._iter, last._iter) };
                 }
 
+            public:
                 inline constexpr void push_back(ArgRRefType<ValueOrReferenceType> value)
                 {
                     _container.push_back(move<ValueOrReferenceType>(value));
@@ -1410,6 +1444,7 @@ namespace ospf
                     return back;
                 }
 
+            public:
                 inline constexpr void push_front(ArgRRefType<ValueOrReferenceType> value)
                 {
                     _container.insert(_container.begin(), move<ValueOrReferenceType>(value));
@@ -1584,6 +1619,7 @@ namespace ospf
                     return front;
                 }
 
+             public:
                 template<typename = void>
                     requires std::default_initializable<ValueOrReferenceType>
                 inline constexpr void resize(const usize length)

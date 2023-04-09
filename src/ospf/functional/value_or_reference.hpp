@@ -73,35 +73,35 @@ namespace ospf
             constexpr ValOrRef(void)
                 : _either(Either::left(DefaultValue<ValueType>::value())) {}
 
-            template<typename U>
+            template<typename U, CopyOnWrite cw>
                 requires std::copyable<ReferenceType> && std::convertible_to<U, ValueType> && std::convertible_to<ospf::PtrType<U>, PtrType>
-            constexpr ValOrRef(const ValOrRef<U, cat>& ano)
+            constexpr ValOrRef(const ValOrRef<U, cat, cw>& ano)
                 : _either(std::visit([](const auto& value)
                     {
                         if constexpr (DecaySameAs<decltype(value), U>)
                         {
                             return Either::left(ValueType{ value });
                         }
-                        else if constexpr (DecaySameAs<decltype(value), Ref<U, cat>>)
+                        else if constexpr (DecaySameAs<decltype(value), reference::Ref<U, cat>>)
                         {
                             return Either::right(ReferenceType{ value });
                         }
                     }, ano._either)) {}
 
-                    template<typename U>
-                        requires std::convertible_to<U, ValueType> && std::convertible_to<ospf::PtrType<U>, PtrType>
-                    constexpr ValOrRef(ValOrRef<U, cat>&& ano)
-                        : _either(std::visit([](auto& value)
-                            {
-                                if constexpr (DecaySameAs<decltype(value), U>)
-                                {
-                                    return Either::left(ValueType{ std::move(value) });
-                                }
-                                else if constexpr (DecaySameAs<decltype(value), Ref<U, cat>>)
-                                {
-                                    return Either::right(ReferenceType{ std::move(value) });
-                                }
-                            }, ano._either)) {}
+            template<typename U, CopyOnWrite cw>
+                requires std::convertible_to<U, ValueType> && std::convertible_to<ospf::PtrType<U>, PtrType>
+            constexpr ValOrRef(ValOrRef<U, cat, cw>&& ano)
+                : _either(std::visit([](auto& value)
+                    {
+                        if constexpr (DecaySameAs<decltype(value), U>)
+                        {
+                            return Either::left(ValueType{ std::move(value) });
+                        }
+                        else if constexpr (DecaySameAs<decltype(value), reference::Ref<U, cat>>)
+                        {
+                            return Either::right(ReferenceType{ std::move(value) });
+                        }
+                    }, ano._either)) {}
 
         public:
             constexpr ValOrRef(ArgCLRefType<ValueType> value)
@@ -535,6 +535,13 @@ namespace ospf
             constexpr ValOrRef(void)
                 : _value(DefaultValue<ValueType>::value()) {}
 
+        public:
+            template<typename U>
+                requires std::convertible_to<U, ValueType>
+            constexpr ValOrRef(const ValOrRef<U, cat, cow>& ano)
+                : _value(static_cast<ValueType>(*ano)) {}
+
+        public:
             constexpr ValOrRef(ArgCLRefType<ValueType> value)
                 : _value(value) {}
 
