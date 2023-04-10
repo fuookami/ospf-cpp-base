@@ -752,18 +752,25 @@ namespace ospf
 
             struct RangeFrom
             {
-                template<typename T>
-                    requires DecayNotSameAs<T, Unbounded>
-                inline constexpr RetType<RangeBounds<OriginType<T>>> operator()(T&& lhs, const Unbounded rhs) const noexcept
+                template<typename T, typename U>
+                    requires DecayNotSameAs<T, Unbounded> && (DecaySameAs<U, Unbounded> || DecaySameAs<U, T>)
+                inline constexpr RetType<RangeBounds<OriginType<T>>> operator()(T&& lhs, U&& rhs) const noexcept
                 {
-                    return RangeBounds<OriginType<T>>::from(std::forward<T>(lhs));
-                }
-
-                template<typename T>
-                    requires DecayNotSameAs<T, Unbounded>
-                inline constexpr RetType<RangeBounds<OriginType<T>>> operator()(T&& lhs, T&& rhs) const noexcept
-                {
-                    return RangeBounds<OriginType<T>>::range(std::forward<T>(lhs), std::forward<T>(rhs));
+                    if constexpr (DecaySameAs<U, Unbounded>)
+                    {
+                        return RangeBounds<OriginType<T>>::from(std::forward<T>(lhs));
+                    }
+                    else if constexpr (DecaySameAs<U, T>)
+                    {
+                        if constexpr (CopyFaster<T>)
+                        {
+                            return RangeBounds<OriginType<T>>::range(lhs, rhs);
+                        }
+                        else
+                        {
+                            return RangeBounds<OriginType<T>>::range(move<T>(lhs), move<T>(rhs));
+                        }
+                    }
                 }
             };
             static constexpr const auto from = ospf::range_bounds::RangeFrom{};

@@ -109,7 +109,7 @@ namespace ospf
                         return _either.left();
                     }
 
-                    inline constexpr RetType<DummyIndex> index(void) &&
+                    inline RetType<DummyIndex> index(void) &&
                     {
                         return static_cast<Either&&>(_either).left();
                     }

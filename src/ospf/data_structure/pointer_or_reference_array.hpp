@@ -621,11 +621,6 @@ namespace ospf
                 using typename Impl::ConstReverseIterType;
 
             public:
-                template<typename = void>
-                    requires (!std::default_initializable<PointerOrReferenceType> && WithDefault<PointerOrReferenceType> && std::copyable<PointerOrReferenceType>)
-                constexpr StaticPointerOrReferenceArray(void)
-                    : _container(make_array<PointerOrReferenceType, len>(DefaultValue<PointerOrReferenceType>::value())) {}
-
                 constexpr StaticPointerOrReferenceArray(ArgRRefType<ContainerType> container)
                     : _container(move<ContainerType>(container)) {}
 
@@ -683,14 +678,14 @@ namespace ospf
                     requires std::copyable<ValueOrReferenceType>
                 inline constexpr void fill_reference(ArgCLRefType<ReferenceType> ref) noexcept
                 {
-                    _container.fill(ValueOrReferenceType::ref(ref));
+                    _container.fill(PointerOrReferenceType::ref(ref));
                 }
 
                 template<typename = void>
-                    requires std::copyable<ValueOrReferenceType> && ReferenceType<ReferenceType> && std::movable<ReferenceType>
+                    requires std::copyable<ValueOrReferenceType> && ReferenceFaster<ReferenceType> && std::movable<ReferenceType>
                 inline constexpr void fill_reference(ArgRRefType<ReferenceType> ref) noexcept
                 {
-                    _container.fill(ValueOrReferenceType::ref(move<ReferenceType>(ref)));
+                    _container.fill(PointerOrReferenceType::ref(move<ReferenceType>(ref)));
                 }
 
             public:
@@ -756,7 +751,7 @@ namespace ospf
             class DynamicPointerOrReferenceArray
                 : public PointerOrReferenceArrayImpl<T, C<PtrOrRef<OriginType<T>, pcat, rcat>>, DynamicPointerOrReferenceArray<T, pcat, rcat, C>>
             {
-                using Impl = PointerOrReferenceArrayImpl<T, C<ValOrRef<OriginType<T>, cat, cow>>, DynamicPointerOrReferenceArray<T, cat, cow, C>>;
+                using Impl = PointerOrReferenceArrayImpl<T, C<ValOrRef<OriginType<T>, pcat, rcat>>, DynamicPointerOrReferenceArray<T, pcat, rcat, C>>;
 
             public:
                 using typename Impl::ValueType;
@@ -785,8 +780,8 @@ namespace ospf
                 constexpr DynamicPointerOrReferenceArray(std::initializer_list<PointerType> ptrs)
                     : _container
                     (
-                        boost::make_transform_iterator(ptrs.begin(), [](PointerType& ptr) { return PointerOrReferenceType::ptr(move<PointerType>(value)); }),
-                        boost::make_transform_iterator(ptrs.end(), [](PointerType& ptr) { return PointerOrReferenceType::ptr(move<PointerType>(value)); })
+                        boost::make_transform_iterator(ptrs.begin(), [](PointerType& ptr) { return PointerOrReferenceType::ptr(move<PointerType>(ptr)); }),
+                        boost::make_transform_iterator(ptrs.end(), [](PointerType& ptr) { return PointerOrReferenceType::ptr(move<PointerType>(ptr)); })
                     ) {}
 
                 constexpr DynamicPointerOrReferenceArray(std::initializer_list<PointerOrReferenceType> values)
@@ -821,8 +816,8 @@ namespace ospf
                 {
                     _container.assign
                     (
-                        boost::make_transform_iterator(ptrs.begin(), [](PointerType& ptr) { return PointerOrReferenceType::ptr(move<PointerType>(value)); }),
-                        boost::make_transform_iterator(ptrs.end(), [](PointerType& ptr) { return PointerOrReferenceType::ptr(move<PointerType>(value)); })
+                        boost::make_transform_iterator(ptrs.begin(), [](PointerType& ptr) { return PointerOrReferenceType::ptr(move<PointerType>(ptr)); }),
+                        boost::make_transform_iterator(ptrs.end(), [](PointerType& ptr) { return PointerOrReferenceType::ptr(move<PointerType>(ptr)); })
                     );
                 }
 
@@ -848,8 +843,11 @@ namespace ospf
                     requires std::movable<PointerOrReferenceType>
                 inline constexpr void assign(StaticPointerOrReferenceArray<ValueType, len, pcat, rcat, C1>&& values)
                 {
-                    _container.clear();
-                    std::move(values._container.begin(), values._container.end(), std::back_inserter(_container));
+                    assign
+                    (
+                        boost::make_transform_iterator(values._container.begin(), [](PointerOrReferenceType& value) { return std::move(value); }),
+                        boost::make_transform_iterator(values._container.end(), [](PointerOrReferenceType& value) { return std::move(value); })
+                    );
                 }
 
                 template<
@@ -863,7 +861,7 @@ namespace ospf
                     assign
                     (
                         boost::make_transform_iterator(values._container.begin(), [](const PtrOrRef<U, pcat, rcat>& value) { return PointerOrReferenceType{ value }; }),
-                        boost::make_transform_iterator(values._container.end(), [](const PtrOrRef<U, pcat, rcat>& value) { return PointerOrReferenceType{ value }; }),
+                        boost::make_transform_iterator(values._container.end(), [](const PtrOrRef<U, pcat, rcat>& value) { return PointerOrReferenceType{ value }; })
                     );
                 }
 
@@ -873,28 +871,31 @@ namespace ospf
                     template<typename, usize> class C1
                 >
                     requires std::convertible_to<PtrType<U>, PtrType<ValueType>>
-                inline constexpr void assign(StaticPointerOrReferenceArray<U, len, pcat, rcat, C1>& values)
+                inline constexpr void assign(StaticPointerOrReferenceArray<U, len, pcat, rcat, C1>&& values)
                 {
                     assign
                     (
                         boost::make_transform_iterator(values._container.begin(), [](PtrOrRef<U, pcat, rcat>& value) { return PointerOrReferenceType{ std::move(value) }; }),
-                        boost::make_transform_iterator(values._container.end(), [](PtrOrRef<U, pcat, rcat>& value) { return PointerOrReferenceType{ std::move(value) }; }),
+                        boost::make_transform_iterator(values._container.end(), [](PtrOrRef<U, pcat, rcat>& value) { return PointerOrReferenceType{ std::move(value) }; })
                     );
                 }
 
-                template<template<typename> class C1>>
+                template<template<typename> class C1>
                     requires std::copyable<PointerOrReferenceType>
                 inline constexpr void assign(const DynamicPointerOrReferenceArray<ValueType, pcat, rcat, C1>& values)
                 {
                     assign(values._container.begin(), values._container.end());
                 }
 
-                template<template<typename> class C1 >>
+                template<template<typename> class C1>
                     requires std::movable<PointerOrReferenceType>
-                inline constexpr void assign(const DynamicPointerOrReferenceArray<ValueType, pcat, rcat, C1>& values)
+                inline constexpr void assign(DynamicPointerOrReferenceArray<ValueType, pcat, rcat, C1>&& values)
                 {
-                    _container.clear();
-                    std::move(values._container.begin(), values._container.end(), std::back_inserter(_container));
+                    assign
+                    (
+                        boost::make_transform_iterator(values._container.begin(), [](PointerOrReferenceType& value) { return std::move(value); }),
+                        boost::make_transform_iterator(values._container.end(), [](PointerOrReferenceType& value) { return std::move(value); })
+                    );
                 }
 
                 template<
@@ -907,7 +908,7 @@ namespace ospf
                     assign
                     (
                         boost::make_transform_iterator(values._container.begin(), [](const PtrOrRef<U, pcat, rcat>& value) { return PointerOrReferenceType{ value }; }),
-                        boost::make_transform_iterator(values._container.end(), [](const PtrOrRef<U, pcat, rcat>& value) { return PointerOrReferenceType{ value }; }),
+                        boost::make_transform_iterator(values._container.end(), [](const PtrOrRef<U, pcat, rcat>& value) { return PointerOrReferenceType{ value }; })
                     );
                 }
 
@@ -921,7 +922,7 @@ namespace ospf
                     assign
                     (
                         boost::make_transform_iterator(values._container.begin(), [](PtrOrRef<U, pcat, rcat>& value) { return PointerOrReferenceType{ std::move(value) }; }),
-                        boost::make_transform_iterator(values._container.end(), [](PtrOrRef<U, pcat, rcat>& value) { return PointerOrReferenceType{ std::move(value) }; }),
+                        boost::make_transform_iterator(values._container.end(), [](PtrOrRef<U, pcat, rcat>& value) { return PointerOrReferenceType{ std::move(value) }; })
                     );
                 }
 
@@ -974,7 +975,7 @@ namespace ospf
                     requires std::copyable<PointerOrReferenceType>
                 inline constexpr void assign_reference(const usize length, CLRefType<ValueType> ref)
                 {
-                    _container.assign(length, PointerOrReferenceType::ref(ReferenceType{ ref })));
+                    _container.assign(length, PointerOrReferenceType::ref(ReferenceType{ ref }));
                 }
 
                 template<typename = void>
@@ -1017,8 +1018,8 @@ namespace ospf
                 {
                     _container.assign
                     (
-                        boost::make_transform_iterator(std::forward<It>(first), [](LRefType<ReferenceType> ref) { return PointerOrReferenceType::ref(move<ReferenceType>(ref)); }),
-                        boost::make_transform_iterator(std::forward<It>(last), [](LRefType<ReferenceType> ref) { return PointerOrReferenceType::ref(move<ReferenceType>(ref)); })
+                        boost::make_transform_iterator(refs.begin(), [](LRefType<ReferenceType> ref) { return PointerOrReferenceType::ref(move<ReferenceType>(ref)); }),
+                        boost::make_transform_iterator(refs.end(), [](LRefType<ReferenceType> ref) { return PointerOrReferenceType::ref(move<ReferenceType>(ref)); })
                     );
                 }
 
@@ -1070,9 +1071,200 @@ namespace ospf
                     _container.clear();
                 }
 
+                inline constexpr RetType<IterType> insert(ArgCLRefType<ConstIterType> pos, ArgCLRefType<PointerOrReferenceType> value)
+                {
+                    return IterType{ _container.insert(pos._iter, value) };
+                }
 
+                template<typename = void>
+                    requires ReferenceFaster<PointerOrReferenceType> && std::movable<PointerOrReferenceType>
+                inline constexpr RetType<IterType> insert(ArgCLRefType<ConstIterType> pos, ArgRRefType<PointerOrReferenceType> value)
+                {
+                    return IterType{ _container.insert(pos._iter, move<PointerOrReferenceType>(value)) };
+                }
 
-                // insert
+                template<std::input_iterator It>
+                    requires requires (const It& it) { { *it } -> DecaySameAs<PointerOrReferenceType>; }
+                inline constexpr RetType<IterType> insert(ArgCLRefType<ConstIterType> pos, It&& first, It&& last)
+                {
+                    return IterType{ _container.insert(pos._iter, std::forward<It>(first), std::forward<It>(last)) };
+                }
+
+                inline constexpr RetType<IterType> insert(ArgCLRefType<ConstIterType> pos, std::initializer_list<PointerType> ptrs)
+                {
+                    return insert(pos, 
+                        boost::make_transform_iterator(ptrs.begin(), [](PointerType& ptr) { return PointerOrReferenceType::ptr(std::move(ptr)); }),
+                        boost::make_transform_iterator(ptrs.end(), [](PointerType& ptr) { return PointerOrReferenceType::ptr(std::move(ptr)); })
+                    );
+                }
+
+                inline constexpr RetType<IterType> insert(ArgCLRefType<ConstIterType> pos, std::initializer_list<PointerOrReferenceType> values)
+                {
+                    return IterType{ _container.insert(pos._iter, std::move(values)) };
+                }
+
+                template<
+                    usize len,
+                    template<typename, usize> class C1
+                >
+                    requires std::copyable<PointerOrReferenceType>
+                inline constexpr RetType<IterType> insert(ArgCLRefType<ConstIterType> pos, const StaticPointerOrReferenceArray<ValueType, len, pcat, rcat, C1>& values)
+                {
+                    return insert(pos, values._container.begin(), values._container.end());
+                }
+
+                template<
+                    usize len,
+                    template<typename, usize> class C1
+                >
+                    requires std::movable<PointerOrReferenceType>
+                inline constexpr RetType<IterType> insert(ArgCLRefType<ConstIterType> pos, StaticPointerOrReferenceArray<ValueType, len, pcat, rcat, C1>&& values)
+                {
+                    return IterType{ std::move(values._container.begin(), values._container.end(), std::inserter(_container, pos._iter)) };
+                }
+
+                template<
+                    typename U,
+                    usize len,
+                    template<typename, usize> class C1
+                >
+                    requires std::convertible_to<PtrType<U>, PtrType<ValueType>>
+                inline constexpr RetType<IterType> insert(ArgCLRefType<ConstIterType> pos, const StaticPointerOrReferenceArray<U, len, pcat, rcat, C1>& values)
+                {
+                    return insert(pos,
+                        boost::make_transform_iterator(values._container.begin(), [](const PtrOrRef<U, pcat, rcat>& value) { return PointerOrReferenceType{ value }; }),
+                        boost::make_transform_iterator(values._container.end(), [](const PtrOrRef<U, pcat, rcat>& value) { return PointerOrReferenceType{ value }; })
+                    );
+                }
+
+                template<
+                    typename U,
+                    usize len,
+                    template<typename, usize> class C1
+                >
+                    requires std::convertible_to<PtrType<U>, PtrType<ValueType>>
+                inline constexpr RetType<IterType> insert(ArgCLRefType<ConstIterType> pos, StaticPointerOrReferenceArray<U, len, pcat, rcat, C1>&& values)
+                {
+                    return insert(pos,
+                        boost::make_transform_iterator(values._container.begin(), [](PtrOrRef<U, pcat, rcat>& value) { return PointerOrReferenceType{ std::move(value) }; }),
+                        boost::make_transform_iterator(values._container.end(), [](PtrOrRef<U, pcat, rcat>& value) { return PointerOrReferenceType{ std::move(value) }; })
+                    );
+                }
+
+                template<template<typename> class C1>
+                    requires std::copyable<PointerOrReferenceType>
+                inline constexpr RetType<IterType> insert(ArgCLRefType<ConstIterType> pos, const DynamicPointerOrReferenceArray<ValueType, pcat, rcat, C1>& values)
+                {
+                    return insert(pos, values._container.begin(), values._container.end());
+                }
+
+                template<template<typename> class C1>
+                    requires std::movable<PointerOrReferenceType>
+                inline constexpr RetType<IterType> insert(ArgCLRefType<ConstIterType> pos, DynamicPointerOrReferenceArray<ValueType, pcat, rcat, C1>&& values)
+                {
+                    return IterType{ std::move(values._container.begin(), values._container.end(), std::inserter(_container, pos._iter)) };
+                }
+
+                template<
+                    typename U, 
+                    template<typename> class C1
+                >
+                    requires std::convertible_to<PtrType<U>, PtrType<ValueType>>
+                inline constexpr RetType<IterType> insert(ArgCLRefType<ConstIterType> pos, const DynamicPointerOrReferenceArray<U, pcat, rcat, C1>& values)
+                {
+                    return insert(pos,
+                        boost::make_transform_iterator(values._container.begin(), [](const PtrOrRef<U, pcat, rcat>& value) { return PointerOrReferenceType{ value }; }),
+                        boost::make_transform_iterator(values._container.end(), [](const PtrOrRef<U, pcat, rcat>& value) { return PointerOrReferenceType{ value }; })
+                    );
+                }
+
+                template<
+                    typename U,
+                    template<typename> class C1
+                >
+                    requires std::convertible_to<PtrType<U>, PtrType<ValueType>>
+                inline constexpr RetType<IterType> insert(ArgCLRefType<ConstIterType> pos, DynamicPointerOrReferenceArray<U, pcat, rcat, C1>&& values)
+                {
+                    return insert(pos,
+                        boost::make_transform_iterator(values._container.begin(), [](PtrOrRef<U, pcat, rcat>& value) { return PointerOrReferenceType{ std::move(value) }; }),
+                        boost::make_transform_iterator(values._container.end(), [](PtrOrRef<U, pcat, rcat>& value) { return PointerOrReferenceType{ std::move(value) }; })
+                    );
+                }
+
+                inline constexpr RetType<IterType> insert_ptr(ArgCLRefType<ConstIterType> pos, ArgCLRefType<PointerType> ptr)
+                {
+                    return IterType{ _container.insert(pos._iter, PointerOrReferenceType::ptr(ptr)) };
+                }
+
+                template<typename = void>
+                    requires ReferenceFaster<PointerType> && std::movable<PointerType>
+                inline constexpr RetType<IterType> insert_ptr(ArgCLRefType<ConstIterType> pos, ArgRRefType<PointerType> ptr)
+                {
+                    return IterType{ _container.insert(pos._iter, PointerOrReferenceType::ptr(std::move(ptr))) };
+                }
+
+                template<std::input_iterator It>
+                    requires requires (const It& it) { { *it } -> DecaySameAs<PointerType>; }
+                inline constexpr RetType<IterType> insert_ptr(ArgCLRefType<ConstIterType> pos, It&& first, It&& last)
+                {
+                    if constexpr (std::is_same_v<decltype(*first), CLRefType<PointerType>>)
+                    {
+                        return IterType{ _container.insert(pos._iter, 
+                            boost::make_transform_iterator(std::forward<It>(first), [](ArgCLRefType<PointerType> ptr) { return PointerOrReferenceType::ptr(ptr); }),
+                            boost::make_transform_iterator(std::forward<It>(last), [](ArgCLRefType<PointerType> ptr) { return PointerOrReferenceType::ptr(ptr); })
+                        ) };
+                    }
+                    else
+                    {
+                        return IterType{ _container.insert(pos._iter,
+                            boost::make_transform_iterator(std::forward<It>(first), [](ArgLRefType<PointerType> ptr) { return PointerOrReferenceType::ptr(move<PointerType>(ptr)); }),
+                            boost::make_transform_iterator(std::forward<It>(last), [](ArgLRefType<PointerType> ptr) { return PointerOrReferenceType::ptr(move<PointerType>(ptr)); })
+                        ) };
+                    }
+                }
+
+                inline constexpr RetType<IterType> insert_ptr(ArgCLRefType<ConstIterType> pos, std::initializer_list<PointerType> ptrs)
+                {
+                    return insert(pos, std::move(ptrs));
+                }
+
+                inline constexpr RetType<IterType> insert_reference(ArgCLRefType<ConstIterType> pos, CLRefType<ValueType> value)
+                {
+                    return insert(pos._iter, PointerOrReferenceType::ref(value));
+                }
+
+                inline constexpr RetType<IterType> insert_reference(ArgCLRefType<ConstIterType> pos, ArgRRefType<ReferenceType> ref)
+                {
+                    return insert(pos._iter, PointerOrReferenceType::ref(move<ReferenceType>(ref)));
+                }
+
+                template<std::input_iterator It>
+                    requires requires (const It it) { { *it } -> DecaySameAs<ValueType>; }
+                inline constexpr RetType<IterType> insert_reference(ArgCLRefType<ConstIterType> pos, It&& first, It&& last)
+                {
+                    return insert(pos._iter,
+                        boost::make_transform_iterator(std::forward<It>(first), [](CLRefType<ValueType> value) { return PointerOrReferenceType::ref(value); }),
+                        boost::make_transform_iterator(std::forward<It>(last), [](CLRefType<ValueType> value) { return PointerOrReferenceType::ref(value); })
+                    );
+                }
+
+                template<std::input_iterator It>
+                    requires std::copyable<ReferenceType> && requires (const It it) { { *it } -> DecaySameAs<ReferenceType>; }
+                inline constexpr RetType<IterType> insert_reference(ArgCLRefType<ConstIterType> pos, It&& first, It&& last)
+                {
+                    return insert(pos._iter,
+                        boost::make_transform_iterator(std::forward<It>(first), [](ArgCLRefType<ReferenceType> ref) { return PointerOrReferenceType::ref(ref); }),
+                        boost::make_transform_iterator(std::forward<It>(last), [](ArgCLRefType<ReferenceType> ref) { return PointerOrReferenceType::ref(ref); })
+                    );
+                }
+
+                inline constexpr RetType<IterType> insert_reference(ArgCLRefType<ConstIterType> pos, std::initializer_list<ReferenceType> refs)
+                {
+                    return insert(pos._iter,
+                        boost::make_transform_iterator(refs.begin(), [](ArgLRefType<ReferenceType> ref) { return PointerOrReferenceType::ref(ref); }),
+                        boost::make_transform_iterator(refs.end(), [](ArgLRefType<ReferenceType> ref) { return PointerOrReferenceType::ref(ref); })
+                    );
+                }
 
                 inline constexpr RetType<IterType> erase(ArgCLRefType<ConstIterType> pos)
                 {

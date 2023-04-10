@@ -724,14 +724,14 @@ namespace ospf
                     {
                         if (i == _map_dimension[j])
                         {
-                            assert(vector[i].is_range_full());
+                            assert(_vector[i].is_range_full());
                             ret[i] = this_vector[j];
                             ++j;
                         }
                         else
                         {
-                            assert(vector[i].is_single_index());
-                            auto index = vector[i].single_index();
+                            assert(_vector[i].is_single_index());
+                            auto index = _vector[i].single_index();
                             assert(index.has_value());
                             std::visit([this, &ret, i](const auto index)
                             {

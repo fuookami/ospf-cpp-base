@@ -177,6 +177,7 @@
   <ItemGroup>
     <ClCompile Include="src\ospf\bytes\bits.cpp" />
     <ClCompile Include="src\ospf\bytes\encryption\rsa.cpp" />
+    <ClCompile Include="src\ospf\data_structure.cpp" />
     <ClCompile Include="src\ospf\data_structure\data_table\data_table_header.cpp" />
     <ClCompile Include="src\ospf\data_structure\multi_array\dummy_index.cpp" />
     <ClCompile Include="src\ospf\data_structure\multi_array\shape.cpp" />
@@ -231,7 +232,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v143</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">

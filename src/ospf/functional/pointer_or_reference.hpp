@@ -72,11 +72,11 @@ namespace ospf
                     {
                         if constexpr (DecaySameAs<decltype(value), pointer::Ptr<U, pcat>>)
                         {
-                            return Either::left(PointerType{ value })
+                            return Either::left(PointerType{ value });
                         }
                         else if constexpr (DecaySameAs<decltype(value), reference::Ref<U, rcat>>)
                         {
-                            return Either::right(ReferenceType{ value })
+                            return Either::right(ReferenceType{ value });
                         }
                     }, ano._either)) {}
 
@@ -87,11 +87,11 @@ namespace ospf
                     {
                         if constexpr (DecaySameAs<decltype(value), pointer::Ptr<U, pcat>>)
                         {
-                            return Either::left(PointerType{ std::move(value) })
+                            return Either::left(PointerType{ std::move(value) });
                         }
                         else if constexpr (DecaySameAs<decltype(value), reference::Ref<U, rcat>>)
                         {
-                            return Either::right(ReferenceType{ std::move(value) })
+                            return Either::right(ReferenceType{ std::move(value) });
                         }
                     }, ano._either)) {}
 

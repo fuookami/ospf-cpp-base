@@ -34,6 +34,12 @@ namespace ospf
         };
 
         template<ReferenceFaster T>
+        inline constexpr decltype(auto) move(std::add_lvalue_reference_t<std::add_const_t<std::decay_t<T>>> value) noexcept
+        {
+            return value;
+        };
+
+        template<ReferenceFaster T>
         inline constexpr decltype(auto) move(std::add_lvalue_reference_t<std::decay_t<T>> value) noexcept
         {
             return std::forward<std::decay_t<T>>(value);
