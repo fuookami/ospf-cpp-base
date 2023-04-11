@@ -1277,10 +1277,315 @@ namespace ospf
                 }
 
             public:
-                // push_back, emplace_back, pop_back
+                inline constexpr void push_back(ArgCLRefType<PointerOrReferenceType> value)
+                {
+                    _container.push_back(value);
+                }
+
+                template<typename = void>
+                    requires ReferenceFaster<PointerOrReferenceType> && std::movable<PointerOrReferenceType>
+                inline constexpr void push_back(ArgRRefType<PointerOrReferenceType> value)
+                {
+                    _container.push_back(move<PointerOrReferenceType>(value));
+                }
+
+                template<
+                    usize len,
+                    template<typename, usize> class C1
+                >
+                    requires std::copyable<PointerOrReferenceType>
+                inline constexpr void push_back(const StaticPointerOrReferenceArray<ValueType, len, pcat, rcat, C1>& values)
+                {
+                    insert(this->end(), values);
+                }
+
+                template<
+                    usize len,
+                    template<typename, usize> class C1
+                >
+                    requires std::movable<PointerOrReferenceType>
+                inline constexpr void push_back(StaticPointerOrReferenceArray<ValueType, len, pcat, rcat, C1>&& values)
+                {
+                    insert(this->end(), std::move(values));
+                }
+
+                template<
+                    typename U,
+                    usize len,
+                    template<typename, usize> class C1
+                >
+                    requires std::convertible_to<PtrType<U>, PtrType<ValueType>>
+                inline constexpr void push_back(const StaticPointerOrReferenceArray<U, len, pcat, rcat, C1>& values)
+                {
+                    insert(this->end(), values);
+                }
+
+                template<
+                    typename U,
+                    usize len,
+                    template<typename, usize> class C1
+                >
+                    requires std::convertible_to<PtrType<U>, PtrType<ValueType>>
+                inline constexpr void push_back(StaticPointerOrReferenceArray<U, len, pcat, rcat, C1>&& values)
+                {
+                    insert(this->end(), std::move(values));
+                }
+
+                template<template<typename> class C1>
+                    requires std::copyable<PointerOrReferenceType>
+                inline constexpr void push_back(const DynamicPointerOrReferenceArray<ValueType, pcat, rcat, C1>& values)
+                {
+                    insert(this->end(), values);
+                }
+
+                template<template<typename> class C1>
+                    requires std::movable<PointerOrReferenceType>
+                inline constexpr void push_back(DynamicPointerOrReferenceArray<ValueType, pcat, rcat, C1>&& values)
+                {
+                    insert(this->end(), std::move(values));
+                }
+
+                template<
+                    typename U,
+                    template<typename> class C1
+                >
+                    requires std::convertible_to<PtrType<U>, PtrType<ValueType>>
+                inline constexpr void push_back(const DynamicPointerOrReferenceArray<U, pcat, rcat, C1>& values)
+                {
+                    insert(this->end(), values);
+                }
+
+                template<
+                    typename U,
+                    template<typename> class C1
+                >
+                    requires std::convertible_to<PtrType<U>, PtrType<ValueType>>
+                inline constexpr void push_back(DynamicPointerOrReferenceArray<U, pcat, rcat, C1>&& values)
+                {
+                    insert(this->end(), std::move(values));
+                }
+
+                inline constexpr void push_back_pointer(ArgCLRefType<PointerType> ptr)
+                {
+                    _container.push_back(PointerOrReferenceType::ptr(ptr));
+                }
+
+                template<typename = void>
+                    requires ReferenceFaster<PointerType> && std::movable<PointerType>
+                inline constexpr void push_back_pointer(ArgRRefType<PointerType> ptr)
+                {
+                    _container.push_back(PointerOrReferenceType::ptr(move<PointerType>(ptr)));
+                }
+
+                inline constexpr void push_back_reference(CLRefType<ValueType> ref)
+                {
+                    _container.push_back(PointerOrReferenceType::ref(ref));
+                }
+
+                inline constexpr void push_back_reference(ArgCLRefType<ReferenceType> ref)
+                {
+                    _container.push_back(PointerOrReferenceType::ref(ref));
+                }
+
+                template<typename = void>
+                    requires ReferenceFaster<ReferenceType> && std::movable<ReferenceType>
+                inline constexpr void push_back_reference(ArgRRefType<ReferenceType> ref)
+                {
+                    _container.push_back(PointerOrReferenceType::ref(move<ReferenceType>(ref)));
+                }
+
+                inline constexpr RetType<PointerOrReferenceType> pop_back(void)
+                {
+                    auto back = move<PointerOrReferenceType>(this->back());
+                    _container.pop_back();
+                    return back;
+                }
 
             public:
-                // push_front, emplace_front, pop_front
+                inline constexpr void push_front(ArgCLRefType<PointerOrReferenceType> value)
+                {
+                    insert(this->begin(), value);
+                }
+
+                template<typename = void>
+                    requires requires (ContainerType& container) { container.push_front(std::declval<PointerOrReferenceType>()); }
+                inline constexpr void push_front(ArgCLRefType<PointerOrReferenceType> value)
+                {
+                    _container.push_front(value);
+                }
+
+                template<typename = void>
+                    requires ReferenceFaster<PointerOrReferenceType> && std::movable<PointerOrReferenceType>
+                inline constexpr void push_front(ArgRRefType<PointerOrReferenceType> value)
+                {
+                    insert(this->begin(), move<PointerOrReferenceType>(value));
+                }
+
+                template<typename = void>
+                    requires ReferenceFaster<PointerOrReferenceType> && std::movable<PointerOrReferenceType> &&
+                        requires (ContainerType& container) { container.push_front(std::declval<PointerOrReferenceType>()); }
+                inline constexpr void push_front(ArgRRefType<PointerOrReferenceType> value)
+                {
+                    _container.push_front(move<PointerOrReferenceType>(value));
+                }
+
+                template<
+                    usize len,
+                    template<typename, usize> class C1
+                >
+                    requires std::copyable<PointerOrReferenceType>
+                inline constexpr void push_front(const StaticPointerOrReferenceArray<ValueType, len, pcat, rcat, C1>& values)
+                {
+                    insert(this->begin(), values);
+                }
+
+                template<
+                    usize len,
+                    template<typename, usize> class C1
+                >
+                    requires std::movable<PointerOrReferenceType>
+                inline constexpr void push_front(StaticPointerOrReferenceArray<ValueType, len, pcat, rcat, C1>&& values)
+                {
+                    insert(this->begin(), std::move(values));
+                }
+
+                template<
+                    typename U,
+                    usize len,
+                    template<typename, usize> class C1
+                >
+                    requires std::convertible_to<PtrType<U>, PtrType<ValueType>>
+                inline constexpr void push_front(const StaticPointerOrReferenceArray<U, len, pcat, rcat, C1>& values)
+                {
+                    insert(this->begin(), values);
+                }
+
+                template<
+                    typename U,
+                    usize len,
+                    template<typename, usize> class C1
+                >
+                    requires std::convertible_to<PtrType<U>, PtrType<ValueType>>
+                inline constexpr void push_front(StaticPointerOrReferenceArray<U, len, pcat, rcat, C1>&& values)
+                {
+                    insert(this->begin(), std::move(values));
+                }
+
+                template<template<typename> class C1>
+                    requires std::copyable<PointerOrReferenceType>
+                inline constexpr void push_front(const DynamicPointerOrReferenceArray<ValueType, pcat, rcat, C1>& values)
+                {
+                    insert(this->begin(), values);
+                }
+
+                template<template<typename> class C1>
+                    requires std::movable<PointerOrReferenceType>
+                inline constexpr void push_front(DynamicPointerOrReferenceArray<ValueType, pcat, rcat, C1>&& values)
+                {
+                    insert(this->begin(), std::move(values));
+                }
+
+                template<
+                    typename U,
+                    template<typename> class C1
+                >
+                    requires std::convertible_to<PtrType<U>, PtrType<ValueType>>
+                inline constexpr void push_front(const DynamicPointerOrReferenceArray<U, pcat, rcat, C1>& values)
+                {
+                    insert(this->begin(), values);
+                }
+
+                template<
+                    typename U,
+                    template<typename> class C1
+                >
+                    requires std::convertible_to<PtrType<U>, PtrType<ValueType>>
+                inline constexpr void push_front(DynamicPointerOrReferenceArray<U, pcat, rcat, C1>&& values)
+                {
+                    insert(this->begin(), std::move(values));
+                }
+
+                inline constexpr void push_front_pointer(ArgCLRefType<PointerType> ptr)
+                {
+                    insert(this->begin(), PointerOrReferenceType::ptr(ptr));
+                }
+
+                template<typename = void>
+                    requires requires (ContainerType& container) { container.push_front(std::declval<PointerOrReferenceType>()); }
+                inline constexpr void push_front_pointer(ArgCLRefType<PointerType> ptr)
+                {
+                    _container.push_front(PointerOrReferenceType::ptr(ptr));
+                }
+
+                template<typename = void>
+                    requires ReferenceFaster<PointerType> && std::movable<PointerType>
+                inline constexpr void push_front_pointer(ArgRRefType<PointerType> ptr)
+                {
+                    insert(this->begin(), PointerOrReferenceType::ptr(move<PointerType>(ptr)));
+                }
+
+                template<typename = void>
+                    requires ReferenceFaster<PointerType> && std::movable<PointerType> &&
+                        requires (ContainerType& container) { container.push_front(std::declval<PointerOrReferenceType>()); }
+                inline constexpr void push_front_pointer(ArgRRefType<PointerType> ptr)
+                {
+                    _container.push_front(PointerOrReferenceType::ptr(move<PointerType>(ptr)));
+                }
+
+                inline constexpr void push_front_reference(CLRefType<ValueType> ref)
+                {
+                    insert(this->begin(), PointerOrReferenceType::ref(ref));
+                }
+
+                template<typename = void>
+                    requires requires (ContainerType& container) { container.push_front(std::declval<PointerOrReferenceType>()); }
+                inline constexpr void push_front_reference(CLRefType<ValueType> ref)
+                {
+                    _container.push_front(PointerOrReferenceType::ref(ref));
+                }
+
+                inline constexpr void push_front_reference(ArgCLRefType<ReferenceType> ref)
+                {
+                    insert(this->begin(), PointerOrReferenceType::ref(ref));
+                }
+
+                template<typename = void>
+                    requires requires (ContainerType& container) { container.push_front(std::declval<PointerOrReferenceType>()); }
+                inline constexpr void push_front_reference(ArgCLRefType<ReferenceType> ref)
+                {
+                    _container.push_front(PointerOrReferenceType::ref(ref));
+                }
+
+                template<typename = void>
+                    requires ReferenceFaster<ReferenceType>&& std::movable<ReferenceType>
+                inline constexpr void push_front_reference(ArgRRefType<ReferenceType> ref)
+                {
+                    insert(this->begin(), PointerOrReferenceType::ref(move<ReferenceType>(ref)));
+                }
+
+                template<typename = void>
+                    requires ReferenceFaster<ReferenceType> && std::movable<ReferenceType> &&
+                        requires (ContainerType& container) { container.push_front(std::declval<PointerOrReferenceType>()); }
+                inline constexpr void push_front_reference(ArgRRefType<ReferenceType> ref)
+                {
+                    _container.push_front(PointerOrReferenceType::ref(move<ReferenceType>(ref)));
+                }
+
+                inline constexpr RetType<PointerOrReferenceType> pop_front(void)
+                {
+                    auto front = move<PointerOrReferenceType>(this->front());
+                    _container.erase(_container.begin());
+                    return front;
+                }
+
+                template<typename = void>
+                    requires requires (ContainerType& container) { container.pop_front(); }
+                inline constexpr RetType<PointerOrReferenceType> pop_front(void)
+                {
+                    auto back = move<PointerOrReferenceType>(this->front());
+                    _container.pop_front();
+                    return back;
+                }
 
             public:
                 template<typename = void>

@@ -1329,6 +1329,13 @@ namespace ospf
                 }
 
             public:
+                inline constexpr void push_back(ArgCLRefType<ValueOrReferenceType> value)
+                {
+                    _container.push_back(value);
+                }
+
+                template<typename = void>
+                    requires ReferenceFaster<ValueOrReferenceType> && std::movable<ValueOrReferenceType>
                 inline constexpr void push_back(ArgRRefType<ValueOrReferenceType> value)
                 {
                     _container.push_back(move<ValueOrReferenceType>(value));
@@ -1339,29 +1346,19 @@ namespace ospf
                     template<typename, usize> class C1
                 >
                     requires std::copyable<ValueOrReferenceType>
-                inline constexpr void push_back(const StaticValueOrReferenceArray<ValueType, len, cat, cow, C1>& refs)
+                inline constexpr void push_back(const StaticValueOrReferenceArray<ValueType, len, cat, cow, C1>& values)
                 {
-                    insert(this->end(), refs);
+                    insert(this->end(), values);
                 }
 
                 template<
                     usize len,
                     template<typename, usize> class C1
                 >
-                inline constexpr void push_back(StaticValueOrReferenceArray<ValueType, len, cat, cow, C1>&& refs)
+                    requires std::movable<ValueOrReferenceType>
+                inline constexpr void push_back(StaticValueOrReferenceArray<ValueType, len, cat, cow, C1>&& values)
                 {
-                    insert(this->end(), std::move(refs));
-                }
-
-                template<
-                    typename U,
-                    usize len,
-                    template<typename, usize> class C1
-                >
-                    requires std::convertible_to<U, ValueType> && std::convertible_to<PtrType<U>, PtrType<ValueType>>
-                inline constexpr void push_back(const StaticValueOrReferenceArray<U, len, cat, cow, C1>& refs)
-                {
-                    insert(this->end(), refs);
+                    insert(this->end(), std::move(values));
                 }
 
                 template<
@@ -1370,22 +1367,34 @@ namespace ospf
                     template<typename, usize> class C1
                 >
                     requires std::convertible_to<U, ValueType> && std::convertible_to<PtrType<U>, PtrType<ValueType>>
-                inline constexpr void push_back(StaticValueOrReferenceArray<U, len, cat, cow, C1>&& refs)
+                inline constexpr void push_back(const StaticValueOrReferenceArray<U, len, cat, cow, C1>& values)
                 {
-                    insert(this->end(), std::move(refs));
+                    insert(this->end(), values);
+                }
+
+                template<
+                    typename U,
+                    usize len,
+                    template<typename, usize> class C1
+                >
+                    requires std::convertible_to<U, ValueType> && std::convertible_to<PtrType<U>, PtrType<ValueType>>
+                inline constexpr void push_back(StaticValueOrReferenceArray<U, len, cat, cow, C1>&& values)
+                {
+                    insert(this->end(), std::move(values));
                 }
 
                 template<template<typename> class C1>
                     requires std::copyable<ValueOrReferenceType>
-                inline constexpr void push_back(const DynamicValueOrReferenceArray<ValueType, cat, cow, C1>& refs)
+                inline constexpr void push_back(const DynamicValueOrReferenceArray<ValueType, cat, cow, C1>& values)
                 {
-                    insert(this->end(), refs);
+                    insert(this->end(), values);
                 }
 
                 template<template<typename> class C1>
-                inline constexpr void push_back(DynamicValueOrReferenceArray<ValueType, cat, cow, C1>&& refs)
+                    requires std::movable<ValueOrReferenceType>
+                inline constexpr void push_back(DynamicValueOrReferenceArray<ValueType, cat, cow, C1>&& values)
                 {
-                    insert(this->end(), std::move(refs));
+                    insert(this->end(), std::move(values));
                 }
 
                 template<
@@ -1393,9 +1402,9 @@ namespace ospf
                     template<typename> class C1
                 >
                     requires std::convertible_to<U, ValueType> && std::convertible_to<PtrType<U>, PtrType<ValueType>>
-                inline constexpr void push_back(const DynamicValueOrReferenceArray<U, cat, cow, C1>& refs)
+                inline constexpr void push_back(const DynamicValueOrReferenceArray<U, cat, cow, C1>& values)
                 {
-                    insert(this->end(), refs);
+                    insert(this->end(), values);
                 }
 
                 template<
@@ -1403,9 +1412,9 @@ namespace ospf
                     template<typename> class C1
                 >
                     requires std::convertible_to<U, ValueType> && std::convertible_to<PtrType<U>, PtrType<ValueType>>
-                inline constexpr void push_back(DynamicValueOrReferenceArray<U, cat, cow, C1>&& refs)
+                inline constexpr void push_back(DynamicValueOrReferenceArray<U, cat, cow, C1>&& values)
                 {
-                    insert(this->end(), std::move(refs));
+                    insert(this->end(), std::move(values));
                 }
 
                 inline constexpr void push_back_value(ArgCLRefType<ValueType> value)
@@ -1425,6 +1434,13 @@ namespace ospf
                     _container.push_back(ValueOrReferenceType::ref(ref));
                 }
 
+                inline constexpr void push_back_reference(ArgCLRefType<ReferenceType> ref)
+                {
+                    _container.push_back(ValueOrReferenceType::ref(ref));
+                }
+
+                template<typename = void>
+                    requires ReferenceFaster<ReferenceType> && std::movable<ReferenceType>
                 inline constexpr void push_back_reference(ArgRRefType<ReferenceType> ref)
                 {
                     _container.push_back(ValueOrReferenceType::ref(move<ReferenceType>(ref)));
@@ -1452,13 +1468,28 @@ namespace ospf
                 }
 
             public:
-                inline constexpr void push_front(ArgRRefType<ValueOrReferenceType> value)
+                inline constexpr void push_front(ArgCLRefType<ValueOrReferenceType> value)
                 {
-                    _container.insert(_container.begin(), move<ValueOrReferenceType>(value));
+                    insert(this->begin(), value);
                 }
 
                 template<typename = void>
                     requires requires (ContainerType& container) { container.push_front(std::declval<ValueOrReferenceType>()); }
+                inline constexpr void push_front(ArgCLRefType<ValueOrReferenceType> value)
+                {
+                    _container.push_front(value);
+                }
+
+                template<typename = void>
+                    requires ReferenceFaster<ValueOrReferenceType> && std::movable<ValueOrReferenceType>
+                inline constexpr void push_front(ArgRRefType<ValueOrReferenceType> value)
+                {
+                    insert(this->begin(), move<ValueOrReferenceType>(value));
+                }
+
+                template<typename = void>
+                    requires ReferenceFaster<ValueOrReferenceType> && std::movable<ValueOrReferenceType> && 
+                        requires (ContainerType& container) { container.push_front(std::declval<ValueOrReferenceType>()); }
                 inline constexpr void push_front(ArgRRefType<ValueOrReferenceType> value)
                 {
                     _container.push_front(move<ValueOrReferenceType>(value));
@@ -1469,29 +1500,19 @@ namespace ospf
                     template<typename, usize> class C1
                 >
                     requires std::copyable<ValueOrReferenceType>
-                inline constexpr void push_front(const StaticValueOrReferenceArray<ValueType, len, cat, cow, C1>& refs)
+                inline constexpr void push_front(const StaticValueOrReferenceArray<ValueType, len, cat, cow, C1>& values)
                 {
-                    insert(this->begin(), refs);
+                    insert(this->begin(), values);
                 }
 
                 template<
                     usize len,
                     template<typename, usize> class C1
                 >
-                inline constexpr void push_front(StaticValueOrReferenceArray<ValueType, len, cat, cow, C1>&& refs)
+                    requires std::movable<ValueOrReferenceType>
+                inline constexpr void push_front(StaticValueOrReferenceArray<ValueType, len, cat, cow, C1>&& values)
                 {
-                    insert(this->begin(), std::move(refs));
-                }
-
-                template<
-                    typename U,
-                    usize len,
-                    template<typename, usize> class C1
-                >
-                    requires std::convertible_to<U, ValueType> && std::convertible_to<PtrType<U>, PtrType<ValueType>>
-                inline constexpr void push_front(const StaticValueOrReferenceArray<U, len, cat, cow, C1>& refs)
-                {
-                    insert(this->begin(), refs);
+                    insert(this->begin(), std::move(values));
                 }
 
                 template<
@@ -1500,22 +1521,34 @@ namespace ospf
                     template<typename, usize> class C1
                 >
                     requires std::convertible_to<U, ValueType> && std::convertible_to<PtrType<U>, PtrType<ValueType>>
-                inline constexpr void push_front(StaticValueOrReferenceArray<U, len, cat, cow, C1>&& refs)
+                inline constexpr void push_front(const StaticValueOrReferenceArray<U, len, cat, cow, C1>& values)
                 {
-                    insert(this->begin(), std::move(refs));
+                    insert(this->begin(), values);
+                }
+
+                template<
+                    typename U,
+                    usize len,
+                    template<typename, usize> class C1
+                >
+                    requires std::convertible_to<U, ValueType> && std::convertible_to<PtrType<U>, PtrType<ValueType>>
+                inline constexpr void push_front(StaticValueOrReferenceArray<U, len, cat, cow, C1>&& values)
+                {
+                    insert(this->begin(), std::move(values));
                 }
 
                 template<template<typename> class C1>
                     requires std::copyable<ValueOrReferenceType>
-                inline constexpr void push_front(const DynamicValueOrReferenceArray<ValueType, cat, cow, C1>& refs)
+                inline constexpr void push_front(const DynamicValueOrReferenceArray<ValueType, cat, cow, C1>& values)
                 {
-                    insert(this->begin(), refs);
+                    insert(this->begin(), values);
                 }
 
                 template<template<typename> class C1>
-                inline constexpr void push_front(DynamicValueOrReferenceArray<ValueType, cat, cow, C1>&& refs)
+                    requires std::movable<ValueOrReferenceType>
+                inline constexpr void push_front(DynamicValueOrReferenceArray<ValueType, cat, cow, C1>&& values)
                 {
-                    insert(this->begin(), std::move(refs));
+                    insert(this->begin(), std::move(values));
                 }
 
                 template<
@@ -1523,9 +1556,9 @@ namespace ospf
                     template<typename> class C1
                 >
                     requires std::convertible_to<U, ValueType> && std::convertible_to<PtrType<U>, PtrType<ValueType>>
-                inline constexpr void push_front(const DynamicValueOrReferenceArray<U, cat, cow, C1>& refs)
+                inline constexpr void push_front(const DynamicValueOrReferenceArray<U, cat, cow, C1>& values)
                 {
-                    insert(this->begin(), refs);
+                    insert(this->begin(), values);
                 }
 
                 template<
@@ -1533,14 +1566,14 @@ namespace ospf
                     template<typename> class C1
                 >
                     requires std::convertible_to<U, ValueType> && std::convertible_to<PtrType<U>, PtrType<ValueType>>
-                inline constexpr void push_front(DynamicValueOrReferenceArray<U, cat, cow, C1>&& refs)
+                inline constexpr void push_front(DynamicValueOrReferenceArray<U, cat, cow, C1>&& values)
                 {
-                    insert(this->begin(), std::move(refs));
+                    insert(this->begin(), std::move(values));
                 }
 
                 inline constexpr void push_front_value(ArgCLRefType<ValueType> value)
                 {
-                    _container.insert(_container.begin(), ValueOrReferenceType::value(value));
+                    insert(this->begin(), ValueOrReferenceType::value(value));
                 }
 
                 template<typename = void>
@@ -1554,12 +1587,12 @@ namespace ospf
                     requires ReferenceFaster<ValueType> && std::movable<ValueType>
                 inline constexpr void push_front_value(ArgRRefType<ValueType> value)
                 {
-                    _container.insert(_container.begin(), ValueOrReferenceType::value(move<ValueType>(value)));
+                    insert(this->begin(), ValueOrReferenceType::value(move<ValueType>(value)));
                 }
 
                 template<typename = void>
-                    requires requires (ContainerType& container) { container.push_front(std::declval<ValueOrReferenceType>()); }
-                        && ReferenceFaster<ValueType> && std::movable<ValueType>
+                    requires ReferenceFaster<ValueType> && std::movable<ValueType> && 
+                        requires (ContainerType& container) { container.push_front(std::declval<ValueOrReferenceType>()); }
                 inline constexpr void push_front_value(ArgRRefType<ValueType> value)
                 {
                     _container.push_front(ValueOrReferenceType::value(move<ValueType>(value)));
@@ -1567,7 +1600,7 @@ namespace ospf
                 
                 inline constexpr void push_front_reference(CLRefType<ValueType> ref)
                 {
-                    _container.insert(_container.begin(), ValueOrReferenceType::ref(ref));
+                    insert(this->begin(), ValueOrReferenceType::ref(ref));
                 }
 
                 template<typename = void>
@@ -1577,13 +1610,28 @@ namespace ospf
                     _container.push_front(ValueOrReferenceType::ref(ref));
                 }
 
-                inline constexpr void push_front_reference(ArgRRefType<ReferenceType> ref)
+                inline constexpr void push_front_reference(ArgCLRefType<ReferenceType> ref)
                 {
-                    _container.insert(_container.begin(), ValueOrReferenceType::ref(move<ReferenceType>(ref)));
+                    insert(this->begin(), ValueOrReferenceType::ref(ref));
                 }
 
                 template<typename = void>
                     requires requires (ContainerType& container) { container.push_front(std::declval<ValueOrReferenceType>()); }
+                inline constexpr void push_front_reference(ArgCLRefType<ReferenceType> ref)
+                {
+                    _container.push_front(ValueOrReferenceType::ref(ref));
+                }
+
+                template<typename = void>
+                    requires ReferenceFaster<ReferenceType> && std::movable<ReferenceType>
+                inline constexpr void push_front_reference(ArgRRefType<ReferenceType> ref)
+                {
+                    insert(this->begin(), ValueOrReferenceType::ref(move<ReferenceType>(ref)));
+                }
+
+                template<typename = void>
+                    requires ReferenceFaster<ReferenceType> && std::movable<ReferenceType> &&
+                        requires (ContainerType& container) { container.push_front(std::declval<ValueOrReferenceType>()); }
                 inline constexpr void push_front_reference(ArgRRefType<ReferenceType> ref)
                 {
                     _container.push_front(ValueOrReferenceType::ref(move<ReferenceType>(ref)));
@@ -1593,7 +1641,7 @@ namespace ospf
                     requires std::constructible_from<ValueType, Args...>
                 inline constexpr void emplace_front(Args&&... args)
                 {
-                    _container.insert(_container.begin(), ValueOrReferenceType::value(std::forward<Args>(args)...));
+                    insert(this->begin(), ValueOrReferenceType::value(std::forward<Args>(args)...));
                 }
 
                 template<typename... Args>
@@ -1608,7 +1656,7 @@ namespace ospf
                     requires std::constructible_from<ReferenceType, Args...>
                 inline constexpr void emplace_front(Args&&... args)
                 {
-                    _container.insert(_container.begin(), ValueOrReferenceType::ref(ReferenceType{ std::forward<Args>(args)... }));
+                    insert(this->begin(), ValueOrReferenceType::ref(ReferenceType{ std::forward<Args>(args)... }));
                 }
 
                 template<typename... Args>
@@ -1619,6 +1667,15 @@ namespace ospf
                     _container.push_front(ValueOrReferenceType::ref(ReferenceType{ std::forward<Args>(args)... }));
                 }
 
+                inline constexpr RetType<ValueOrReferenceType> pop_front(void)
+                {
+                    auto front = move<ValueOrReferenceType>(this->front());
+                    _container.erase(_container.begin());
+                    return front;
+                }
+
+                template<typename = void>
+                    requires requires (ContainerType& container) { container.pop_front(); }
                 inline constexpr RetType<ValueOrReferenceType> pop_front(void)
                 {
                     auto front = move<ValueOrReferenceType>(this->front());

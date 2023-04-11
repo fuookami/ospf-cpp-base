@@ -638,8 +638,5 @@
     <ClCompile Include="src\ospf\bytes\encryption\rsa.cpp">
       <Filter>src\ospf\bytes\encryption</Filter>
     </ClCompile>
-    <ClCompile Include="src\ospf\data_structure.cpp">
-      <Filter>src\ospf</Filter>
-    </ClCompile>
   </ItemGroup>
 </Project>
