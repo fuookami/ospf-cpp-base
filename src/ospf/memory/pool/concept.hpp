@@ -3,7 +3,7 @@
 #include <ospf/memory/pointer.hpp>
 #include <ospf/meta_programming/named_flag.hpp>
 
-OSPF_NAMED_TERNARY_FLAG_TEMPLATE(ObjectPoolMultiThread);
+OSPF_NAMED_TERNARY_FLAG(ObjectPoolMultiThread);
 
 namespace ospf
 {
