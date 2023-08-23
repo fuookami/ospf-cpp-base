@@ -5,6 +5,9 @@ namespace ospf::meta_programming::name_transfer
     template struct Backend<NamingSystem::Underscore, char>;
     template struct Backend<NamingSystem::Underscore, wchar>;
 
+    template struct Backend<NamingSystem::Kebab, char>;
+    template struct Backend<NamingSystem::Kebab, wchar>;
+
     template struct Backend<NamingSystem::Camelcase, char>;
     template struct Backend<NamingSystem::Camelcase, wchar>;
 

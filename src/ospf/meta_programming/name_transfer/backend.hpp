@@ -58,6 +58,43 @@ namespace ospf
             };
 
             template<CharType CharT>
+            struct Backend<NamingSystem::Kebab, CharT>
+            {
+                using StringType = std::basic_string<CharT>;
+                using StringViewType = std::basic_string_view<CharT>;
+
+                template<usize len>
+                inline StringType operator()(const std::span<const StringViewType, len> words) const noexcept
+                {
+                    if (words.empty())
+                    {
+                        return StringType{};
+                    }
+
+                    StringType ret{};
+                    const usize size = std::accumulate(words.begin(), words.end(), 0_uz,
+                        [](const usize lhs, const StringViewType str)
+                        {
+                            return lhs + str.size();
+                        }) + words.size() - 1_uz;
+                        ret.resize(size, CharT{ '-' });
+
+                        for (usize i{ 0_uz }, k{ 0_uz }; i != words.size(); ++i)
+                        {
+                            const StringViewType word = words[i];
+                            assert(!word.empty());
+                            for (usize j{ 0_uz }; j != word.size(); ++j, ++k)
+                            {
+                                ret[k] = std::tolower(word[j], std::locale{});
+                            }
+                            ++k;
+                        }
+
+                        return ret;
+                }
+            };
+
+            template<CharType CharT>
             struct Backend<NamingSystem::Camelcase, CharT>
             {
                 using StringType = std::basic_string<CharT>;
@@ -171,6 +208,9 @@ namespace ospf
 
             extern template struct Backend<NamingSystem::Underscore, char>;
             extern template struct Backend<NamingSystem::Underscore, wchar>;
+
+            extern template struct Backend<NamingSystem::Kebab, char>;
+            extern template struct Backend<NamingSystem::Kebab, wchar>;
 
             extern template struct Backend<NamingSystem::Camelcase, char>;
             extern template struct Backend<NamingSystem::Camelcase, wchar>;

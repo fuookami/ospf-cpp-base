@@ -9,6 +9,7 @@ namespace ospf
         enum class NamingSystem : u8
         {
             Underscore,                 // play_station
+            Kebab,                      // play-station
             Camelcase,                  // playStation
             Pascalcase,                 // PlayStation
             UpperUnderscore             // PLAY_STATION

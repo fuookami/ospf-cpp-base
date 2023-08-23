@@ -44,7 +44,57 @@ namespace ospf
                     std::vector<StringViewType> ret;
                     for (usize i{ 0_uz }; i != name.size(); ++i)
                     {
-                        if (name[i] == '_')
+                        if (name[i] == CharT{ '_' })
+                        {
+                            if (p != q && !flag)
+                            {
+                                ret.push_back(name.substr(p, q - p));
+                            }
+                            p = q = i + 1_uz;
+                            flag = true;
+                        }
+                        else if (flag)
+                        {
+                            p = i;
+                            q = i + 1_uz;
+                            flag = false;
+                        }
+                        else
+                        {
+                            q = i + 1_uz;
+                        }
+                    }
+                    if (p != q)
+                    {
+                        ret.push_back(name.substr(p, q - p));
+                    }
+                    return ret;
+                }
+            };
+
+            template<CharType CharT>
+            struct Frontend<NamingSystem::Kebab, CharT>
+            {
+                using StringType = std::basic_string<CharT>;
+                using StringViewType = std::basic_string_view<CharT>;
+
+                inline std::vector<StringViewType> operator()(const StringViewType name) const noexcept
+                {
+                    if (name.empty())
+                    {
+                        return {};
+                    }
+                    assert(std::ranges::all_of(name, [](const CharT ch)
+                        {
+                            return std::isalnum(ch, std::locale{}) || ch == CharT{ '-' };
+                        }));
+
+                    usize p{ 0_uz }, q{ 1_uz };
+                    bool flag{ name.front() == CharT{ '-' } };
+                    std::vector<StringViewType> ret;
+                    for (usize i{ 0_uz }; i != name.size(); ++i)
+                    {
+                        if (name[i] == CharT{ '-' })
                         {
                             if (p != q && !flag)
                             {
@@ -140,6 +190,9 @@ namespace ospf
 
             extern template struct Frontend<NamingSystem::Underscore, char>;
             extern template struct Frontend<NamingSystem::Underscore, wchar>;
+
+            extern template struct Frontend<NamingSystem::Kebab, char>;
+            extern template struct Frontend<NamingSystem::Kebab, wchar>;
 
             extern template struct Frontend<NamingSystem::Camelcase, char>;
             extern template struct Frontend<NamingSystem::Camelcase, wchar>;

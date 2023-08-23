@@ -219,31 +219,48 @@ namespace ospf
                 mutable StringHashMap<std::string, std::string> _cache;
             };
 
+            extern template class NameTransferImpl<NamingSystem::Underscore, NamingSystem::Kebab, char>;
             extern template class NameTransferImpl<NamingSystem::Underscore, NamingSystem::Camelcase, char>;
             extern template class NameTransferImpl<NamingSystem::Underscore, NamingSystem::Pascalcase, char>;
             extern template class NameTransferImpl<NamingSystem::Underscore, NamingSystem::UpperUnderscore, char>;
+            extern template class NameTransferImpl<NamingSystem::Underscore, NamingSystem::Kebab, wchar>;
             extern template class NameTransferImpl<NamingSystem::Underscore, NamingSystem::Camelcase, wchar>;
             extern template class NameTransferImpl<NamingSystem::Underscore, NamingSystem::Pascalcase, wchar>;
             extern template class NameTransferImpl<NamingSystem::Underscore, NamingSystem::UpperUnderscore, wchar>;
 
+            extern template class NameTransferImpl<NamingSystem::Kebab, NamingSystem::Underscore, char>;
+            extern template class NameTransferImpl<NamingSystem::Kebab, NamingSystem::Camelcase, char>;
+            extern template class NameTransferImpl<NamingSystem::Kebab, NamingSystem::Pascalcase, char>;
+            extern template class NameTransferImpl<NamingSystem::Kebab, NamingSystem::UpperUnderscore, char>;
+            extern template class NameTransferImpl<NamingSystem::Kebab, NamingSystem::Underscore, wchar>;
+            extern template class NameTransferImpl<NamingSystem::Kebab, NamingSystem::Camelcase, wchar>;
+            extern template class NameTransferImpl<NamingSystem::Kebab, NamingSystem::Pascalcase, wchar>;
+            extern template class NameTransferImpl<NamingSystem::Kebab, NamingSystem::UpperUnderscore, wchar>;
+
             extern template class NameTransferImpl<NamingSystem::Camelcase, NamingSystem::Underscore, char>;
+            extern template class NameTransferImpl<NamingSystem::Camelcase, NamingSystem::Kebab, char>;
             extern template class NameTransferImpl<NamingSystem::Camelcase, NamingSystem::Pascalcase, char>;
             extern template class NameTransferImpl<NamingSystem::Camelcase, NamingSystem::UpperUnderscore, char>;
             extern template class NameTransferImpl<NamingSystem::Camelcase, NamingSystem::Underscore, wchar>;
+            extern template class NameTransferImpl<NamingSystem::Camelcase, NamingSystem::Kebab, wchar>;
             extern template class NameTransferImpl<NamingSystem::Camelcase, NamingSystem::Pascalcase, wchar>;
             extern template class NameTransferImpl<NamingSystem::Camelcase, NamingSystem::UpperUnderscore, wchar>;
 
             extern template class NameTransferImpl<NamingSystem::Pascalcase, NamingSystem::Underscore, char>;
+            extern template class NameTransferImpl<NamingSystem::Pascalcase, NamingSystem::Kebab, char>;
             extern template class NameTransferImpl<NamingSystem::Pascalcase, NamingSystem::Camelcase, char>;
             extern template class NameTransferImpl<NamingSystem::Pascalcase, NamingSystem::UpperUnderscore, char>;
             extern template class NameTransferImpl<NamingSystem::Pascalcase, NamingSystem::Underscore, wchar>;
+            extern template class NameTransferImpl<NamingSystem::Pascalcase, NamingSystem::Kebab, wchar>;
             extern template class NameTransferImpl<NamingSystem::Pascalcase, NamingSystem::Camelcase, wchar>;
             extern template class NameTransferImpl<NamingSystem::Pascalcase, NamingSystem::UpperUnderscore, wchar>;
 
             extern template class NameTransferImpl<NamingSystem::UpperUnderscore, NamingSystem::Underscore, char>;
+            extern template class NameTransferImpl<NamingSystem::UpperUnderscore, NamingSystem::Kebab, char>;
             extern template class NameTransferImpl<NamingSystem::UpperUnderscore, NamingSystem::Camelcase, char>;
             extern template class NameTransferImpl<NamingSystem::UpperUnderscore, NamingSystem::Pascalcase, char>;
             extern template class NameTransferImpl<NamingSystem::UpperUnderscore, NamingSystem::Underscore, wchar>;
+            extern template class NameTransferImpl<NamingSystem::UpperUnderscore, NamingSystem::Kebab, wchar>;
             extern template class NameTransferImpl<NamingSystem::UpperUnderscore, NamingSystem::Camelcase, wchar>;
             extern template class NameTransferImpl<NamingSystem::UpperUnderscore, NamingSystem::Pascalcase, wchar>;
         };
