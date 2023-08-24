@@ -334,7 +334,7 @@ namespace ospf
                 requires WithMetaInfo<T> && WithDefault<T>
             inline Result<std::vector<T>> from_file(
                 const std::filesystem::path& path, 
-                std::optional<NameTransfer<CharT>> transfer = NameTransfer<CharT>{ meta_programming::NameTransfer<NamingSystem::Underscore, NamingSystem::UpperUnderscore, CharT>{} },
+                std::optional<NameTransfer<CharT>> transfer = NameTransfer<CharT>{ meta_programming::NameTransfer<NamingSystem::SnakeCase, NamingSystem::UpperSnakeCase, CharT>{} },
                 const std::basic_string_view<CharT> seperator = CharTrait<CharT>::default_seperator
             ) noexcept
             {
@@ -371,7 +371,7 @@ namespace ospf
             inline Result<std::vector<T>> from_file(
                 const std::filesystem::path& path, 
                 const T& origin_obj, 
-                std::optional<NameTransfer<CharT>> transfer = NameTransfer<CharT>{ meta_programming::NameTransfer<NamingSystem::Underscore, NamingSystem::UpperUnderscore, CharT>{} },
+                std::optional<NameTransfer<CharT>> transfer = NameTransfer<CharT>{ meta_programming::NameTransfer<NamingSystem::SnakeCase, NamingSystem::UpperSnakeCase, CharT>{} },
                 const std::basic_string_view<CharT> seperator = CharTrait<CharT>::default_seperator
             ) noexcept
             {
@@ -408,7 +408,7 @@ namespace ospf
                 requires WithMetaInfo<T> && WithDefault<T>
             inline Result<std::vector<T>> from_file_soft(
                 const std::filesystem::path& path, 
-                std::optional<NameTransfer<CharT>> transfer = NameTransfer<CharT>{ meta_programming::NameTransfer<NamingSystem::Underscore, NamingSystem::UpperUnderscore, CharT>{} },
+                std::optional<NameTransfer<CharT>> transfer = NameTransfer<CharT>{ meta_programming::NameTransfer<NamingSystem::SnakeCase, NamingSystem::UpperSnakeCase, CharT>{} },
                 const std::basic_string_view<CharT> seperator = CharTrait<CharT>::default_seperator
             ) noexcept
             {
@@ -445,7 +445,7 @@ namespace ospf
             inline Result<std::vector<T>> from_file_soft(
                 const std::filesystem::path& path, 
                 const T& origin_obj, 
-                std::optional<NameTransfer<CharT>> transfer = NameTransfer<CharT>{ meta_programming::NameTransfer<NamingSystem::Underscore, NamingSystem::UpperUnderscore, CharT>{} },
+                std::optional<NameTransfer<CharT>> transfer = NameTransfer<CharT>{ meta_programming::NameTransfer<NamingSystem::SnakeCase, NamingSystem::UpperSnakeCase, CharT>{} },
                 const std::basic_string_view<CharT> seperator = CharTrait<CharT>::default_seperator
             ) noexcept
             {
@@ -482,7 +482,7 @@ namespace ospf
                 requires WithMetaInfo<T> && WithDefault<T>
             inline Result<std::vector<T>> from_string(
                 const std::basic_string_view<CharT> str,
-                std::optional<NameTransfer<CharT>> transfer = NameTransfer<CharT>{ meta_programming::NameTransfer<NamingSystem::Underscore, NamingSystem::UpperUnderscore, CharT>{} },
+                std::optional<NameTransfer<CharT>> transfer = NameTransfer<CharT>{ meta_programming::NameTransfer<NamingSystem::SnakeCase, NamingSystem::UpperSnakeCase, CharT>{} },
                 const std::basic_string_view<CharT> seperator = CharTrait<CharT>::default_seperator
             ) noexcept
             {
@@ -510,7 +510,7 @@ namespace ospf
             inline Result<std::vector<T>> from_string(
                 const std::basic_string_view<CharT> str,
                 const T& origin_obj, 
-                std::optional<NameTransfer<CharT>> transfer = NameTransfer<CharT>{ meta_programming::NameTransfer<NamingSystem::Underscore, NamingSystem::UpperUnderscore, CharT>{} },
+                std::optional<NameTransfer<CharT>> transfer = NameTransfer<CharT>{ meta_programming::NameTransfer<NamingSystem::SnakeCase, NamingSystem::UpperSnakeCase, CharT>{} },
                 const std::basic_string_view<CharT> seperator = CharTrait<CharT>::default_seperator
             ) noexcept
             {
@@ -538,7 +538,7 @@ namespace ospf
                 requires WithMetaInfo<T> && WithDefault<T>
             inline Result<std::vector<T>> from_string_soft(
                 const std::basic_string_view<CharT> str,
-                std::optional<NameTransfer<CharT>> transfer = NameTransfer<CharT>{ meta_programming::NameTransfer<NamingSystem::Underscore, NamingSystem::UpperUnderscore, CharT>{} },
+                std::optional<NameTransfer<CharT>> transfer = NameTransfer<CharT>{ meta_programming::NameTransfer<NamingSystem::SnakeCase, NamingSystem::UpperSnakeCase, CharT>{} },
                 const std::basic_string_view<CharT> seperator = CharTrait<CharT>::default_seperator
             ) noexcept
             {
@@ -566,7 +566,7 @@ namespace ospf
             inline Result<std::vector<T>> from_string_soft(
                 const std::basic_string_view<CharT> str, 
                 const T& origin_obj, 
-                std::optional<NameTransfer<CharT>> transfer = NameTransfer<CharT>{ meta_programming::NameTransfer<NamingSystem::Underscore, NamingSystem::UpperUnderscore, CharT>{} },
+                std::optional<NameTransfer<CharT>> transfer = NameTransfer<CharT>{ meta_programming::NameTransfer<NamingSystem::SnakeCase, NamingSystem::UpperSnakeCase, CharT>{} },
                 const std::basic_string_view<CharT> seperator = CharTrait<CharT>::default_seperator
             ) noexcept
             {

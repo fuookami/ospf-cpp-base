@@ -107,7 +107,7 @@ namespace ospf
             (
                 const std::filesystem::path& path, 
                 const T& obj, 
-                std::optional<NameTransfer<CharT>> transfer = NameTransfer<CharT>{ meta_programming::NameTransfer<NamingSystem::Underscore, NamingSystem::UpperUnderscore, CharT>{} },
+                std::optional<NameTransfer<CharT>> transfer = NameTransfer<CharT>{ meta_programming::NameTransfer<NamingSystem::SnakeCase, NamingSystem::UpperSnakeCase, CharT>{} },
                 const std::basic_string_view<CharT> seperator = CharTrait<CharT>::default_seperator
             ) noexcept
             {
@@ -152,7 +152,7 @@ namespace ospf
             (
                 const std::filesystem::path& path, 
                 const std::span<const T, len> objs, 
-                std::optional<NameTransfer<CharT>> transfer = NameTransfer<CharT>{ meta_programming::NameTransfer<NamingSystem::Underscore, NamingSystem::UpperUnderscore, CharT>{} },
+                std::optional<NameTransfer<CharT>> transfer = NameTransfer<CharT>{ meta_programming::NameTransfer<NamingSystem::SnakeCase, NamingSystem::UpperSnakeCase, CharT>{} },
                 const std::basic_string_view<CharT> seperator = CharTrait<CharT>::default_seperator
             ) noexcept
             {
@@ -196,7 +196,7 @@ namespace ospf
             inline Result<std::basic_string<CharT>> to_string
             (
                 const T& obj, 
-                std::optional<NameTransfer<CharT>> transfer = NameTransfer<CharT>{ meta_programming::NameTransfer<NamingSystem::Underscore, NamingSystem::UpperUnderscore, CharT>{} },
+                std::optional<NameTransfer<CharT>> transfer = NameTransfer<CharT>{ meta_programming::NameTransfer<NamingSystem::SnakeCase, NamingSystem::UpperSnakeCase, CharT>{} },
                 const std::basic_string_view<CharT> seperator = CharTrait<CharT>::default_seperator
             ) noexcept
             {
@@ -225,7 +225,7 @@ namespace ospf
             inline Result<std::basic_string<CharT>> to_string
             (
                 const std::span<const T, len> objs, 
-                std::optional<NameTransfer<CharT>> transfer = NameTransfer<CharT>{ meta_programming::NameTransfer<NamingSystem::Underscore, NamingSystem::UpperUnderscore, CharT>{} },
+                std::optional<NameTransfer<CharT>> transfer = NameTransfer<CharT>{ meta_programming::NameTransfer<NamingSystem::SnakeCase, NamingSystem::UpperSnakeCase, CharT>{} },
                 const std::basic_string_view<CharT> seperator = CharTrait<CharT>::default_seperator
             ) noexcept
             {

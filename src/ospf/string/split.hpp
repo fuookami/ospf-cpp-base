@@ -4,6 +4,7 @@
 #include <ospf/ospf_base_api.hpp>
 #include <ospf/string/regex.hpp>
 #include <regex>
+#include <vector>
 
 namespace ospf
 {

@@ -11,7 +11,6 @@
 #include <ranges>
 #include <string>
 #include <string_view>
-#include <vector>
 
 namespace ospf
 {
@@ -23,12 +22,12 @@ namespace ospf
             struct Frontend;
 
             template<CharType CharT>
-            struct Frontend<NamingSystem::Underscore, CharT>
+            struct Frontend<NamingSystem::SnakeCase, CharT>
             {
                 using StringType = std::basic_string<CharT>;
                 using StringViewType = std::basic_string_view<CharT>;
 
-                inline std::vector<StringViewType> operator()(const StringViewType name, const std::set<StringViewType>& abbreviations = std::set<StringViewType>{ }) const noexcept
+                inline std::vector<StringViewType> operator()(const StringViewType name, const std::set<StringViewType>& abbreviations = std::set<StringViewType>{}) const noexcept
                 {
                     if (name.empty())
                     {
@@ -43,12 +42,16 @@ namespace ospf
             };
 
             template<CharType CharT>
-            struct Frontend<NamingSystem::Kebab, CharT>
+            struct Frontend<NamingSystem::UpperSnakeCase, CharT>
+                : public Frontend<NamingSystem::SnakeCase, CharT> {};
+
+            template<CharType CharT>
+            struct Frontend<NamingSystem::KebabCase, CharT>
             {
                 using StringType = std::basic_string<CharT>;
                 using StringViewType = std::basic_string_view<CharT>;
 
-                inline std::vector<StringViewType> operator()(const StringViewType name, const std::set<StringViewType>& abbreviations = std::set<StringViewType>{ }) const noexcept
+                inline std::vector<StringViewType> operator()(const StringViewType name, const std::set<StringViewType>& abbreviations = std::set<StringViewType>{}) const noexcept
                 {
                     if (name.empty())
                     {
@@ -68,7 +71,7 @@ namespace ospf
                 using StringType = std::basic_string<CharT>;
                 using StringViewType = std::basic_string_view<CharT>;
 
-                inline std::vector<StringViewType> operator()(const StringViewType name, const std::set<StringViewType>& abbreviations = std::set<StringViewType>{ }) const noexcept
+                inline std::vector<StringViewType> operator()(const StringViewType name, const std::set<StringViewType>& abbreviations = std::set<StringViewType>{}) const noexcept
                 {
                     if (name.empty())
                     {
@@ -132,24 +135,20 @@ namespace ospf
             struct Frontend<NamingSystem::PascalCase, CharT>
                 : public Frontend<NamingSystem::CamelCase, CharT> {};
 
-            template<CharType CharT>
-            struct Frontend<NamingSystem::UpperUnderscore, CharT>
-                : public Frontend<NamingSystem::Underscore, CharT> {};
+            extern template struct Frontend<NamingSystem::SnakeCase, char>;
+            extern template struct Frontend<NamingSystem::SnakeCase, wchar>;
 
-            extern template struct Frontend<NamingSystem::Underscore, char>;
-            extern template struct Frontend<NamingSystem::Underscore, wchar>;
+            extern template struct Frontend<NamingSystem::KebabCase, char>;
+            extern template struct Frontend<NamingSystem::KebabCase, wchar>;
 
-            extern template struct Frontend<NamingSystem::Kebab, char>;
-            extern template struct Frontend<NamingSystem::Kebab, wchar>;
+            extern template struct Frontend<NamingSystem::UpperSnakeCase, char>;
+            extern template struct Frontend<NamingSystem::UpperSnakeCase, wchar>;
 
             extern template struct Frontend<NamingSystem::CamelCase, char>;
             extern template struct Frontend<NamingSystem::CamelCase, wchar>;
 
             extern template struct Frontend<NamingSystem::PascalCase, char>;
             extern template struct Frontend<NamingSystem::PascalCase, wchar>;
-
-            extern template struct Frontend<NamingSystem::UpperUnderscore, char>;
-            extern template struct Frontend<NamingSystem::UpperUnderscore, wchar>;
         };
     };
 };

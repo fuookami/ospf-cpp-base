@@ -125,7 +125,7 @@ namespace ospf
             (
                 const std::filesystem::path& path,
                 const T& obj,
-                std::optional<NameTransfer<CharT>> transfer = NameTransfer<CharT>{ meta_programming::NameTransfer<NamingSystem::Underscore, NamingSystem::CamelCase, CharT>{} }
+                std::optional<NameTransfer<CharT>> transfer = NameTransfer<CharT>{ meta_programming::NameTransfer<NamingSystem::SnakeCase, NamingSystem::CamelCase, CharT>{} }
             ) noexcept
             {
                 if (std::filesystem::is_directory(path))
@@ -168,7 +168,7 @@ namespace ospf
             (
                 const std::filesystem::path& path,
                 const std::span<const T, len> objs,
-                std::optional<NameTransfer<CharT>> transfer = NameTransfer<CharT>{ meta_programming::NameTransfer<NamingSystem::Underscore, NamingSystem::CamelCase, CharT>{} }
+                std::optional<NameTransfer<CharT>> transfer = NameTransfer<CharT>{ meta_programming::NameTransfer<NamingSystem::SnakeCase, NamingSystem::CamelCase, CharT>{} }
             ) noexcept
             {
                 if (std::filesystem::is_directory(path))
@@ -210,7 +210,7 @@ namespace ospf
             inline Result<std::basic_string<CharT>> to_string
             (
                 const T& obj,
-                std::optional<NameTransfer<CharT>> transfer = NameTransfer<CharT>{ meta_programming::NameTransfer<NamingSystem::Underscore, NamingSystem::CamelCase, CharT>{} }
+                std::optional<NameTransfer<CharT>> transfer = NameTransfer<CharT>{ meta_programming::NameTransfer<NamingSystem::SnakeCase, NamingSystem::CamelCase, CharT>{} }
             ) noexcept
             {
                 auto serializer = transfer.has_value() ? Serializer<T, CharT>{ std::move(transfer).value() } : Serializer<T, CharT>{};
@@ -237,7 +237,7 @@ namespace ospf
             inline Result<std::basic_string<CharT>> to_string
             (
                 const std::span<const T, len> objs,
-                std::optional<NameTransfer<CharT>> transfer = NameTransfer<CharT>{ meta_programming::NameTransfer<NamingSystem::Underscore, NamingSystem::CamelCase, CharT>{} }
+                std::optional<NameTransfer<CharT>> transfer = NameTransfer<CharT>{ meta_programming::NameTransfer<NamingSystem::SnakeCase, NamingSystem::CamelCase, CharT>{} }
             ) noexcept
             {
                 auto serializer = transfer.has_value() ? Serializer<T, CharT>{ std::move(transfer).value() } : Serializer<T, CharT>{};
@@ -265,7 +265,7 @@ namespace ospf
             (
                 const T& obj,
                 Document<CharT>& doc,
-                std::optional<NameTransfer<CharT>> transfer = NameTransfer<CharT>{ meta_programming::NameTransfer<NamingSystem::Underscore, NamingSystem::CamelCase, CharT>{} }
+                std::optional<NameTransfer<CharT>> transfer = NameTransfer<CharT>{ meta_programming::NameTransfer<NamingSystem::SnakeCase, NamingSystem::CamelCase, CharT>{} }
             ) noexcept
             {
                 auto serializer = transfer.has_value() ? Serializer<T, CharT>{ std::move(transfer).value() } : Serializer<T, CharT>{};
@@ -290,7 +290,7 @@ namespace ospf
             (
                 const std::span<const T, len> objs,
                 Document<CharT>& doc,
-                std::optional<NameTransfer<CharT>> transfer = NameTransfer<CharT>{ meta_programming::NameTransfer<NamingSystem::Underscore, NamingSystem::CamelCase, CharT>{} }
+                std::optional<NameTransfer<CharT>> transfer = NameTransfer<CharT>{ meta_programming::NameTransfer<NamingSystem::SnakeCase, NamingSystem::CamelCase, CharT>{} }
             ) noexcept
             {
                 auto serializer = transfer.has_value() ? Serializer<T, CharT>{ std::move(transfer).value() } : Serializer<T, CharT>{};

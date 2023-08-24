@@ -8,14 +8,14 @@ namespace ospf
     {
         enum class NamingSystem : u8
         {
-            Underscore,                 // play_station
-            Kebab,                      // play-station
+            SnakeCase,                  // play_station
+            UpperSnakeCase,             // PLAY_STATION
+            KebabCase,                  // play-station
             CamelCase,                  // playStation
             PascalCase,                 // PlayStation
-            UpperUnderscore             // PLAY_STATION
         };
 
-        static constexpr const auto default_naming_system = NamingSystem::Underscore;
+        static constexpr const auto default_naming_system = NamingSystem::SnakeCase;
 
         inline constexpr const bool operator==(const NamingSystem lhs, const NamingSystem rhs) noexcept
         {

@@ -22,13 +22,13 @@ namespace ospf
             struct Backend;
 
             template<CharType CharT>
-            struct Backend<NamingSystem::Underscore, CharT>
+            struct Backend<NamingSystem::SnakeCase, CharT>
             {
                 using StringType = std::basic_string<CharT>;
                 using StringViewType = std::basic_string_view<CharT>;
 
                 template<usize len>
-                inline StringType operator()(const std::span<const StringViewType, len> words, const std::set<StringViewType>& abbreviations = std::set<StringViewType>{ }) const noexcept
+                inline StringType operator()(const std::span<const StringViewType, len> words, const std::set<StringViewType>& abbreviations = std::set<StringViewType>{}) const noexcept
                 {
                     if (words.empty())
                     {
@@ -59,13 +59,48 @@ namespace ospf
             };
 
             template<CharType CharT>
-            struct Backend<NamingSystem::Kebab, CharT>
+            struct Backend<NamingSystem::UpperSnakeCase, CharT>
             {
                 using StringType = std::basic_string<CharT>;
                 using StringViewType = std::basic_string_view<CharT>;
 
                 template<usize len>
-                inline StringType operator()(const std::span<const StringViewType, len> words, const std::set<StringViewType>& abbreviations = std::set<StringViewType>{ }) const noexcept
+                inline StringType operator()(const std::span<const StringViewType, len> words, const std::set<StringViewType>& abbreviations = std::set<StringViewType>{}) const noexcept
+                {
+                    if (words.empty())
+                    {
+                        return StringType{};
+                    }
+
+                    StringType ret{};
+                    const usize size = std::accumulate(words.begin(), words.end(), 0_uz,
+                        [](const usize lhs, const StringViewType str)
+                        {
+                            return lhs + str.size();
+                        }) + words.size() - 1_uz;
+                        ret.resize(size, CharT{ '_' });
+                        for (usize i{ 0_uz }, k{ 0_uz }; i != words.size(); ++i)
+                        {
+                            const StringViewType word = words[i];
+                            assert(!word.empty());
+                            for (usize j{ 0_uz }; j != word.size(); ++j, ++k)
+                            {
+                                ret[k] = std::toupper(word[j], std::locale{});
+                            }
+                            ++k;
+                        }
+                        return ret;
+                }
+            };
+
+            template<CharType CharT>
+            struct Backend<NamingSystem::KebabCase, CharT>
+            {
+                using StringType = std::basic_string<CharT>;
+                using StringViewType = std::basic_string_view<CharT>;
+
+                template<usize len>
+                inline StringType operator()(const std::span<const StringViewType, len> words, const std::set<StringViewType>& abbreviations = std::set<StringViewType>{}) const noexcept
                 {
                     if (words.empty())
                     {
@@ -102,7 +137,7 @@ namespace ospf
                 using StringViewType = std::basic_string_view<CharT>;
 
                 template<usize len>
-                inline StringType operator()(const std::span<const StringViewType, len> words, const std::set<StringViewType>& abbreviations = std::set<StringViewType>{ }) const noexcept
+                inline StringType operator()(const std::span<const StringViewType, len> words, const std::set<StringViewType>& abbreviations = std::set<StringViewType>{}) const noexcept
                 {
                     if (words.empty())
                     {
@@ -156,7 +191,7 @@ namespace ospf
                 using StringViewType = std::basic_string_view<CharT>;
 
                 template<usize len>
-                inline StringType operator()(const std::span<const StringViewType, len> words, const std::set<StringViewType>& abbreviations = std::set<StringViewType>{ }) const noexcept
+                inline StringType operator()(const std::span<const StringViewType, len> words, const std::set<StringViewType>& abbreviations = std::set<StringViewType>{}) const noexcept
                 {
                     if (words.empty())
                     {
@@ -198,55 +233,20 @@ namespace ospf
                 }
             };
 
-            template<CharType CharT>
-            struct Backend<NamingSystem::UpperUnderscore, CharT>
-            {
-                using StringType = std::basic_string<CharT>;
-                using StringViewType = std::basic_string_view<CharT>;
+            extern template struct Backend<NamingSystem::SnakeCase, char>;
+            extern template struct Backend<NamingSystem::SnakeCase, wchar>;
 
-                template<usize len>
-                inline StringType operator()(const std::span<const StringViewType, len> words, const std::set<StringViewType>& abbreviations = std::set<StringViewType>{ }) const noexcept
-                {
-                    if (words.empty())
-                    {
-                        return StringType{};
-                    }
+            extern template struct Backend<NamingSystem::UpperSnakeCase, char>;
+            extern template struct Backend<NamingSystem::UpperSnakeCase, wchar>;
 
-                    StringType ret{};
-                    const usize size = std::accumulate(words.begin(), words.end(), 0_uz,
-                        [](const usize lhs, const StringViewType str) 
-                        { 
-                            return lhs + str.size(); 
-                        }) + words.size() - 1_uz;
-                    ret.resize(size, CharT{ '_' });
-                    for (usize i{ 0_uz }, k{ 0_uz }; i != words.size(); ++i)
-                    {
-                        const StringViewType word = words[i];
-                        assert(!word.empty());
-                        for (usize j{ 0_uz }; j != word.size(); ++j, ++k)
-                        {
-                            ret[k] = std::toupper(word[j], std::locale{});
-                        }
-                        ++k;
-                    }
-                    return ret;
-                }
-            };
-
-            extern template struct Backend<NamingSystem::Underscore, char>;
-            extern template struct Backend<NamingSystem::Underscore, wchar>;
-
-            extern template struct Backend<NamingSystem::Kebab, char>;
-            extern template struct Backend<NamingSystem::Kebab, wchar>;
+            extern template struct Backend<NamingSystem::KebabCase, char>;
+            extern template struct Backend<NamingSystem::KebabCase, wchar>;
 
             extern template struct Backend<NamingSystem::CamelCase, char>;
             extern template struct Backend<NamingSystem::CamelCase, wchar>;
 
             extern template struct Backend<NamingSystem::PascalCase, char>;
             extern template struct Backend<NamingSystem::PascalCase, wchar>;
-
-            extern template struct Backend<NamingSystem::UpperUnderscore, char>;
-            extern template struct Backend<NamingSystem::UpperUnderscore, wchar>;
         };
     };
 };

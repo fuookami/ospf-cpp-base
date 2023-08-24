@@ -2,11 +2,11 @@
 
 namespace ospf::meta_programming::name_transfer
 {
-    template struct Backend<NamingSystem::Underscore, char>;
-    template struct Backend<NamingSystem::Underscore, wchar>;
+    template struct Backend<NamingSystem::SnakeCase, char>;
+    template struct Backend<NamingSystem::SnakeCase, wchar>;
 
-    template struct Backend<NamingSystem::Kebab, char>;
-    template struct Backend<NamingSystem::Kebab, wchar>;
+    template struct Backend<NamingSystem::KebabCase, char>;
+    template struct Backend<NamingSystem::KebabCase, wchar>;
 
     template struct Backend<NamingSystem::CamelCase, char>;
     template struct Backend<NamingSystem::CamelCase, wchar>;
@@ -14,6 +14,6 @@ namespace ospf::meta_programming::name_transfer
     template struct Backend<NamingSystem::PascalCase, char>;
     template struct Backend<NamingSystem::PascalCase, wchar>;
 
-    template struct Backend<NamingSystem::UpperUnderscore, char>;
-    template struct Backend<NamingSystem::UpperUnderscore, wchar>;
+    template struct Backend<NamingSystem::UpperSnakeCase, char>;
+    template struct Backend<NamingSystem::UpperSnakeCase, wchar>;
 };
