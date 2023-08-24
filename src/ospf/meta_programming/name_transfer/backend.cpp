@@ -8,11 +8,11 @@ namespace ospf::meta_programming::name_transfer
     template struct Backend<NamingSystem::Kebab, char>;
     template struct Backend<NamingSystem::Kebab, wchar>;
 
-    template struct Backend<NamingSystem::Camelcase, char>;
-    template struct Backend<NamingSystem::Camelcase, wchar>;
+    template struct Backend<NamingSystem::CamelCase, char>;
+    template struct Backend<NamingSystem::CamelCase, wchar>;
 
-    template struct Backend<NamingSystem::Pascalcase, char>;
-    template struct Backend<NamingSystem::Pascalcase, wchar>;
+    template struct Backend<NamingSystem::PascalCase, char>;
+    template struct Backend<NamingSystem::PascalCase, wchar>;
 
     template struct Backend<NamingSystem::UpperUnderscore, char>;
     template struct Backend<NamingSystem::UpperUnderscore, wchar>;

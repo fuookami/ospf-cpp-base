@@ -10,8 +10,8 @@ namespace ospf
         {
             Underscore,                 // play_station
             Kebab,                      // play-station
-            Camelcase,                  // playStation
-            Pascalcase,                 // PlayStation
+            CamelCase,                  // playStation
+            PascalCase,                 // PlayStation
             UpperUnderscore             // PLAY_STATION
         };
 

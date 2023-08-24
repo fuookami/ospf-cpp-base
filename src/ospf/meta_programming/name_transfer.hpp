@@ -4,6 +4,7 @@
 #include <ospf/meta_programming/name_transfer/frontend.hpp>
 #include <ospf/meta_programming/name_transfer/backend.hpp>
 #include <ospf/memory/reference.hpp>
+#include <ospf/functional/value_or_reference.hpp>
 #include <shared_mutex>
 
 namespace ospf
@@ -41,7 +42,7 @@ namespace ospf
                 }
 
             public:
-                inline const StringViewType operator()(const std::string_view name) const noexcept
+                inline const StringViewType operator()(const std::string_view name, const std::set<StringViewType>& abbreviations = std::set<StringViewType>{ }) const noexcept
                 {
                     static constexpr const Frontend transfer_frontend{};
                     static constexpr const Backend transfer_backend{};
@@ -57,8 +58,8 @@ namespace ospf
                         if (it == _cache1.cend())
                         {
                             std::string str{ name };
-                            const auto il = transfer_frontend(boost::locale::conv::to_utf<CharT>(str, std::locale{}));
-                            it = _cache1.insert(std::make_pair(std::move(str), transfer_backend(std::span<const StringViewType>{ il }))).first;
+                            const auto il = transfer_frontend(boost::locale::conv::to_utf<CharT>(str, std::locale{}), abbreviations);
+                            it = _cache1.insert(std::make_pair(std::move(str), transfer_backend(std::span<const StringViewType>{ il }, abbreviations))).first;
                         }
                         const auto& ret = it->second;
                         _mutex.unlock();
@@ -74,14 +75,14 @@ namespace ospf
                     if (it == _cache1.cend())
                     {
                         std::string str{ name };
-                        const auto il = transfer_frontend(boost::locale::conv::to_utf<CharT>(str, std::locale{}));
-                        it = _cache1.insert(std::make_pair(std::move(str), transfer_backend(std::span<const StringViewType>{ il }))).first;
+                        const auto il = transfer_frontend(boost::locale::conv::to_utf<CharT>(str, std::locale{}), abbreviations);
+                        it = _cache1.insert(std::make_pair(std::move(str), transfer_backend(std::span<const StringViewType>{ il }, abbreviations))).first;
                     }
                     return it->second;
 #endif
                 }
 
-                inline const StringViewType operator()(const StringViewType name) const noexcept
+                inline const StringViewType operator()(const StringViewType name, const std::set<StringViewType>& abbreviations = std::set<StringViewType>{ }) const noexcept
                 {
                     static constexpr const Frontend transfer_frontend{};
                     static constexpr const Backend transfer_backend{};
@@ -96,8 +97,8 @@ namespace ospf
                         it = _cache2.find(name);
                         if (it == _cache2.cend())
                         {
-                            const auto il = transfer_frontend(name);
-                            it = _cache2.insert(std::make_pair(StringType{ name }, transfer_backend(std::span<const StringViewType>{ il }))).first;
+                            const auto il = transfer_frontend(name, abbreviations);
+                            it = _cache2.insert(std::make_pair(StringType{ name }, transfer_backend(std::span<const StringViewType>{ il }, abbreviations))).first;
                         }
                         const auto& ret = it->second;
                         _mutex.unlock();
@@ -112,23 +113,23 @@ namespace ospf
 #else
                     if (it == _cache2.cend())
                     {
-                        const auto il = transfer_frontend(name);
-                        it = _cache2.insert(std::make_pair(StringType{ name }, transfer_backend(std::span<const StringViewType>{ il }))).first;
+                        const auto il = transfer_frontend(name, abbreviations);
+                        it = _cache2.insert(std::make_pair(StringType{ name }, transfer_backend(std::span<const StringViewType>{ il }, abbreviations))).first;
                     }
                     return it->second;
 #endif
                 }
 
-                inline const StringViewType reverse(const std::string_view name) const noexcept
+                inline const StringViewType reverse(const std::string_view name, const std::set<StringViewType>& abbreviations = std::set<StringViewType>{ }) const noexcept
                 {
                     static const auto& reversed_transfer = NameTransferImpl<backend, frontend, CharT>::instance();
-                    return reversed_transfer(name);
+                    return reversed_transfer(name, abbreviations);
                 }
 
-                inline const StringViewType reverse(const StringViewType name) const noexcept
+                inline const StringViewType reverse(const StringViewType name, const std::set<StringViewType>& abbreviations = std::set<StringViewType>{ }) const noexcept
                 {
                     static const auto& reversed_transfer = NameTransferImpl<backend, frontend, CharT>::instance();
-                    return reversed_transfer(name);
+                    return reversed_transfer(name, abbreviations);
                 }
 
             private:
@@ -168,7 +169,7 @@ namespace ospf
                 }
 
             public:
-                inline const StringViewType operator()(const StringViewType name) const noexcept
+                inline const StringViewType operator()(const StringViewType name, const std::set<StringViewType>& abbreviations = std::set<StringViewType>{ }) const noexcept
                 {
                     static constexpr const Frontend transfer_frontend{};
                     static constexpr const Backend transfer_backend{};
@@ -183,8 +184,8 @@ namespace ospf
                         it = _cache.find(name);
                         if (it == _cache.cend())
                         {
-                            const auto il = transfer_frontend(name);
-                            it = _cache.insert(std::make_pair(StringType{ name }, transfer_backend(std::span<const StringViewType>{ il }))).first;
+                            const auto il = transfer_frontend(name, abbreviations);
+                            it = _cache.insert(std::make_pair(StringType{ name }, transfer_backend(std::span<const StringViewType>{ il }, abbreviations))).first;
                         }
                         const auto& ret = it->second;
                         _mutex.unlock();
@@ -199,17 +200,17 @@ namespace ospf
 #else
                     if (it == _cache.cend())
                     {
-                        const auto il = transfer_frontend(name);
-                        it = _cache.insert(std::make_pair(StringType{ name }, transfer_backend(std::span<const StringViewType>{ il }))).first;
+                        const auto il = transfer_frontend(name, abbreviations);
+                        it = _cache.insert(std::make_pair(StringType{ name }, transfer_backend(std::span<const StringViewType>{ il }, abbreviations))).first;
                     }
                     return it->second;
 #endif
                 }
 
-                inline const StringViewType reverse(const StringViewType name) const noexcept
+                inline const StringViewType reverse(const StringViewType name, const std::set<StringViewType>& abbreviations = std::set<StringViewType>{ }) const noexcept
                 {
                     static const auto& reversed_transfer = NameTransferImpl<backend, frontend, char>::instance();
-                    return reversed_transfer(name);
+                    return reversed_transfer(name, abbreviations);
                 }
 
             private:
@@ -220,49 +221,49 @@ namespace ospf
             };
 
             extern template class NameTransferImpl<NamingSystem::Underscore, NamingSystem::Kebab, char>;
-            extern template class NameTransferImpl<NamingSystem::Underscore, NamingSystem::Camelcase, char>;
-            extern template class NameTransferImpl<NamingSystem::Underscore, NamingSystem::Pascalcase, char>;
+            extern template class NameTransferImpl<NamingSystem::Underscore, NamingSystem::CamelCase, char>;
+            extern template class NameTransferImpl<NamingSystem::Underscore, NamingSystem::PascalCase, char>;
             extern template class NameTransferImpl<NamingSystem::Underscore, NamingSystem::UpperUnderscore, char>;
             extern template class NameTransferImpl<NamingSystem::Underscore, NamingSystem::Kebab, wchar>;
-            extern template class NameTransferImpl<NamingSystem::Underscore, NamingSystem::Camelcase, wchar>;
-            extern template class NameTransferImpl<NamingSystem::Underscore, NamingSystem::Pascalcase, wchar>;
+            extern template class NameTransferImpl<NamingSystem::Underscore, NamingSystem::CamelCase, wchar>;
+            extern template class NameTransferImpl<NamingSystem::Underscore, NamingSystem::PascalCase, wchar>;
             extern template class NameTransferImpl<NamingSystem::Underscore, NamingSystem::UpperUnderscore, wchar>;
 
             extern template class NameTransferImpl<NamingSystem::Kebab, NamingSystem::Underscore, char>;
-            extern template class NameTransferImpl<NamingSystem::Kebab, NamingSystem::Camelcase, char>;
-            extern template class NameTransferImpl<NamingSystem::Kebab, NamingSystem::Pascalcase, char>;
+            extern template class NameTransferImpl<NamingSystem::Kebab, NamingSystem::CamelCase, char>;
+            extern template class NameTransferImpl<NamingSystem::Kebab, NamingSystem::PascalCase, char>;
             extern template class NameTransferImpl<NamingSystem::Kebab, NamingSystem::UpperUnderscore, char>;
             extern template class NameTransferImpl<NamingSystem::Kebab, NamingSystem::Underscore, wchar>;
-            extern template class NameTransferImpl<NamingSystem::Kebab, NamingSystem::Camelcase, wchar>;
-            extern template class NameTransferImpl<NamingSystem::Kebab, NamingSystem::Pascalcase, wchar>;
+            extern template class NameTransferImpl<NamingSystem::Kebab, NamingSystem::CamelCase, wchar>;
+            extern template class NameTransferImpl<NamingSystem::Kebab, NamingSystem::PascalCase, wchar>;
             extern template class NameTransferImpl<NamingSystem::Kebab, NamingSystem::UpperUnderscore, wchar>;
 
-            extern template class NameTransferImpl<NamingSystem::Camelcase, NamingSystem::Underscore, char>;
-            extern template class NameTransferImpl<NamingSystem::Camelcase, NamingSystem::Kebab, char>;
-            extern template class NameTransferImpl<NamingSystem::Camelcase, NamingSystem::Pascalcase, char>;
-            extern template class NameTransferImpl<NamingSystem::Camelcase, NamingSystem::UpperUnderscore, char>;
-            extern template class NameTransferImpl<NamingSystem::Camelcase, NamingSystem::Underscore, wchar>;
-            extern template class NameTransferImpl<NamingSystem::Camelcase, NamingSystem::Kebab, wchar>;
-            extern template class NameTransferImpl<NamingSystem::Camelcase, NamingSystem::Pascalcase, wchar>;
-            extern template class NameTransferImpl<NamingSystem::Camelcase, NamingSystem::UpperUnderscore, wchar>;
+            extern template class NameTransferImpl<NamingSystem::CamelCase, NamingSystem::Underscore, char>;
+            extern template class NameTransferImpl<NamingSystem::CamelCase, NamingSystem::Kebab, char>;
+            extern template class NameTransferImpl<NamingSystem::CamelCase, NamingSystem::PascalCase, char>;
+            extern template class NameTransferImpl<NamingSystem::CamelCase, NamingSystem::UpperUnderscore, char>;
+            extern template class NameTransferImpl<NamingSystem::CamelCase, NamingSystem::Underscore, wchar>;
+            extern template class NameTransferImpl<NamingSystem::CamelCase, NamingSystem::Kebab, wchar>;
+            extern template class NameTransferImpl<NamingSystem::CamelCase, NamingSystem::PascalCase, wchar>;
+            extern template class NameTransferImpl<NamingSystem::CamelCase, NamingSystem::UpperUnderscore, wchar>;
 
-            extern template class NameTransferImpl<NamingSystem::Pascalcase, NamingSystem::Underscore, char>;
-            extern template class NameTransferImpl<NamingSystem::Pascalcase, NamingSystem::Kebab, char>;
-            extern template class NameTransferImpl<NamingSystem::Pascalcase, NamingSystem::Camelcase, char>;
-            extern template class NameTransferImpl<NamingSystem::Pascalcase, NamingSystem::UpperUnderscore, char>;
-            extern template class NameTransferImpl<NamingSystem::Pascalcase, NamingSystem::Underscore, wchar>;
-            extern template class NameTransferImpl<NamingSystem::Pascalcase, NamingSystem::Kebab, wchar>;
-            extern template class NameTransferImpl<NamingSystem::Pascalcase, NamingSystem::Camelcase, wchar>;
-            extern template class NameTransferImpl<NamingSystem::Pascalcase, NamingSystem::UpperUnderscore, wchar>;
+            extern template class NameTransferImpl<NamingSystem::PascalCase, NamingSystem::Underscore, char>;
+            extern template class NameTransferImpl<NamingSystem::PascalCase, NamingSystem::Kebab, char>;
+            extern template class NameTransferImpl<NamingSystem::PascalCase, NamingSystem::CamelCase, char>;
+            extern template class NameTransferImpl<NamingSystem::PascalCase, NamingSystem::UpperUnderscore, char>;
+            extern template class NameTransferImpl<NamingSystem::PascalCase, NamingSystem::Underscore, wchar>;
+            extern template class NameTransferImpl<NamingSystem::PascalCase, NamingSystem::Kebab, wchar>;
+            extern template class NameTransferImpl<NamingSystem::PascalCase, NamingSystem::CamelCase, wchar>;
+            extern template class NameTransferImpl<NamingSystem::PascalCase, NamingSystem::UpperUnderscore, wchar>;
 
             extern template class NameTransferImpl<NamingSystem::UpperUnderscore, NamingSystem::Underscore, char>;
             extern template class NameTransferImpl<NamingSystem::UpperUnderscore, NamingSystem::Kebab, char>;
-            extern template class NameTransferImpl<NamingSystem::UpperUnderscore, NamingSystem::Camelcase, char>;
-            extern template class NameTransferImpl<NamingSystem::UpperUnderscore, NamingSystem::Pascalcase, char>;
+            extern template class NameTransferImpl<NamingSystem::UpperUnderscore, NamingSystem::CamelCase, char>;
+            extern template class NameTransferImpl<NamingSystem::UpperUnderscore, NamingSystem::PascalCase, char>;
             extern template class NameTransferImpl<NamingSystem::UpperUnderscore, NamingSystem::Underscore, wchar>;
             extern template class NameTransferImpl<NamingSystem::UpperUnderscore, NamingSystem::Kebab, wchar>;
-            extern template class NameTransferImpl<NamingSystem::UpperUnderscore, NamingSystem::Camelcase, wchar>;
-            extern template class NameTransferImpl<NamingSystem::UpperUnderscore, NamingSystem::Pascalcase, wchar>;
+            extern template class NameTransferImpl<NamingSystem::UpperUnderscore, NamingSystem::CamelCase, wchar>;
+            extern template class NameTransferImpl<NamingSystem::UpperUnderscore, NamingSystem::PascalCase, wchar>;
         };
 
         template<NamingSystem frontend, NamingSystem backend, CharType CharT = char>
@@ -278,8 +279,8 @@ namespace ospf
             using StringViewType = typename Impl::StringViewType;
 
         public:
-            NameTransfer(void)
-                : _impl(Impl::instance()) {}
+            NameTransfer(ValOrRef<std::set<StringViewType>> abbreviations = ValOrRef<std::set<StringViewType>>{ })
+                : _impl(Impl::instance()), _abbreviations(std::move(abbreviations)) {}
 
         public:
             NameTransfer(const NameTransfer& ano) = default;
@@ -291,26 +292,27 @@ namespace ospf
         public:
             inline const StringViewType operator()(const std::string_view name) const noexcept
             {
-                return _impl->operator()(name);
+                return _impl->operator()(name, *_abbreviations);
             }
 
             inline const StringViewType operator()(const StringViewType name) const noexcept
             {
-                return _impl->operator()(name);
+                return _impl->operator()(name, *_abbreviations);
             }
 
             inline const StringViewType reverse(const std::string_view name) const noexcept
             {
-                return _impl->reverse(name);
+                return _impl->reverse(name, *_abbreviations);
             }
 
             inline const StringViewType reverse(const StringViewType name) const noexcept
             {
-                return _impl->reverse(name);
+                return _impl->reverse(name, *_abbreviations);
             }
 
         private:
             Ref<Impl> _impl;
+            ValOrRef<std::set<StringViewType>> _abbreviations;
         };
 
         template<NamingSystem frontend, NamingSystem backend>
@@ -326,8 +328,8 @@ namespace ospf
             using StringViewType = typename Impl::StringViewType;
 
         public:
-            NameTransfer(void)
-                : _impl(Impl::instance()) {}
+            NameTransfer(ValOrRef<std::set<StringViewType>> abbreviations = ValOrRef<std::set<StringViewType>>{ })
+                : _impl(Impl::instance()), _abbreviations(std::move(abbreviations)) {}
 
         public:
             NameTransfer(const NameTransfer& ano) = default;
@@ -339,16 +341,17 @@ namespace ospf
         public:
             inline const StringViewType operator()(const StringViewType name) const noexcept
             {
-                return _impl->operator()(name);
+                return _impl->operator()(name, *_abbreviations);
             }
 
             inline const StringViewType reverse(const StringViewType name) const noexcept
             {
-                return _impl->reverse(name);
+                return _impl->reverse(name, *_abbreviations);
             }
 
         private:
             Ref<Impl> _impl;
+            ValOrRef<std::set<StringViewType>> _abbreviations;
         };
     };
 };

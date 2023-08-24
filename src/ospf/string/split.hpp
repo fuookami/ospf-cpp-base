@@ -105,6 +105,18 @@ namespace ospf
         }
 
         template<CharType CharT>
+        inline constexpr std::vector<std::basic_string_view<CharT>> split(const std::basic_string_view<CharT>& src, const std::basic_string<CharT>& splitors) noexcept
+        {
+            return split(src, std::basic_string_view<CharT>{ splitors });
+        }
+
+        template<CharType CharT>
+        inline constexpr std::vector<std::basic_string_view<CharT>> split(const std::basic_string_view<CharT>& src, const std::basic_string_view<CharT> splitors) noexcept
+        {
+            return split(src, splitors);
+        }
+
+        template<CharType CharT>
         inline constexpr std::vector<std::basic_string_view<CharT>> split(const std::basic_string_view<CharT> src, const CharT* const splitors) noexcept
         {
             return split(src, std::basic_string_view<CharT>{ splitors });

@@ -5,6 +5,8 @@
 #include <ospf/concepts/base.hpp>
 #include <ospf/literal_constant.hpp>
 #include <ospf/meta_programming/naming_system.hpp>
+#include <ospf/string/split.hpp>
+#include <boost/iterator/transform_iterator.hpp>
 #include <locale>
 #include <ranges>
 #include <string>
@@ -17,8 +19,6 @@ namespace ospf
     {
         namespace name_transfer
         {
-            // todo: impl abbreviations list for splitting
-
             template<NamingSystem system, CharType CharT>
             struct Frontend;
 
@@ -28,7 +28,7 @@ namespace ospf
                 using StringType = std::basic_string<CharT>;
                 using StringViewType = std::basic_string_view<CharT>;
 
-                inline std::vector<StringViewType> operator()(const StringViewType name) const noexcept
+                inline std::vector<StringViewType> operator()(const StringViewType name, const std::set<StringViewType>& abbreviations = std::set<StringViewType>{ }) const noexcept
                 {
                     if (name.empty())
                     {
@@ -38,37 +38,7 @@ namespace ospf
                         {
                             return std::isalnum(ch, std::locale{}) || ch == CharT{ '_' };
                         }));
-
-                    usize p{ 0_uz }, q{ 1_uz };
-                    bool flag{ name.front() == CharT{ '_' } };
-                    std::vector<StringViewType> ret;
-                    for (usize i{ 0_uz }; i != name.size(); ++i)
-                    {
-                        if (name[i] == CharT{ '_' })
-                        {
-                            if (p != q && !flag)
-                            {
-                                ret.push_back(name.substr(p, q - p));
-                            }
-                            p = q = i + 1_uz;
-                            flag = true;
-                        }
-                        else if (flag)
-                        {
-                            p = i;
-                            q = i + 1_uz;
-                            flag = false;
-                        }
-                        else
-                        {
-                            q = i + 1_uz;
-                        }
-                    }
-                    if (p != q)
-                    {
-                        ret.push_back(name.substr(p, q - p));
-                    }
-                    return ret;
+                    return split(name, StringType{ CharT{ '_' } });
                 }
             };
 
@@ -78,7 +48,7 @@ namespace ospf
                 using StringType = std::basic_string<CharT>;
                 using StringViewType = std::basic_string_view<CharT>;
 
-                inline std::vector<StringViewType> operator()(const StringViewType name) const noexcept
+                inline std::vector<StringViewType> operator()(const StringViewType name, const std::set<StringViewType>& abbreviations = std::set<StringViewType>{ }) const noexcept
                 {
                     if (name.empty())
                     {
@@ -88,47 +58,17 @@ namespace ospf
                         {
                             return std::isalnum(ch, std::locale{}) || ch == CharT{ '-' };
                         }));
-
-                    usize p{ 0_uz }, q{ 1_uz };
-                    bool flag{ name.front() == CharT{ '-' } };
-                    std::vector<StringViewType> ret;
-                    for (usize i{ 0_uz }; i != name.size(); ++i)
-                    {
-                        if (name[i] == CharT{ '-' })
-                        {
-                            if (p != q && !flag)
-                            {
-                                ret.push_back(name.substr(p, q - p));
-                            }
-                            p = q = i + 1_uz;
-                            flag = true;
-                        }
-                        else if (flag)
-                        {
-                            p = i;
-                            q = i + 1_uz;
-                            flag = false;
-                        }
-                        else
-                        {
-                            q = i + 1_uz;
-                        }
-                    }
-                    if (p != q)
-                    {
-                        ret.push_back(name.substr(p, q - p));
-                    }
-                    return ret;
+                    return split(name, StringType{ CharT{ '-' } });
                 }
             };
 
             template<CharType CharT>
-            struct Frontend<NamingSystem::Camelcase, CharT>
+            struct Frontend<NamingSystem::CamelCase, CharT>
             {
                 using StringType = std::basic_string<CharT>;
                 using StringViewType = std::basic_string_view<CharT>;
 
-                inline std::vector<StringViewType> operator()(const StringViewType name) const noexcept
+                inline std::vector<StringViewType> operator()(const StringViewType name, const std::set<StringViewType>& abbreviations = std::set<StringViewType>{ }) const noexcept
                 {
                     if (name.empty())
                     {
@@ -148,6 +88,14 @@ namespace ospf
                         {
                             if (flag)
                             {
+                                StringViewType part = name.substr(p, q - p);
+                                StringType lower{ part.data(), q - p };
+                                std::transform(lower.cbegin(), lower.cend(), lower.begin(), [](const CharT ch) { return std::tolower(ch, std::locale{}); });
+                                if (abbreviations.contains(StringViewType{ lower }))
+                                {
+                                    ret.push_back(part);
+                                    p = i;
+                                }
                                 q = i + 1_uz;
                             }
                             else
@@ -161,7 +109,7 @@ namespace ospf
                                 flag = true;
                             }
                         }
-                        else if (std::islower(name[i], std::locale{}))
+                        else
                         {
                             if ((q - p) > 1_uz && flag)
                             {
@@ -181,8 +129,8 @@ namespace ospf
             };
 
             template<CharType CharT>
-            struct Frontend<NamingSystem::Pascalcase, CharT>
-                : public Frontend<NamingSystem::Camelcase, CharT> {};
+            struct Frontend<NamingSystem::PascalCase, CharT>
+                : public Frontend<NamingSystem::CamelCase, CharT> {};
 
             template<CharType CharT>
             struct Frontend<NamingSystem::UpperUnderscore, CharT>
@@ -194,11 +142,11 @@ namespace ospf
             extern template struct Frontend<NamingSystem::Kebab, char>;
             extern template struct Frontend<NamingSystem::Kebab, wchar>;
 
-            extern template struct Frontend<NamingSystem::Camelcase, char>;
-            extern template struct Frontend<NamingSystem::Camelcase, wchar>;
+            extern template struct Frontend<NamingSystem::CamelCase, char>;
+            extern template struct Frontend<NamingSystem::CamelCase, wchar>;
 
-            extern template struct Frontend<NamingSystem::Pascalcase, char>;
-            extern template struct Frontend<NamingSystem::Pascalcase, wchar>;
+            extern template struct Frontend<NamingSystem::PascalCase, char>;
+            extern template struct Frontend<NamingSystem::PascalCase, wchar>;
 
             extern template struct Frontend<NamingSystem::UpperUnderscore, char>;
             extern template struct Frontend<NamingSystem::UpperUnderscore, wchar>;

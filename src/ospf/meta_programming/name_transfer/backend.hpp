@@ -8,6 +8,7 @@
 #include <locale>
 #include <numeric>
 #include <span>
+#include <set>
 #include <string>
 #include <string_view>
 
@@ -27,7 +28,7 @@ namespace ospf
                 using StringViewType = std::basic_string_view<CharT>;
 
                 template<usize len>
-                inline StringType operator()(const std::span<const StringViewType, len> words) const noexcept
+                inline StringType operator()(const std::span<const StringViewType, len> words, const std::set<StringViewType>& abbreviations = std::set<StringViewType>{ }) const noexcept
                 {
                     if (words.empty())
                     {
@@ -64,7 +65,7 @@ namespace ospf
                 using StringViewType = std::basic_string_view<CharT>;
 
                 template<usize len>
-                inline StringType operator()(const std::span<const StringViewType, len> words) const noexcept
+                inline StringType operator()(const std::span<const StringViewType, len> words, const std::set<StringViewType>& abbreviations = std::set<StringViewType>{ }) const noexcept
                 {
                     if (words.empty())
                     {
@@ -95,13 +96,13 @@ namespace ospf
             };
 
             template<CharType CharT>
-            struct Backend<NamingSystem::Camelcase, CharT>
+            struct Backend<NamingSystem::CamelCase, CharT>
             {
                 using StringType = std::basic_string<CharT>;
                 using StringViewType = std::basic_string_view<CharT>;
 
                 template<usize len>
-                inline StringType operator()(const std::span<const StringViewType, len> words) const noexcept
+                inline StringType operator()(const std::span<const StringViewType, len> words, const std::set<StringViewType>& abbreviations = std::set<StringViewType>{ }) const noexcept
                 {
                     if (words.empty())
                     {
@@ -124,11 +125,24 @@ namespace ospf
                     {
                         const StringViewType word = words[i];
                         assert(!word.empty());
-                        ret[k] = std::toupper(word.front(), std::locale{});
-                        ++k;
-                        for (usize j{ 1_uz }; j != word.size(); ++j, ++k)
+                        StringType lower{ word.data(), word.size() };
+                        std::transform(lower.cbegin(), lower.cend(), lower.begin(), [](const CharT ch) { return std::tolower(ch, std::locale{}); });
+                        if (abbreviations.contains(StringViewType{ lower }) && lower.size() <= 2)
                         {
-                            ret[k] = std::tolower(word[j], std::locale{});
+                            for (usize j{ 0_uz }; j != word.size(); ++j, ++k)
+                            {
+                                ret[k] = std::toupper(word[j], std::locale{});
+                            }
+                            ++k;
+                        }
+                        else
+                        {
+                            ret[k] = std::toupper(word.front(), std::locale{});
+                            ++k;
+                            for (usize j{ 1_uz }; j != word.size(); ++j, ++k)
+                            {
+                                ret[k] = std::tolower(word[j], std::locale{});
+                            }
                         }
                     }
                     return ret;
@@ -136,13 +150,13 @@ namespace ospf
             };
 
             template<CharType CharT>
-            struct Backend<NamingSystem::Pascalcase, CharT>
+            struct Backend<NamingSystem::PascalCase, CharT>
             {
                 using StringType = std::basic_string<CharT>;
                 using StringViewType = std::basic_string_view<CharT>;
 
                 template<usize len>
-                inline StringType operator()(const std::span<const StringViewType, len> words) const noexcept
+                inline StringType operator()(const std::span<const StringViewType, len> words, const std::set<StringViewType>& abbreviations = std::set<StringViewType>{ }) const noexcept
                 {
                     if (words.empty())
                     {
@@ -160,11 +174,24 @@ namespace ospf
                     {
                         const StringViewType word = words[i];
                         assert(!word.empty());
-                        ret[k] = std::toupper(word.front(), std::locale{});
-                        ++k;
-                        for (usize j{ 1_uz }; j != word.size(); ++j, ++k)
+                        StringType lower{ word.data(), word.size() };
+                        std::transform(lower.cbegin(), lower.cend(), lower.begin(), [](const CharT ch) { return std::tolower(ch, std::locale{}); });
+                        if (abbreviations.contains(StringViewType{ lower }) && lower.size() <= 2)
                         {
-                            ret[k] = std::tolower(word[j], std::locale{});
+                            for (usize j{ 0_uz }; j != word.size(); ++j, ++k)
+                            {
+                                ret[k] = std::toupper(word[j], std::locale{});
+                            }
+                            ++k;
+                        }
+                        else
+                        {
+                            ret[k] = std::toupper(word.front(), std::locale{});
+                            ++k;
+                            for (usize j{ 1_uz }; j != word.size(); ++j, ++k)
+                            {
+                                ret[k] = std::tolower(word[j], std::locale{});
+                            }
                         }
                     }
                     return ret;
@@ -178,7 +205,7 @@ namespace ospf
                 using StringViewType = std::basic_string_view<CharT>;
 
                 template<usize len>
-                inline StringType operator()(const std::span<const StringViewType, len> words) const noexcept
+                inline StringType operator()(const std::span<const StringViewType, len> words, const std::set<StringViewType>& abbreviations = std::set<StringViewType>{ }) const noexcept
                 {
                     if (words.empty())
                     {
@@ -212,11 +239,11 @@ namespace ospf
             extern template struct Backend<NamingSystem::Kebab, char>;
             extern template struct Backend<NamingSystem::Kebab, wchar>;
 
-            extern template struct Backend<NamingSystem::Camelcase, char>;
-            extern template struct Backend<NamingSystem::Camelcase, wchar>;
+            extern template struct Backend<NamingSystem::CamelCase, char>;
+            extern template struct Backend<NamingSystem::CamelCase, wchar>;
 
-            extern template struct Backend<NamingSystem::Pascalcase, char>;
-            extern template struct Backend<NamingSystem::Pascalcase, wchar>;
+            extern template struct Backend<NamingSystem::PascalCase, char>;
+            extern template struct Backend<NamingSystem::PascalCase, wchar>;
 
             extern template struct Backend<NamingSystem::UpperUnderscore, char>;
             extern template struct Backend<NamingSystem::UpperUnderscore, wchar>;

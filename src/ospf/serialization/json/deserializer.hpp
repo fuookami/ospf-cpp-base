@@ -104,7 +104,7 @@ namespace ospf
             inline Result<T> from_file
             (
                 const std::filesystem::path& path,
-                std::optional<NameTransfer<CharT>> transfer = NameTransfer<CharT>{ meta_programming::NameTransfer<NamingSystem::Underscore, NamingSystem::Camelcase, CharT>{} }
+                std::optional<NameTransfer<CharT>> transfer = NameTransfer<CharT>{ meta_programming::NameTransfer<NamingSystem::Underscore, NamingSystem::CamelCase, CharT>{} }
             ) noexcept
             {
                 if (!std::filesystem::exists(path))
@@ -141,7 +141,7 @@ namespace ospf
             (
                 const std::filesystem::path& path,
                 T& obj,
-                std::optional<NameTransfer<CharT>> transfer = NameTransfer<CharT>{ meta_programming::NameTransfer<NamingSystem::Underscore, NamingSystem::Camelcase, CharT>{} }
+                std::optional<NameTransfer<CharT>> transfer = NameTransfer<CharT>{ meta_programming::NameTransfer<NamingSystem::Underscore, NamingSystem::CamelCase, CharT>{} }
             ) noexcept
             {
                 if (!std::filesystem::exists(path))
@@ -178,7 +178,7 @@ namespace ospf
             inline Result<std::vector<T>> from_file_array
             (
                 const std::filesystem::path& path,
-                std::optional<NameTransfer<CharT>> transfer = NameTransfer<CharT>{ meta_programming::NameTransfer<NamingSystem::Underscore, NamingSystem::Camelcase, CharT>{} }
+                std::optional<NameTransfer<CharT>> transfer = NameTransfer<CharT>{ meta_programming::NameTransfer<NamingSystem::Underscore, NamingSystem::CamelCase, CharT>{} }
             ) noexcept
             {
                 if (!std::filesystem::exists(path))
@@ -216,7 +216,7 @@ namespace ospf
             (
                 const std::filesystem::path& path,
                 const T& origin_obj,
-                std::optional<NameTransfer<CharT>> transfer = NameTransfer<CharT>{ meta_programming::NameTransfer<NamingSystem::Underscore, NamingSystem::Camelcase, CharT>{} }
+                std::optional<NameTransfer<CharT>> transfer = NameTransfer<CharT>{ meta_programming::NameTransfer<NamingSystem::Underscore, NamingSystem::CamelCase, CharT>{} }
             ) noexcept
             {
                 if (!std::filesystem::exists(path))
@@ -254,7 +254,7 @@ namespace ospf
             inline Result<T> from_string
             (
                 const std::basic_string_view<CharT> str,
-                std::optional<NameTransfer<CharT>> transfer = NameTransfer<CharT>{ meta_programming::NameTransfer<NamingSystem::Underscore, NamingSystem::Camelcase, CharT>{} }
+                std::optional<NameTransfer<CharT>> transfer = NameTransfer<CharT>{ meta_programming::NameTransfer<NamingSystem::Underscore, NamingSystem::CamelCase, CharT>{} }
             ) noexcept
             {
                 std::basic_istringstream<CharT> sin{ str };
@@ -282,7 +282,7 @@ namespace ospf
             (
                 const std::basic_string_view<CharT> str,
                 T& obj,
-                std::optional<NameTransfer<CharT>> transfer = NameTransfer<CharT>{ meta_programming::NameTransfer<NamingSystem::Underscore, NamingSystem::Camelcase, CharT>{} }
+                std::optional<NameTransfer<CharT>> transfer = NameTransfer<CharT>{ meta_programming::NameTransfer<NamingSystem::Underscore, NamingSystem::CamelCase, CharT>{} }
             ) noexcept
             {
                 std::basic_istringstream<CharT> sin{ str };
@@ -310,7 +310,7 @@ namespace ospf
             inline Result<std::vector<T>> from_string_array
             (
                 const std::basic_string_view<CharT> str,
-                std::optional<NameTransfer<CharT>> transfer = NameTransfer<CharT>{ meta_programming::NameTransfer<NamingSystem::Underscore, NamingSystem::Camelcase, CharT>{} }
+                std::optional<NameTransfer<CharT>> transfer = NameTransfer<CharT>{ meta_programming::NameTransfer<NamingSystem::Underscore, NamingSystem::CamelCase, CharT>{} }
             ) noexcept
             {
                 std::basic_istringstream<CharT> sin{ str };
@@ -339,7 +339,7 @@ namespace ospf
             (
                 const std::basic_string_view<CharT> str,
                 const T& origin_obj,
-                std::optional<NameTransfer<CharT>> transfer = NameTransfer<CharT>{ meta_programming::NameTransfer<NamingSystem::Underscore, NamingSystem::Camelcase, CharT>{} }
+                std::optional<NameTransfer<CharT>> transfer = NameTransfer<CharT>{ meta_programming::NameTransfer<NamingSystem::Underscore, NamingSystem::CamelCase, CharT>{} }
             ) noexcept
             {
                 std::basic_istringstream<CharT> sin{ str };
@@ -368,7 +368,7 @@ namespace ospf
             inline Result<T> from_json
             (
                 const Json<CharT>& json,
-                std::optional<NameTransfer<CharT>> transfer = NameTransfer<CharT>{ meta_programming::NameTransfer<NamingSystem::Underscore, NamingSystem::Camelcase, CharT>{} }
+                std::optional<NameTransfer<CharT>> transfer = NameTransfer<CharT>{ meta_programming::NameTransfer<NamingSystem::Underscore, NamingSystem::CamelCase, CharT>{} }
             ) noexcept
             {
                 auto deserializer = transfer.has_value() ? Deserializer<T, CharT>{ std::move(transfer).value() } : Deserializer<T, CharT>{};
@@ -393,7 +393,7 @@ namespace ospf
             (
                 const Json<CharT>& json,
                 T& obj,
-                std::optional<NameTransfer<CharT>> transfer = NameTransfer<CharT>{ meta_programming::NameTransfer<NamingSystem::Underscore, NamingSystem::Camelcase, CharT>{} }
+                std::optional<NameTransfer<CharT>> transfer = NameTransfer<CharT>{ meta_programming::NameTransfer<NamingSystem::Underscore, NamingSystem::CamelCase, CharT>{} }
             ) noexcept
             {
                 auto deserializer = transfer.has_value() ? Deserializer<T, CharT>{ std::move(transfer).value() } : Deserializer<T, CharT>{};
@@ -418,7 +418,7 @@ namespace ospf
             inline Result<std::vector<T>> from_json_array
             (
                 const Json<CharT>& json,
-                std::optional<NameTransfer<CharT>> transfer = NameTransfer<CharT>{ meta_programming::NameTransfer<NamingSystem::Underscore, NamingSystem::Camelcase, CharT>{} }
+                std::optional<NameTransfer<CharT>> transfer = NameTransfer<CharT>{ meta_programming::NameTransfer<NamingSystem::Underscore, NamingSystem::CamelCase, CharT>{} }
             ) noexcept
             {
                 auto deserializer = transfer.has_value() ? Deserializer<T, CharT>{ std::move(transfer).value() } : Deserializer<T, CharT>{};
@@ -443,7 +443,7 @@ namespace ospf
             (
                 const Json<CharT>& json,
                 const T& origin_obj,
-                std::optional<NameTransfer<CharT>> transfer = NameTransfer<CharT>{ meta_programming::NameTransfer<NamingSystem::Underscore, NamingSystem::Camelcase, CharT>{} }
+                std::optional<NameTransfer<CharT>> transfer = NameTransfer<CharT>{ meta_programming::NameTransfer<NamingSystem::Underscore, NamingSystem::CamelCase, CharT>{} }
             ) noexcept
             {
                 auto deserializer = transfer.has_value() ? Deserializer<T, CharT>{ std::move(transfer).value() } : Deserializer<T, CharT>{};
