@@ -152,17 +152,11 @@ namespace ospf
                         });
                     ret.resize(size, CharT{ ' ' });
                     usize k{ 0_uz };
-                    for (usize j{ 0_uz }; j != words.front().size(); ++j, ++k)
-                    {
-                        ret[k] = std::tolower(words.front()[j], std::locale{});
-                    }
-                    for (usize i{ 1_uz }; i != words.size(); ++i)
+                    for (usize i{ 0_uz }; i != words.size(); ++i)
                     {
                         const StringViewType word = words[i];
                         assert(!word.empty());
-                        StringType lower{ word.data(), word.size() };
-                        std::transform(lower.cbegin(), lower.cend(), lower.begin(), [](const CharT ch) { return std::tolower(ch, std::locale{}); });
-                        if (abbreviations.contains(StringViewType{ lower }) && lower.size() <= 2)
+                        if (abbreviations.contains(word) && word.size() <= 3_uz)
                         {
                             for (usize j{ 0_uz }; j != word.size(); ++j, ++k)
                             {
@@ -170,11 +164,18 @@ namespace ospf
                             }
                             ++k;
                         }
-                        else
+                        else if (i != 0_uz)
                         {
                             ret[k] = std::toupper(word.front(), std::locale{});
                             ++k;
                             for (usize j{ 1_uz }; j != word.size(); ++j, ++k)
+                            {
+                                ret[k] = std::tolower(word[j], std::locale{});
+                            }
+                        }
+                        else
+                        {
+                            for (usize j{ 0_uz }; j != word.size(); ++j, ++k)
                             {
                                 ret[k] = std::tolower(word[j], std::locale{});
                             }
@@ -200,18 +201,17 @@ namespace ospf
 
                     StringType ret{};
                     const usize size = std::accumulate(words.begin(), words.end(), 0_uz,
-                        [](const usize lhs, const StringViewType str) 
-                        { 
-                            return lhs + str.size(); 
+                        [](const usize lhs, const StringViewType str)
+                        {
+                            return lhs + str.size();
                         });
                     ret.resize(size, CharT{ ' ' });
-                    for (usize i{ 0_uz }, k{ 0_uz }; i != words.size(); ++i)
+                    usize k{ 0_uz };
+                    for (usize i{ 0_uz }; i != words.size(); ++i)
                     {
                         const StringViewType word = words[i];
                         assert(!word.empty());
-                        StringType lower{ word.data(), word.size() };
-                        std::transform(lower.cbegin(), lower.cend(), lower.begin(), [](const CharT ch) { return std::tolower(ch, std::locale{}); });
-                        if (abbreviations.contains(StringViewType{ lower }) && lower.size() <= 2)
+                        if (abbreviations.contains(word) && word.size() <= 3_uz)
                         {
                             for (usize j{ 0_uz }; j != word.size(); ++j, ++k)
                             {

@@ -4,6 +4,7 @@
 #include <memory>
 #include <optional>
 #include <cstdint>
+#include <bit>
 
 #ifdef _WIN32
 #ifndef WIN32_LEAN_AND_MEAN

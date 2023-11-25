@@ -29,7 +29,7 @@ namespace ospf
                 }
                 else
                 {
-                    return make_array_impl<T, i + 1_uz, len>(constructor, std::forward<Args>(args)..., constructor(i));
+                    return make_array_impl<T, i + 1_uz, len, C>(constructor, std::forward<Args>(args)..., constructor(i));
                 }
             }
 

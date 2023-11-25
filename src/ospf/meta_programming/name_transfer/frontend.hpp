@@ -82,52 +82,148 @@ namespace ospf
                             return std::isalnum(ch, std::locale{});
                         }));
 
-                    usize p{ 0_uz }, q{ 1_uz };
-                    bool flag{ std::isupper(name.front(), std::locale{}) };
-                    std::vector<StringViewType> ret;
-                    for (usize i{ 0_uz }; i != name.size(); ++i)
+                    usize p{ 0_uz };
+                    usize q{ 1_uz };
+                    std::optional<StringViewType> current_abbreviation{ std::nullopt };
+                    std::optional<StringViewType> alternative_abbreviation{ std::nullopt };
+                    
+                    std::vector<StringViewType> words{};
+                    for (usize i{ 0_uz }; i != name.size(); ++i) 
                     {
-                        if (std::isupper(name[i], std::locale{}))
+                        StringViewType part{ name.cbegin() + p, name.cbegin() + q };
+                        StringType part_lower{};
+                        std::transform(part.cbegin(), part.cend(), std::back_inserter(part_lower), [](const auto ch) { return std::tolower(ch, std::locale{}); });
+
+                        if (alternative_abbreviation != std::nullopt)
                         {
-                            if (flag)
+                            if (alternative_abbreviation != part_lower)
                             {
-                                StringViewType part = name.substr(p, q - p);
-                                StringType lower{ part.data(), q - p };
-                                std::transform(lower.cbegin(), lower.cend(), lower.begin(), [](const CharT ch) { return std::tolower(ch, std::locale{}); });
-                                if (abbreviations.contains(StringViewType{ lower }))
+                                if (!alternative_abbreviation.value().starts_with(part_lower) && current_abbreviation != std::nullopt)
                                 {
-                                    ret.push_back(part);
-                                    p = i;
+                                    // stop traversing and reset
+                                    words.push_back(*current_abbreviation);
+                                    p += current_abbreviation.value().size();
+                                    current_abbreviation = std::nullopt;
+                                    alternative_abbreviation = std::nullopt;
                                 }
-                                q = i + 1_uz;
                             }
                             else
                             {
-                                if ((q - p) > 1_uz && !flag)
+                                std::vector<StringViewType> new_alternative_abbreviations{};
+                                std::copy_if(abbreviations.cbegin(), abbreviations.cend(), std::back_inserter(new_alternative_abbreviations),
+                                    [&part_lower](const auto abbr)
+                                    {
+                                        return abbr != part_lower && abbr.starts_with(part_lower);
+                                    });
+                                const auto new_alternative_abbreviation_iter{ std::min_element(new_alternative_abbreviations.cbegin(), new_alternative_abbreviations.cend(),
+                                    [](const auto lhs, const auto rhs)
+                                    {
+                                        return lhs.size() <= rhs.size();
+                                    }
+                                ) };
+                                if (new_alternative_abbreviation_iter == new_alternative_abbreviations.cend())
                                 {
-                                    ret.push_back(name.substr(p, q - p));
+                                    // stop traversing and reset
+                                    words.push_back(*alternative_abbreviation);
+                                    p += alternative_abbreviation.value().size();
+                                    current_abbreviation = std::nullopt;
+                                    alternative_abbreviation = std::nullopt;
                                 }
-                                p = i;
-                                q = i + 1_uz;
-                                flag = true;
+                                else
+                                {
+                                    // refresh and continue traversing
+                                    current_abbreviation = alternative_abbreviation;
+                                    alternative_abbreviation = *new_alternative_abbreviation_iter;
+                                }
                             }
                         }
                         else
                         {
-                            if ((q - p) > 1_uz && flag)
+                            while (true)
                             {
-                                ret.push_back(name.substr(p, q - p - 1_uz));
-                                p = q - 1_uz;
+                                part = StringViewType{ name.cbegin() + p, name.cbegin() + q };
+                                part_lower.clear();
+                                std::transform(part.cbegin(), part.cend(), std::back_inserter(part_lower), [](const auto ch) { return std::tolower(ch, std::locale{}); });
+
+                                std::vector<StringViewType> alternative_abbreviations{};
+                                std::copy_if(abbreviations.cbegin(), abbreviations.cend(), std::back_inserter(alternative_abbreviations),
+                                    [&part_lower](const auto abbr)
+                                    {
+                                        return abbr != part_lower && part_lower.starts_with(abbr);
+                                    });
+                                const auto abbreviation_iter{ std::max_element(alternative_abbreviations.cbegin(), alternative_abbreviations.cend(), 
+                                    [](const auto lhs, const auto rhs) 
+                                    {
+                                        return lhs.size() >= rhs.size();
+                                    }
+                                ) };
+                                if (abbreviation_iter == alternative_abbreviations.cend())
+                                {
+                                    break;
+                                }
+                                else
+                                {
+                                    words.push_back(*abbreviation_iter);
+                                    p += abbreviation_iter->size();
+                                }
                             }
-                            q = i + 1_uz;
-                            flag = false;
+
+                            if (abbreviations.contains(part_lower))
+                            {
+                                std::vector<StringViewType> alternative_abbreviations{};
+                                std::copy_if(abbreviations.cbegin(), abbreviations.cend(), std::back_inserter(alternative_abbreviations),
+                                    [&part_lower](const auto abbr)
+                                    {
+                                        return abbr != part_lower && abbr.starts_with(part_lower);
+                                    });
+                                const auto alternative_abbreviation_iter{ std::min_element(alternative_abbreviations.cbegin(), alternative_abbreviations.cend(),
+                                    [](const auto lhs, const auto rhs)
+                                    {
+                                        return lhs.size() <= rhs.size();
+                                    }
+                                ) };
+                                if (alternative_abbreviation_iter != alternative_abbreviations.cend())
+                                {
+                                    current_abbreviation = *alternative_abbreviation_iter;
+                                }
+                                else
+                                {
+                                    words.push_back(part);
+                                    p = i;
+                                }
+                            }
+                            else
+                            {
+                                std::vector<StringViewType> alternative_abbreviations{};
+                                std::copy_if(abbreviations.cbegin(), abbreviations.cend(), std::back_inserter(alternative_abbreviations),
+                                    [&part_lower](const auto abbr)
+                                    {
+                                        return abbr.starts_with(part_lower);
+                                    });
+                                const auto alternative_abbreviation_iter{ std::min_element(alternative_abbreviations.cbegin(), alternative_abbreviations.cend(),
+                                    [](const auto lhs, const auto rhs)
+                                    {
+                                        return lhs.size() <= rhs.size();
+                                    }
+                                ) };
+                                if (alternative_abbreviation_iter == alternative_abbreviations.cend() && std::islower(name[i], std::locale{}))
+                                {
+                                    if ((q - p) > 1_uz)
+                                    {
+                                        words.push_back(part);
+                                    }
+                                    p = i;
+                                }
+                            }
                         }
+                        q = i + 1;
                     }
                     if (p != q)
                     {
-                        ret.push_back(name.substr(p, q - p));
+                        words.push_back(StringViewType{ name.cbegin() + p, name.cbegin() + q });
                     }
-                    return ret;
+
+                    return words;
                 }
             };
 

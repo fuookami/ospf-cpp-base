@@ -207,6 +207,7 @@
     <ClCompile Include="src\ospf\string\regex.cpp" />
     <ClCompile Include="src\ospf\system_info.cpp" />
     <ClCompile Include="src\ospf\uuid.cpp" />
+    <ClCompile Include="test\meta_programming\name_transfer\frontend_unit_test.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>

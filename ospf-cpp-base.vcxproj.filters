@@ -79,6 +79,15 @@
     <Filter Include="src\ospf\data-structure\multi-array">
       <UniqueIdentifier>{12d393c7-fc42-47c5-a6ff-3043158092b0}</UniqueIdentifier>
     </Filter>
+    <Filter Include="test\ospf">
+      <UniqueIdentifier>{21136fa8-192d-4850-9217-1de0dda6ed34}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="test\ospf\meta-programming">
+      <UniqueIdentifier>{14d32ac4-0628-4144-8f1a-2c1f12e26d5e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="test\ospf\meta-programming\name-transfer">
+      <UniqueIdentifier>{dec245de-1174-4bbe-a967-ec8ac1813f43}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\ospf\basic_definition.hpp">
@@ -640,6 +649,9 @@
     </ClCompile>
     <ClCompile Include="src\ospf\bytes\encryption\rsa.cpp">
       <Filter>src\ospf\bytes\encryption</Filter>
+    </ClCompile>
+    <ClCompile Include="test\meta_programming\name_transfer\frontend_unit_test.cpp">
+      <Filter>test\ospf\meta-programming\name-transfer</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

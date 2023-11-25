@@ -4,6 +4,7 @@
 #include <ospf/basic_definition.hpp>
 #include <ospf/literal_constant.hpp>
 #include <ospf/type_family.hpp>
+#include <bit>
 
 namespace ospf
 {
